@@ -176,6 +176,81 @@ const GAME_CSS = `
   .error-banner span { font-size: 12px; font-weight: 700; color: rgba(255,180,170,0.9); }
   .loading-quest { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px; }
   .loading-text { font-family: 'Fredoka One', cursive; font-size: 14px; color: #c39bd3; letter-spacing: 2px; text-transform: uppercase; }
+  .game-icon { width: 1em; height: 1em; display: inline-block; flex: 0 0 auto; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.28)); }
+  .game-icon.lg { width: 28px; height: 28px; }
+  .game-icon.xl { width: 38px; height: 38px; }
+  .battle-body { background: #193827; color: #fff; }
+  .arena-sky { background: linear-gradient(180deg, rgba(17,49,47,0.22), rgba(5,22,18,0.34)), url('/bookworm-arena-bg.svg') center bottom / cover no-repeat; }
+  .arena-floor { height: 42%; background: radial-gradient(ellipse 78% 28% at 50% 54%, rgba(255,215,116,0.2), transparent 70%), linear-gradient(180deg, transparent 0%, rgba(21,43,27,0.8) 100%); }
+  .arena-floor-line { bottom: 31%; height: 6px; background: linear-gradient(90deg, transparent, rgba(255,216,116,0.92), rgba(134,202,93,0.98), rgba(255,216,116,0.92), transparent); box-shadow: 0 0 22px 6px rgba(255,216,116,0.28), 0 0 80px 16px rgba(90,170,84,0.18); }
+  .pillar { display: none; }
+  .skull-deco { display: none; }
+  .hud-bar { background: linear-gradient(180deg,rgba(32,43,27,0.96),rgba(18,30,24,0.92)); border-bottom-color: rgba(255,218,112,0.46); }
+  .hud-logo { display: inline-flex; align-items: center; gap: 8px; letter-spacing: 1px; }
+  .hud-tag { border-color: rgba(255,218,112,0.5); background: rgba(48,76,39,0.5); color: #ffe08d; }
+  .streak-pill, .score-chip { min-height: 32px; }
+  .streak-pill { background: rgba(101,56,30,0.72); border-color: rgba(255,184,82,0.55); color: #ffd49a; }
+  .score-chip { background: linear-gradient(180deg,#ffe08d,#e0a63a); border-color: #5e421b; color: #3d2a12; }
+  .battle-layout { justify-content: space-between; }
+  .arena-section { min-height: clamp(285px, 48vh, 470px); padding: clamp(14px, 3vw, 30px) clamp(18px, 5vw, 72px) 0; align-items: flex-end; }
+  .arena-section::after { content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: clamp(58px, 10vw, 104px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(11,17,13,0.68), rgba(11,17,13,0.18) 48%, transparent 70%); z-index: 1; pointer-events: none; }
+  .char-container { z-index: 12; }
+  .char-container.suri-side, .char-container.enemy-side { max-width: 380px; }
+  .char-name { display: inline-flex; align-items: center; gap: 7px; }
+  .name-plate { background: linear-gradient(180deg, rgba(16,30,23,0.9), rgba(10,18,15,0.8)); border: 1px solid rgba(255,218,112,0.25); border-radius: 10px; padding: 8px 12px; box-shadow: 0 5px 0 rgba(0,0,0,0.24); width: auto; min-width: 160px; }
+  .hearts-bar { background: rgba(14,24,18,0.78); border-color: rgba(255,218,112,0.24); border-radius: 12px; }
+  .suri-sprite { height: clamp(160px, 24vw, 280px); }
+  .enemy-sprite { width: clamp(150px, 22vw, 240px); height: clamp(150px, 22vw, 240px); border-radius: 18px; border-color: #2d1b14; box-shadow: 0 12px 0 rgba(33,20,14,0.84), 0 0 0 6px rgba(255,218,112,0.26), 0 26px 45px rgba(0,0,0,0.45); }
+  .vs-divider { padding-bottom: clamp(66px, 10vw, 120px); }
+  .vs-badge { border-radius: 12px; border-color: #5e421b; background: linear-gradient(180deg,#ffe08d,#e0a63a); color: #3d2a12; }
+  .battle-panel { margin: 0 clamp(12px, 4vw, 60px) clamp(14px, 3vw, 30px); gap: 10px; }
+  .battle-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: stretch; min-height: clamp(230px, 28vh, 330px); }
+  .question-scroll, .choices-panel { min-height: 100%; background: linear-gradient(180deg, rgba(44,64,40,0.96), rgba(16,27,21,0.98)); border: 2px solid rgba(255,218,112,0.46); border-radius: 8px; box-shadow: 0 10px 0 rgba(45,29,16,0.82), 0 22px 42px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.14); backdrop-filter: blur(8px); }
+  .question-scroll { display: flex; flex-direction: column; padding: clamp(16px, 2.5vw, 24px); }
+  .question-scroll::before, .choices-panel::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(255,218,112,0.18); border-radius: 5px; pointer-events: none; }
+  .question-badge { width: fit-content; border-radius: 6px; color: #ffe08d; background: rgba(28,49,30,0.9); border-color: rgba(255,218,112,0.42); }
+  .question-text { font-size: clamp(17px, 1.75vw, 24px); line-height: 1.45; color: #fff8df; overflow: auto; }
+  .question-text p { margin: 0 0 10px; }
+  .question-text p:last-child { margin-bottom: 0; }
+  .choices-panel { position: relative; display: flex; flex-direction: column; padding: clamp(14px, 2vw, 20px); gap: 12px; }
+  .spell-grid { grid-template-columns: 1fr; gap: 9px; flex: 1; min-height: 0; }
+  .spell-tile { display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 54px; padding: 10px 42px 10px 10px; border-radius: 8px; background: linear-gradient(180deg, rgba(67,92,45,0.95), rgba(28,47,30,0.98)); border-color: rgba(255,218,112,0.32); text-align: left; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 3px 0 rgba(28,18,10,0.5); }
+  .spell-tile:hover:not(.locked):not(.selected) { transform: translateX(-3px); border-color: rgba(255,218,112,0.76); box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 5px 0 rgba(28,18,10,0.55), 0 0 20px rgba(255,218,112,0.2); }
+  .spell-label { margin: 0; width: 34px; height: 34px; border-radius: 6px; color: #3d2a12; background: linear-gradient(180deg,#ffe08d,#d69a32); border-color: #6f4a1c; }
+  .spell-text { font-size: clamp(13px, 1.25vw, 15px); color: #fff8df; }
+  .spell-text p { margin: 0; }
+  .spell-check { width: 24px; height: 24px; font-size: 0; color: transparent; }
+  .spell-check::before { content: ""; width: 12px; height: 7px; border-left: 3px solid #173421; border-bottom: 3px solid #173421; transform: rotate(-45deg); margin-top: -2px; }
+  .spell-check.wrong-mark::before { width: 12px; height: 12px; border: 0; background: linear-gradient(45deg, transparent 40%, #fff 40% 60%, transparent 60%), linear-gradient(-45deg, transparent 40%, #fff 40% 60%, transparent 60%); transform: none; margin: 0; }
+  .feedback-banner { border-radius: 8px; margin-top: auto; min-height: 70px; }
+  .feedback-title { display: flex; align-items: center; gap: 8px; }
+  .attack-btn { border-radius: 8px; min-height: 56px; }
+  .attack-btn.ready { background: linear-gradient(180deg,#f1c553,#ba7f27); box-shadow: 0 6px 0 #5e421b, 0 0 20px rgba(255,218,112,0.24), inset 0 1px 0 rgba(255,255,255,0.24); color: #2d1d12; }
+  .attack-btn.ready:hover { box-shadow: 0 8px 0 #5e421b, 0 0 30px rgba(255,218,112,0.38), inset 0 1px 0 rgba(255,255,255,0.24); }
+  .loading-quest { min-height: clamp(230px, 28vh, 330px); justify-content: center; }
+  @media (max-width: 860px) {
+    .hud-bar { gap: 10px; flex-wrap: wrap; }
+    .hud-center { order: 3; width: 100%; justify-content: center; }
+    .intro-screen { justify-content: flex-start; gap: 12px; padding: 14px 20px 28px; min-height: auto; }
+    .intro-title { font-size: 30px; }
+    .intro-subtitle { font-size: 12px; line-height: 1.45; max-width: 360px; }
+    .intro-vs { max-width: 360px; gap: 10px; }
+    .intro-suri-img { height: 105px; }
+    .intro-enemy-img { width: 105px; height: 105px; }
+    .speech-bubble { max-width: 330px; padding: 7px 12px; }
+    .intro-info-row { gap: 8px; }
+    .info-card { min-width: 102px; padding: 9px 12px; border-radius: 10px; }
+    .intro-start-btn { font-size: 18px; padding: 15px 18px; border-radius: 14px; }
+    .intro-skip-btn { padding: 9px 16px; border-radius: 10px; }
+    .arena-section { min-height: 300px; padding-inline: 12px; }
+    .name-plate { min-width: 0; padding: 6px 8px; }
+    .char-name { font-size: 13px; }
+    .char-title { font-size: 8px; }
+    .vs-divider { width: 48px; padding-bottom: 70px; }
+    .vs-badge { width: 44px; height: 44px; font-size: 15px; }
+    .battle-form { grid-template-columns: 1fr; min-height: 0; }
+    .question-scroll, .choices-panel { min-height: 190px; }
+  }
   ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); } ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.5); border-radius: 3px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;
@@ -251,6 +326,111 @@ function HeartIcon({ full, breaking }: { full: boolean; breaking?: boolean }) {
       fill={full || breaking ? "#ff2244" : "#3a1a2a"}
       aria-label={full ? "Full heart" : "Empty heart"}>
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+type GameIconName = "sword" | "flame" | "coin" | "heart" | "bolt" | "target" | "gear" | "warning" | "book" | "retry" | "play" | "check" | "cross";
+
+function GameIcon({ name, className = "" }: { name: GameIconName; className?: string }) {
+  const cls = `game-icon ${className}`.trim();
+
+  if (name === "sword") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M22.8 3.2 29 3l-.2 6.2-13 13-3.1-3.1 10.1-15.9Z" fill="#d9f3ff" stroke="#33505f" strokeWidth="1.5" />
+        <path d="m12.7 19.1-2.8 2.8" stroke="#ffe08d" strokeWidth="4" strokeLinecap="round" />
+        <path d="m8.8 20.4 2.8 2.8-5.8 5.8-2.8-2.8 5.8-5.8Z" fill="#8b5629" stroke="#3f2719" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+  if (name === "flame") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M17.1 3.4c2.6 5.1 8 7.6 8 15.1A9.1 9.1 0 0 1 16 27.8a9.1 9.1 0 0 1-9.1-9.3c0-4.9 3.2-8.1 6.1-11.7-.2 3.4 1.2 5.2 3 6.6 1.8-2.3 2.4-5.6 1.1-10Z" fill="#f36b32" stroke="#6b2d18" strokeWidth="1.5" />
+        <path d="M16.2 14.4c2 2.5 3.6 4.1 3.6 7.1a3.8 3.8 0 1 1-7.6 0c0-2.5 1.8-4.3 4-7.1Z" fill="#ffe08d" />
+      </svg>
+    );
+  }
+  if (name === "coin") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="#f4c653" stroke="#6b491b" strokeWidth="2" />
+        <circle cx="16" cy="16" r="7" fill="#ffe08d" opacity=".7" />
+        <path d="M16 9v14M11 13c1.7-2.1 8.4-2 9.5 0 .8 1.6-.7 2.8-4.3 3.1-3.9.4-5 1.4-4.2 3 .9 2 7.2 2.4 9.3-.1" fill="none" stroke="#6b491b" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (name === "heart") {
+    return <HeartIcon full />;
+  }
+  if (name === "bolt") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M18.5 2 7 18h8l-1.5 12L25 13h-8l1.5-11Z" fill="#ffe08d" stroke="#6b491b" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (name === "target") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="#e7f0d0" stroke="#315437" strokeWidth="2" />
+        <circle cx="16" cy="16" r="7" fill="#f36b32" />
+        <circle cx="16" cy="16" r="3" fill="#ffe08d" />
+      </svg>
+    );
+  }
+  if (name === "gear") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M14 3h4l1 4 3 1.3 3.6-2 2.8 2.8-2 3.6 1.3 3 4 1v4l-4 1-1.3 3 2 3.6-2.8 2.8-3.6-2-3 1.3-1 4h-4l-1-4-3-1.3-3.6 2-2.8-2.8 2-3.6-1.3-3-4-1v-4l4-1 1.3-3-2-3.6 2.8-2.8 3.6 2L13 7l1-4Z" fill="#c8d6c0" stroke="#324934" strokeWidth="1.5" />
+        <circle cx="16" cy="16" r="4.5" fill="#33543a" />
+      </svg>
+    );
+  }
+  if (name === "warning") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="m16 4 13 23H3L16 4Z" fill="#f4c653" stroke="#6b491b" strokeWidth="2" />
+        <path d="M16 12v7" stroke="#3d2a12" strokeWidth="3" strokeLinecap="round" />
+        <circle cx="16" cy="23" r="1.8" fill="#3d2a12" />
+      </svg>
+    );
+  }
+  if (name === "book") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M5 6.5c4.2-.8 7.4-.1 11 2.2v18.1c-3.4-2.2-6.8-3-11-2.2V6.5Z" fill="#f4e1a0" stroke="#5b3a20" strokeWidth="1.8" />
+        <path d="M27 6.5c-4.2-.8-7.4-.1-11 2.2v18.1c3.4-2.2 6.8-3 11-2.2V6.5Z" fill="#d7f0c0" stroke="#5b3a20" strokeWidth="1.8" />
+        <path d="M16 8.7v18.1" stroke="#5b3a20" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+  if (name === "retry") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M24 10a10 10 0 1 0 1.4 10" fill="none" stroke="#3d2a12" strokeWidth="3" strokeLinecap="round" />
+        <path d="M24 4v7h-7" fill="none" stroke="#3d2a12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (name === "play") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M10 6 26 16 10 26V6Z" fill="#fff8df" stroke="#173421" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (name === "cross") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M9 9 23 23M23 9 9 23" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+      <path d="m8 16 5 5L24 10" fill="none" stroke="#173421" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -364,7 +544,7 @@ export default function DiagnosticPage() {
 
   const triggerEnemyHit = useCallback((nextAction: string) => {
     setSuriState("attack");
-    setEnemyDmg("💥 -1"); setTimeout(() => setEnemyDmg(null), 900);
+    setEnemyDmg("-1"); setTimeout(() => setEnemyDmg(null), 900);
     setShaking(true);     setTimeout(() => setShaking(false), 500);
     setEnemyAnimState("hit");
     setTimeout(() => {
@@ -399,9 +579,9 @@ export default function DiagnosticPage() {
     }, 150);
   }, [advance]);
 
-  const triggerSuriHit = useCallback((nextAction: string) => {
+  const triggerSuriHit = useCallback(() => {
     setEnemyAnimState("attack");
-    setSuriDmg("💔 -1"); setTimeout(() => setSuriDmg(null), 900);
+    setSuriDmg("-1"); setTimeout(() => setSuriDmg(null), 900);
     setShaking(true);     setTimeout(() => setShaking(false), 500);
     setTimeout(() => {
       setSuriState("hit");
@@ -441,14 +621,14 @@ export default function DiagnosticPage() {
       setAnsweredCount(Object.keys(cur).length);
       if (res.correct) {
         setScore(s => s + (10 + streak * 5)); setStreak(s => s + 1);
-        toast.success("⚔️ Direct hit!");
+        toast.success("Direct hit!");
         pendingNext.current = res.next_action;
         triggerEnemyHit(res.next_action);
       } else {
         setStreak(0);
-        toast.error("⚠️ The enemy counters!");
+        toast.error("The enemy counters!");
         pendingNext.current = res.next_action;
-        triggerSuriHit(res.next_action);
+        triggerSuriHit();
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to submit answer.");
@@ -485,7 +665,7 @@ export default function DiagnosticPage() {
         <ArenaBackground />
         <header className="hud-bar" role="banner">
           <div className="hud-brand">
-            <span className="hud-logo">⚔️ SURI</span>
+            <span className="hud-logo"><GameIcon name="sword" /> SURI</span>
             <span className="hud-tag">{phase === "intro" ? "Placement Quest" : "Battle Diagnostic"}</span>
           </div>
           {phase !== "intro" && (
@@ -497,14 +677,14 @@ export default function DiagnosticPage() {
             </div>
           )}
           <div className="hud-right">
-            {streak > 1 && <div className="streak-pill" aria-label={`${streak} answer streak`}>🔥 {streak}×</div>}
-            <div className="score-chip" aria-label={`Score: ${score}`}>⭐ {score}</div>
+            {streak > 1 && <div className="streak-pill" aria-label={`${streak} answer streak`}><GameIcon name="flame" /> {streak}x</div>}
+            <div className="score-chip" aria-label={`Score: ${score}`}><GameIcon name="coin" /> {score}</div>
           </div>
         </header>
 
         {phase === "intro" && (
           <main className="intro-screen" id="intro-screen">
-            <h1 className="intro-title">⚔️ BATTLE QUEST</h1>
+            <h1 className="intro-title"><GameIcon name="sword" className="xl" /> BATTLE QUEST</h1>
             <p className="intro-subtitle">
               Prove your knowledge in the arena! Answer correctly to strike the enemy —
               every wrong answer lets them hit back. Survive with 3 hearts!
@@ -524,17 +704,17 @@ export default function DiagnosticPage() {
               &ldquo;Ready to test your skills? Let&apos;s see what you&apos;ve got!&rdquo;
             </div>
             <div className="intro-info-row">
-              <div className="info-card"><div className="info-card-icon">❤️</div><div className="info-card-value">3 Hearts</div><div className="info-card-label">Per Fighter</div></div>
-              <div className="info-card"><div className="info-card-icon">⚡</div><div className="info-card-value">Streak Bonus</div><div className="info-card-label">Score Multiplier</div></div>
-              <div className="info-card"><div className="info-card-icon">🎯</div><div className="info-card-value">Adaptive</div><div className="info-card-label">Questions</div></div>
+              <div className="info-card"><div className="info-card-icon"><GameIcon name="heart" className="lg" /></div><div className="info-card-value">3 Hearts</div><div className="info-card-label">Per Fighter</div></div>
+              <div className="info-card"><div className="info-card-icon"><GameIcon name="bolt" className="lg" /></div><div className="info-card-value">Streak Bonus</div><div className="info-card-label">Score Multiplier</div></div>
+              <div className="info-card"><div className="info-card-icon"><GameIcon name="target" className="lg" /></div><div className="info-card-value">Adaptive</div><div className="info-card-label">Questions</div></div>
             </div>
             <button id="start-battle-btn" className="intro-start-btn" onClick={fetchProbe} disabled={loading} aria-busy={loading}>
-              {loading ? <><span className="spin-loader">⚙️</span> Loading…</> : "⚔️ START BATTLE"}
+              {loading ? <><span className="spin-loader"><GameIcon name="gear" /></span> Loading...</> : <><GameIcon name="sword" /> START BATTLE</>}
             </button>
             <button id="skip-diagnostic-btn" className="intro-skip-btn" onClick={handleSkip} disabled={skipping || loading}>
-              {skipping ? "Skipping…" : "Skip Diagnostic →"}
+              {skipping ? "Skipping..." : "Skip Diagnostic >"}
             </button>
-            {error && <div className="error-banner" role="alert"><span>⚠️ {error}</span></div>}
+            {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
           </main>
         )}
 
@@ -543,7 +723,7 @@ export default function DiagnosticPage() {
             <div className="arena-section" aria-label="Battle arena">
               <div className="char-container suri-side">
                 <div className="name-plate">
-                  <span className="char-name" style={{ color: "#3dbf6e" }}>🐍 Suri</span>
+                  <span className="char-name" style={{ color: "#8fe06a" }}>Suri</span>
                   <span className="char-title" style={{ color: "#3dbf6e" }}>Your Champion</span>
                 </div>
                 <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${MAX_HEARTS}`}>
@@ -557,7 +737,7 @@ export default function DiagnosticPage() {
               <div className="vs-divider" aria-hidden="true"><div className="vs-badge">VS</div></div>
               <div className="char-container enemy-side">
                 <div className="name-plate" style={{ alignItems: "flex-end" }}>
-                  <span className="char-name" style={{ color: "#c39bd3" }}>Math Villain 🧙</span>
+                  <span className="char-name" style={{ color: "#ffd780" }}>Math Villain</span>
                   <span className="char-title" style={{ color: "#c39bd3" }}>The Enemy</span>
                 </div>
                 <div className="hearts-bar" aria-label={`Enemy hearts: ${enemyHearts} of ${MAX_HEARTS}`}>
@@ -572,62 +752,69 @@ export default function DiagnosticPage() {
                 <div className="outcome-overlay defeat-overlay" role="dialog" aria-label="Defeat screen">
                   <img src="/suri-snake-sad.png" alt="Suri defeated" className="outcome-suri" />
                   <h2 className="outcome-title defeat-title">DEFEATED!</h2>
-                  <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat…</p>
-                  <button id="retry-btn" className="outcome-btn" onClick={retryAfterDefeat}>🔁 TRY AGAIN</button>
-                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={continueAfterDefeat}>▶ CONTINUE →</button>
+                  <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat...</p>
+                  <button id="retry-btn" className="outcome-btn" onClick={retryAfterDefeat}><GameIcon name="retry" /> TRY AGAIN</button>
+                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={continueAfterDefeat}><GameIcon name="play" /> CONTINUE &gt;</button>
                 </div>
               )}
             </div>
             {phase === "battle" && (
               <section className="battle-panel" aria-label="Question panel">
-                {error && <div className="error-banner" role="alert"><span>⚠️ {error}</span></div>}
+                {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
                 {loading ? (
                   <div className="loading-quest question-scroll">
-                    <span className="spin-loader" style={{ fontSize: 36 }}>⚙️</span>
-                    <p className="loading-text">Loading challenge…</p>
+                    <span className="spin-loader" style={{ fontSize: 36 }}><GameIcon name="gear" /></span>
+                    <p className="loading-text">Loading challenge...</p>
                   </div>
                 ) : probe ? (
-                  <form onSubmit={handleSubmit} noValidate>
+                  <form onSubmit={handleSubmit} noValidate className="battle-form">
                     <div className="question-scroll" role="region" aria-label="Current question">
-                      <div className="question-badge">📜 Choose your spell</div>
-                      <p className="question-text" id="question-text">{probe.question_text}</p>
-                    </div>
-                    <div className="spell-grid" role="radiogroup" aria-labelledby="question-text" key={tileKey}>
-                      {probe.options.map((opt, idx) => {
-                        const isSelected = selectedIdx === idx;
-                        const isCorrect  = feedback !== null && isSelected && feedback.correct;
-                        const isWrong    = feedback !== null && isSelected && !feedback.correct;
-                        let cls = "spell-tile spell-tile-enter";
-                        if (isSelected) cls += " selected";
-                        if (locked)     cls += " locked";
-                        if (isCorrect && feedback) cls += " correct-reveal";
-                        if (isWrong)    cls += " wrong-reveal";
-                        return (
-                          <button key={idx} type="button" role="radio" aria-checked={isSelected} id={`spell-option-${idx}`} className={cls}
-                            onClick={() => { if (!locked && !feedback) setSelectedIdx(idx); }} disabled={!!feedback || locked}>
-                            <div className="spell-label">{LABELS[idx]}</div>
-                            <div className="spell-text">{opt}</div>
-                            {isSelected && !feedback && <div className="spell-check">✓</div>}
-                            {isCorrect && feedback && <div className="spell-check" style={{ background: "#3dbf6e" }}>✓</div>}
-                            {isWrong && <div className="spell-check" style={{ background: "#e74c3c" }}>✗</div>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {feedback && (
-                      <div className={`feedback-banner ${feedback.correct ? "correct" : "wrong"}`} role="status">
-                        <img src={feedback.correct ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} alt={feedback.correct ? "Suri happy" : "Suri sad"} className={`feedback-suri${feedback.correct ? " feedback-excited" : ""}`} />
-                        <div>
-                          <p className="feedback-title">{feedback.correct ? "⚔️ Direct Hit!" : "💔 Enemy Strikes!"}</p>
-                          <p className="feedback-quote">{feedback.correct ? "Excellent spell! The villain recoils in pain!" : "That spell wasn't effective!"}</p>
-                        </div>
+                      <div className="question-badge"><GameIcon name="book" /> Challenge</div>
+                      <div className="question-text" id="question-text">
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{probe.question_text}</ReactMarkdown>
                       </div>
-                    )}
-                    {!feedback && (
-                      <button id="cast-spell-btn" type="submit" className={`attack-btn ${selectedIdx !== null && !locked ? "ready" : "disabled"}`} disabled={selectedIdx === null || locked || submitting} aria-disabled={selectedIdx === null || locked || submitting}>
-                        {submitting ? <><span className="spin-loader">⚙️</span> Casting…</> : selectedIdx !== null ? "⚡ CAST SPELL!" : "← Choose a Spell First"}
-                      </button>
-                    )}
+                    </div>
+                    <div className="choices-panel">
+                      <div className="question-badge"><GameIcon name="bolt" /> Answer spells</div>
+                      <div className="spell-grid" role="radiogroup" aria-labelledby="question-text" key={tileKey}>
+                        {probe.options.map((opt, idx) => {
+                          const isSelected = selectedIdx === idx;
+                          const isCorrect  = feedback !== null && isSelected && feedback.correct;
+                          const isWrong    = feedback !== null && isSelected && !feedback.correct;
+                          let cls = "spell-tile spell-tile-enter";
+                          if (isSelected) cls += " selected";
+                          if (locked)     cls += " locked";
+                          if (isCorrect && feedback) cls += " correct-reveal";
+                          if (isWrong)    cls += " wrong-reveal";
+                          return (
+                            <button key={idx} type="button" role="radio" aria-checked={isSelected} id={`spell-option-${idx}`} className={cls}
+                              onClick={() => { if (!locked && !feedback) setSelectedIdx(idx); }} disabled={!!feedback || locked}>
+                              <div className="spell-label">{LABELS[idx]}</div>
+                              <div className="spell-text">
+                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{opt}</ReactMarkdown>
+                              </div>
+                              {isSelected && !feedback && <div className="spell-check"><GameIcon name="check" /></div>}
+                              {isCorrect && feedback && <div className="spell-check" style={{ background: "#3dbf6e" }}><GameIcon name="check" /></div>}
+                              {isWrong && <div className="spell-check wrong-mark" style={{ background: "#e74c3c" }}><GameIcon name="cross" /></div>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {feedback && (
+                        <div className={`feedback-banner ${feedback.correct ? "correct" : "wrong"}`} role="status">
+                          <img src={feedback.correct ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} alt={feedback.correct ? "Suri happy" : "Suri sad"} className={`feedback-suri${feedback.correct ? " feedback-excited" : ""}`} />
+                          <div>
+                            <p className="feedback-title"><GameIcon name={feedback.correct ? "sword" : "warning"} /> {feedback.correct ? "Direct Hit!" : "Enemy Strikes!"}</p>
+                            <p className="feedback-quote">{feedback.correct ? "Excellent spell! The villain recoils in pain!" : "That spell was not effective!"}</p>
+                          </div>
+                        </div>
+                      )}
+                      {!feedback && (
+                        <button id="cast-spell-btn" type="submit" className={`attack-btn ${selectedIdx !== null && !locked ? "ready" : "disabled"}`} disabled={selectedIdx === null || locked || submitting} aria-disabled={selectedIdx === null || locked || submitting}>
+                          {submitting ? <><span className="spin-loader"><GameIcon name="gear" /></span> Casting...</> : selectedIdx !== null ? <><GameIcon name="bolt" /> CAST SPELL!</> : "Choose a spell first"}
+                        </button>
+                      )}
+                    </div>
                   </form>
                 ) : null}
               </section>
