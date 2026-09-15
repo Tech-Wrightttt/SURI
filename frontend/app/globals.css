@@ -125,6 +125,20 @@ body {
   z-index: -1;
 }
 
+/* Diagnostic game — star float animation (used in diagnostic page sparkles) */
+@keyframes starFloat {
+  0%   { transform: translateY(0)    rotate(0deg)   scale(1);   opacity: 1; }
+  100% { transform: translateY(-80px) rotate(180deg) scale(0.3); opacity: 0; }
+}
+
+/* Diagnostic game — jelly bounce (global fallback) */
+@keyframes jellyBounce {
+  0%,100% { transform: translateY(0) scaleX(1) scaleY(1); }
+  25%      { transform: translateY(-10px) scaleX(0.95) scaleY(1.05); }
+  50%      { transform: translateY(-4px) scaleX(1.03) scaleY(0.97); }
+  75%      { transform: translateY(-7px) scaleX(0.98) scaleY(1.02); }
+}
+
 /* Hide scrollbar but keep scroll functionality */
 html {
   scrollbar-width: none; /* Firefox */

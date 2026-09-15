@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
-};
+const path = require("path");
 
-export default nextConfig;
+/** @type {import("next").NextConfig} */
+module.exports = {
+  turbopack: {
+    root: path.join(__dirname), // forces frontend/ itself as the root
+  },
+};
