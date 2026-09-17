@@ -610,6 +610,134 @@ const GAME_CSS = `
     .combatant-card { flex-wrap: wrap; justify-content: center; text-align: center; }
     .enemy-card { justify-content: center; }
   }
+  .hud-bar {
+    min-height: 108px;
+    padding: 16px clamp(14px, 3vw, 34px);
+    border: 0;
+    outline: 0;
+    border-radius: 0 0 26px 26px;
+    background:
+      linear-gradient(90deg, #70411f 0 16px, transparent 16px calc(100% - 16px), #70411f calc(100% - 16px)),
+      linear-gradient(180deg, #8b5527 0 14px, transparent 14px calc(100% - 14px), #8b5527 calc(100% - 14px)),
+      linear-gradient(180deg, rgba(252,229,177,0.97), rgba(235,189,105,0.97));
+    box-shadow:
+      0 12px 0 rgba(39,18,10,0.84),
+      0 24px 42px rgba(0,0,0,0.38),
+      inset 0 0 0 4px #3b1d13,
+      inset 0 0 0 10px rgba(255,198,92,0.18);
+    clip-path: none;
+    overflow: visible;
+  }
+  .hud-bar::before {
+    content: "";
+    position: absolute;
+    inset: 13px;
+    border: 2px solid rgba(111,61,28,0.18);
+    border-radius: 0 0 18px 18px;
+    pointer-events: none;
+  }
+  .combatant-card {
+    min-height: 72px;
+    padding: 10px 13px;
+    border: 2px solid #8749b7;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255,255,255,0.16), transparent 26%),
+      linear-gradient(180deg, rgba(81,39,120,0.96), rgba(55,27,91,0.98));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.16),
+      0 5px 0 rgba(72,31,94,0.58);
+  }
+  .hero-card { border-radius: 18px 10px 10px 18px; }
+  .enemy-card { border-radius: 10px 18px 18px 10px; }
+  .level-badge {
+    width: 46px;
+    height: 46px;
+    border-color: #6d411c;
+    background: radial-gradient(circle at 35% 25%, #fff6aa, #ffd35c 48%, #a84e1d);
+    color: #321008;
+    font-family: "Bree Serif", Georgia, serif;
+  }
+  .combatant-name {
+    color: #fff8e8;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: 18px;
+    text-shadow: 0 2px 0 #32104d;
+  }
+  .combatant-subtitle {
+    color: rgba(255,231,159,0.86);
+    font-family: 'Nunito', sans-serif;
+  }
+  .chapter-banner {
+    position: relative;
+    min-height: 76px;
+    padding: 11px 24px 13px;
+    border: 2px solid #8749b7;
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,255,255,0.22), transparent 42%),
+      linear-gradient(180deg, rgba(81,39,120,0.98), rgba(55,27,91,0.99));
+    box-shadow:
+      0 5px 0 rgba(72,31,94,0.62),
+      inset 0 1px 0 rgba(255,255,255,0.16);
+  }
+  .hud-crest {
+    position: absolute;
+    left: 50%;
+    top: -52px;
+    width: min(270px, 52vw);
+    transform: translateX(-50%);
+    filter: drop-shadow(0 10px 9px rgba(42,18,24,0.38));
+    pointer-events: none;
+  }
+  .chapter-eyebrow {
+    position: relative;
+    z-index: 1;
+    color: #ffe79f;
+    text-shadow: 0 2px 0 #32104d;
+  }
+  .hud-logo {
+    position: relative;
+    z-index: 1;
+    color: #fffaf6;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(19px, 2vw, 27px);
+    text-shadow: 0 3px 0 #32104d;
+  }
+  .hud-progress-bar {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 300px);
+    height: 11px;
+    border: 1px solid #d7a7ff;
+    border-radius: 999px;
+    background: rgba(24,8,36,0.62);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.42);
+  }
+  .hud-progress-fill {
+    background: linear-gradient(90deg,#ffd35c,#9b43cf);
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(255,211,92,0.55), 0 0 14px rgba(155,67,207,0.5);
+  }
+  .hearts-bar {
+    margin-top: 3px;
+    gap: 5px;
+  }
+  .streak-pill, .score-chip {
+    border-color: #6d411c;
+    border-radius: 999px;
+    background: linear-gradient(180deg,#fff6aa,#ffd35c 58%,#c7832e);
+    color: #321008;
+    box-shadow: 0 4px 0 rgba(72,34,16,0.72);
+  }
+  @media (max-width: 1020px) {
+    .hud-bar { border-radius: 0 0 22px 22px; padding-top: 48px; }
+    .hud-crest { top: -36px; width: min(230px, 76vw); }
+  }
+  @media (max-width: 760px) {
+    .hud-bar { min-height: 0; padding: 42px 10px 14px; }
+    .chapter-banner { width: 100%; padding-inline: 14px; }
+    .hud-crest { width: min(210px, 82vw); }
+  }
   ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); } ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.5); border-radius: 3px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;
@@ -985,7 +1113,7 @@ export default function DiagnosticPage() {
           </div>
           <div className="chapter-banner">
             <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} of ${totalQuestions || "?"}`}</span>
-            <span className="hud-logo">The Dungeon of Divisors</span>
+            <span className="hud-logo">Diagnostic Battle</span>
             <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
               <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
             </div>
