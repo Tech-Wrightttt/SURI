@@ -147,3 +147,266 @@ html {
 html::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge */
 }
+
+/* Skybound voxel kingdom dashboard */
+.suri-lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.suri-lockup-icon {
+  width: 1.45rem;
+  height: 1.45rem;
+  display: block;
+  background: url('/suri-snake-happy.png') center / contain no-repeat;
+}
+
+.suri-lockup-word {
+  color: #08730e;
+  font: 900 1rem/1 "Hanken Grotesk", sans-serif;
+  letter-spacing: -0.06em;
+}
+
+.dashboard-world {
+  position: relative;
+  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 52% 38%, rgba(255, 251, 202, 0.42), transparent 28%),
+    radial-gradient(circle at 20% 85%, rgba(61, 165, 220, 0.48), transparent 43%),
+    linear-gradient(145deg, #65c6ef 0%, #8bd9f6 52%, #58b5e7 100%);
+}
+
+.dashboard-world::before,
+.dashboard-world::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dashboard-world::before {
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.13) 1px, transparent 1px);
+  background-size: 58px 58px;
+  mask-image: linear-gradient(to bottom, transparent, black 25%, transparent 90%);
+}
+
+.dashboard-world::after {
+  width: 50vw;
+  height: 30vh;
+  right: -8vw;
+  top: 17vh;
+  background: rgba(255, 249, 183, 0.34);
+  filter: blur(90px);
+}
+
+.dashboard-canvas {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2;
+}
+
+.dashboard-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+
+.dashboard-world-title {
+  position: absolute;
+  z-index: 4;
+  top: clamp(6.4rem, 13vh, 9rem);
+  left: clamp(1.25rem, 6vw, 7.5rem);
+  pointer-events: none;
+  color: #fff;
+}
+
+.voxel-overline {
+  color: #c4b5fd;
+  font: 800 0.63rem/1 "Manrope", sans-serif;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.dashboard-world-title h1 {
+  margin: 0.55rem 0 0;
+  font: 800 clamp(1.8rem, 3.3vw, 3.15rem)/0.98 "Hanken Grotesk", sans-serif;
+  letter-spacing: -0.045em;
+}
+
+.dashboard-world-title h1 span { color: #c4b5fd; }
+
+.dashboard-world-title p {
+  margin: 0.8rem 0 0;
+  color: rgba(231, 226, 255, 0.64);
+  font: 500 0.78rem/1.5 "Manrope", sans-serif;
+}
+
+.dashboard-world-legend {
+  position: absolute;
+  z-index: 4;
+  right: clamp(1.25rem, 6vw, 7.5rem);
+  bottom: 2.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: rgba(231, 226, 255, 0.65);
+  font: 800 0.6rem/1 "Manrope", sans-serif;
+  letter-spacing: 0.13em;
+}
+
+.dashboard-world-legend b {
+  margin-left: 0.7rem;
+  color: #c4b5fd;
+  font-weight: 800;
+}
+
+.legend-dot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: #8df3b0;
+  box-shadow: 0 0 12px #8df3b0;
+}
+
+.dashboard-world-caption {
+  position: absolute;
+  z-index: 4;
+  left: clamp(1.25rem, 6vw, 7.5rem);
+  bottom: 1.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  pointer-events: none;
+  color: #fff;
+}
+
+.dashboard-world-caption > span {
+  color: #c4b5fd;
+  font: 800 1.2rem/1 "Hanken Grotesk", sans-serif;
+}
+
+.dashboard-world-caption div { display: grid; gap: 0.24rem; }
+.dashboard-world-caption strong { font: 800 0.62rem/1 "Manrope", sans-serif; letter-spacing: 0.18em; }
+.dashboard-world-caption small { color: rgba(231, 226, 255, 0.54); font: 500 0.63rem/1 "Manrope", sans-serif; }
+
+.voxel-hover-card {
+  width: 13rem;
+  padding: 0.85rem 0.95rem 0.8rem;
+  border: 1px solid;
+  border-radius: 0.75rem;
+  color: #fff;
+  background: rgba(20, 13, 48, 0.94);
+  box-shadow: 0 15px 35px rgba(4, 1, 18, 0.42), inset 0 0 0 1px rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  transform: translateY(-0.2rem);
+}
+
+.voxel-landmark-label {
+  padding: 0.42rem 0.66rem;
+  border: 2px solid rgba(51, 73, 94, 0.5);
+  border-radius: 0.55rem;
+  color: #17324c;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 0 rgba(51, 73, 94, 0.18);
+  font: 800 0.56rem/1 "Manrope", sans-serif;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.voxel-hover-kicker { color: #c4b5fd; font: 800 0.5rem/1 "Manrope", sans-serif; letter-spacing: 0.18em; }
+.voxel-hover-title { margin-top: 0.32rem; font: 800 1.05rem/1.1 "Hanken Grotesk", sans-serif; }
+.voxel-hover-detail { margin-top: 0.42rem; color: rgba(231, 226, 255, 0.7); font: 500 0.64rem/1.45 "Manrope", sans-serif; }
+.voxel-hover-action { margin-top: 0.65rem; color: #ffd76a; font: 800 0.55rem/1 "Manrope", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.world-toast,
+.world-error {
+  position: absolute;
+  z-index: 8;
+  top: 7.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(196, 181, 253, 0.4);
+  border-radius: 999px;
+  background: rgba(31, 19, 68, 0.88);
+  color: #e8e2ff;
+  font: 700 0.68rem/1 "Manrope", sans-serif;
+  backdrop-filter: blur(12px);
+}
+
+.world-error { color: #ffd1db; border-color: rgba(255, 130, 164, 0.55); background: rgba(85, 19, 53, 0.9); }
+
+.world-loading {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1rem;
+  min-height: 100vh;
+  color: #c4b5fd;
+  background: radial-gradient(circle, #2a1b5c 0%, #130d2a 55%, #0b0718 100%);
+  font: 700 0.72rem/1 "Manrope", sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.world-loader {
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 3px solid rgba(196, 181, 253, 0.2);
+  border-top-color: #c4b5fd;
+  border-radius: 0.55rem;
+  animation: worldSpin 1s steps(8) infinite;
+}
+
+@keyframes worldSpin { to { transform: rotate(360deg); } }
+
+.voxel-tutorial {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1.2rem;
+  width: min(42rem, 100%);
+  padding: 1.2rem;
+  border: 1px solid rgba(196, 181, 253, 0.5);
+  border-radius: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(40, 25, 88, 0.98), rgba(19, 12, 42, 0.98));
+  box-shadow: 0 25px 80px rgba(3, 0, 12, 0.65);
+}
+
+.voxel-tutorial-mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.8rem;
+  color: #17102d;
+  background: #c4b5fd;
+  font: 900 1.6rem/1 "Hanken Grotesk", sans-serif;
+}
+
+.voxel-tutorial h2 { margin: 0.35rem 0 0; font: 800 1.35rem/1.05 "Hanken Grotesk", sans-serif; letter-spacing: -0.03em; }
+.voxel-tutorial p { margin: 0.55rem 0 0; color: rgba(231, 226, 255, 0.72); font: 500 0.72rem/1.55 "Manrope", sans-serif; }
+.voxel-tutorial-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+.voxel-tutorial-actions span { padding: 0.36rem 0.5rem; border: 1px solid rgba(196, 181, 253, 0.26); border-radius: 0.4rem; color: #c4b5fd; font: 800 0.55rem/1 "Manrope", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+.voxel-close { align-self: end; padding: 0.62rem 0.78rem; border: 0; border-radius: 0.55rem; color: #18102f; background: #ffd76a; font: 800 0.62rem/1 "Manrope", sans-serif; cursor: pointer; white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .dashboard-world-title { top: 6.3rem; }
+  .dashboard-world-title p { max-width: 13rem; }
+  .dashboard-world-legend { right: 1rem; bottom: 1.4rem; }
+  .dashboard-world-legend b { display: none; }
+  .dashboard-world-caption { left: 1rem; bottom: 1.25rem; }
+  .voxel-tutorial { grid-template-columns: auto 1fr; }
+  .voxel-close { grid-column: 2; justify-self: start; }
+}
