@@ -7,7 +7,6 @@ import confetti from "canvas-confetti";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css";
 
 import {
   getSession,
@@ -55,7 +54,7 @@ const GAME_CSS = `
   .streak-pill { display: flex; align-items: center; gap: 4px; background: rgba(231,76,60,0.2); border: 1px solid rgba(231,76,60,0.5); border-radius: 14px; padding: 4px 10px; font-family: 'Fredoka One', cursive; color: #ff8c69; font-size: 14px; }
   .score-chip { display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg,#f9d71c,#e8a21a); border: 2px solid #5c3a1e; border-radius: 20px; padding: 5px 12px; font-family: 'Fredoka One', cursive; color: #5c3a1e; font-size: 16px; box-shadow: 0 3px 0 #9a5c08; letter-spacing: 1px; }
   .battle-layout { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; min-height: 0; }
-  .arena-section { display: flex; align-items: flex-end; justify-content: center; gap: 0; padding: 24px 32px 0; min-height: 280px; position: relative; }
+  .arena-section { display: flex; align-items: flex-end; justify-content: center; gap: 0; padding: 24px 32px 0; position: relative; }
   .char-container { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 10; }
   .char-container.suri-side { align-items: flex-start; flex: 1; max-width: 320px; }
   .char-container.enemy-side { align-items: flex-end; flex: 1; max-width: 320px; }
@@ -78,7 +77,7 @@ const GAME_CSS = `
   .suri-idle { animation: suriIdle 2.8s ease-in-out infinite; }
   @keyframes suriDefeat { 0% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-10px) rotate(-8deg); filter: brightness(0.6) saturate(0.3); } 100% { transform: translateY(6px) rotate(-12deg); filter: brightness(0.5) saturate(0); opacity: 0.7; } }
   .suri-defeated-anim { animation: suriDefeat 0.8s ease-out forwards; }
-  .enemy-sprite { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 4px solid #6c3483; box-shadow: 0 0 30px rgba(108,52,131,0.7), 0 0 60px rgba(108,52,131,0.3); filter: drop-shadow(0 0 20px rgba(108,52,131,0.6)); transform-origin: bottom center; }
+  .enemy-sprite { width: 200px; height: 200px; object-fit: cover; drop-shadow(0 0 20px rgba(108,52,131,0.6)); transform-origin: bottom center; }
   @media (max-width: 700px) { .enemy-sprite { width: 130px; height: 130px; } }
   @keyframes enemyIdle { 0%,100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-6px) rotate(-1.5deg); } 75% { transform: translateY(-4px) rotate(1.5deg); } }
   .enemy-idle { animation: enemyIdle 2.5s ease-in-out infinite; }
@@ -157,10 +156,8 @@ const GAME_CSS = `
   @keyframes titlePulse { 0%,100% { transform: scale(1) rotate(-1deg); text-shadow: 3px 3px 0 #5c3a1e, 0 0 30px rgba(249,199,31,0.5); } 50% { transform: scale(1.04) rotate(1deg); text-shadow: 3px 3px 0 #5c3a1e, 0 0 60px rgba(249,199,31,0.8); } }
   .intro-title { font-family: 'Fredoka One', cursive; font-size: clamp(32px,6vw,52px); color: #f9c31f; text-shadow: 3px 3px 0 #5c3a1e, 0 0 30px rgba(249,199,31,0.5); animation: titlePulse 2.5s ease-in-out infinite; letter-spacing: 3px; margin: 0; }
   .intro-vs { display: flex; align-items: flex-end; justify-content: center; gap: 20px; width: 100%; max-width: 600px; }
-  .intro-char { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
-  .intro-suri-img { height: clamp(110px,20vw,180px); width: auto; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(61,191,110,0.5)); animation: suriIdle 2.8s ease-in-out infinite; }
-  .intro-enemy-img { width: clamp(110px,20vw,180px); height: clamp(110px,20vw,180px); object-fit: cover; border-radius: 50%; border: 4px solid #6c3483; box-shadow: 0 0 30px rgba(108,52,131,0.7); animation: enemyIdle 2.5s ease-in-out infinite; }
-  .intro-vs-badge { font-family: 'Fredoka One', cursive; font-size: clamp(28px,5vw,40px); color: #f9c31f; text-shadow: 2px 2px 0 #5c3a1e; padding-bottom: 20px; flex-shrink: 0; }
+  .intro-char { display: flex; flex-direction: column;  justify-content: center; align-items: center; }
+  .intro-enemy-img { width: clamp(110px,20vw,180px); height: clamp(110px,20vw,180px); object-fit: contain; filter: drop-shadow(0 0 30px rgba(108,52,131,0.7)); animation: enemyIdle 2.5s ease-in-out infinite; } 
   .intro-info-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   .info-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 10px 18px; text-align: center; min-width: 90px; backdrop-filter: blur(8px); }
   .info-card-icon { font-size: 20px; } .info-card-value { font-family: 'Fredoka One', cursive; color: #f9c31f; font-size: 15px; } .info-card-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); }
@@ -191,16 +188,15 @@ const GAME_CSS = `
   .streak-pill, .score-chip { min-height: 32px; }
   .streak-pill { background: rgba(101,56,30,0.72); border-color: rgba(255,184,82,0.55); color: #ffd49a; }
   .score-chip { background: linear-gradient(180deg,#ffe08d,#e0a63a); border-color: #5e421b; color: #3d2a12; }
-  .battle-layout { justify-content: space-between; }
-  .arena-section { min-height: clamp(285px, 48vh, 470px); padding: clamp(14px, 3vw, 30px) clamp(18px, 5vw, 72px) 0; align-items: flex-end; }
+  .arena-section { padding: clamp(14px, 3vw, 30px) clamp(18px, 5vw, 72px) 0; align-items: flex-end; }
   .arena-section::after { content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: clamp(58px, 10vw, 104px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(11,17,13,0.68), rgba(11,17,13,0.18) 48%, transparent 70%); z-index: 1; pointer-events: none; }
   .char-container { z-index: 12; }
   .char-container.suri-side, .char-container.enemy-side { max-width: 380px; }
   .char-name { display: inline-flex; align-items: center; gap: 7px; }
   .name-plate { background: linear-gradient(180deg, rgba(16,30,23,0.9), rgba(10,18,15,0.8)); border: 1px solid rgba(255,218,112,0.25); border-radius: 10px; padding: 8px 12px; box-shadow: 0 5px 0 rgba(0,0,0,0.24); width: auto; min-width: 160px; }
   .hearts-bar { background: rgba(14,24,18,0.78); border-color: rgba(255,218,112,0.24); border-radius: 12px; }
-  .suri-sprite { height: clamp(160px, 24vw, 280px); }
-  .enemy-sprite { width: clamp(150px, 22vw, 240px); height: clamp(150px, 22vw, 240px); border-radius: 18px; border-color: #2d1b14; box-shadow: 0 12px 0 rgba(33,20,14,0.84), 0 0 0 6px rgba(255,218,112,0.26), 0 26px 45px rgba(0,0,0,0.45); }
+  .suri-sprite { height: clamp(160px, 24vw, 280px); drop-shadow(0 8px 20px rgb(148, 82, 223)5))}
+  .enemy-sprite { width: clamp(150px, 22vw, 240px); height: clamp(150px, 22vw, 240px); }
   .vs-divider { padding-bottom: clamp(66px, 10vw, 120px); }
   .vs-badge { border-radius: 12px; border-color: #5e421b; background: linear-gradient(180deg,#ffe08d,#e0a63a); color: #3d2a12; }
   .battle-panel { margin: 0 clamp(12px, 4vw, 60px) clamp(14px, 3vw, 30px); gap: 10px; }
@@ -236,13 +232,13 @@ const GAME_CSS = `
     .intro-subtitle { font-size: 12px; line-height: 1.45; max-width: 360px; }
     .intro-vs { max-width: 360px; gap: 10px; }
     .intro-suri-img { height: 105px; }
-    .intro-enemy-img { width: 105px; height: 105px; }
+    .intro-enemy-img { width: 105px; }
     .speech-bubble { max-width: 330px; padding: 7px 12px; }
     .intro-info-row { gap: 8px; }
     .info-card { min-width: 102px; padding: 9px 12px; border-radius: 10px; }
     .intro-start-btn { font-size: 18px; padding: 15px 18px; border-radius: 14px; }
     .intro-skip-btn { padding: 9px 16px; border-radius: 10px; }
-    .arena-section { min-height: 300px; padding-inline: 12px; }
+    .arena-section { padding-inline: 12px; }
     .name-plate { min-width: 0; padding: 6px 8px; }
     .char-name { font-size: 13px; }
     .char-title { font-size: 8px; }
@@ -414,11 +410,12 @@ const GAME_CSS = `
     grid-template-columns: minmax(170px, 0.9fr) minmax(160px, 0.8fr) minmax(170px, 0.9fr);
     align-items: end;
     gap: clamp(8px, 3vw, 42px);
-    min-height: clamp(270px, 42vh, 455px);
+    height: clamp(270px, 40vh, 450px);
+    flex-shrink: 0;
     padding: 18px clamp(16px, 4vw, 62px) 0;
     border: 3px solid rgba(245,199,93,0.34);
     border-bottom: 0;
-    background: radial-gradient(ellipse at 50% 100%, rgba(255,159,60,0.18), transparent 55%), linear-gradient(180deg, rgba(12,7,17,0.18), rgba(11,7,11,0.48));
+    background: url('/arena-section-background.png') center bottom / cover no-repeat;
     box-shadow: inset 0 0 0 4px rgba(50,25,14,0.58), inset 0 -40px 70px rgba(0,0,0,0.38);
   }
   .arena-section::after {
@@ -499,14 +496,12 @@ const GAME_CSS = `
     width: clamp(170px, 23vw, 275px);
     height: clamp(170px, 23vw, 275px);
     object-position: center top;
-    border-radius: 42% 42% 34% 34%;
-    border: 5px solid #1a0d19;
-    box-shadow: 0 0 0 4px rgba(245,199,93,0.35), 0 18px 0 rgba(20,9,8,0.68), 0 0 40px rgba(166,84,224,0.45);
+    filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 5px 0 #17100a) drop-shadow(0 14px 18px rgba(153, 114, 241, 0.62));
   }
   .vs-divider, .vs-badge { display: none; }
   .battle-panel {
     display: grid;
-    grid-template-columns: 170px minmax(0, 1fr) 230px;
+    grid-template-columns: minmax(0, 1fr) 230px;
     gap: 14px;
     align-items: stretch;
     margin: 0;
@@ -640,7 +635,6 @@ const GAME_CSS = `
   .intro-screen { border: 5px solid #5e3619; background: rgba(28,14,10,0.6); box-shadow: inset 0 0 0 4px rgba(245,199,93,0.25); }
   .intro-title { color: #ffe288; font-family: Georgia, 'Times New Roman', serif; letter-spacing: 0; text-shadow: 4px 4px 0 #211009, 0 0 26px rgba(245,199,93,0.34); }
   .intro-suri-img { filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 10px 20px rgba(76,194,117,0.44)); }
-  .intro-enemy-img { border-radius: 36%; border: 5px solid #1a0d19; box-shadow: 0 0 0 4px rgba(245,199,93,0.35), 0 0 34px rgba(166,84,224,0.42); }
   @media (max-width: 1020px) {
     .hud-bar { grid-template-columns: 1fr; clip-path: none; }
     .hud-brand, .hud-right { justify-content: center; }
@@ -653,7 +647,7 @@ const GAME_CSS = `
   @media (max-width: 760px) {
     .battle-body { padding: 8px; }
     .battle-body::before { inset: 4px; }
-    .arena-section { grid-template-columns: 1fr 0.75fr 1fr; gap: 4px; min-height: 280px; padding-inline: 8px; }
+    .arena-section { grid-template-columns: 1fr 0.75fr 1fr; gap: 4px; padding-inline: 8px; }
     .reaction-space { min-width: 0; min-height: 64px; }
     .speech-bubble { padding: 9px 12px; font-size: 13px; }
     .suri-sprite { height: 142px; }
@@ -1114,32 +1108,22 @@ export default function DiagnosticPage() {
 
         {phase === "intro" && (
           <main className="intro-screen" id="intro-screen">
-            <h1 className="intro-title"><GameIcon name="sword" className="xl" /> BATTLE QUEST</h1>
+            <h1 className="intro-title"> DIAGNOSTIC BATTLE</h1>
             <p className="intro-subtitle">
               Prove your knowledge in the arena! Answer correctly to strike the enemy —
               every wrong answer lets them hit back. Survive with 3 hearts!
             </p>
-            <div className="intro-vs" aria-label="Suri vs Math Villain">
-              <div className="intro-char">
-                <img src="/suri-snake-right.png" alt="Suri the snake" className="intro-suri-img" />
-                <span className="char-name" style={{ color: "#3dbf6e" }}>Suri</span>
-              </div>
-              <span className="intro-vs-badge" aria-hidden="true">VS</span>
-              <div className="intro-char">
-                <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
-                <span className="char-name" style={{ color: "#c39bd3" }}>Math Villain</span>
-              </div>
-            </div>
+          
             <div className="speech-bubble">
               &ldquo;Ready to test your skills? Let&apos;s see what you&apos;ve got!&rdquo;
             </div>
-            <div className="intro-info-row">
-              <div className="info-card"><div className="info-card-icon"><GameIcon name="heart" className="lg" /></div><div className="info-card-value">3 Hearts</div><div className="info-card-label">Per Fighter</div></div>
-              <div className="info-card"><div className="info-card-icon"><GameIcon name="bolt" className="lg" /></div><div className="info-card-value">Streak Bonus</div><div className="info-card-label">Score Multiplier</div></div>
-              <div className="info-card"><div className="info-card-icon"><GameIcon name="target" className="lg" /></div><div className="info-card-value">Adaptive</div><div className="info-card-label">Questions</div></div>
-            </div>
+                <div className="intro-char">
+                <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
+              </div>
+             
+      
             <button id="start-battle-btn" className="intro-start-btn" onClick={fetchProbe} disabled={loading} aria-busy={loading}>
-              {loading ? <><span className="spin-loader"><GameIcon name="gear" /></span> Loading...</> : <><GameIcon name="sword" /> START BATTLE</>}
+              {loading ? <><span className="spin-loader"><GameIcon name="gear" /></span> Loading...</> : <>START BATTLE</>}
             </button>
             <button id="skip-diagnostic-btn" className="intro-skip-btn" onClick={handleSkip} disabled={skipping || loading}>
               {skipping ? "Skipping..." : "Skip Diagnostic >"}
@@ -1175,7 +1159,7 @@ export default function DiagnosticPage() {
                 </div>
                 <div className="sprite-frame">
                   {enemyDmg && <div className="dmg-number dmg-enemy" aria-live="assertive">{enemyDmg}</div>}
-                  <img src="/enemy-math-villain.jpg" alt="The Math Villain" className={enemyCls(enemyAnimState)} draggable={false} />
+                  <img src="/enemy-math-villain.png" alt="The Math Villain" className={enemyCls(enemyAnimState)} draggable={false} />
                 </div>
               </div>
               {phase === "defeat" && (
@@ -1191,14 +1175,6 @@ export default function DiagnosticPage() {
             {phase === "battle" && (
               <section className="battle-panel" aria-label="Question panel">
                 {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
-                <aside className="side-panel inventory-panel" aria-label="Inventory and power ups">
-                  <h2 className="panel-title">Satchel</h2>
-                  <div className="inventory-grid">
-                    <div className="power-up"><span className="power-icon">!</span><span>Hint Potion</span></div>
-                    <div className="power-up"><span className="power-icon">+</span><span>Focus Brew</span></div>
-                    <div className="power-up"><span className="power-icon">*</span><span>Rune Strike</span></div>
-                  </div>
-                </aside>
                 {loading ? (
                   <div className="loading-quest question-scroll">
                     <span className="spin-loader" style={{ fontSize: 36 }}><GameIcon name="gear" /></span>
