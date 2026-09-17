@@ -28,10 +28,7 @@ const GAME_CSS = `
   }
   * { box-sizing: border-box; }
   .battle-body { font-family: 'Nunito', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; }
-  .arena-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-  .arena-sky { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(100,0,180,0.7) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 20% 30%, rgba(150,0,80,0.4) 0%, transparent 60%), linear-gradient(180deg, #0d0018 0%, #1a0030 25%, #200015 50%, #080010 100%); }
-  .arena-floor { position: absolute; bottom: 0; left: 0; right: 0; height: 38%; background: linear-gradient(180deg, transparent 0%, rgba(60,0,100,0.35) 100%); }
-  .arena-floor-line { position: absolute; bottom: 34%; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent 0%, rgba(155,89,182,0.7) 40%, rgba(230,180,255,0.9) 50%, rgba(155,89,182,0.7) 60%, transparent 100%); box-shadow: 0 0 20px 4px rgba(155,89,182,0.5), 0 0 60px 10px rgba(155,89,182,0.2); }
+  .arena-bg { background: url('/login/arena.png') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .fog-wisp { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(40px); animation: fogDrift linear infinite; opacity: 0; }
   @keyframes fogDrift { 0% { opacity: 0; transform: translateX(-60px) scaleX(0.8); } 20% { opacity: 0.18; } 80% { opacity: 0.12; } 100% { opacity: 0; transform: translateX(80px) scaleX(1.2); } }
   .pillar { position: absolute; bottom: 32%; width: 48px; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #1c0c2e 0%, #2a1040 30%, #100618 100%); border: 1px solid rgba(155,89,182,0.2); box-shadow: inset 2px 0 6px rgba(0,0,0,0.6), inset -2px 0 6px rgba(0,0,0,0.6); }
@@ -178,9 +175,6 @@ const GAME_CSS = `
   .game-icon.lg { width: 28px; height: 28px; }
   .game-icon.xl { width: 38px; height: 38px; }
   .battle-body { background: #193827; color: #fff; }
-  .arena-sky { background: linear-gradient(180deg, rgba(17,49,47,0.22), rgba(5,22,18,0.34)), url('/bookworm-arena-bg.svg') center bottom / cover no-repeat; }
-  .arena-floor { height: 42%; background: radial-gradient(ellipse 78% 28% at 50% 54%, rgba(255,215,116,0.2), transparent 70%), linear-gradient(180deg, transparent 0%, rgba(21,43,27,0.8) 100%); }
-  .arena-floor-line { bottom: 31%; height: 6px; background: linear-gradient(90deg, transparent, rgba(255,216,116,0.92), rgba(134,202,93,0.98), rgba(255,216,116,0.92), transparent); box-shadow: 0 0 22px 6px rgba(255,216,116,0.28), 0 0 80px 16px rgba(90,170,84,0.18); }
   .pillar { display: none; }
   .skull-deco { display: none; }
   .hud-bar { background: linear-gradient(180deg,rgba(32,43,27,0.96),rgba(18,30,24,0.92)); border-bottom-color: rgba(255,218,112,0.46); }
@@ -263,51 +257,9 @@ const GAME_CSS = `
     inset: 8px;
     z-index: 3;
     pointer-events: none;
-    border: clamp(8px, 1.2vw, 14px) solid transparent;
-    border-image: linear-gradient(135deg, #5d3518, #f6cf6e, #7b491d, #261109) 1;
-    box-shadow: inset 0 0 0 5px rgba(42,20,10,0.94), inset 0 0 0 10px rgba(246,207,110,0.24), 0 0 38px rgba(0,0,0,0.72);
+    background: rgba(0, 0, 0, 0.45);
   }
-  .arena-sky {
-    background:
-      radial-gradient(ellipse 50% 36% at 48% 30%, rgba(119,73,191,0.54), transparent 68%),
-      radial-gradient(ellipse 42% 32% at 84% 18%, rgba(44,138,198,0.24), transparent 72%),
-      radial-gradient(ellipse 38% 34% at 16% 18%, rgba(137,45,142,0.28), transparent 70%),
-      linear-gradient(180deg, #10081f 0%, #21133a 38%, #170d22 62%, #09070b 100%);
-  }
-  .arena-sky::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg, rgba(10,6,10,0.82), transparent 20% 80%, rgba(10,6,10,0.82)),
-      repeating-linear-gradient(90deg, transparent 0 118px, rgba(255,255,255,0.035) 120px 123px, transparent 125px 240px);
-  }
-  .arena-floor {
-    left: 4%;
-    right: 4%;
-    bottom: 11%;
-    height: 34%;
-    background:
-      radial-gradient(ellipse 54% 22% at 50% 24%, rgba(255,207,89,0.34), transparent 72%),
-      radial-gradient(ellipse at 50% 76%, rgba(55,31,72,0.95), rgba(18,12,18,0.94) 65%, transparent 70%);
-  }
-  .arena-floor-line {
-    left: 15%;
-    right: 15%;
-    bottom: 26%;
-    height: 9px;
-    border-radius: 50%;
-    background: linear-gradient(90deg, transparent, rgba(255,199,87,0.96), rgba(125,255,198,0.86), rgba(255,199,87,0.96), transparent);
-    box-shadow: 0 0 28px 9px rgba(255,181,75,0.28), 0 0 90px 22px rgba(104,81,207,0.22);
-  }
-  .pillar {
-    display: block;
-    bottom: 24%;
-    width: 58px;
-    border: 2px solid rgba(93,54,28,0.9);
-    border-radius: 7px 7px 0 0;
-    background: linear-gradient(90deg, #161019, #342245 48%, #120c17);
-  }
+
   .skull-deco { display: none; }
   .hud-bar {
     position: relative;
@@ -664,65 +616,11 @@ const GAME_CSS = `
 
 const MAX_HEARTS = 3;
 const LABELS = ["A", "B", "C", "D"];
-const EMBERS = [
-  { left: "12%", bottom: "32%", w: 4, h: 4, dur: 2.8, delay: 0.0, ex: "-12px", ex2: "8px" },
-  { left: "28%", bottom: "34%", w: 3, h: 3, dur: 3.5, delay: 0.4, ex: "8px",   ex2: "-5px" },
-  { left: "45%", bottom: "33%", w: 5, h: 5, dur: 2.2, delay: 0.8, ex: "15px",  ex2: "-10px" },
-  { left: "63%", bottom: "35%", w: 3, h: 3, dur: 3.0, delay: 1.2, ex: "-10px", ex2: "5px" },
-  { left: "80%", bottom: "32%", w: 4, h: 4, dur: 2.6, delay: 1.6, ex: "6px",   ex2: "-8px" },
-  { left: "91%", bottom: "34%", w: 5, h: 5, dur: 3.8, delay: 2.0, ex: "-8px",  ex2: "10px" },
-  { left:  "5%", bottom: "34%", w: 3, h: 3, dur: 2.4, delay: 2.4, ex: "12px",  ex2: "-6px" },
-];
-const FIREFLIES = [
-  { left: "8%",  top: "25%", w: 7,  h: 7,  dur: 7.5, delay: 0.0, ftx: "-25px", fty: "-100px" },
-  { left: "20%", top: "40%", w: 9,  h: 9,  dur: 10,  delay: 1.5, ftx:  "30px", fty: "-150px" },
-  { left: "55%", top: "20%", w: 6,  h: 6,  dur: 5.5, delay: 0.8, ftx: "-15px", fty:  "-90px" },
-  { left: "72%", top: "35%", w: 11, h: 11, dur: 9.0, delay: 2.2, ftx:  "40px", fty: "-130px" },
-  { left: "88%", top: "28%", w: 8,  h: 8,  dur: 6.5, delay: 0.4, ftx: "-20px", fty:  "-80px" },
-  { left: "38%", top: "50%", w: 7,  h: 7,  dur: 8.5, delay: 3.0, ftx:  "20px", fty: "-110px" },
-];
-const FOG_WISPS = [
-  { left:   "0%", bottom: "31%", w: 280, h: 80, dur: 18, delay:  0, color: "rgba(100,0,180,0.15)" },
-  { left:  "30%", bottom: "32%", w: 320, h: 60, dur: 22, delay:  5, color: "rgba(150,0,80,0.1)" },
-  { left:  "60%", bottom: "30%", w: 260, h: 70, dur: 15, delay: 10, color: "rgba(80,0,150,0.12)" },
-  { left: "-10%", bottom: "33%", w: 350, h: 90, dur: 25, delay:  3, color: "rgba(60,0,120,0.1)" },
-];
-const PILLARS = [
-  { left: "4%",   height: "55vh" },
-  { left: "12%",  height: "42vh" },
-  { right: "4%",  height: "55vh" },
-  { right: "12%", height: "42vh" },
-];
-const SKULLS = [
-  { left:  "3%",  bottom: "58%", delay: 0   },
-  { right: "3%",  bottom: "58%", delay: 1.5 },
-  { left:  "16%", bottom: "52%", delay: 3   },
-  { right: "16%", bottom: "52%", delay: 2   },
-];
-const SKULL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M12 2C6.48 2 2 6.48 2 12c0 3.86 2.17 7.22 5.35 8.96V22h9v-1.04C19.83 19.22 22 15.86 22 12c0-5.52-4.48-10-10-10zm-2 14H8v-2h2v2zm0-4H8v-2h2v2zm4 4h-2v-2h2v2zm0-4h-2v-2h2v2z"/></svg>`;
 
 function ArenaBackground() {
   return (
     <div className="arena-bg" aria-hidden="true">
-      <div className="arena-sky" />
-      {PILLARS.map((p, i) => <div key={i} className="pillar" style={p as React.CSSProperties} />)}
-      {SKULLS.map((s, i) => (
-        <div key={i} className="skull-deco"
-          style={{ left: (s as { left?: string }).left, right: (s as { right?: string }).right, bottom: s.bottom, animationDelay: `${s.delay}s`, position: "absolute" } as React.CSSProperties}
-          dangerouslySetInnerHTML={{ __html: SKULL_SVG }} />
-      ))}
-      {FOG_WISPS.map((f, i) => (
-        <div key={i} className="fog-wisp" style={{ left: f.left, bottom: f.bottom, width: f.w, height: f.h, background: f.color, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
-      ))}
-      <div className="arena-floor" />
-      <div className="arena-floor-line" />
-      {EMBERS.map((e, i) => (
-        <div key={i} className="ember" style={{ left: e.left, bottom: e.bottom, width: e.w, height: e.h, animationDuration: `${e.dur}s`, animationDelay: `${e.delay}s`, ["--ex" as string]: e.ex, ["--ex2" as string]: e.ex2 }} />
-      ))}
-      {FIREFLIES.map((f, i) => (
-        <div key={i} className="firefly" style={{ left: f.left, top: f.top, width: f.w, height: f.h, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s`, ["--ftx" as string]: f.ftx, ["--fty" as string]: f.fty }} />
-      ))}
-    </div>
+  </div>
   );
 }
 
@@ -1070,6 +968,8 @@ export default function DiagnosticPage() {
       <style dangerouslySetInnerHTML={{ __html: GAME_CSS }} />
       <div className={`battle-body${shaking ? " screen-shake" : ""}`}>
         <ArenaBackground />
+        
+        {phase !== "intro" && (
         <header className="hud-bar" role="banner">
           <div className="hud-brand">
             <div className="combatant-card hero-card">
@@ -1084,13 +984,11 @@ export default function DiagnosticPage() {
             </div>
           </div>
           <div className="chapter-banner">
-            <span className="chapter-eyebrow">{phase === "intro" ? "Placement Quest" : `Challenge ${answeredCount + 1} of ${totalQuestions || "?"}`}</span>
+            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} of ${totalQuestions || "?"}`}</span>
             <span className="hud-logo">The Dungeon of Divisors</span>
-            {phase !== "intro" && (
-              <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
-                <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
-              </div>
-            )}
+            <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
+              <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
+            </div>
           </div>
           <div className="hud-right">
             <div className="combatant-card enemy-card">
@@ -1106,6 +1004,7 @@ export default function DiagnosticPage() {
             </div>
           </div>
         </header>
+        )}
 
         {phase === "intro" && (
           <main className="intro-screen" id="intro-screen">
@@ -1185,14 +1084,14 @@ export default function DiagnosticPage() {
                   <form onSubmit={handleSubmit} noValidate className="battle-form">
                     <div className="question-scroll" role="region" aria-label="Current question">
                       <div className="question-strip">
-                        <div className="question-badge"><GameIcon name="book" /> Arcane Challenge</div>
+                        <div className="question-badge"><GameIcon name="book" /> Question</div>
                         <div className="question-text" id="question-text">
                           <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{probe.question_text}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
                     <div className="choices-panel">
-                      <div className="question-badge"><GameIcon name="bolt" /> Answer spells</div>
+                      <div className="question-badge"><GameIcon name="bolt" /> Choices</div>
                       <div className="spell-grid" role="radiogroup" aria-labelledby="question-text" key={tileKey}>
                         {probe.options.map((opt, idx) => {
                           const isSelected = selectedIdx === idx;
@@ -1229,7 +1128,7 @@ export default function DiagnosticPage() {
                     </div>
                     <div className="bottom-bar">
                       <button type="button" className="ornate-btn" onClick={handleSkip} disabled={skipping || submitting || locked}>
-                        {skipping ? "Skipping..." : "Scramble/Skip"}
+                        {skipping ? "Skipping..." : "Skip to Lesson"}
                       </button>
                       {!feedback && (
                         <button id="cast-spell-btn" type="submit" className={`attack-btn ${selectedIdx !== null && !locked ? "ready" : "disabled"}`} disabled={selectedIdx === null || locked || submitting} aria-disabled={selectedIdx === null || locked || submitting}>
@@ -1242,7 +1141,7 @@ export default function DiagnosticPage() {
                         </button>
                       )}
                       <button type="button" className="ornate-btn" onClick={() => router.push("/dashboard")}>
-                        Menu
+                        Back to Menu
                       </button>
                     </div>
                   </form>
