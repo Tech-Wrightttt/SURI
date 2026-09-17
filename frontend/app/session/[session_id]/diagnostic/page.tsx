@@ -138,7 +138,12 @@ const GAME_CSS = `
   .attack-btn.disabled { background: rgba(255,255,255,0.06); box-shadow: none; color: rgba(255,255,255,0.25); cursor: not-allowed; }
   .outcome-overlay { position: absolute; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; animation: overlayFadeIn 0.4s ease-out; padding: 20px; }
   @keyframes overlayFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-  .defeat-overlay { background: radial-gradient(ellipse at center,rgba(80,10,10,0.95) 0%,rgba(10,0,5,0.98) 100%); }
+  .defeat-overlay {
+    top: -34px;
+    bottom: -34px;
+    min-height: calc(100% + 68px);
+    background: radial-gradient(ellipse at center,rgba(80,10,10,0.95) 0%,rgba(10,0,5,0.98) 100%);
+  }
   .outcome-title { font-family: 'Fredoka One', cursive; font-size: 42px; text-align: center; letter-spacing: 3px; animation: outcomePulse 0.9s ease-in-out infinite; }
   @keyframes outcomePulse { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.05) rotate(1deg); } }
   .defeat-title { color: #ff4757; text-shadow: 3px 3px 0 #5c0000; }
@@ -773,7 +778,6 @@ const GAME_CSS = `
 `;
 
 const MAX_HEARTS = 5;
-const QUESTIONS_PER_BATTLE = 5;
 const LABELS = ["A", "B", "C", "D"];
 
 function ArenaBackground() {
@@ -941,6 +945,7 @@ export default function DiagnosticPage() {
   const [loading, setLoading]         = useState(false);
   const [submitting, setSubmitting]   = useState(false);
   const [skipping, setSkipping]       = useState(false);
+  const [showingResults, setShowingResults] = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [feedback, setFeedback]       = useState<{ correct: boolean; nextAction: string } | null>(null);
   const [tileKey, setTileKey]         = useState(0);
@@ -964,7 +969,7 @@ export default function DiagnosticPage() {
     sessionStorage.removeItem("diagnostic_submit_result");
   }, [sessionId]);
 
-  const finalize = useCallback(async () => {
+  const finalize = useCallback(async (redirectOverride?: string) => {
     const s = await getSession(sessionId);
     const { chain } = await getTopicChain(s.topic_entry_node);
     const raw = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}") as Record<string, boolean>;
@@ -974,7 +979,7 @@ export default function DiagnosticPage() {
     if (res.gap_node)         sessionStorage.setItem("identified_node_id", res.gap_node);
     if (res.mastered_nodes)   sessionStorage.setItem("diagnostic_mastered",   JSON.stringify(res.mastered_nodes));
     if (res.unresolved_nodes) sessionStorage.setItem("diagnostic_unresolved", JSON.stringify(res.unresolved_nodes));
-    router.push(res.redirect);
+    router.push(redirectOverride ?? res.redirect);
   }, [sessionId, router]);
 
   const fetchProbe = useCallback(async () => {
@@ -1070,8 +1075,8 @@ export default function DiagnosticPage() {
     setSubmitting(true); setLocked(true); setError(null);
     try {
       const res = await submitDiagnosticAnswer(sessionId, { node_id: probe.node_id, selected_option_index: selectedIdx });
-      const nextAnswered = Math.min(answeredCount + 1, QUESTIONS_PER_BATTLE);
-      const nextAction = nextAnswered >= QUESTIONS_PER_BATTLE ? "complete" : res.next_action;
+      const nextAnswered = answeredCount + 1;
+      const nextAction = res.correct && enemyHearts <= 1 ? "complete" : "next_probe";
       setFeedback({ correct: res.correct, nextAction });
       const cur = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}");
       cur[probe.node_id] = res.correct;
@@ -1100,6 +1105,16 @@ export default function DiagnosticPage() {
     catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to skip."); setSkipping(false); }
   };
 
+  const handleSeeResults = async () => {
+    setShowingResults(true); setError(null);
+    try {
+      await finalize(`/session/${sessionId}/gap-result`);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to show results.");
+      setShowingResults(false);
+    }
+  };
+
   const retryAfterDefeat = () => {
     sessionStorage.removeItem("diagnostic_answers");
     setAnsweredCount(0); setScore(0); setStreak(0);
@@ -1110,8 +1125,8 @@ export default function DiagnosticPage() {
     void fetchProbe();
   };
 
-  const totalQuestions = QUESTIONS_PER_BATTLE;
-  const pct = Math.min((answeredCount / totalQuestions) * 100, 100);
+  const enemyDefeatedHits = MAX_HEARTS - enemyHearts;
+  const pct = Math.min((enemyDefeatedHits / MAX_HEARTS) * 100, 100);
 
   return (
     <>
@@ -1136,7 +1151,7 @@ export default function DiagnosticPage() {
             </div>
           </div>
           <div className="chapter-banner">
-            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} of ${totalQuestions || "?"}`}</span>
+            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${MAX_HEARTS}`}</span>
             <span className="hud-logo">Diagnostic Battle</span>
             <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
               <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
@@ -1220,8 +1235,8 @@ export default function DiagnosticPage() {
                   <h2 className="outcome-title defeat-title">DEFEATED!</h2>
                   <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat...</p>
                   <button id="retry-btn" className="outcome-btn" onClick={retryAfterDefeat}><GameIcon name="retry" /> TRY AGAIN</button>
-                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={handleSkip} disabled={skipping}>
-                    <GameIcon name="play" /> {skipping ? "LOADING..." : "LEARN TOPIC"}
+                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={handleSeeResults} disabled={showingResults}>
+                    <GameIcon name="play" /> {showingResults ? "LOADING..." : "SEE RESULTS"}
                   </button>
                 </div>
               )}
