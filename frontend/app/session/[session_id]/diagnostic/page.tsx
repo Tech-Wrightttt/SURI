@@ -251,6 +251,418 @@ const GAME_CSS = `
     .battle-form { grid-template-columns: 1fr; min-height: 0; }
     .question-scroll, .choices-panel { min-height: 190px; }
   }
+  /* Storybook diagnostic reskin */
+  .battle-body {
+    font-family: Georgia, 'Times New Roman', serif;
+    padding: clamp(10px, 1.5vw, 18px);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(250,204,96,0.16), transparent 28%),
+      linear-gradient(135deg, #1b0e12 0%, #392016 42%, #151025 100%);
+    color: #fff4d5;
+  }
+  .battle-body::before {
+    content: "";
+    position: fixed;
+    inset: 8px;
+    z-index: 3;
+    pointer-events: none;
+    border: clamp(8px, 1.2vw, 14px) solid transparent;
+    border-image: linear-gradient(135deg, #5d3518, #f6cf6e, #7b491d, #261109) 1;
+    box-shadow: inset 0 0 0 5px rgba(42,20,10,0.94), inset 0 0 0 10px rgba(246,207,110,0.24), 0 0 38px rgba(0,0,0,0.72);
+  }
+  .arena-sky {
+    background:
+      radial-gradient(ellipse 50% 36% at 48% 30%, rgba(119,73,191,0.54), transparent 68%),
+      radial-gradient(ellipse 42% 32% at 84% 18%, rgba(44,138,198,0.24), transparent 72%),
+      radial-gradient(ellipse 38% 34% at 16% 18%, rgba(137,45,142,0.28), transparent 70%),
+      linear-gradient(180deg, #10081f 0%, #21133a 38%, #170d22 62%, #09070b 100%);
+  }
+  .arena-sky::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(10,6,10,0.82), transparent 20% 80%, rgba(10,6,10,0.82)),
+      repeating-linear-gradient(90deg, transparent 0 118px, rgba(255,255,255,0.035) 120px 123px, transparent 125px 240px);
+  }
+  .arena-floor {
+    left: 4%;
+    right: 4%;
+    bottom: 11%;
+    height: 34%;
+    background:
+      radial-gradient(ellipse 54% 22% at 50% 24%, rgba(255,207,89,0.34), transparent 72%),
+      radial-gradient(ellipse at 50% 76%, rgba(55,31,72,0.95), rgba(18,12,18,0.94) 65%, transparent 70%);
+  }
+  .arena-floor-line {
+    left: 15%;
+    right: 15%;
+    bottom: 26%;
+    height: 9px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, transparent, rgba(255,199,87,0.96), rgba(125,255,198,0.86), rgba(255,199,87,0.96), transparent);
+    box-shadow: 0 0 28px 9px rgba(255,181,75,0.28), 0 0 90px 22px rgba(104,81,207,0.22);
+  }
+  .pillar {
+    display: block;
+    bottom: 24%;
+    width: 58px;
+    border: 2px solid rgba(93,54,28,0.9);
+    border-radius: 7px 7px 0 0;
+    background: linear-gradient(90deg, #161019, #342245 48%, #120c17);
+  }
+  .skull-deco { display: none; }
+  .hud-bar {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: minmax(190px, 1fr) minmax(240px, 1.25fr) minmax(190px, 1fr);
+    gap: 12px;
+    min-height: 98px;
+    max-width: 1380px;
+    margin: 0 auto 12px;
+    padding: 13px clamp(14px, 3vw, 36px);
+    border: 4px solid #80511f;
+    outline: 2px solid rgba(253,224,131,0.36);
+    background: linear-gradient(180deg, rgba(253,222,150,0.95), rgba(198,140,62,0.98) 44%, rgba(77,42,19,0.98));
+    box-shadow: 0 8px 0 #211009, 0 18px 42px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.4);
+    clip-path: polygon(2% 0, 98% 0, 100% 32%, 97% 100%, 3% 100%, 0 32%);
+  }
+  .hud-brand, .hud-right, .combatant-card { display: flex; align-items: center; gap: 10px; }
+  .hud-right { justify-content: flex-end; }
+  .combatant-card {
+    min-width: 0;
+    padding: 9px 10px;
+    border: 2px solid rgba(255,222,131,0.45);
+    background: rgba(42,20,12,0.55);
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.28);
+  }
+  .hero-card { border-radius: 26px 7px 7px 26px; }
+  .enemy-card { border-radius: 7px 26px 26px 7px; justify-content: flex-end; text-align: right; }
+  .level-badge {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #3e2412;
+    background: radial-gradient(circle at 35% 25%, #fff1ad, #d69a32 58%, #7b491d);
+    color: #2b170d;
+    font-weight: 900;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+  }
+  .chapter-banner {
+    justify-self: center;
+    width: min(100%, 520px);
+    padding: 10px 18px;
+    text-align: center;
+    color: #3a2111;
+    border: 2px solid #8b5823;
+    border-radius: 50% 50% 10px 10px / 38% 38% 10px 10px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4), transparent 58%), linear-gradient(180deg, #fff1bf, #ddb86c);
+    box-shadow: inset 0 0 0 3px rgba(100,60,23,0.16), 0 4px 0 rgba(73,39,16,0.55);
+  }
+  .chapter-eyebrow, .combatant-subtitle {
+    display: block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+  .chapter-eyebrow { color: #81511f; }
+  .hud-logo {
+    display: block;
+    color: #2a160d;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(18px, 2vw, 28px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+  }
+  .combatant-name {
+    display: block;
+    color: #fff2bd;
+    font-size: 16px;
+    font-weight: 900;
+    text-shadow: 0 2px 0 #1a0c08;
+  }
+  .combatant-subtitle { color: rgba(255,241,191,0.8); }
+  .hud-progress-bar {
+    width: min(100%, 260px);
+    height: 9px;
+    margin: 8px auto 0;
+    border: 1px solid #80511f;
+    border-radius: 0;
+    background: rgba(64,34,16,0.36);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.32);
+  }
+  .hud-progress-fill { background: linear-gradient(90deg,#4cc275,#f5c75d); box-shadow: 0 0 12px rgba(76,194,117,0.72); }
+  .hearts-bar { gap: 4px; padding: 0; background: transparent; border: 0; border-radius: 0; }
+  .heart-icon { width: 24px; height: 24px; filter: drop-shadow(0 2px 0 #35110d) drop-shadow(0 0 5px rgba(255,42,68,0.75)); }
+  .streak-pill, .score-chip {
+    border: 2px solid #6d411c;
+    border-radius: 7px;
+    background: linear-gradient(180deg,#f7dc85,#b8792d);
+    color: #2a160d;
+    box-shadow: 0 4px 0 rgba(44,22,9,0.7);
+  }
+  .battle-layout { z-index: 4; max-width: 1380px; min-height: calc(100vh - 136px); margin: 0 auto; }
+  .arena-section {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.9fr) minmax(160px, 0.8fr) minmax(170px, 0.9fr);
+    align-items: end;
+    gap: clamp(8px, 3vw, 42px);
+    min-height: clamp(270px, 42vh, 455px);
+    padding: 18px clamp(16px, 4vw, 62px) 0;
+    border: 3px solid rgba(245,199,93,0.34);
+    border-bottom: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255,159,60,0.18), transparent 55%), linear-gradient(180deg, rgba(12,7,17,0.18), rgba(11,7,11,0.48));
+    box-shadow: inset 0 0 0 4px rgba(50,25,14,0.58), inset 0 -40px 70px rgba(0,0,0,0.38);
+  }
+  .arena-section::after {
+    left: 14%;
+    right: 14%;
+    bottom: -2px;
+    height: clamp(70px, 10vw, 115px);
+    background: radial-gradient(ellipse at center, rgba(7,5,8,0.78), rgba(7,5,8,0.24) 47%, transparent 72%);
+  }
+  .reaction-space {
+    align-self: start;
+    justify-self: center;
+    min-width: min(360px, 100%);
+    min-height: 84px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12px;
+    z-index: 8;
+  }
+  .speech-bubble {
+    position: relative;
+    max-width: 360px;
+    padding: 13px 18px;
+    border: 3px solid #2c160d;
+    border-radius: 18px 18px 18px 6px;
+    background: linear-gradient(180deg, #fff2c8, #e5bf73);
+    color: #341c11;
+    font-size: clamp(15px, 1.6vw, 21px);
+    font-weight: 900;
+    text-align: center;
+    box-shadow: 0 5px 0 rgba(43,22,10,0.74), 0 0 24px rgba(255,207,89,0.24);
+  }
+  .speech-bubble::after {
+    content: "";
+    position: absolute;
+    left: 36px;
+    bottom: -13px;
+    width: 20px;
+    height: 20px;
+    background: #e5bf73;
+    border-right: 3px solid #2c160d;
+    border-bottom: 3px solid #2c160d;
+    transform: rotate(45deg);
+  }
+  .name-plate { display: none; }
+  .char-container.suri-side, .char-container.enemy-side { max-width: none; }
+  .sprite-frame { min-height: clamp(180px, 27vw, 300px); }
+  .sprite-frame::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 78%;
+    height: 25px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.62), transparent 68%);
+    transform: translateX(-50%);
+    z-index: -1;
+  }
+  .sprite-frame::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 64%;
+    height: 42px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(114,255,194,0.28), rgba(255,198,90,0.13) 44%, transparent 72%);
+    transform: translateX(-50%);
+    z-index: -2;
+  }
+  .suri-sprite {
+    height: clamp(178px, 25vw, 295px);
+    filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 5px 0 #17100a) drop-shadow(0 14px 18px rgba(76,194,117,0.44));
+  }
+  .enemy-sprite {
+    width: clamp(170px, 23vw, 275px);
+    height: clamp(170px, 23vw, 275px);
+    object-position: center top;
+    border-radius: 42% 42% 34% 34%;
+    border: 5px solid #1a0d19;
+    box-shadow: 0 0 0 4px rgba(245,199,93,0.35), 0 18px 0 rgba(20,9,8,0.68), 0 0 40px rgba(166,84,224,0.45);
+  }
+  .vs-divider, .vs-badge { display: none; }
+  .battle-panel {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr) 230px;
+    gap: 14px;
+    align-items: stretch;
+    margin: 0;
+    padding: 14px;
+    border: 5px solid #5e3619;
+    background: linear-gradient(90deg, rgba(25,12,8,0.92), rgba(83,46,24,0.94), rgba(25,12,8,0.92)), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 66px);
+    box-shadow: 0 9px 0 #160b07, inset 0 0 0 3px rgba(245,199,93,0.28);
+  }
+  .side-panel, .question-scroll, .choices-panel {
+    border: 3px solid #8e5b20;
+    border-radius: 0;
+    background: linear-gradient(180deg, #57321d, #24130d);
+    box-shadow: inset 0 0 0 3px rgba(20,9,5,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .side-panel { min-height: 282px; padding: 13px; }
+  .panel-title {
+    margin: 0 0 12px;
+    color: #ffe8a2;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .inventory-grid { display: grid; gap: 10px; }
+  .power-up {
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    color: #fff2c5;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .power-icon {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 58px;
+    border: 3px solid #7d654f;
+    border-bottom-color: #2a1c17;
+    border-radius: 30px 30px 8px 8px;
+    background: radial-gradient(circle at 50% 22%, rgba(255,236,170,0.14), transparent 35%), linear-gradient(180deg, #514554, #171318);
+    box-shadow: inset 0 -8px 13px rgba(0,0,0,0.36), 0 4px 0 rgba(0,0,0,0.34);
+    font-size: 27px;
+  }
+  .lore-panel { background: linear-gradient(90deg, rgba(26,8,12,0.72), transparent 18% 82%, rgba(26,8,12,0.72)), linear-gradient(180deg, #751d2f, #2d1017); border-color: #c68b42; }
+  .lore-box {
+    min-height: 194px;
+    padding: 15px 13px;
+    border: 2px solid rgba(255,216,116,0.45);
+    background: rgba(34,10,16,0.72);
+    color: #f7dfad;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: inset 0 0 18px rgba(0,0,0,0.44);
+  }
+  .lore-box strong { display: block; margin-bottom: 8px; color: #ffe694; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; }
+  .battle-form { display: grid; grid-template-rows: auto 1fr; gap: 12px; min-height: 0; }
+  .question-scroll { padding: 11px; }
+  .question-scroll::before, .choices-panel::before { display: none; }
+  .question-strip {
+    min-height: 76px;
+    padding: clamp(13px, 2vw, 18px) clamp(16px, 2.4vw, 24px);
+    border: 2px solid #9c672b;
+    background: radial-gradient(circle at 18% 12%, rgba(255,255,255,0.32), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b);
+    color: #2b170d;
+    box-shadow: inset 0 0 0 2px rgba(89,48,18,0.14);
+  }
+  .question-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 7px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #81511f;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+  .question-text {
+    color: #28150c;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(16px, 1.7vw, 23px);
+    font-weight: 900;
+    line-height: 1.35;
+  }
+  .question-text p, .spell-text p { margin: 0; }
+  .choices-panel { padding: clamp(12px, 1.6vw, 18px); gap: 12px; }
+  .spell-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; align-content: start; }
+  .spell-tile {
+    grid-template-columns: 38px minmax(0, 1fr);
+    min-height: 68px;
+    padding: 11px 40px 11px 11px;
+    border: 3px solid #725131;
+    border-radius: 7px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 38%), linear-gradient(180deg, #69574a, #33271f);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 5px 0 #1b0f0a, 0 8px 14px rgba(0,0,0,0.25);
+  }
+  .spell-tile:hover:not(.locked):not(.selected) {
+    transform: translateY(-3px);
+    border-color: #f5c75d;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 7px 0 #1b0f0a, 0 0 22px rgba(245,199,93,0.28);
+  }
+  .spell-label { width: 34px; height: 34px; border: 2px solid #6d411c; border-radius: 6px; background: linear-gradient(180deg,#ffe596,#c7832e); color: #28150c; font-family: Georgia, 'Times New Roman', serif; font-weight: 900; }
+  .spell-text { color: #fff6dc; font-family: 'Nunito', sans-serif; font-size: clamp(14px, 1.15vw, 16px); font-weight: 900; }
+  .feedback-banner { border-radius: 0; border: 2px solid rgba(255,226,136,0.35); background: rgba(28,13,9,0.76); box-shadow: inset 0 0 18px rgba(0,0,0,0.35); }
+  .bottom-bar { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(150px, 0.8fr) minmax(220px, 1.25fr) minmax(130px, 0.7fr); gap: 12px; }
+  .attack-btn, .ornate-btn, .intro-start-btn, .intro-skip-btn, .outcome-btn {
+    min-height: 54px;
+    border: 3px solid #6d411c;
+    border-radius: 7px;
+    background: linear-gradient(180deg,#ffe596,#b8792d);
+    color: #2a160d;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0;
+    box-shadow: 0 6px 0 #28150c, inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .attack-btn { min-height: 64px; font-size: clamp(17px, 1.7vw, 23px); background: linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%); color: #071d0f; border-color: #ffe288; box-shadow: 0 7px 0 #12361e, 0 0 28px rgba(88,255,138,0.33), inset 0 1px 0 rgba(255,255,255,0.42); }
+  .attack-btn.ready:hover, .ornate-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+  .loading-quest { min-height: 260px; justify-content: center; }
+  .intro-screen { border: 5px solid #5e3619; background: rgba(28,14,10,0.6); box-shadow: inset 0 0 0 4px rgba(245,199,93,0.25); }
+  .intro-title { color: #ffe288; font-family: Georgia, 'Times New Roman', serif; letter-spacing: 0; text-shadow: 4px 4px 0 #211009, 0 0 26px rgba(245,199,93,0.34); }
+  .intro-suri-img { filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 10px 20px rgba(76,194,117,0.44)); }
+  .intro-enemy-img { border-radius: 36%; border: 5px solid #1a0d19; box-shadow: 0 0 0 4px rgba(245,199,93,0.35), 0 0 34px rgba(166,84,224,0.42); }
+  @media (max-width: 1020px) {
+    .hud-bar { grid-template-columns: 1fr; clip-path: none; }
+    .hud-brand, .hud-right { justify-content: center; }
+    .battle-panel { grid-template-columns: 1fr; }
+    .bottom-bar { grid-template-columns: 1fr; }
+    .side-panel { min-height: 0; }
+    .inventory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .lore-box { min-height: auto; }
+  }
+  @media (max-width: 760px) {
+    .battle-body { padding: 8px; }
+    .battle-body::before { inset: 4px; }
+    .arena-section { grid-template-columns: 1fr 0.75fr 1fr; gap: 4px; min-height: 280px; padding-inline: 8px; }
+    .reaction-space { min-width: 0; min-height: 64px; }
+    .speech-bubble { padding: 9px 12px; font-size: 13px; }
+    .suri-sprite { height: 142px; }
+    .enemy-sprite { width: 136px; height: 136px; }
+    .sprite-frame { min-height: 168px; }
+    .spell-grid { grid-template-columns: 1fr; }
+    .combatant-card { flex-wrap: wrap; justify-content: center; text-align: center; }
+    .enemy-card { justify-content: center; }
+  }
   ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); } ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.5); border-radius: 3px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;
@@ -442,7 +854,7 @@ function suriImg(s: SuriState): string {
   if (s === "happy") return "/suri-snake-happy.png";
   if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.png";
   if (s === "attack") return "/suri-snake-right.png";
-  return "/suri-snake-left.png";
+  return "/suri-snake-right.png";
 }
 function suriAlt(s: SuriState): string {
   if (s === "happy")    return "Suri celebrating";
@@ -665,20 +1077,38 @@ export default function DiagnosticPage() {
         <ArenaBackground />
         <header className="hud-bar" role="banner">
           <div className="hud-brand">
-            <span className="hud-logo"><GameIcon name="sword" /> SURI</span>
-            <span className="hud-tag">{phase === "intro" ? "Placement Quest" : "Battle Diagnostic"}</span>
+            <div className="combatant-card hero-card">
+              <span className="level-badge">Lv 1</span>
+              <div>
+                <span className="combatant-name">Suri</span>
+                <span className="combatant-subtitle">Graduate Bookworm</span>
+                <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${MAX_HEARTS}`}>
+                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < suriHearts} breaking={suriBreaking === hi} />; })}
+                </div>
+              </div>
+            </div>
           </div>
-          {phase !== "intro" && (
-            <div className="hud-center">
-              <span className="hud-progress-text">{answeredCount}/{totalQuestions || "?"}</span>
+          <div className="chapter-banner">
+            <span className="chapter-eyebrow">{phase === "intro" ? "Placement Quest" : `Challenge ${answeredCount + 1} of ${totalQuestions || "?"}`}</span>
+            <span className="hud-logo">The Dungeon of Divisors</span>
+            {phase !== "intro" && (
               <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
                 <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
               </div>
-            </div>
-          )}
+            )}
+          </div>
           <div className="hud-right">
-            {streak > 1 && <div className="streak-pill" aria-label={`${streak} answer streak`}><GameIcon name="flame" /> {streak}x</div>}
-            <div className="score-chip" aria-label={`Score: ${score}`}><GameIcon name="coin" /> {score}</div>
+            <div className="combatant-card enemy-card">
+              <div>
+                <span className="combatant-name">Count Calculus</span>
+                <span className="combatant-subtitle">Rune Wizard</span>
+                <div className="hearts-bar" aria-label={`Enemy hearts: ${enemyHearts} of ${MAX_HEARTS}`}>
+                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < enemyHearts} breaking={enemyBreaking === hi} />; })}
+                </div>
+              </div>
+              {streak > 1 && <div className="streak-pill" aria-label={`${streak} answer streak`}><GameIcon name="flame" /> {streak}x</div>}
+              <div className="score-chip" aria-label={`Score: ${score}`}><GameIcon name="coin" /> {score}</div>
+            </div>
           </div>
         </header>
 
@@ -691,12 +1121,12 @@ export default function DiagnosticPage() {
             </p>
             <div className="intro-vs" aria-label="Suri vs Math Villain">
               <div className="intro-char">
-                <img src="/suri-snake-left.png" alt="Suri the snake" className="intro-suri-img" />
+                <img src="/suri-snake-right.png" alt="Suri the snake" className="intro-suri-img" />
                 <span className="char-name" style={{ color: "#3dbf6e" }}>Suri</span>
               </div>
               <span className="intro-vs-badge" aria-hidden="true">VS</span>
               <div className="intro-char">
-                <img src="/enemy-math-villain.jpg" alt="The Math Villain" className="intro-enemy-img" />
+                <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
                 <span className="char-name" style={{ color: "#c39bd3" }}>Math Villain</span>
               </div>
             </div>
@@ -726,22 +1156,22 @@ export default function DiagnosticPage() {
                   <span className="char-name" style={{ color: "#8fe06a" }}>Suri</span>
                   <span className="char-title" style={{ color: "#3dbf6e" }}>Your Champion</span>
                 </div>
-                <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${MAX_HEARTS}`}>
-                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < suriHearts} breaking={suriBreaking === hi} />; })}
-                </div>
                 <div className="sprite-frame">
                   {suriDmg && <div className="dmg-number dmg-suri" aria-live="assertive">{suriDmg}</div>}
                   <img src={suriImg(suriState)} alt={suriAlt(suriState)} className={suriCls(suriState)} draggable={false} />
                 </div>
               </div>
-              <div className="vs-divider" aria-hidden="true"><div className="vs-badge">VS</div></div>
+              <div className="reaction-space" aria-live="polite">
+                {feedback ? (
+                  <div className="speech-bubble">
+                    {feedback.correct ? "Correct!" : "Nice Try!"}
+                  </div>
+                ) : null}
+              </div>
               <div className="char-container enemy-side">
                 <div className="name-plate" style={{ alignItems: "flex-end" }}>
                   <span className="char-name" style={{ color: "#ffd780" }}>Math Villain</span>
                   <span className="char-title" style={{ color: "#c39bd3" }}>The Enemy</span>
-                </div>
-                <div className="hearts-bar" aria-label={`Enemy hearts: ${enemyHearts} of ${MAX_HEARTS}`}>
-                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < enemyHearts} breaking={enemyBreaking === hi} />; })}
                 </div>
                 <div className="sprite-frame">
                   {enemyDmg && <div className="dmg-number dmg-enemy" aria-live="assertive">{enemyDmg}</div>}
@@ -761,6 +1191,14 @@ export default function DiagnosticPage() {
             {phase === "battle" && (
               <section className="battle-panel" aria-label="Question panel">
                 {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
+                <aside className="side-panel inventory-panel" aria-label="Inventory and power ups">
+                  <h2 className="panel-title">Satchel</h2>
+                  <div className="inventory-grid">
+                    <div className="power-up"><span className="power-icon">!</span><span>Hint Potion</span></div>
+                    <div className="power-up"><span className="power-icon">+</span><span>Focus Brew</span></div>
+                    <div className="power-up"><span className="power-icon">*</span><span>Rune Strike</span></div>
+                  </div>
+                </aside>
                 {loading ? (
                   <div className="loading-quest question-scroll">
                     <span className="spin-loader" style={{ fontSize: 36 }}><GameIcon name="gear" /></span>
@@ -769,9 +1207,11 @@ export default function DiagnosticPage() {
                 ) : probe ? (
                   <form onSubmit={handleSubmit} noValidate className="battle-form">
                     <div className="question-scroll" role="region" aria-label="Current question">
-                      <div className="question-badge"><GameIcon name="book" /> Challenge</div>
-                      <div className="question-text" id="question-text">
-                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{probe.question_text}</ReactMarkdown>
+                      <div className="question-strip">
+                        <div className="question-badge"><GameIcon name="book" /> Arcane Challenge</div>
+                        <div className="question-text" id="question-text">
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{probe.question_text}</ReactMarkdown>
+                        </div>
                       </div>
                     </div>
                     <div className="choices-panel">
@@ -809,14 +1249,34 @@ export default function DiagnosticPage() {
                           </div>
                         </div>
                       )}
+                    </div>
+                    <div className="bottom-bar">
+                      <button type="button" className="ornate-btn" onClick={handleSkip} disabled={skipping || submitting || locked}>
+                        {skipping ? "Skipping..." : "Scramble/Skip"}
+                      </button>
                       {!feedback && (
                         <button id="cast-spell-btn" type="submit" className={`attack-btn ${selectedIdx !== null && !locked ? "ready" : "disabled"}`} disabled={selectedIdx === null || locked || submitting} aria-disabled={selectedIdx === null || locked || submitting}>
-                          {submitting ? <><span className="spin-loader"><GameIcon name="gear" /></span> Casting...</> : selectedIdx !== null ? <><GameIcon name="bolt" /> CAST SPELL!</> : "Choose a spell first"}
+                          {submitting ? <><span className="spin-loader"><GameIcon name="gear" /></span> Casting...</> : selectedIdx !== null ? <><GameIcon name="bolt" /> Attack/Submit</> : "Choose an answer"}
                         </button>
                       )}
+                      {feedback && (
+                        <button type="button" className="attack-btn ready" disabled>
+                          {feedback.correct ? "Resolving Hit..." : "Resolving Counter..."}
+                        </button>
+                      )}
+                      <button type="button" className="ornate-btn" onClick={() => router.push("/dashboard")}>
+                        Menu
+                      </button>
                     </div>
                   </form>
                 ) : null}
+                <aside className="side-panel lore-panel" aria-label="Enemy lore">
+                  <h2 className="panel-title">Villain Lore</h2>
+                  <div className="lore-box">
+                    <strong>Count Calculus</strong>
+                    A horned keeper of forgotten formulas, he binds every wrong answer into a glowing rune on his staff. Break his spell by choosing the truest path.
+                  </div>
+                </aside>
               </section>
             )}
           </div>
