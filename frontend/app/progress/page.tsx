@@ -3,11 +3,8 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
+import { ensureLearningData } from "@/lib/learningData";
 import {
-  getMe,
-  getTopics,
-  getStudentProgress,
-  getGraphChain,
   createSession,
   skipDiagnostic,
 } from "../../lib/api";
@@ -81,64 +78,15 @@ function ProgressContent() {
       try {
         setLoading(true);
 
-        const [me, topicsData] = await Promise.all([
-          getMe(),
-          getTopics(),
-        ]);
-
-        const progress = await getStudentProgress(me.student_id);
+        // Reuse the root-shell prefetch instead of repeating every API and graph
+        // request as soon as the island transition reaches this route.
+        const data = await ensureLearningData();
+        const progress = data.progress;
 
         setActiveSessions(progress.active_sessions || []);
-
-        const statuses: Record<string, NodeStatus> = {};
-
-        const scanSession = (session: any) => {
-          session.mastered_nodes?.forEach((n: any) => {
-            statuses[n.node_id] = "mastered";
-          });
-
-          session.in_progress_nodes?.forEach((n: any) => {
-            if (statuses[n.node_id] !== "mastered") {
-              statuses[n.node_id] = "in_progress";
-            }
-          });
-
-          session.unresolved_nodes?.forEach((n: any) => {
-            if (
-              statuses[n.node_id] !== "mastered" &&
-              statuses[n.node_id] !== "in_progress"
-            ) {
-              statuses[n.node_id] = "unresolved";
-            }
-          });
-        };
-
-        progress.active_sessions?.forEach(scanSession);
-        progress.completed_sessions?.forEach(scanSession);
-
-        setNodeStatuses(statuses);
-        setTopics(topicsData);
-
-        const chainsMap: Record<string, ChainNode[]> = {};
-
-        await Promise.all(
-          topicsData.map(async (topic: any) => {
-            try {
-              const chainData = await getGraphChain(topic.node_id);
-
-              chainsMap[topic.node_id] = chainData.chain || [];
-            } catch (err) {
-              console.error(
-                `Failed to load chain for ${topic.node_id}`,
-                err
-              );
-
-              chainsMap[topic.node_id] = [];
-            }
-          })
-        );
-
-        setTopicChains(chainsMap);
+        setNodeStatuses(data.statuses);
+        setTopics(data.topics);
+        setTopicChains(data.chains);
       } catch (err: any) {
         setErrorMsg(
           err instanceof Error

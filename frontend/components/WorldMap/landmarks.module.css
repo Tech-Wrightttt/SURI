@@ -51,6 +51,7 @@
   color: #fff9ec;
   box-shadow: 0 8px 24px #17262433;
   font: 500 11px/1.5 "Manrope", sans-serif;
+  z-index: 2;
 }
 .detail strong { display: block; margin-bottom: 4px; font-size: 13px; }
 .detail span { color: #d0d6d1; }
@@ -60,6 +61,14 @@
 
 /* World labels never become competing pointer targets. Native buttons remain
    keyboard focusable; pointer/touch activation goes through the 3D hitboxes. */
+.anchor { position: relative; z-index: 1; }
+.tooltipPortal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+.tooltipAnchor { position: relative; width: 0; height: 0; pointer-events: none; }
 .anchor, .marker, .detail { pointer-events: none; }
 .viewport { position: absolute; inset: 0; }
 @media (max-aspect-ratio: 1/1) {

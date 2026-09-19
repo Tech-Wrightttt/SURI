@@ -90,11 +90,13 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       if (overview && site) setCommand({id:++serial.current,kind:"island",site,onComplete:resolve});
       else resolve();
     });
-    // Keep the current page visible if a cold/slow connection is still warming.
-    // Once data is cached, this only waits for the 220 ms camera motion.
-    const prepared = managedRoutes.includes(href) && href !== "/dashboard" && href !== "/calculator"
-      ? (getLearningSnapshot().data ? Promise.resolve() : ensureLearningData()) : Promise.resolve();
-    void Promise.all([camera,prepared]).then(() => {
+    // Prefetching starts eagerly, but navigation is deliberately gated only by
+    // the short camera motion. A slow data request must never turn an island
+    // click into a blank or spinner-bound intermediate state.
+    if (managedRoutes.includes(href) && href !== "/dashboard" && href !== "/calculator" && !getLearningSnapshot().data) {
+      void ensureLearningData().catch(() => {});
+    }
+    void camera.then(() => {
       if(token!==transaction.current)return;
       router.push(href);
     }).catch(cause => {

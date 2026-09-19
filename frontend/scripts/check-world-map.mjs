@@ -58,6 +58,7 @@ while (land.size) {
   islandGroups.push(names.join('+'));
 }
 assert.equal(islandCount, Object.keys(world.ISLANDS).length, `Each island must remain separated by ocean: ${islandGroups.join(', ')}`);
+assert(Object.keys(world.ISLANDS).length >= 20, 'The world needs a varied scatter of scenic islets');
 assert(world.BRIDGES.length === 4, 'Archipelago must retain its four functional bridges');
 for (const [a,b] of world.BRIDGES) {
   assert(world.shoreDistance((a[0]+b[0])/2,(a[1]+b[1])/2)<0, 'Bridge must span an ocean channel');
@@ -68,14 +69,13 @@ for (const road of world.ROADS) for (const point of road) {
   if (world.shoreDistance(point.x, point.z) < 0) assert(world.bridgeDistance(point.x, point.z) < 1.6, `Road crossed open water without a bridge at ${point.x.toFixed(1)}, ${point.z.toFixed(1)}`);
   assert(world.roadHeight(point.x, point.z) > 0.1, 'Road entered the tide line');
 }
-for (const path of world.RIVER_PATHS) for (const [x, z] of path) assert(world.terrainHeight(x, z) < 0.5, 'River was not carved into the terrain');
-for (const lake of world.LAKES) assert(world.terrainHeight(lake.x, lake.z) < 0.2, 'Lake was not carved into the terrain');
+assert(!('RIVER_PATHS' in world) && !('LAKES' in world), 'The main island must not retain inland water geometry');
 for (const [name, builder] of [['settlements', makeSettlements()], ['forest', makeVegetation()], ['background', makeVegetation(true)]]) {
   const count = checkBatch(builder);
   assert(builder.batches.size < 40, 'Excessive environmental draw batches');
   console.log(`${name}: ${count} instances in ${builder.batches.size} batches`);
 }
-console.log('PASS: island foundations, bridge-only water crossings, carved rivers and lakes, and valid batched geometry.');
+console.log('PASS: island foundations, bridge-only water crossings, dry main-island terrain, and valid batched geometry.');
 
 // Validate actual generated terrain and architecture against the camera projection.
 const { playableProjectionBounds, architectureBounds } = load('../lib/worldMap/worldBounds.ts');

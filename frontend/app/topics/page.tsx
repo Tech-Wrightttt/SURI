@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
-import { getTopics, TopicInfo, getMe, getStudentProgress, createSession, getGraphChain } from "../../lib/api";
+import { TopicInfo } from "../../lib/api";
+import { ensureLearningData } from "@/lib/learningData";
 
 export default function TopicsPage() {
   const router = useRouter();
@@ -18,8 +19,10 @@ export default function TopicsPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [data, me] = await Promise.all([getTopics(), getMe()]);
-        const progress = await getStudentProgress(me.student_id);
+        // The persistent shell starts this work before camera travel. Reusing it
+        // eliminates a second topics/progress/chain request on route arrival.
+        const data = await ensureLearningData();
+        const progress = data.progress;
         
         const activeMap: Record<string, string> = {};
         for (const s of progress.active_sessions || []) {
@@ -33,33 +36,11 @@ export default function TopicsPage() {
         
         setActiveTopics(activeMap);
         setCompletedTopics(completedSet);
-        setTopics(data);
+        setTopics(data.topics);
 
         // Compute mastery statuses
-        const statuses: Record<string, string> = {};
-        const scanSession = (session: any) => {
-          session.mastered_nodes?.forEach((n: any) => {
-            statuses[n.node_id] = "mastered";
-          });
-        };
-        progress.active_sessions?.forEach(scanSession);
-        progress.completed_sessions?.forEach(scanSession);
-        setNodeStatuses(statuses);
-
-        // Load graph chains
-        const chainsMap: Record<string, any[]> = {};
-        await Promise.all(
-          data.map(async (topic: any) => {
-            try {
-              const chainData = await getGraphChain(topic.node_id);
-              chainsMap[topic.node_id] = chainData.chain || [];
-            } catch (err) {
-              console.error(`Failed to load chain for ${topic.node_id}`, err);
-              chainsMap[topic.node_id] = [];
-            }
-          })
-        );
-        setTopicChains(chainsMap);
+        setNodeStatuses(data.statuses);
+        setTopicChains(data.chains);
       } catch (err: any) {
         setError(err.detail || err.message || "Failed to load topics. Are you logged in?");
       } finally {
