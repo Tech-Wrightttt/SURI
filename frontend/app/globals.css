@@ -180,8 +180,7 @@ html::-webkit-scrollbar {
     linear-gradient(145deg, #65c6ef 0%, #8bd9f6 52%, #58b5e7 100%);
 }
 
-.dashboard-world::before,
-.dashboard-world::after {
+.dashboard-world::before {
   content: "";
   position: absolute;
   pointer-events: none;
@@ -193,15 +192,6 @@ html::-webkit-scrollbar {
   background-image: linear-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.13) 1px, transparent 1px);
   background-size: 58px 58px;
   mask-image: linear-gradient(to bottom, transparent, black 25%, transparent 90%);
-}
-
-.dashboard-world::after {
-  width: 50vw;
-  height: 30vh;
-  right: -8vw;
-  top: 17vh;
-  background: rgba(255, 249, 183, 0.34);
-  filter: blur(90px);
 }
 
 .dashboard-canvas {
@@ -410,3 +400,10 @@ html::-webkit-scrollbar {
   .voxel-tutorial { grid-template-columns: auto 1fr; }
   .voxel-close { grid-column: 2; justify-self: start; }
 }
+
+/* A retained WebGL canvas survives App Router page changes. */
+.persistent-world { position: fixed; inset: 0; z-index: 0; visibility: hidden; pointer-events: none; background: #126f8d; }
+.persistent-world[data-active="true"] { visibility: visible; pointer-events: auto; }
+.dashboard-route-overlay { position: relative; z-index: 40; pointer-events: none; }
+.dashboard-route-overlay nav, .dashboard-route-overlay [role="alert"], .dashboard-route-overlay button { pointer-events: auto; }
+.learning-route-content { position: relative; z-index: 40; }

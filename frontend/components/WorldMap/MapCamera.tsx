@@ -1,57 +1,53 @@
 "use client";
-
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, worldFrame } from "@/lib/worldMap/framing";
+import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
+import { SITES, sitePosition } from "@/lib/worldMap/landscape";
+import { cameraEase, islandCameraPose, RETURN_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
+export { CAMERA_POSITION } from "@/lib/worldMap/framing";
 
-export type CameraTravel = { position: [number, number, number]; onArrive: () => void };
-export const CAMERA_PAN_LIMIT = 8;
-export const CAMERA_POSITION = [130, 130, 130] as const;
-export const CAMERA_TARGET = [0, 1, -8] as const;
-export const CAMERA_ORTHO_SIZE = 92;
-let savedPan = 0;
-
-/** Only horizontal translation is possible; no orbit controller is mounted. */
-export function MapCamera({ travel }: { travel: CameraTravel | null }) {
-  const getThree = useThree(state => state.get);
-  const size = useThree(state => state.size);
-  const pan = useRef(savedPan);
-  const target = useRef(savedPan);
-  const travelTime = useRef(0);
-  const completed = useRef(false);
-  const orientation = useRef(new THREE.Quaternion());
-  const busy = useRef(false);
-  useLayoutEffect(() => {
-    const { camera } = getThree();
-    camera.position.set(...CAMERA_POSITION);camera.lookAt(...CAMERA_TARGET);
-    orientation.current.copy(camera.quaternion);
-    if(camera instanceof THREE.OrthographicCamera) {
-      const aspect=size.width/size.height;
-      camera.left=-CAMERA_ORTHO_SIZE*aspect;camera.right=CAMERA_ORTHO_SIZE*aspect;
+export function MapCamera({ command }: { command: CameraCommand | null }) {
+  const getThree=useThree(state=>state.get),size=useThree(state=>state.size);
+  const initialized=useRef(false);
+  const animation=useRef<{elapsed:number;duration:number;from:THREE.Vector3;to:THREE.Vector3;fromZoom:number;toZoom:number;done:()=>void}|null>(null);
+  useLayoutEffect(()=>{
+    const {camera}=getThree();
+    if(!initialized.current){
+      camera.position.set(...CAMERA_POSITION);camera.lookAt(...CAMERA_TARGET);camera.zoom=1;
+      initialized.current=true;
+    }
+    if(camera instanceof THREE.OrthographicCamera){
+      camera.left=-CAMERA_ORTHO_SIZE*size.width/size.height;camera.right=-camera.left;
       camera.top=CAMERA_ORTHO_SIZE;camera.bottom=-CAMERA_ORTHO_SIZE;
     }
     camera.near=0.5;camera.far=650;camera.updateProjectionMatrix();
   },[getThree,size]);
-  useEffect(()=>{
-    const canvas=getThree().gl.domElement;
-    let down: {id:number;x:number;pan:number}|null=null;
-    const start=(e:PointerEvent)=>{if(!busy.current&&e.isPrimary&&(e.button===0||e.button===2))down={id:e.pointerId,x:e.clientX,pan:target.current};};
-    const move=(e:PointerEvent)=>{if(!down||down.id!==e.pointerId||busy.current)return;target.current=THREE.MathUtils.clamp(down.pan-(e.clientX-down.x)*0.025,-CAMERA_PAN_LIMIT,CAMERA_PAN_LIMIT);};
-    const end=()=>{down=null;};
-    const oldTouchAction=canvas.style.touchAction;canvas.style.touchAction="none";
-    canvas.addEventListener("pointerdown",start);window.addEventListener("pointermove",move);window.addEventListener("pointerup",end);window.addEventListener("pointercancel",end);window.addEventListener("blur",end);
-    return()=>{canvas.style.touchAction=oldTouchAction;canvas.removeEventListener("pointerdown",start);window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",end);window.removeEventListener("pointercancel",end);window.removeEventListener("blur",end);};
-  },[getThree]);
   useLayoutEffect(()=>{
-    busy.current=Boolean(travel);completed.current=false;travelTime.current=0;
-    if(travel) {savedPan=pan.current;target.current=THREE.MathUtils.clamp(travel.position[0]*0.15,-CAMERA_PAN_LIMIT,CAMERA_PAN_LIMIT);}
-  },[travel]);
-  useFrame((_,delta)=>{
+    if(!command)return;
     const {camera}=getThree();
-    pan.current=THREE.MathUtils.damp(pan.current,target.current,7,delta);
-    camera.position.set(CAMERA_POSITION[0]+pan.current,CAMERA_POSITION[1],CAMERA_POSITION[2]);camera.quaternion.copy(orientation.current);
-    if(!travel)savedPan=pan.current;
-    if(travel&&!completed.current){travelTime.current+=delta;if(travelTime.current>=0.65){completed.current=true;travel.onArrive();}}
+    let to=new THREE.Vector3(...CAMERA_POSITION),toZoom=1;
+    if(command.kind==="island"&&command.site&&command.site in SITES){
+      const frame=worldFrame(size.width,size.height,playableProjectionBounds());
+      const point=new THREE.Vector3(...sitePosition(command.site as keyof typeof SITES))
+        .applyAxisAngle(new THREE.Vector3(0,1,0),frame.rotation).multiplyScalar(frame.scale).add(new THREE.Vector3(...frame.position));
+      const pose=islandCameraPose(point);to=pose.position;toZoom=pose.zoom;
+    }
+    const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    animation.current={elapsed:0,duration:reduced?0:command.kind==="overview"?RETURN_DURATION:ZOOM_DURATION,
+      from:camera.position.clone(),to,fromZoom:camera.zoom,toZoom,done:command.onComplete};
+  },[command,getThree,size]);
+  useFrame((_,delta)=>{
+    const motion=animation.current;if(!motion)return;
+    motion.elapsed+=Math.min(delta,0.05);
+    const t=motion.duration?Math.min(1,motion.elapsed/motion.duration):1;
+    const {camera}=getThree();
+    camera.position.lerpVectors(motion.from,motion.to,cameraEase(t));
+    camera.zoom=THREE.MathUtils.lerp(motion.fromZoom,motion.toZoom,cameraEase(t));
+    camera.updateProjectionMatrix();
+    // No lookAt during motion: the original isometric quaternion stays locked.
+    if(t===1){animation.current=null;motion.done();}
   });
   return null;
 }

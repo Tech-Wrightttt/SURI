@@ -72,3 +72,12 @@
 @media (max-width: 600px) {
   .marker { padding: 4px 6px; font-size: 8px; }
 }
+
+/* Separate the dense hub labels when the full archipelago fits a phone width. */
+@media (max-width: 600px) {
+  .anchor[data-landmark="keep"] { transform: translate(8px, -22px); }
+  .anchor[data-landmark="academy"] { transform: translate(-6px, 0); }
+  .anchor[data-landmark="ranger"] { transform: translate(20px, 0); }
+  .anchor[data-landmark="guild"] { transform: translate(-9px, 10px); }
+  .anchor[data-landmark="arena"] { transform: translate(-18px, 16px); }
+}

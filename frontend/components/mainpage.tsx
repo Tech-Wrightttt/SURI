@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { HelpCircle, LogOut } from "lucide-react";
 import { getMe, logout } from "@/lib/api";
+import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
 
 const NAV_ITEMS: { label: string; href: string }[] = [
   { label: "Dashboard", href: "/dashboard" },
@@ -22,16 +23,19 @@ export default function MainPage({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const {navigate, busy, clearSession} = useWorldNavigation();
+  const {data} = useLearningData();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    getMe().then((me) => setUserName(me.name)).catch(() => {});
-  }, []);
+    if (!NAV_ITEMS.some(item => item.href === pathname)) getMe().then((me) => setUserName(me.name)).catch(() => {});
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
       await logout();
+      clearSession();
       router.push("/login");
     } catch {
       // ignore
@@ -39,7 +43,7 @@ export default function MainPage({
   };
 
   return (
-    <div className={immersive ? "min-h-screen bg-[#130d2a] text-white" : "min-h-screen bg-[#DBD4C7] text-[#191c1e]"}>
+    <div className={immersive ? "min-h-screen bg-transparent text-white" : "min-h-screen bg-[#DBD4C7] text-[#191c1e]"}>
       {/* TopAppBar */}
       <nav className="fixed top-0 left-0 right-0 z-50">
         <div className="absolute inset-0" style={{ background: immersive ? "linear-gradient(to bottom, rgba(10,6,25,0.82), rgba(10,6,25,0))" : "rgba(219,212,199,0.85)", backdropFilter: "blur(12px)", maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)" }} />
@@ -50,13 +54,17 @@ export default function MainPage({
               <span className="suri-lockup-word">SURI</span>
             </div>
           </div>
-          {!immersive && <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-10 bg-white px-10 h-14 rounded-full border border-[#c3c5d9]/30 shadow-[0_4px_20px_rgba(0,0,0,0.04)] pointer-events-auto">
+          {<nav className="hidden xl:flex absolute left-1/2 -translate-x-1/2 items-center gap-6 bg-white px-7 h-14 rounded-full border border-[#c3c5d9]/30 shadow-[0_4px_20px_rgba(0,0,0,0.04)] pointer-events-auto">
             {NAV_ITEMS.map(({ label, href }) => {
               const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
               return (
                 <button
                   key={label}
-                  onClick={() => router.push(href)}
+                  onClick={() => navigate(href)}
+                  disabled={busy}
+                  onPointerEnter={() => router.prefetch(href)}
+                  onFocus={() => router.prefetch(href)}
+                  aria-current={isActive ? "page" : undefined}
                   className={`font-['Manrope'] text-[13px] font-bold transition-colors cursor-pointer ${
                     isActive ? "text-[#1F2720] nav-brush" : "text-[#434656] hover:text-[#1F2720]"
                   }`}
@@ -68,7 +76,7 @@ export default function MainPage({
           </nav>}
           <div className="flex items-center gap-3 absolute right-4 md:right-8 top-1/2 -translate-y-1/2 pointer-events-auto">
           <div className={immersive ? "bg-white/12 px-5 h-12 rounded-full border border-white/20 backdrop-blur-md flex items-center" : "bg-white px-6 h-14 rounded-full border border-[#c3c5d9]/30 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex items-center"}>
-            <span className={immersive ? "font-['Manrope'] text-[13px] font-bold text-white" : "font-['Manrope'] text-[13px] font-bold text-[#191c1e]"}>{userName || "Student"}</span>
+            <span className={immersive ? "font-['Manrope'] text-[13px] font-bold text-white" : "font-['Manrope'] text-[13px] font-bold text-[#191c1e]"}>{data?.me.name || userName || "Student"}</span>
           </div>
           {immersive && <button
             onClick={() => window.dispatchEvent(new Event("suri:open-tutorial"))}
@@ -87,6 +95,12 @@ export default function MainPage({
         </div>
       </nav>
 
+      <nav aria-label="Sections" className="xl:hidden fixed bottom-3 left-3 right-3 z-50 flex justify-around gap-1 rounded-2xl bg-white/95 p-3 shadow-lg text-[#1F2720]">
+        {NAV_ITEMS.map(({label,href})=><button key={href} disabled={busy} aria-current={pathname===href?"page":undefined}
+          onClick={()=>navigate(href)} className={`text-[10px] sm:text-xs font-bold px-1 py-1 ${pathname===href?"underline underline-offset-4":""}`}>
+          {label}
+        </button>)}
+      </nav>
       <main className={immersive ? "min-h-screen" : "pt-28 pb-12 px-4 md:px-8 max-w-[1440px] mx-auto"}>
         {children}
       </main>
@@ -106,3 +120,4 @@ export default function MainPage({
     </div>
   );
 }
+
