@@ -13,6 +13,7 @@ const THREE = load('three');
 const framing = load('../lib/worldMap/framing.ts');
 const { ArchitectureBuilder } = load('../lib/worldMap/architecture.ts');
 const { makeSettlements, makeVegetation } = load('../lib/worldMap/settlements.ts');
+const placement = load('../lib/worldMap/placement.ts');
 function checkBatch(builder) {
   let count = 0;
   for (const batch of builder.batches.values()) {
@@ -28,6 +29,33 @@ for (const [key, [x, z]] of Object.entries(world.SITES)) {
   const builder = new ArchitectureBuilder();
   builder.landmark(key);
   assert(checkBatch(builder) > 30, `${key}: missing architectural detail`);
+}
+assert('topics' in world.SITES && 'topics' in world.ISLANDS, 'Topics must retain its own named island and site');
+assert(!('tactics' in world.SITES) && !('tactics' in world.ISLANDS), 'Obsolete Tactics world identifiers must be removed');
+for (const [key, [x, z]] of Object.entries(world.SITES)) {
+  const [width,,depth] = framing.LANDMARK_BOUNDS[key];
+  const footprint = { x, z, width: width * framing.LANDMARK_SCALE, depth: depth * framing.LANDMARK_SCALE };
+  assert(placement.footprintCells(footprint).every(cell => cell.kind === 'LAND'), `${key}: full landmark footprint must be land`);
+}
+const dock = placement.findDockPlacement(new THREE.Vector2(0, 1), 4, 2.2, 1200, 2, world.SITES.keep);
+assert(dock && placement.validateDockTerrain(dock), 'Dock must be anchored at coast and extend across water');
+assert(dock.length <= 4 && dock.landwardLength >= 2, 'Harbor must use a short water dock with a grounded land approach');
+const harborPath = placement.dockApproachPath(dock, world.SITES.keep);
+for (let index = 1; index < harborPath.length; index++) for (let step = 0; step <= 20; step++) {
+  const point = harborPath[index - 1].clone().lerp(harborPath[index], step / 20);
+  assert(world.shoreDistance(point.x, point.z) > 0, 'Dock access path must stay on land');
+}
+assert(world.terrainHeight(harborPath.at(-1).x, harborPath.at(-1).z) > 0.25, 'Dock entrance must be raised above the waterline');
+const dockBox = placement.footprintBox(placement.dockFootprint(dock), -0.95, 1.1);
+const harborValidator = new placement.PlacementValidator();
+harborValidator.commit({ kind: 'dock', footprint: placement.dockFootprint(dock), bounds: dockBox, clearance: 0.15 });
+for (const side of [1]) {
+  const boat = placement.boatBesideDock(dock, 1.9, 4.2, side);
+  assert(placement.footprintCells(boat).every(cell => cell.kind === 'WATER'), 'Boat footprint must stay in water');
+  const boatPlacement = { kind: 'boat', footprint: boat, bounds: placement.footprintBox(boat, -0.1, 4), clearance: 0.55 };
+  assert(!boatPlacement.bounds.clone().expandByScalar(0.55).intersectsBox(dockBox), 'Boat must clear dock bounding box');
+  assert(harborValidator.canPlace(boatPlacement, ['WATER']), `Boat ${side} must commit only after water and collision validation at ${boat.x.toFixed(1)},${boat.z.toFixed(1)}; bounds ${boatPlacement.bounds.min.x.toFixed(1)},${boatPlacement.bounds.min.z.toFixed(1)} to ${boatPlacement.bounds.max.x.toFixed(1)},${boatPlacement.bounds.max.z.toFixed(1)}`);
+  harborValidator.commit(boatPlacement);
 }
 for (const [name, island] of Object.entries(world.ISLANDS)) {
   assert(world.shoreDistance(island.x, island.z) > Math.min(3, Math.min(island.rx, island.rz) * 0.5), `${name}: missing island interior`);
@@ -93,7 +121,7 @@ for (const [key, point] of Object.entries(world.SITES)) {
 }
 for (const builder of generated) {
   const bounds=architectureBounds(builder);
-  assert(bounds.min.x>=world.WORLD_BOUNDS.minX&&bounds.max.x<=world.WORLD_BOUNDS.maxX&&bounds.min.z>=world.WORLD_BOUNDS.minZ&&bounds.max.z<=world.WORLD_BOUNDS.maxZ,'Decorations escaped the compact layout');
+  assert(bounds.min.x>=world.WORLD_BOUNDS.minX&&bounds.max.x<=world.WORLD_BOUNDS.maxX&&bounds.min.z>=world.WORLD_BOUNDS.minZ&&bounds.max.z<=world.WORLD_BOUNDS.maxZ,`Decorations escaped the compact layout: ${bounds.min.x.toFixed(1)},${bounds.min.z.toFixed(1)} to ${bounds.max.x.toFixed(1)},${bounds.max.z.toFixed(1)}`);
 }
 for (const [width,height] of [[1288,646],[1440,900],[1024,768],[820,600],[390,260],[844,390]]) {
   const frame=framing.worldFrame(width,height,projectedBounds);

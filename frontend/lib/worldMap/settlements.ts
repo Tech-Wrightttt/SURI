@@ -1,5 +1,7 @@
+import * as THREE from "three";
 import { ArchitectureBuilder } from "./architecture";
-import { BRIDGES, FARMS, ISLANDS, WORLD_BOUNDS, coastZ, farmDistance, insideWorld, roadDistance, seededRandom, shoreDistance, siteDistance, terrainHeight } from "./landscape";
+import { BRIDGES, FARMS, ISLANDS, SITES, WORLD_BOUNDS, farmDistance, insideWorld, roadDistance, seededRandom, shoreDistance, siteDistance, terrainHeight } from "./landscape";
+import { PlacementValidator, boatBesideDock, dockFootprint, findDockPlacement, footprintBox, type Footprint } from "./placement";
 
 function tree(b:ArchitectureBuilder,x:number,z:number,size:number,oak:boolean) {
   const y=terrainHeight(x,z);
@@ -9,6 +11,7 @@ function tree(b:ArchitectureBuilder,x:number,z:number,size:number,oak:boolean) {
 }
 export function makeSettlements() {
   const b=new ArchitectureBuilder(),random=seededRandom(381);
+  const placements=new PlacementValidator();
   // Generate the villages from island data. Every piece is added to a shared
   // instanced batch, so a richer settlement does not add one draw call per home.
   for(const [name,island] of Object.entries(ISLANDS)) {
@@ -41,15 +44,19 @@ export function makeSettlements() {
       continue;
     }
     let placed=0;
-    const homes:Array<[number,number]>=[];
     const homeTarget=name==="hub"?34:8;
     for(let attempt=0;attempt<260&&placed<homeTarget;attempt++) {
       const x=island.x+(random()-0.5)*island.rx*1.7,z=island.z+(random()-0.5)*island.rz*1.7;
-      if(shoreDistance(x,z)<2.8||siteDistance(x,z)<5.3||roadDistance(x,z)<1.5||farmDistance(x,z)<4||homes.some(([a,c])=>Math.hypot(x-a,z-c)<2.6))continue;
-      homes.push([x,z]);placed++;
-      b.at(x,terrainHeight(x,z),z,0.45+random()*0.13,(random()-0.5)*0.5,()=>{
-        const large=random()>0.72, ornate=random()>0.42;
-        b.house(large?3.7:2.5+random()*0.7,large?3:2.1+random()*0.55,large?3:2+random()*0.65,random()>0.5?"#846d77":"#94735c",ornate);
+      const scale=0.45+random()*0.13, turn=(random()-0.5)*0.5;
+      const large=random()>0.72, ornate=random()>0.42;
+      const width=large?3.7:2.5+random()*0.7, depth=large?3:2.1+random()*0.55, height=large?3:2+random()*0.65;
+      const y=terrainHeight(x,z), footprint:Footprint={x,z,width:(width+1.2)*scale,depth:(depth+1.4)*scale,rotation:turn};
+      const candidate={kind:"building" as const,footprint,bounds:footprintBox(footprint,y,y+height*scale+2),clearance:0.5};
+      // Validate every oriented footprint tile before committing this house.
+      if(!placements.canPlace(candidate,["LAND"],true)||siteDistance(x,z)<5.3||farmDistance(x,z)<4)continue;
+      placements.commit(candidate); placed++;
+      b.at(x,y,z,scale,turn,()=>{
+        b.house(width,depth,height,random()>0.5?"#846d77":"#94735c",ornate);
         if(ornate)b.lantern(-1.6,1.3,1.1);
         if(random()>0.35)b.barrel(2,1);
         if(random()>0.55)b.crate(-1.9,1);
@@ -87,24 +94,14 @@ export function makeSettlements() {
       for(let z=-length/2;z<=length/2;z+=0.4)b.part("box",kind,color,0,0.02,z,1.3,0.06,0.08);
     });
   }
-  // A broad, static harbor extends out from the hub shore. Its planks, piles,
-  // boats, and ship fragments all reuse the same instanced material batches.
-  const portX=-17,portZ=coastZ(portX);
-  const dockEnd=portZ-14;
-  for(let i=0;i<30;i++)b.part("box","wood",i%2?"#987952":"#b08b5f",portX,0.32,portZ-i*0.48,3.1,0.2,0.5);
-  for(const z of [portZ-0.5,portZ-3.2,portZ-6.2,portZ-9.2,dockEnd])for(const dx of [-1.3,1.3])b.part("cylinder","wood","#68513b",portX+dx,-0.2,z,0.16,1.5,0.16);
-  for(const x of [-4.5,4.5])for(let i=0;i<12;i++)b.part("box","wood","#a57d50",portX+x,0.28,dockEnd+i*0.46,5.4,0.18,0.5);
-  for(const x of [-4.5,4.5])for(const z of [dockEnd,dockEnd+3.9])b.part("cylinder","wood","#68513b",portX+x,-0.2,z,0.16,1.5,0.16);
-  // Quayside warehouses and a small market are set into the inland end of the
-  // dock, keeping the harbor connected to the village rather than floating at sea.
-  for(const [x,z,turn,scale,roof] of [[portX-5.2,portZ+2.8,-0.28,0.78,"#78637c"],[portX+4.6,portZ+3.5,0.2,0.66,"#8c685b"]] as Array<[number,number,number,number,string]>) {
-    b.at(x,terrainHeight(x,z),z,scale,turn,()=>{b.house(4.8,3.8,3.2,roof,true);b.crate(-3,1.9);b.barrel(3.1,1.6);});
-  }
-  b.at(portX,terrainHeight(portX,portZ+4.4),portZ+4.4,1,0,()=>{
-    b.stall(-2.4,0,"#b77869");b.stall(2.4,0,"#719399");
-    for(const x of [-4.1,-1.2,1.2,4.1])b.lantern(x,1.25,1.7);
-  });
-  const boat=(x:number,z:number,scale:number,turn:number,cloth:string,large=false)=>b.at(x,0.02,z,scale,turn,()=>{
+  // Select a coast tile and use its water-facing normal; the dock cannot be
+  // inland or parallel to the shoreline because every extension tile is water.
+  const dock=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,[SITES.keep[0],SITES.keep[1]]);
+  const boat=(footprint:Footprint,scale:number,cloth:string,large=false)=>{
+    const candidate={kind:"boat" as const,footprint,bounds:footprintBox(footprint,-0.1,large?4.6:3.4),clearance:0.55};
+    if(!placements.canPlace(candidate,["WATER"]))return;
+    placements.commit(candidate);
+    b.at(footprint.x,0.02,footprint.z,scale,footprint.rotation || 0,()=>{
     const hull=large?2.55:1.8,length=large?5.6:4;
     b.part("hull","wood",large?"#694731":"#75543d",0,0,0,hull,large?1.25:1,length);
     b.part("cylinder","wood","#785a3d",0,large?2.7:2,0,0.1,large?5.4:4,0.1);
@@ -112,25 +109,34 @@ export function makeSettlements() {
     if(large)b.part("sail","cloth",cloth,-0.6,2.6,-1.25,1.45,2.05,1);
     b.part("box","wood","#b08b5f",0,0.5,-length*0.36,large?1.8:1.1,0.3,0.45);
     if(large)for(const x of [-0.6,0,0.6])b.part("box","wood","#b08b5f",x,0.9,0.55,0.45,0.5,0.5);
-  });
-  boat(portX+5.8,dockEnd+2.3,0.78,0.18,"#efdfb8",true);
-  boat(portX-6.2,dockEnd+4.1,0.7,-0.26,"#91bfc5",true);
-  boat(portX+3.8,dockEnd-2.6,0.58,0.46,"#c99088");
-  boat(portX-3.6,dockEnd-1.8,0.44,-0.38,"#e0c889");
-  boat(portX+8.4,dockEnd-4.8,0.33,0.6,"#7ca9ba");
-  // Far-off boats deliberately use only a hull and (sometimes) a tiny sail;
-  // the fixed isometric camera cannot benefit from full ship detail at this size.
-  const distantBoat=(x:number,z:number,scale:number,turn:number,cloth?:string)=>b.at(x,-0.02,z,scale,turn,()=>{
-    b.part("hull","wood","#76533c",0,0,0,1.6,0.7,3.4);
-    if(cloth){b.part("cylinder","wood","#785a3d",0,1.15,0,0.07,2.3,0.07);b.part("sail","cloth",cloth,0.35,1.45,0,0.72,1.1,1);}
-  });
-  for(const [x,z,scale,turn,cloth] of [[-30,-18,0.34,0.2,"#d7c69a"],[-29,18,0.25,-0.5,""],[2,-31,0.31,0.38,"#91bfc5"],[28,-22,0.27,-0.25,""],[35,18,0.33,0.55,"#c99088"],[2,38,0.22,-0.35,""],[-48,4,0.28,0.2,"#e0c889"],[50,-12,0.24,-0.48,""]] as Array<[number,number,number,number,string]>) {
-    if(shoreDistance(x,z)<-1.4)distantBoat(x,z,scale,turn,cloth || undefined);
-  }
-  // A few stranded timbers and a broken mast make the nearby water feel sailed.
-  for(const [x,z,turn] of [[portX-5.2,dockEnd-2.8,0.35],[portX+6.8,dockEnd+0.7,-0.6]] as Array<[number,number,number]>) {
-    b.part("box","wood","#76573d",x,-0.01,z,1.6,0.16,0.28,0,turn,0);
-    b.part("cylinder","wood","#76573d",x+0.3,0.36,z,0.09,1.1,0.09,0,0,Math.PI*0.32);
+    });
+  };
+  if(dock) {
+    const dockArea=dockFootprint(dock);
+    const dockAreaCenter=new THREE.Vector2(dockArea.x,dockArea.z);
+    placements.commit({kind:"dock",footprint:dockArea,bounds:footprintBox(dockArea,-0.95,1.1),clearance:0.15});
+    b.at(dockArea.x,0,dockArea.z,1,dock.rotation,()=>{
+      const totalLength=dock.length+dock.landwardLength;
+      const coastLocal=-(dock.length-dock.landwardLength)*0.5;
+      for(let z=-totalLength/2;z<totalLength/2;z+=0.48) {
+        const world=dockAreaCenter.clone().addScaledVector(dock.outward,z);
+        // The landward boards sit above the actual terrain; only the short
+        // seaward section remains at the water-deck height.
+        const boardY=z<coastLocal ? terrainHeight(world.x,world.y)+0.16 : 0.32;
+        b.part("box","wood",Math.round(z/0.48)%2?"#987952":"#b08b5f",0,boardY,z,dock.width,0.2,0.5);
+      }
+      for(const z of [-totalLength/2,-totalLength/2+2.2,0,totalLength/2])for(const x of [-dock.width/2+0.25,dock.width/2-0.25])b.part("cylinder","wood","#68513b",x,-0.52,z,0.16,1.5,0.16);
+      // A low stone ramp makes the grounded dock entrance read as part of the island.
+      b.part("box","stone","#aaa895",0,terrainHeight(dock.start.x,dock.start.y)+0.06,-totalLength/2+0.7,dock.width+0.35,0.18,1.6);
+      b.part("box","wood","#a57d50",0,0.28,totalLength/2,5.8,0.18,0.55);
+    });
+    const landward=dock.start.clone().addScaledVector(dock.outward,-3.2), side=new THREE.Vector2(Math.cos(dock.rotation),-Math.sin(dock.rotation));
+    for(const [offset,scale,roof] of [[-3.6,0.78,"#78637c"],[3.6,0.66,"#8c685b"]] as Array<[number,number,string]>) {
+      const point=landward.clone().addScaledVector(side,offset), footprint:Footprint={x:point.x,z:point.y,width:5*scale,depth:4.1*scale,rotation:dock.rotation}, y=terrainHeight(point.x,point.y);
+      const warehouse={kind:"building" as const,footprint,bounds:footprintBox(footprint,y,y+5*scale),clearance:0.5};
+      if(placements.canPlace(warehouse,["LAND"],true)) { placements.commit(warehouse); b.at(point.x,y,point.y,scale,dock.rotation,()=>{b.house(4.8,3.8,3.2,roof,true);b.crate(-3,1.9);b.barrel(3.1,1.6);}); }
+    }
+    boat(boatBesideDock(dock,2.55*0.78,5.6*0.78,1),0.78,"#efdfb8",true);
   }
   return b;
 }

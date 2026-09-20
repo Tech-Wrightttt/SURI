@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { Architecture } from "./Architecture";
 import { makeSettlements, makeVegetation } from "@/lib/worldMap/settlements";
 import { ROADS, SITES, WORLD_BOUNDS, roadHeight, shoreDistance, terrainHeight } from "@/lib/worldMap/landscape";
+import { dockApproachPath, findDockPlacement } from "@/lib/worldMap/placement";
 const noRaycast: THREE.Mesh["raycast"] = () => {};
 
 function makeTerrain(width:number,depth:number,xSegments:number,zSegments:number,centerZ:number) {
@@ -32,7 +33,11 @@ export function Landscape() {
   // The locked isometric view does not benefit from a dense terrain grid. This
   // retains the faceted fantasy silhouette while cutting terrain vertices by ~40%.
   const terrain=useMemo(()=>makeTerrain(WORLD_BOUNDS.maxX-WORLD_BOUNDS.minX,WORLD_BOUNDS.maxZ-WORLD_BOUNDS.minZ,188,152,0),[]);
-  const roads=useMemo(()=>ROADS.map(r=>ribbon(r,0.45,(x,z)=>roadHeight(x,z)+0.08)),[]);
+  const roads=useMemo(()=>{
+    const harbor=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,[SITES.keep[0],SITES.keep[1]]);
+    const harborRoad=harbor ? dockApproachPath(harbor,SITES.keep) : [];
+    return [...ROADS,harborRoad].filter(road=>road.length>1).map((road,index)=>ribbon(road,0.45,(x,z)=>index<ROADS.length?roadHeight(x,z)+0.08:terrainHeight(x,z)+0.08));
+  },[]);
   const buildings=useMemo(()=>makeSettlements(),[]);
   const trees=useMemo(()=>makeVegetation(),[]);
   return <group>

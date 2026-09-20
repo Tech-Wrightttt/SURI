@@ -8,7 +8,7 @@ export const WORLD_ROTATION = Math.PI / 4;
 export const LANDMARK_SCALE = 0.68;
 export const LANDMARK_BOUNDS = {
   keep: [11,12.5,10], academy: [8,9,7], records: [8,9,7], champions: [8,6,8],
-  calculator: [8,11.5,8], guild: [10,7,8], thorns: [6.5,6,5], ranger: [7,8,7], arena: [9,6,9],
+  calculator: [8,11.5,8], guild: [10,7,8], topics: [6.5,6,5], ranger: [7,8,7], arena: [9,6,9],
 } satisfies Record<string,[number,number,number]>;
 export const WORLD_BOUNDS = { minX: -61, maxX: 61, minZ: -49, maxZ: 49, minY: -2, maxY: 16 };
 

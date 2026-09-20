@@ -4,7 +4,7 @@ export type Surface = "stone" | "wood" | "plaster" | "roof" | "gold" | "window" 
 export type Shape = "box" | "cylinder" | "cone" | "sphere" | "roof" | "arch" | "ring" | "crystal" | "sail" | "hull";
 export type Piece = { matrix: THREE.Matrix4; color: THREE.Color };
 export type Batch = { shape: Shape; surface: Surface; pieces: Piece[] };
-export type LandmarkKind = "keep" | "academy" | "records" | "champions" | "calculator" | "guild" | "thorns" | "ranger" | "arena";
+export type LandmarkKind = "keep" | "academy" | "records" | "champions" | "calculator" | "guild" | "topics" | "ranger" | "arena";
 
 /** All architecture is assembled into instanced batches, including its tiny trims. */
 export class ArchitectureBuilder {
@@ -140,7 +140,7 @@ export class ArchitectureBuilder {
       if(kind === "champions") {this.part("cylinder","stone","#b3aa91",0,1,0,1.3,1.2,1.3);this.part("crystal","gold","#efce7b",0,2.2,0,1,1.7,1);}
       return;
     }
-    if(kind === "thorns") {
+    if(kind === "topics") {
       this.tower(-1.5,-0.4,4.2,0.95,"#666",true);this.tower(1.6,0,2.5,0.7,"#666",true);
       this.part("box","stone","#7d8980",0,0.65,0,3.5,1.3,1.1);
       this.part("ring","magic","#ba82e8",0,2.2,0.4,1.1,1.1,1.1,Math.PI/2);

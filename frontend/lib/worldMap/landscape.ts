@@ -13,7 +13,7 @@ function island(x:number,z:number,rx:number,rz:number,turn:number,seed:number,hi
 export const ISLANDS = {
   hub: island(0,0,28,24,-0.1,1,4.5),
   progress: island(-42,-5,12,14,-0.4,2,3.2),
-  tactics: island(-11,-35,16,10,0.15,3,3.5),
+  topics: island(-11,-35,16,10,0.15,3,3.5),
   records: island(46,1,12,11,0.35,4,2.8),
   calculator: island(15,34,15,10,-0.25,5,3),
   lanternCove: island(-41,24,7,5,0.3,6,1.6),
@@ -34,7 +34,7 @@ export const ISLANDS = {
 };
 export const SITES = {
   keep: [0,-3], academy: [-12,-9], guild: [-12,5], ranger: [11,-4], arena: [3,12],
-  champions: [-43,-5], thorns: [-11,-35], records: [47,1], calculator: [16,34],
+  champions: [-43,-5], topics: [-11,-35], records: [47,1], calculator: [16,34],
 } satisfies Record<string,MapPoint>;
 export function segmentDistance(x:number,z:number,a:MapPoint,b:MapPoint) {
   const dx=b[0]-a[0],dz=b[1]-a[1];
@@ -66,7 +66,7 @@ export function terrainHeight(x:number,z:number,coast=shoreDistance(x,z)) {
   return height;
 }
 
-const outerSites = [SITES.champions,SITES.thorns,SITES.records,SITES.calculator];
+const outerSites = [SITES.champions,SITES.topics,SITES.records,SITES.calculator];
 const hub:MapPoint=[0,0];
 // Derive each bridge from the actual coast intersections along its road.
 export const BRIDGES:Array<[MapPoint,MapPoint,"wood"|"stone"]> = outerSites.map((end,index)=>{
