@@ -138,7 +138,12 @@ const GAME_CSS = `
   .attack-btn.disabled { background: rgba(255,255,255,0.06); box-shadow: none; color: rgba(255,255,255,0.25); cursor: not-allowed; }
   .outcome-overlay { position: absolute; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; animation: overlayFadeIn 0.4s ease-out; padding: 20px; }
   @keyframes overlayFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-  .defeat-overlay { background: radial-gradient(ellipse at center,rgba(80,10,10,0.95) 0%,rgba(10,0,5,0.98) 100%); }
+  .defeat-overlay {
+    top: -34px;
+    bottom: -34px;
+    min-height: calc(100% + 68px);
+    background: radial-gradient(ellipse at center,rgba(80,10,10,0.95) 0%,rgba(10,0,5,0.98) 100%);
+  }
   .outcome-title { font-family: 'Fredoka One', cursive; font-size: 42px; text-align: center; letter-spacing: 3px; animation: outcomePulse 0.9s ease-in-out infinite; }
   @keyframes outcomePulse { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.05) rotate(1deg); } }
   .defeat-title { color: #ff4757; text-shadow: 3px 3px 0 #5c0000; }
@@ -357,18 +362,25 @@ const GAME_CSS = `
     color: #2a160d;
     box-shadow: 0 4px 0 rgba(44,22,9,0.7);
   }
-  .battle-layout { z-index: 4; max-width: 1380px; min-height: calc(100vh - 136px); margin: 0 auto; }
+  .battle-layout {
+    z-index: 4;
+    max-width: 1380px;
+    min-height: calc(100vh - 136px);
+    margin: 0 auto;
+    display: grid;
+    grid-template-rows: clamp(310px, 43vh, 455px) minmax(350px, auto);
+  }
   .arena-section {
     display: grid;
     grid-template-columns: minmax(170px, 0.9fr) minmax(160px, 0.8fr) minmax(170px, 0.9fr);
     align-items: end;
     gap: clamp(8px, 3vw, 42px);
-    height: clamp(270px, 40vh, 450px);
+    height: clamp(310px, 43vh, 455px);
     flex-shrink: 0;
     padding: 18px clamp(16px, 4vw, 62px) 0;
     border: 3px solid rgba(245,199,93,0.34);
     border-bottom: 0;
-    background: url('/arena-section-background.png') center bottom / cover no-repeat;
+    background: url('/login/arena.png') center bottom / cover no-repeat;
     box-shadow: inset 0 0 0 4px rgba(50,25,14,0.58), inset 0 -40px 70px rgba(0,0,0,0.38);
   }
   .arena-section::after {
@@ -462,6 +474,7 @@ const GAME_CSS = `
     border: 5px solid #5e3619;
     background: linear-gradient(90deg, rgba(25,12,8,0.92), rgba(83,46,24,0.94), rgba(25,12,8,0.92)), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 66px);
     box-shadow: 0 9px 0 #160b07, inset 0 0 0 3px rgba(245,199,93,0.28);
+    min-height: 350px;
   }
   .side-panel, .question-scroll, .choices-panel {
     border: 3px solid #8e5b20;
@@ -584,7 +597,28 @@ const GAME_CSS = `
   }
   .attack-btn { min-height: 64px; font-size: clamp(17px, 1.7vw, 23px); background: linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%); color: #071d0f; border-color: #ffe288; box-shadow: 0 7px 0 #12361e, 0 0 28px rgba(88,255,138,0.33), inset 0 1px 0 rgba(255,255,255,0.42); }
   .attack-btn.ready:hover, .ornate-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
-  .loading-quest { min-height: 260px; justify-content: center; }
+  .loading-quest { min-height: 310px; justify-content: center; }
+  .loading-bar {
+    width: min(280px, 70%);
+    height: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255,226,136,0.55);
+    background: rgba(19,9,8,0.72);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.45);
+  }
+  .loading-bar::before {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 45%;
+    background: linear-gradient(90deg, #65d783, #ffe288, #65d783);
+    box-shadow: 0 0 18px rgba(255,226,136,0.45);
+    animation: loadingBar 1.1s ease-in-out infinite;
+  }
+  @keyframes loadingBar {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(240%); }
+  }
   .intro-screen { border: 5px solid #5e3619; background: rgba(28,14,10,0.6); box-shadow: inset 0 0 0 4px rgba(245,199,93,0.25); }
   .intro-title { color: #ffe288; font-family: Georgia, 'Times New Roman', serif; letter-spacing: 0; text-shadow: 4px 4px 0 #211009, 0 0 26px rgba(245,199,93,0.34); }
   .intro-suri-img { filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 10px 20px rgba(76,194,117,0.44)); }
@@ -600,7 +634,8 @@ const GAME_CSS = `
   @media (max-width: 760px) {
     .battle-body { padding: 8px; }
     .battle-body::before { inset: 4px; }
-    .arena-section { grid-template-columns: 1fr 0.75fr 1fr; gap: 4px; padding-inline: 8px; }
+    .battle-layout { grid-template-rows: 280px minmax(350px, auto); }
+    .arena-section { grid-template-columns: 1fr 0.75fr 1fr; gap: 4px; height: 280px; padding-inline: 8px; }
     .reaction-space { min-width: 0; min-height: 64px; }
     .speech-bubble { padding: 9px 12px; font-size: 13px; }
     .suri-sprite { height: 142px; }
@@ -742,7 +777,7 @@ const GAME_CSS = `
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;
 
-const MAX_HEARTS = 3;
+const MAX_HEARTS = 5;
 const LABELS = ["A", "B", "C", "D"];
 
 function ArenaBackground() {
@@ -910,10 +945,10 @@ export default function DiagnosticPage() {
   const [loading, setLoading]         = useState(false);
   const [submitting, setSubmitting]   = useState(false);
   const [skipping, setSkipping]       = useState(false);
+  const [showingResults, setShowingResults] = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [feedback, setFeedback]       = useState<{ correct: boolean; nextAction: string } | null>(null);
   const [tileKey, setTileKey]         = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState(0);
   const [answeredCount, setAnsweredCount]   = useState(0);
   const [score, setScore]   = useState(0);
   const [streak, setStreak] = useState(0);
@@ -932,16 +967,9 @@ export default function DiagnosticPage() {
   useEffect(() => {
     sessionStorage.removeItem("diagnostic_answers");
     sessionStorage.removeItem("diagnostic_submit_result");
-    (async () => {
-      try {
-        const s = await getSession(sessionId);
-        const { chain } = await getTopicChain(s.topic_entry_node);
-        setTotalQuestions(chain.length);
-      } catch (e) { console.error(e); }
-    })();
   }, [sessionId]);
 
-  const finalize = useCallback(async () => {
+  const finalize = useCallback(async (redirectOverride?: string) => {
     const s = await getSession(sessionId);
     const { chain } = await getTopicChain(s.topic_entry_node);
     const raw = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}") as Record<string, boolean>;
@@ -951,7 +979,7 @@ export default function DiagnosticPage() {
     if (res.gap_node)         sessionStorage.setItem("identified_node_id", res.gap_node);
     if (res.mastered_nodes)   sessionStorage.setItem("diagnostic_mastered",   JSON.stringify(res.mastered_nodes));
     if (res.unresolved_nodes) sessionStorage.setItem("diagnostic_unresolved", JSON.stringify(res.unresolved_nodes));
-    router.push(res.redirect);
+    router.push(redirectOverride ?? res.redirect);
   }, [sessionId, router]);
 
   const fetchProbe = useCallback(async () => {
@@ -1047,20 +1075,22 @@ export default function DiagnosticPage() {
     setSubmitting(true); setLocked(true); setError(null);
     try {
       const res = await submitDiagnosticAnswer(sessionId, { node_id: probe.node_id, selected_option_index: selectedIdx });
-      setFeedback({ correct: res.correct, nextAction: res.next_action });
+      const nextAnswered = answeredCount + 1;
+      const nextAction = res.correct && enemyHearts <= 1 ? "complete" : "next_probe";
+      setFeedback({ correct: res.correct, nextAction });
       const cur = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}");
       cur[probe.node_id] = res.correct;
       sessionStorage.setItem("diagnostic_answers", JSON.stringify(cur));
-      setAnsweredCount(Object.keys(cur).length);
+      setAnsweredCount(nextAnswered);
       if (res.correct) {
         setScore(s => s + (10 + streak * 5)); setStreak(s => s + 1);
         toast.success("Direct hit!");
-        pendingNext.current = res.next_action;
-        triggerEnemyHit(res.next_action);
+        pendingNext.current = nextAction;
+        triggerEnemyHit(nextAction);
       } else {
         setStreak(0);
         toast.error("The enemy counters!");
-        pendingNext.current = res.next_action;
+        pendingNext.current = nextAction;
         triggerSuriHit();
       }
     } catch (err: unknown) {
@@ -1075,21 +1105,28 @@ export default function DiagnosticPage() {
     catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to skip."); setSkipping(false); }
   };
 
+  const handleSeeResults = async () => {
+    setShowingResults(true); setError(null);
+    try {
+      await finalize(`/session/${sessionId}/gap-result`);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to show results.");
+      setShowingResults(false);
+    }
+  };
+
   const retryAfterDefeat = () => {
+    sessionStorage.removeItem("diagnostic_answers");
+    setAnsweredCount(0); setScore(0); setStreak(0);
     setSuriHearts(MAX_HEARTS); setSuriBreaking(null); setSuriState("idle");
-    setEnemyAnimState("idle"); setPhase("battle");
-    setFeedback(null); setLocked(false); setSelectedIdx(null);
-  };
-
-  const continueAfterDefeat = async () => {
-    setSuriHearts(MAX_HEARTS); setSuriState("idle"); setEnemyAnimState("idle");
+    setEnemyHearts(MAX_HEARTS); setEnemyBreaking(null); setEnemyAnimState("idle");
     setPhase("battle"); setFeedback(null); setLocked(false); setSelectedIdx(null);
-    const na = pendingNext.current; pendingNext.current = null;
-    try { if (na === "complete") await finalize(); else await fetchProbe(); }
-    catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to continue."); }
+    pendingNext.current = null;
+    void fetchProbe();
   };
 
-  const pct = totalQuestions > 0 ? Math.min((answeredCount / totalQuestions) * 100, 100) : 0;
+  const enemyDefeatedHits = MAX_HEARTS - enemyHearts;
+  const pct = Math.min((enemyDefeatedHits / MAX_HEARTS) * 100, 100);
 
   return (
     <>
@@ -1106,13 +1143,15 @@ export default function DiagnosticPage() {
                 <span className="combatant-name">Suri</span>
                 <span className="combatant-subtitle">Graduate Bookworm</span>
                 <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${MAX_HEARTS}`}>
-                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < suriHearts} breaking={suriBreaking === hi} />; })}
+                  {Array.from({ length: MAX_HEARTS }, (_, i) => (
+                    <HeartIcon key={i} full={i < suriHearts} breaking={suriBreaking === i} />
+                  ))}
                 </div>
               </div>
             </div>
           </div>
           <div className="chapter-banner">
-            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} of ${totalQuestions || "?"}`}</span>
+            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${MAX_HEARTS}`}</span>
             <span className="hud-logo">Diagnostic Battle</span>
             <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
               <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
@@ -1139,7 +1178,7 @@ export default function DiagnosticPage() {
             <h1 className="intro-title"> DIAGNOSTIC BATTLE</h1>
             <p className="intro-subtitle">
               Prove your knowledge in the arena! Answer correctly to strike the enemy —
-              every wrong answer lets them hit back. Survive with 3 hearts!
+              every wrong answer lets them hit back. Survive with 5 hearts!
             </p>
           
             <div className="speech-bubble">
@@ -1196,7 +1235,9 @@ export default function DiagnosticPage() {
                   <h2 className="outcome-title defeat-title">DEFEATED!</h2>
                   <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat...</p>
                   <button id="retry-btn" className="outcome-btn" onClick={retryAfterDefeat}><GameIcon name="retry" /> TRY AGAIN</button>
-                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={continueAfterDefeat}><GameIcon name="play" /> CONTINUE &gt;</button>
+                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={handleSeeResults} disabled={showingResults}>
+                    <GameIcon name="play" /> {showingResults ? "LOADING..." : "SEE RESULTS"}
+                  </button>
                 </div>
               )}
             </div>
@@ -1207,6 +1248,7 @@ export default function DiagnosticPage() {
                   <div className="loading-quest question-scroll">
                     <span className="spin-loader" style={{ fontSize: 36 }}><GameIcon name="gear" /></span>
                     <p className="loading-text">Loading challenge...</p>
+                    <div className="loading-bar" aria-hidden="true" />
                   </div>
                 ) : probe ? (
                   <form onSubmit={handleSubmit} noValidate className="battle-form">
