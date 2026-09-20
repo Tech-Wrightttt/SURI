@@ -149,25 +149,6 @@ html::-webkit-scrollbar {
 }
 
 /* Skybound voxel kingdom dashboard */
-.suri-lockup {
-  display: flex;
-  align-items: center;
-  gap: 0.42rem;
-}
-
-.suri-lockup-icon {
-  width: 1.45rem;
-  height: 1.45rem;
-  display: block;
-  background: url('/suri-snake-happy.png') center / contain no-repeat;
-}
-
-.suri-lockup-word {
-  color: #08730e;
-  font: 900 1rem/1 "Hanken Grotesk", sans-serif;
-  letter-spacing: -0.06em;
-}
-
 .dashboard-world {
   position: relative;
   height: 100vh;
@@ -401,9 +382,8 @@ html::-webkit-scrollbar {
   .voxel-close { grid-column: 2; justify-self: start; }
 }
 
-/* A retained WebGL canvas survives App Router page changes. */
-.persistent-world { position: fixed; inset: 0; z-index: 0; visibility: hidden; pointer-events: none; background: #126f8d; }
-.persistent-world[data-active="true"] { visibility: visible; pointer-events: auto; }
+/* The canvas exists only while the Dashboard route is mounted. */
+.dashboard-world-layer { position: fixed; inset: 0; z-index: 0; background: #126f8d; }
 .dashboard-route-overlay { position: relative; z-index: 40; pointer-events: none; }
 .dashboard-route-overlay nav, .dashboard-route-overlay [role="alert"], .dashboard-route-overlay button { pointer-events: auto; }
 .learning-route-content { position: relative; z-index: 40; }

@@ -37,10 +37,7 @@ export default function MainPage({
         {!immersive && <div className="absolute inset-0" style={{ background: "rgba(219,212,199,0.85)", backdropFilter: "blur(12px)", maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)" }} />}
         <div className="relative flex items-center h-24 px-4 md:px-8">
           <div className="flex items-center bg-white px-7 md:px-6 h-14 rounded-full border border-[#c3c5d9]/30 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
-            <div className="suri-lockup" aria-label="SURI">
-              <span className="suri-lockup-icon" aria-hidden="true" />
-              <span className="suri-lockup-word">SURI</span>
-            </div>
+            <img alt="SURI" src="/SURI1.png" className="h-5 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-3 absolute right-4 md:right-8 top-1/2 -translate-y-1/2 pointer-events-auto">
           <div className={immersive ? "bg-white/12 px-5 h-12 rounded-full border border-white/20 backdrop-blur-md flex items-center" : "bg-white px-6 h-14 rounded-full border border-[#c3c5d9]/30 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex items-center"}>

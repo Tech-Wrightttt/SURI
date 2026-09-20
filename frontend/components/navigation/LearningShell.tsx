@@ -7,7 +7,7 @@ import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLe
 import { ISLAND_ROUTES, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
 
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
-const PersistentWorld = dynamic(loadWorld, { ssr: false });
+const DashboardWorld = dynamic(loadWorld, { ssr: false });
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
 const NavigationContext = createContext<{
   navigate: (href: string) => void; busy: boolean; error: string | null; clearSession: () => void;
@@ -23,7 +23,6 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   const overview = pathname === "/dashboard";
   const managed = managedRoutes.includes(pathname);
   const { data, error: dataError } = useLearningData();
-  const [retained, setRetained] = useState(overview);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [command, setCommand] = useState<CameraCommand | null>(null);
@@ -34,7 +33,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   const pendingRoute = useRef<string | null>(null);
   const unlock = useCallback(() => { locked.current=false; setBusy(false); }, []);
   const clearSession = useCallback(() => {
-    transaction.current++; clearLearningData(); setRetained(false); setCommand(null); pendingRoute.current=null; unlock();
+    transaction.current++; clearLearningData(); setCommand(null); pendingRoute.current=null; unlock();
   }, [unlock]);
 
   useEffect(() => {
@@ -71,13 +70,16 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       clearSession(); return;
     }
     if (overview) {
-      setRetained(true);
-      if (retained) {
-        locked.current=true; setBusy(true);
-        setCommand({id:++serial.current,kind:"overview",onComplete:unlock});
-      } else { setCommand(null); unlock(); }
-    } else unlock();
-  }, [pathname, overview, retained, clearSession, unlock]);
+      // The dashboard gets a new canvas after every return, so it should start
+      // from its default camera rather than trying to reuse a prior world.
+      setCommand(null);
+      unlock();
+    } else {
+      // Drop the prior camera command together with the unmounted canvas.
+      setCommand(null);
+      unlock();
+    }
+  }, [pathname, overview, clearSession, unlock]);
 
   const navigate = useCallback((href: string) => {
     if (locked.current || href === pathname) return;
@@ -118,8 +120,8 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   }, [data]);
   const context=useMemo(()=>({navigate,busy,error:error ?? dataError?.message ?? null,clearSession}),[navigate,busy,error,dataError,clearSession]);
   return <NavigationContext.Provider value={context}>
-    {(retained || overview) && <div className="persistent-world" data-active={overview} aria-hidden={!overview} inert={!overview}>
-      <PersistentWorld visible={overview} command={command} navigate={navigate} busy={busy}
+    {overview && <div className="dashboard-world-layer">
+      <DashboardWorld visible command={command} navigate={navigate} busy={busy}
         active={data?.progress.active_sessions} errors={data?.progress.misconception_history} progress={progress}/>
     </div>}
     <div className={overview ? "dashboard-route-overlay" : "learning-route-content"}>{children}</div>
