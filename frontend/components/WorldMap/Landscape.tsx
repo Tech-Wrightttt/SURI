@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { Architecture } from "./Architecture";
 import { makeSettlements, makeVegetation } from "@/lib/worldMap/settlements";
-import { ROADS, SITES, WORLD_BOUNDS, roadHeight, shoreDistance, terrainHeight } from "@/lib/worldMap/landscape";
+import { LANDMARK_SITE_KEYS, ROADS, SITES, WORLD_BOUNDS, bridgeDistance, roadHeight, shoreDistance, terrainHeight } from "@/lib/worldMap/landscape";
 import { dockApproachPath, findDockPlacement } from "@/lib/worldMap/placement";
 const noRaycast: THREE.Mesh["raycast"] = () => {};
 
@@ -13,8 +13,10 @@ function makeTerrain(width:number,depth:number,xSegments:number,zSegments:number
   const p=geometry.attributes.position,colors:number[]=[],color=new THREE.Color();
   for(let i=0;i<p.count;i++){
     const x=p.getX(i),z=p.getZ(i),coast=shoreDistance(x,z),y=terrainHeight(x,z,coast);p.setY(i,y);
-    color.set(coast<1.9?"#d9cba7":y>4.2?"#8f9c8d":"#71935d");
-    if(coast>1.9&&y<4.2)color.lerp(new THREE.Color("#4d815b"),(Math.sin(x*0.16+z*0.13)+1)*0.16);
+    // Keep every land elevation in the same grass family; height no longer
+    // changes terrain color while the terrace treatment is being tuned.
+    color.set(coast<1.9?"#d9cba7":"#71935d");
+    if(coast>1.9)color.lerp(new THREE.Color("#4d815b"),(Math.sin(x*0.16+z*0.13)+1)*0.16);
     color.multiplyScalar(0.96+Math.sin(x*2.1+z*3.6)*0.028);colors.push(color.r,color.g,color.b);
   }
   geometry.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));geometry.computeVertexNormals();return geometry;
@@ -36,14 +38,14 @@ export function Landscape() {
   const roads=useMemo(()=>{
     const harbor=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,[SITES.keep[0],SITES.keep[1]]);
     const harborRoad=harbor ? dockApproachPath(harbor,SITES.keep) : [];
-    return [...ROADS,harborRoad].filter(road=>road.length>1).map((road,index)=>ribbon(road,0.45,(x,z)=>index<ROADS.length?roadHeight(x,z)+0.08:terrainHeight(x,z)+0.08));
+    return [...ROADS,harborRoad].filter(road=>road.length>1).map((road,index)=>ribbon(road,(x,z)=>index<4 ? THREE.MathUtils.lerp(0.45,1.1,THREE.MathUtils.smoothstep(bridgeDistance(x,z),1.2,4)) : 0.45,(x,z)=>index<ROADS.length?roadHeight(x,z)+0.08:terrainHeight(x,z)+0.08));
   },[]);
   const buildings=useMemo(()=>makeSettlements(),[]);
   const trees=useMemo(()=>makeVegetation(),[]);
   return <group>
     <mesh geometry={terrain} receiveShadow raycast={noRaycast}><meshStandardMaterial vertexColors roughness={1}/></mesh>
     {roads.map((geometry,i)=><mesh key={i} geometry={geometry} receiveShadow raycast={noRaycast}><meshStandardMaterial color="#baae8e" roughness={1} side={THREE.DoubleSide}/></mesh>)}
-    {Object.values(SITES).map(([x,z])=><mesh key={`${x},${z}`} position={[x,terrainHeight(x,z)+0.04,z]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noRaycast}><circleGeometry args={[3.25,40]}/><meshStandardMaterial color="#b1aa90" roughness={1}/></mesh>)}
+    {LANDMARK_SITE_KEYS.filter(key=>key==="keep").map(key=>{const [x,z]=SITES[key];return <mesh key={`${x},${z}`} position={[x,terrainHeight(x,z)+0.04,z]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noRaycast}><circleGeometry args={[3.25,40]}/><meshStandardMaterial color="#b1aa90" roughness={1}/></mesh>})}
     {/* Only hero landmarks cast shadows. The large static instance fields stay lit
         but avoid paying for thousands of shadow-map draws every frame. */}
     <Architecture builder={buildings} shadows={false}/><Architecture builder={trees} shadows={false}/>

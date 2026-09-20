@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { drawOuterLandmark } from "./outerLandmarks";
 
 export type Surface = "stone" | "wood" | "plaster" | "roof" | "gold" | "window" | "magic" | "cloth" | "leaves";
 export type Shape = "box" | "cylinder" | "cone" | "sphere" | "roof" | "arch" | "ring" | "crystal" | "sail" | "hull";
@@ -117,17 +118,11 @@ export class ArchitectureBuilder {
       this.tower(0,-1.8,7.8,0.95,"#7479a6");this.flag(0,11,-1.8);
       return;
     }
-    if(kind === "calculator") {
-      this.tower(0,0,6.8,1.15,"#536e9b");
-      this.at(1.6,0,0.7,0.75,0,()=>this.house(2.7,2.3,2.7,"#537d91",true));
-      this.tower(-1.3,-0.7,4.3,0.6,"#536e9b");
-      for(const y of [3,5.8])this.part("ring","gold","#d8b578",0,y,0,1.3,1,1.3);
-      this.part("crystal","magic","#7de4e3",0,10,0,1.1,1.9,1.1);
-      for(let i=0;i<6;i++){const a=i*Math.PI/3;this.part("crystal","magic","#b3a2f0",Math.sin(a)*2.6,0.65,Math.cos(a)*2.6,0.45,1.3,0.45);}
-      return;
+    if(kind === "topics" || kind === "records" || kind === "champions" || kind === "calculator") {
+      drawOuterLandmark(this,kind); return;
     }
-    if(kind === "arena" || kind === "champions") {
-      const radius = kind === "arena" ? 3.4 : 2.7;
+    if(kind === "arena") {
+      const radius=3.4;
       this.part("cylinder","stone","#c4b895",0,0.25,0,radius*2+0.5,0.5,radius*2+0.5);
       this.part("cylinder","plaster","#b39364",0,0.55,0,radius*1.55,0.14,radius*1.55);
       for(let i=0;i<18;i++) {
@@ -135,28 +130,16 @@ export class ArchitectureBuilder {
         if(z>radius*0.85&&Math.abs(x)<1.8)continue;
         this.part("cylinder","stone","#d4c9aa",x,1.7,z,0.4,2.7,0.4);
         this.part("box","stone","#c3b38f",x,3.08,z,1.2,0.38,0.6,0,a);
-        if(i%3===0)this.flag(x,3.95,z,kind === "arena" ? "#a17079":"#b39552");
+        if(i%3===0)this.flag(x,3.95,z,"#a17079");
       }
-      if(kind === "champions") {this.part("cylinder","stone","#b3aa91",0,1,0,1.3,1.2,1.3);this.part("crystal","gold","#efce7b",0,2.2,0,1,1.7,1);}
-      return;
-    }
-    if(kind === "topics") {
-      this.tower(-1.5,-0.4,4.2,0.95,"#666",true);this.tower(1.6,0,2.5,0.7,"#666",true);
-      this.part("box","stone","#7d8980",0,0.65,0,3.5,1.3,1.1);
-      this.part("ring","magic","#ba82e8",0,2.2,0.4,1.1,1.1,1.1,Math.PI/2);
-      for(let i=0;i<7;i++)this.part("sphere","leaves","#4e705b",-1.7+i*0.5,0.8+Math.sin(i)*0.4,0.7,0.9,0.8,0.5);
       return;
     }
     const roof = kind === "ranger" ? "#416e67" : kind === "guild" ? "#91645f" : "#74698e";
-    const width = kind === "records" ? 5.5 : 4.2;
-    this.house(width,3.1,kind === "records" ? 3.5:2.8,roof,true);
+    const width = 4.2;
+    this.house(width,3.1,2.8,roof,true);
     if(kind === "academy") {
       this.tower(-2.4,-0.5,5,0.7,roof);this.tower(2.4,-0.5,5,0.7,roof);
       this.part("sphere","gold","#dcba77",0,5.9,0,1.1,1.1,1.1);this.flag(0,7.1,0);
-    } else if(kind === "records") {
-      this.tower(-2.5,-1,5.6,0.8,roof);
-      for(const x of [-2,-1,1,2])this.part("box","stone","#c5b79f",x,2,1.65,0.2,3.9,0.3);
-      this.part("sphere","window","#e4bb79",0,4.45,1.61,0.85,0.85,0.07);
     } else if(kind === "guild") {
       this.at(-2.7,0,-0.5,0.8,0,()=>this.house(2.4,2.3,2.1,roof));
       this.stall(3,2,"#ae925d");this.flag(0,5.9,0,"#ae925d");this.barrel(-2.6,2.1);

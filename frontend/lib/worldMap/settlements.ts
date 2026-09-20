@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { drawOuterGround } from "./outerLandmarks";
 import { ArchitectureBuilder } from "./architecture";
 import { BRIDGES, FARMS, ISLANDS, SITES, WORLD_BOUNDS, farmDistance, insideWorld, roadDistance, seededRandom, shoreDistance, siteDistance, terrainHeight } from "./landscape";
 import { PlacementValidator, boatBesideDock, dockFootprint, findDockPlacement, footprintBox, type Footprint } from "./placement";
@@ -12,6 +13,44 @@ function tree(b:ArchitectureBuilder,x:number,z:number,size:number,oak:boolean) {
 export function makeSettlements() {
   const b=new ArchitectureBuilder(),random=seededRandom(381);
   const placements=new PlacementValidator();
+  // The hub is an environmental civic district rather than a collection of
+  // clickable buildings. Each feature reserves its full land footprint first.
+  const hubFeature=(x:number,z:number,width:number,depth:number,height:number,rotation:number,draw:()=>void)=>{
+    const footprint:Footprint={x,z,width,depth,rotation},y=terrainHeight(x,z);
+    const candidate={kind:"building" as const,footprint,bounds:footprintBox(footprint,y,y+height),clearance:0.45};
+    if(!placements.canPlace(candidate,["LAND"]))return;
+    placements.commit(candidate);b.at(x,y,z,1,rotation,draw);
+  };
+  // West: a stepped guildhall and market quarter.
+  hubFeature(-9,5,7.2,6.2,8,0.12,()=>{
+    b.part("box","stone","#a9aa9c",0,0.45,0,7.4,0.9,6.3);
+    b.house(5.5,4.1,3.9,"#675f8c",true);b.tower(-3,-0.8,6.7,0.82,"#756b9d");
+    b.flag(-3,7.8,-0.8,"#b68ae2");b.stall(3.9,2.4,"#9b677f");b.crate(3.1,-2.1);b.barrel(-2.5,2.5);
+  });
+  // East: a star observatory rises from its own broad terrace.
+  hubFeature(9,5,6.8,6.4,10,-0.16,()=>{
+    b.part("cylinder","stone","#aeb1a3",0,0.35,0,6.8,0.7,6.8);b.tower(0,0,7.5,1.15,"#506f91");
+    for(let i=0;i<4;i++){const a=i*Math.PI/2;b.part("crystal","magic",i%2?"#8ee8df":"#b49bf0",Math.sin(a)*2.45,1.2,Math.cos(a)*2.45,0.5,1.5,0.5);}
+    b.part("ring","gold","#e2bf79",0,7.2,0,1.7,1,1.7);b.flag(0,10,0,"#79bfc7");
+  });
+  // Southern gate: towers, bannered arch, and a deliberate road terminus.
+  hubFeature(-3,-13,8,5.4,8,0,()=>{
+    b.part("box","stone","#9ba39a",0,0.4,0,8.1,0.8,5.5);b.tower(-2.8,0,5.8,0.85,"#66718d");b.tower(2.8,0,5.8,0.85,"#66718d");
+    b.part("arch","stone","#c8c0a8",0,0.2,1.1,2.4,3.4,1);b.part("arch","wood","#584638",0,0.3,1.15,1.85,2.8,1);
+    b.flag(-2.8,8.2,0,"#b96f78");b.flag(2.8,8.2,0,"#b96f78");
+  });
+  // A garden pavilion gives the smaller southern branch a clear purpose.
+  hubFeature(7,-12,6.2,5.8,6,0.2,()=>{
+    b.part("cylinder","stone","#b4b29d",0,0.24,0,6.2,0.48,5.8);b.part("ring","stone","#a5aa99",0,0.52,0,2.1,1,2.1);
+    for(let i=0;i<6;i++){const a=i*Math.PI/3;b.part("cylinder","stone","#c9c4aa",Math.sin(a)*1.85,1.8,Math.cos(a)*1.85,0.24,3.1,0.24);}
+    b.part("cone","roof","#6a7c89",0,3.8,0,3.1,1.45,3.1);b.part("crystal","magic","#8fe6dd",0,1.25,0,0.62,1.8,0.62);
+  });
+  // The civic plaza remains open and readable around the keep.
+  const plazaY=terrainHeight(0,6);
+  b.part("cylinder","stone","#b5b09a",0,plazaY+0.14,6,6.7,0.28,6.7);
+  b.part("cylinder","plaster","#7ba4a1",0,plazaY+0.42,6,2.15,0.32,2.15);
+  b.part("crystal","magic","#8ee8df",0,plazaY+1.25,6,0.7,1.8,0.7);
+  for(let i=0;i<6;i++){const a=i*Math.PI/3;b.lantern(Math.sin(a)*4.2,plazaY+1.1,6+Math.cos(a)*4.2);}
   // Generate the villages from island data. Every piece is added to a shared
   // instanced batch, so a richer settlement does not add one draw call per home.
   for(const [name,island] of Object.entries(ISLANDS)) {
@@ -44,7 +83,7 @@ export function makeSettlements() {
       continue;
     }
     let placed=0;
-    const homeTarget=name==="hub"?34:8;
+    const homeTarget=name==="hub"?34:0;
     for(let attempt=0;attempt<260&&placed<homeTarget;attempt++) {
       const x=island.x+(random()-0.5)*island.rx*1.7,z=island.z+(random()-0.5)*island.rz*1.7;
       const scale=0.45+random()*0.13, turn=(random()-0.5)*0.5;
@@ -138,13 +177,14 @@ export function makeSettlements() {
     }
     boat(boatBesideDock(dock,2.55*0.78,5.6*0.78,1),0.78,"#efdfb8",true);
   }
+  drawOuterGround(b);
   return b;
 }
 export function makeVegetation(distant=false) {
   const b=new ArchitectureBuilder(),random=seededRandom(distant?871:7319),spacing=distant?5:2.8;
   for(let z=WORLD_BOUNDS.minZ+2;z<WORLD_BOUNDS.maxZ-2;z+=spacing)for(let x=WORLD_BOUNDS.minX+2;x<WORLD_BOUNDS.maxX-2;x+=spacing){
     const px=x+random()*1.5,pz=z+random()*1.5;
-    if(!insideWorld(px,pz)||shoreDistance(px,pz)<1.7||siteDistance(px,pz)<5.4||roadDistance(px,pz)<1.5||farmDistance(px,pz)<4.3)continue;
+    if(!insideWorld(px,pz)||shoreDistance(px,pz)<1.7||siteDistance(px,pz)<5.4||[SITES.topics,SITES.records,SITES.champions,SITES.calculator].some(([sx,sz])=>Math.hypot(px-sx,pz-sz)<8.4)||roadDistance(px,pz)<1.5||farmDistance(px,pz)<4.3)continue;
     tree(b,px,pz,0.45+random()*0.45,random()>0.6);
   }
   for(let i=0;i<180;i++){

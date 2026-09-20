@@ -36,6 +36,11 @@ export const SITES = {
   keep: [0,-3], academy: [-12,-9], guild: [-12,5], ranger: [11,-4], arena: [3,12],
   champions: [-43,-5], topics: [-11,-35], records: [47,1], calculator: [16,34],
 } satisfies Record<string,MapPoint>;
+// Only these sites are currently rendered as interactive landmark buildings.
+// The other named locations remain terrain/route references while the hub is
+// rebuilt as a non-interactive environmental settlement.
+export const OUTER_HEIGHTS = { topics: 4.8, records: 3.3, champions: 4.2, calculator: 4.5 };
+export const LANDMARK_SITE_KEYS = ["keep", "topics", "records", "champions", "calculator"] as const;
 export function segmentDistance(x:number,z:number,a:MapPoint,b:MapPoint) {
   const dx=b[0]-a[0],dz=b[1]-a[1];
   const t=THREE.MathUtils.clamp(((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz || 1),0,1);
@@ -62,7 +67,23 @@ export function terrainHeight(x:number,z:number,coast=shoreDistance(x,z)) {
     height+=i.hill*Math.exp(-(u*u+v*v));
   }
   height*=THREE.MathUtils.smoothstep(coast,0,5);
-  for(const [sx,sz] of Object.values(SITES))height=THREE.MathUtils.lerp(1.1,height,THREE.MathUtils.smoothstep(Math.hypot(x-sx,z-sz),3.6,7.5));
+  // The hub keeps its coastline and broad silhouette, but receives deliberate
+  // gentle terraces around its civic core instead of random-looking spikes.
+  const hub=ISLANDS.hub,hubDistance=Math.hypot(x-hub.x,z-hub.z);
+  if(hubDistance<Math.max(hub.rx,hub.rz)) {
+    const crown=1.15*Math.exp(-((x+1)*(x+1)/260+(z+1)*(z+1)/190));
+    const westTerrace=0.42*Math.exp(-((x+9)*(x+9)/55+(z-5)*(z-5)/70));
+    const eastTerrace=0.36*Math.exp(-((x-10)*(x-10)/62+(z-6)*(z-6)/62));
+    const southSlope=0.24*Math.exp(-((x-2)*(x-2)/180+(z+12)*(z+12)/80));
+    height+=crown+westTerrace+eastTerrace+southSlope;
+  }
+  for(const key of LANDMARK_SITE_KEYS) {
+    const [sx,sz]=SITES[key];
+    // The keep rests on a broad raised acropolis. Its platform is deliberately
+    // above the surrounding civic terrace, never a low bowl cut into the hill.
+    const keep=key==="keep",foundation=keep?6.15:OUTER_HEIGHTS[key as keyof typeof OUTER_HEIGHTS];
+    height=THREE.MathUtils.lerp(foundation,height,THREE.MathUtils.smoothstep(Math.hypot(x-sx,z-sz),keep?4.8:5.2,keep?9:9.5));
+  }
   return height;
 }
 
@@ -79,7 +100,9 @@ export const BRIDGES:Array<[MapPoint,MapPoint,"wood"|"stone"]> = outerSites.map(
   return [[end[0]*(first-margin),end[1]*(first-margin)],[end[0]*(last+margin),end[1]*(last+margin)],index%2?"wood":"stone"];
 });
 export function bridgeDistance(x:number,z:number){return Math.min(...BRIDGES.map(([a,b])=>segmentDistance(x,z,a,b)));}
-const internal:MapPoint[][] = [[SITES.academy,SITES.guild,SITES.arena],[SITES.keep,SITES.ranger],[SITES.keep,SITES.academy],[SITES.keep,SITES.arena]];
+// A compact civic cross connects the keep to the four bridge approaches. The
+// removed landmark sites intentionally no longer create dead-end hub roads.
+const internal:MapPoint[][] = [[SITES.keep,[0,0]],[[0,0],[-9,5]],[[0,0],[9,5]],[[0,0],[-3,-13]],[[0,0],[7,-12]]];
 export const ROADS = [ ...outerSites.map(end=>[hub,end]),...internal ].map(points=>{
   const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(x,0,z)),false,"centripetal");
   return curve.getPoints(80);

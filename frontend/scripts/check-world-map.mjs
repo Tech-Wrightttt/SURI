@@ -24,11 +24,30 @@ function checkBatch(builder) {
 }
 for (const [key, [x, z]] of Object.entries(world.SITES)) {
   assert(world.shoreDistance(x, z) > 5, `${key}: shoreline clearance`);
-  assert(Math.abs(world.terrainHeight(x, z) - 1.1) < 0.01, `${key}: level foundation`);
-  assert(world.roadDistance(x, z) < 5, `${key}: road access`);
+  if (world.LANDMARK_SITE_KEYS.includes(key)) {
+    const expected = key === 'keep' ? 6.15 : world.OUTER_HEIGHTS[key];
+    assert(Math.abs(world.terrainHeight(x, z) - expected) < 0.01, `${key}: level landmark foundation`);
+  } else assert(world.terrainHeight(x, z) > 0.5, `${key}: dry civic terrain`);
+  if (world.LANDMARK_SITE_KEYS.includes(key)) assert(world.roadDistance(x, z) < 5, `${key}: road access`);
   const builder = new ArchitectureBuilder();
   builder.landmark(key);
   assert(checkBatch(builder) > 30, `${key}: missing architectural detail`);
+}
+for (const [x,z] of [[0,-3],[4,-3],[-4,-3],[0,1],[0,-7]]) {
+  assert(Math.abs(world.terrainHeight(x,z)-6.15)<0.01, 'Keep acropolis must be a broad, level elevated platform');
+}
+// The destination crowns must support the whole monument, not just its center.
+for (const [kind, elevation] of Object.entries(world.OUTER_HEIGHTS)) {
+  const [x,z] = world.SITES[kind];
+  for (let i=0;i<16;i++) {
+    const angle=i*Math.PI/8;
+    assert(Math.abs(world.terrainHeight(x+Math.sin(angle)*4.5,z+Math.cos(angle)*4.5)-elevation)<0.01, `${kind}: unsupported landmark terrace`);
+  }
+  const builder=new ArchitectureBuilder(); builder.landmark(kind);
+  assert(checkBatch(builder)<600 && builder.batches.size<24, `${kind}: landmark exceeds instance budget`);
+  if(kind==='records') {
+    assert(![...builder.batches.values()].some(batch=>batch.surface==='roof'), 'Memorial records must remain exposed outdoors');
+  }
 }
 assert('topics' in world.SITES && 'topics' in world.ISLANDS, 'Topics must retain its own named island and site');
 assert(!('tactics' in world.SITES) && !('tactics' in world.ISLANDS), 'Obsolete Tactics world identifiers must be removed');

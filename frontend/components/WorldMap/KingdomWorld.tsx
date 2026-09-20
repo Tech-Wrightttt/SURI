@@ -62,19 +62,16 @@ function Landmark({ title, detail, position, kind, onClick, accent, selected=fal
   </group>;
 }
 
-const EMPTY_ACTIVE: ActiveSessionProgress[] = [];
 const EMPTY_ERRORS: MisconceptionHistoryItem[] = [];
 type WorldProps = {
   active?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
   command: CameraCommand | null; visible: boolean; busy: boolean; navigate: (href: string) => void;
 };
-function CoastalWorld({ active=EMPTY_ACTIVE, errors=EMPTY_ERRORS, progress, command, navigate, busy, visible, tooltipPortal }: WorldProps & { tooltipPortal?: RefObject<HTMLElement> }) {
+function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible, tooltipPortal }: WorldProps & { tooltipPortal?: RefObject<HTMLElement> }) {
   const size = useThree(state => state.size);
   const frame = worldFrame(size.width, size.height, playableProjectionBounds());
   const visit = (_site: keyof typeof SITES, href: string) => { if(!busy)navigate(href); };
-  const activeSession = active[0];
-  const activeDetail = activeSession ? `${activeSession.topic_label} · ${Math.round(Number(activeSession.completion_percentage) || 0)}% mapped` : "No active topic yet · choose a trail to begin";
   const selectedSite = command?.kind === "island" ? command.site : undefined;
   return (
     <>
@@ -88,12 +85,7 @@ function CoastalWorld({ active=EMPTY_ACTIVE, errors=EMPTY_ERRORS, progress, comm
         <Landscape />
 
         <Landmark title="SURI Keep" detail="The central welcome hall for your learning kingdom" position={sitePosition("keep")} accent={COLORS.gold} kind="keep" tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Quest Guild" detail={activeDetail} position={sitePosition("guild")} onClick={() => visit("guild", activeSession ? `/session/${activeSession.id}/lesson` : "/topics")} kind="guild" selected={selectedSite === "guild"} tooltipPortal={visible ? tooltipPortal : undefined} />
         <Landmark title="Topics · Learning Grove" detail="Browse topics and choose your next learning trail" position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} kind="topics" selected={selectedSite === "topics"} tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Ranger Hall" detail={`${progress.pct}% mastery · ${progress.dewdrops} dewdrops · ${progress.rank}`} position={sitePosition("ranger")} onClick={() => visit("ranger", "/progress")} kind="ranger" selected={selectedSite === "ranger"} tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Coliseum" detail="Train skills and celebrate your mastery" position={sitePosition("arena")} onClick={() => visit("arena", "/progress")} kind="arena" selected={selectedSite === "arena"} tooltipPortal={visible ? tooltipPortal : undefined} />
-
-        <Landmark title="Topics · Grand Academy" detail="Browse the complete learning map" position={sitePosition("academy")} onClick={() => visit("academy", "/topics")} kind="academy" selected={selectedSite === "academy"} tooltipPortal={visible ? tooltipPortal : undefined} />
         <Landmark title="Error History · Hall of Records" detail={`${errors.length} misconception records · inspect the error history`} position={sitePosition("records")} onClick={() => visit("records", "/error-history")} kind="records" selected={selectedSite === "records"} tooltipPortal={visible ? tooltipPortal : undefined} />
         <Landmark title="Progress · Hall of Champions" detail={`${progress.mastered}/${progress.total || 0} skills mastered · view progress`} position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} kind="champions" selected={selectedSite === "champions"} tooltipPortal={visible ? tooltipPortal : undefined} />
         <Landmark title="Calculator · Arcane Tower" detail="Solve and explore equations" position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} kind="calculator" selected={selectedSite === "calculator"} tooltipPortal={visible ? tooltipPortal : undefined} />
