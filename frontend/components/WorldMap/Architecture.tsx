@@ -3,6 +3,7 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { ArchitectureBuilder, type Batch, type LandmarkKind, type Shape, type Surface } from "@/lib/worldMap/architecture";
+import { ISLANDS, islandScore } from "@/lib/worldMap/landscape";
 
 const noRaycast: THREE.Mesh["raycast"] = () => {};
 const geometries = new Map<Shape, THREE.BufferGeometry>();
@@ -62,8 +63,19 @@ function ArchitectureBatch({ batch, shadows }: {batch:Batch;shadows:boolean}) {
   },[batch]);
   return <instancedMesh ref={ref} args={[geometryFor(batch.shape),materialFor(batch.surface),batch.pieces.length]} castShadow={shadows} receiveShadow raycast={noRaycast} dispose={null} />;
 }
-export function Architecture({builder,shadows=true}:{builder:ArchitectureBuilder;shadows?:boolean}) {
-  return <group>{Array.from(builder.batches.entries()).map(([key,batch])=><ArchitectureBatch key={key} batch={batch} shadows={shadows}/>)}</group>;
+export type ArchitectureClip = { minX: number; maxX: number; minZ: number; maxZ: number; padding?: number; island?: keyof typeof ISLANDS };
+
+export function Architecture({builder,shadows=true,clip}:{builder:ArchitectureBuilder;shadows?:boolean;clip?:ArchitectureClip}) {
+  const batches=useMemo(()=>Array.from(builder.batches.entries()).map(([key,batch])=>{
+    if(!clip)return [key,batch] as const;
+    const padding=clip.padding ?? 0;
+    const pieces=batch.pieces.filter(piece=>{
+      const position=new THREE.Vector3().setFromMatrixPosition(piece.matrix);
+      return position.x>=clip.minX-padding&&position.x<=clip.maxX+padding&&position.z>=clip.minZ-padding&&position.z<=clip.maxZ+padding&&(!clip.island||islandScore(position.x,position.z,ISLANDS[clip.island])>=-padding);
+    });
+    return [key,{...batch,pieces}] as const;
+  }).filter(([,batch])=>batch.pieces.length>0),[builder,clip]);
+  return <group>{batches.map(([key,batch])=><ArchitectureBatch key={key} batch={batch} shadows={shadows}/>)}</group>;
 }
 export function LandmarkArchitecture({kind}:{kind:LandmarkKind}) {
   const builder=useMemo(()=>{const b=new ArchitectureBuilder();b.landmark(kind);return b;},[kind]);

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { shoreDistance } from "@/lib/worldMap/landscape";
+import { ISLANDS, islandScore, shoreDistance } from "@/lib/worldMap/landscape";
 
 // This deliberately has no foam, whitecap, texture-scroll, or time uniform.
 // It retains the established shallow-to-open-ocean palette as one clean,
@@ -35,7 +35,7 @@ const FRAGMENT_SHADER = `
   }
 `;
 
-function makeOceanGeometry() {
+function makeOceanGeometry(coastDistance:(x:number,z:number)=>number) {
   const geometry = new THREE.PlaneGeometry(220, 190, 168, 144);
   const positions = geometry.attributes.position;
   const shore = new Float32Array(positions.count);
@@ -43,11 +43,11 @@ function makeOceanGeometry() {
   const sampleRadius = 8;
   for (let index = 0; index < positions.count; index++) {
     const x = positions.getX(index), z = -positions.getY(index);
-    shore[index] = Math.min(16, Math.max(0, -shoreDistance(x, z)));
+    shore[index] = Math.min(16, Math.max(0, -coastDistance(x, z)));
     let openSamples = 0;
     for (let direction = 0; direction < 8; direction++) {
       const angle = direction * Math.PI * 0.25;
-      if (shoreDistance(x + Math.cos(angle) * sampleRadius, z + Math.sin(angle) * sampleRadius) < 0) openSamples++;
+      if (coastDistance(x + Math.cos(angle) * sampleRadius, z + Math.sin(angle) * sampleRadius) < 0) openSamples++;
     }
     exposure[index] = openSamples / 8;
   }
@@ -57,8 +57,9 @@ function makeOceanGeometry() {
 }
 
 /** A static, opaque ocean; all generated GPU resources dispose on unmount. */
-export function Ocean() {
-  const geometry = useMemo(() => makeOceanGeometry(), []);
+export function Ocean({island}:{island?:keyof typeof ISLANDS}) {
+  const coastDistance=useMemo(() => island ? (x:number,z:number)=>islandScore(x,z,ISLANDS[island]) : shoreDistance,[island]);
+  const geometry = useMemo(() => makeOceanGeometry(coastDistance), [coastDistance]);
   const material = useMemo(() => new THREE.ShaderMaterial({ vertexShader: VERTEX_SHADER, fragmentShader: FRAGMENT_SHADER }), []);
   useEffect(() => () => { geometry.dispose(); material.dispose(); }, [geometry, material]);
   return <mesh geometry={geometry} material={material} position={[0, -0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow frustumCulled />;
