@@ -8,9 +8,10 @@ import { SITES, sitePosition } from "@/lib/worldMap/landscape";
 import { cameraEase, islandCameraPose, RETURN_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
 export { CAMERA_POSITION } from "@/lib/worldMap/framing";
 
-export function MapCamera({ command }: { command: CameraCommand | null }) {
-  const getThree=useThree(state=>state.get),size=useThree(state=>state.size);
+export function MapCamera({ command, active = true }: { command: CameraCommand | null; active?: boolean }) {
+  const getThree=useThree(state=>state.get),size=useThree(state=>state.size),invalidate=useThree(state=>state.invalidate);
   const initialized=useRef(false);
+  const wasActive=useRef(false);
   const animation=useRef<{elapsed:number;duration:number;from:THREE.Vector3;to:THREE.Vector3;fromZoom:number;toZoom:number;done:()=>void}|null>(null);
   useLayoutEffect(()=>{
     const {camera}=getThree();
@@ -24,6 +25,19 @@ export function MapCamera({ command }: { command: CameraCommand | null }) {
     }
     camera.near=0.5;camera.far=650;camera.updateProjectionMatrix();
   },[getThree,size]);
+  useLayoutEffect(() => {
+    const { camera } = getThree();
+    if (active && !wasActive.current) {
+      // A retained canvas otherwise comes back still zoomed into the island
+      // selected just before navigation.
+      camera.position.set(...CAMERA_POSITION);
+      camera.lookAt(...CAMERA_TARGET);
+      camera.zoom = 1;
+      camera.updateProjectionMatrix();
+      invalidate();
+    }
+    wasActive.current = active;
+  }, [active, getThree, invalidate]);
   useLayoutEffect(()=>{
     if(!command)return;
     const {camera}=getThree();
@@ -37,7 +51,8 @@ export function MapCamera({ command }: { command: CameraCommand | null }) {
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     animation.current={elapsed:0,duration:reduced?0:command.kind==="overview"?RETURN_DURATION:ZOOM_DURATION,
       from:camera.position.clone(),to,fromZoom:camera.zoom,toZoom,done:command.onComplete};
-  },[command,getThree,size]);
+    invalidate();
+  },[command,getThree,size,invalidate]);
   useFrame((_,delta)=>{
     const motion=animation.current;if(!motion)return;
     motion.elapsed+=Math.min(delta,0.05);
@@ -48,6 +63,7 @@ export function MapCamera({ command }: { command: CameraCommand | null }) {
     camera.updateProjectionMatrix();
     // No lookAt during motion: the original isometric quaternion stays locked.
     if(t===1){animation.current=null;motion.done();}
+    else invalidate();
   });
   return null;
 }

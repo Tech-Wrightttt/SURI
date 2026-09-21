@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { LandmarkArchitecture } from "./Architecture";
 import { Landscape, type LandscapeFocus } from "./Landscape";
@@ -22,6 +22,7 @@ const Y_AXIS = new THREE.Vector3(0, 1, 0);
 function TopicsCamera() {
   const getThree = useThree(state => state.get);
   const size = useThree(state => state.size);
+  const invalidate = useThree(state => state.invalidate);
   const elapsed = useRef(0);
   const focal = useMemo(() => new THREE.Vector3(...sitePosition("topics")).applyAxisAngle(Y_AXIS, WORLD_ROTATION).add(new THREE.Vector3(0, 3.2, 0)), []);
   const distant = useMemo(() => focal.clone().add(new THREE.Vector3(126, 126, 126)), [focal]);
@@ -41,9 +42,11 @@ function TopicsCamera() {
       camera.zoom = 0.84;
     }
     camera.updateProjectionMatrix();
-  }, [distant, focal, getThree, size]);
+    invalidate();
+  }, [distant, focal, getThree, size, invalidate]);
 
   useFrame((_, delta) => {
+    if (elapsed.current >= 0.9) return;
     elapsed.current = Math.min(elapsed.current + delta, 0.9);
     const t = THREE.MathUtils.smootherstep(elapsed.current / 0.9, 0, 1);
     const { camera } = getThree();
@@ -53,6 +56,7 @@ function TopicsCamera() {
       camera.zoom = THREE.MathUtils.lerp(0.84, 1.08, t);
       camera.updateProjectionMatrix();
     }
+    if (elapsed.current < 0.9) invalidate();
   });
   return null;
 }
@@ -74,13 +78,19 @@ export function TopicsIsland() {
   </>;
 }
 
-export default function TopicsLibraryWorld() {
+function FrameGate({ active }: { active: boolean }) {
+  const invalidate = useThree(state => state.invalidate);
+  useEffect(() => { if (active) invalidate(); }, [active, invalidate]);
+  return null;
+}
+
+export default function TopicsLibraryWorld({ active = true }: { active?: boolean }) {
   return <div className="topics-world" aria-hidden="true">
     <div className="topics-world-backdrop">
-      <Canvas orthographic shadows="percentage" dpr={[1, 1.25]} camera={{ position: [82, 82, 82], near: 0.5, far: 420 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => {
+      <Canvas frameloop={active ? "demand" : "never"} orthographic shadows="percentage" dpr={[1, 1.25]} camera={{ position: [82, 82, 82], near: 0.5, far: 420 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => {
         gl.shadowMap.enabled = true;
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
-      }}><TopicsIsland /></Canvas>
+      }}><FrameGate active={active} /><TopicsIsland /></Canvas>
     </div>
   </div>;
 }

@@ -68,6 +68,13 @@ type WorldProps = {
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
   command: CameraCommand | null; visible: boolean; busy: boolean; navigate: (href: string) => void;
 };
+
+function FrameGate({ active }: { active: boolean }) {
+  const invalidate = useThree(state => state.invalidate);
+  useEffect(() => { if (active) invalidate(); }, [active, invalidate]);
+  return null;
+}
+
 function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible, tooltipPortal }: WorldProps & { tooltipPortal?: RefObject<HTMLElement> }) {
   const size = useThree(state => state.size);
   const frame = worldFrame(size.width, size.height, playableProjectionBounds());
@@ -79,7 +86,7 @@ function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, 
       <ambientLight intensity={0.7} color="#fff8e7" />
       <directionalLight position={[-38, 60, 35]} intensity={2.6} color="#fffde7" castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-50} shadow-camera-right={50} shadow-camera-top={42} shadow-camera-bottom={-42} shadow-camera-far={130} shadow-normalBias={0.06} shadow-bias={-0.0004} />
       <hemisphereLight args={["#c4dfef", "#697653", 0.7]} />
-      <MapCamera command={command} />
+      <MapCamera command={command} active={visible} />
       <group position={frame.position} rotation={[0, frame.rotation, 0]} scale={frame.scale}>
         <Ocean />
         <Landscape />
@@ -140,7 +147,7 @@ function DashboardWorld(props: WorldProps) {
       <div className={styles.viewport}><Canvas
         className="dashboard-canvas"
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-        frameloop={props.visible ? "always" : "never"}
+        frameloop={props.visible ? "demand" : "never"}
         orthographic
         shadows="percentage"
         dpr={[1, 1.25]}
@@ -151,6 +158,7 @@ function DashboardWorld(props: WorldProps) {
           gl.shadowMap.type = THREE.PCFSoftShadowMap;
         }}
       >
+        <FrameGate active={props.visible} />
         <Suspense fallback={null}><CoastalWorld {...props} tooltipPortal={tooltipPortalReady ? tooltipPortal : undefined} /></Suspense>
       </Canvas></div>
       {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}

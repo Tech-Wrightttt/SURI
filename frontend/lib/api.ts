@@ -430,7 +430,7 @@ export async function startPractice(body: {
   const res = await fetch(url, {
     method: "POST",
     credentials: "include",
-    signal: options.signal ?? (options.method && options.method !== "GET" ? undefined : AbortSignal.timeout(15000)),
+    signal: AbortSignal.timeout(15000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });

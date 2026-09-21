@@ -1,49 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
-import TopicsLibraryWorld from "@/components/WorldMap/TopicsLibraryWorld";
-import { TopicInfo } from "../../lib/api";
-import { ensureLearningData } from "@/lib/learningData";
+import { useLearningData } from "@/components/navigation/LearningShell";
 
 export default function TopicsPage() {
   const router = useRouter();
-  const [topics, setTopics] = useState<TopicInfo[]>([]);
-  const [activeTopics, setActiveTopics] = useState<Record<string, string>>({});
-  const [completedTopics, setCompletedTopics] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [nodeStatuses, setNodeStatuses] = useState<Record<string, string>>({});
-  const [topicChains, setTopicChains] = useState<Record<string, { node_id: string }[]>>({});
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        // Reuses the shell cache; API, authentication, session, and progress
-        // behavior remain on the exact same code path as before the redesign.
-        const data = await ensureLearningData();
-        const activeMap: Record<string, string> = {};
-        for (const session of data.progress.active_sessions || []) activeMap[session.topic_entry_node] = session.id;
-        setActiveTopics(activeMap);
-        setCompletedTopics(new Set((data.progress.completed_sessions || []).map(session => session.topic_entry_node)));
-        setTopics(data.topics);
-        setNodeStatuses(data.statuses);
-        setTopicChains(data.chains);
-      } catch (cause: unknown) {
-        const detail = cause && typeof cause === "object" && "detail" in cause ? (cause as { detail?: unknown }).detail : undefined;
-        const message = cause instanceof Error ? cause.message : undefined;
-        setError(typeof detail === "string" ? detail : message || "Failed to load topics. Are you logged in?");
-      } finally { setLoading(false); }
-    };
-    void load();
-  }, []);
+  const { data, error: loadError } = useLearningData();
+  const topics = data?.topics ?? [];
+  const activeTopics = Object.fromEntries((data?.progress.active_sessions ?? []).map(session => [session.topic_entry_node, session.id]));
+  const completedTopics = new Set((data?.progress.completed_sessions ?? []).map(session => session.topic_entry_node));
+  const nodeStatuses = data?.statuses ?? {};
+  const topicChains = data?.chains ?? {};
+  const loading = !data && !loadError;
+  const error = loadError?.message ?? null;
 
   const openTopic = (nodeId: string) => router.push(`/topics/${nodeId}`);
   const resumeTopic = (sessionId: string) => router.push(`/session/${sessionId}/lesson`);
 
   return <MainPage immersive>
-    <TopicsLibraryWorld />
     <div className="topics-library-page">
       <header className="topics-library-header">
         <div className="topics-library-kicker"><span /> THE SURI ACADEMY ARCHIVES <span /></div>

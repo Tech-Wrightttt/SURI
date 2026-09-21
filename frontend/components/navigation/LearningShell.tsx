@@ -7,7 +7,9 @@ import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLe
 import { ISLAND_ROUTES, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
 
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
+const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
 const DashboardWorld = dynamic(loadWorld, { ssr: false });
+const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
 const NavigationContext = createContext<{
   navigate: (href: string) => void; busy: boolean; error: string | null; clearSession: () => void;
@@ -26,6 +28,11 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [command, setCommand] = useState<CameraCommand | null>(null);
+  // Keep a scene alive once it has been opened. Reusing its renderer, compiled
+  // shaders, instanced meshes, and procedural geometry makes a return trip
+  // immediate instead of rebuilding a second WebGL context on every route.
+  const [dashboardWorldMounted, setDashboardWorldMounted] = useState(overview);
+  const [topicsWorldMounted, setTopicsWorldMounted] = useState(pathname === "/topics");
   const locked = useRef(false);
   const serial = useRef(0);
   const previous = useRef(pathname);
@@ -39,9 +46,33 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (!managed) return;
     managedRoutes.forEach(href => router.prefetch(href));
-    void loadWorld();
     void ensureLearningData().catch(() => {});
   }, [managed, pathname, router]);
+
+  useEffect(() => {
+    if (!overview && pathname !== "/topics") return;
+    // Delay bookkeeping to the next frame: the active route is rendered from
+    // the pathname immediately, while this only records that it should stay
+    // mounted after the user leaves it.
+    const frame = window.requestAnimationFrame(() => {
+      if (overview) setDashboardWorldMounted(true);
+      if (pathname === "/topics") setTopicsWorldMounted(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [overview, pathname]);
+
+  useEffect(() => {
+    if (!managed) return;
+    // Route prefetching fetches code in most cases. This idle preload is a
+    // fallback that keeps Three.js from competing with the first paint.
+    const preload = () => { void loadWorld(); void loadTopicsWorld(); };
+    const idle = window.requestIdleCallback?.(preload, { timeout: 2500 });
+    const timeout = idle === undefined ? window.setTimeout(preload, 1200) : undefined;
+    return () => {
+      if (idle !== undefined) window.cancelIdleCallback?.(idle);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
+  }, [managed]);
 
   useEffect(() => {
     const refresh = () => { if (managed && document.visibilityState === "visible") void ensureLearningData().catch(() => {}); };
@@ -70,12 +101,11 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       clearSession(); return;
     }
     if (overview) {
-      // The dashboard gets a new canvas after every return, so it should start
-      // from its default camera rather than trying to reuse a prior world.
+      // The retained dashboard camera resets itself as it becomes visible.
       setCommand(null);
       unlock();
     } else {
-      // Drop the prior camera command together with the unmounted canvas.
+      // Do not let a completed island command run when the world is paused.
       setCommand(null);
       unlock();
     }
@@ -87,6 +117,11 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     const token=++transaction.current;
     pendingRoute.current=href;
     router.prefetch(href);
+    // Start the destination's expensive scene work during the intentional map
+    // zoom. The route is shown only after that critical module is available.
+    const worldReady = href === "/topics"
+      ? loadTopicsWorld().then(() => undefined).catch(() => undefined)
+      : Promise.resolve();
     const site=ISLAND_ROUTES[href as IslandRoute];
     const camera = new Promise<void>(resolve => {
       if (overview && site) setCommand({id:++serial.current,kind:"island",site,onComplete:resolve});
@@ -98,7 +133,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     if (managedRoutes.includes(href) && href !== "/dashboard" && href !== "/calculator" && !getLearningSnapshot().data) {
       void ensureLearningData().catch(() => {});
     }
-    void camera.then(() => {
+    void Promise.all([camera, worldReady]).then(() => {
       if(token!==transaction.current)return;
       router.push(href);
     }).catch(cause => {
@@ -120,9 +155,12 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   }, [data]);
   const context=useMemo(()=>({navigate,busy,error:error ?? dataError?.message ?? null,clearSession}),[navigate,busy,error,dataError,clearSession]);
   return <NavigationContext.Provider value={context}>
-    {overview && <div className="dashboard-world-layer">
-      <DashboardWorld visible command={command} navigate={navigate} busy={busy}
+    {(dashboardWorldMounted || overview) && <div className="dashboard-world-layer" aria-hidden={!overview} style={{ visibility: overview ? "visible" : "hidden" }}>
+      <DashboardWorld visible={overview} command={command} navigate={navigate} busy={busy}
         active={data?.progress.active_sessions} errors={data?.progress.misconception_history} progress={progress}/>
+    </div>}
+    {(topicsWorldMounted || pathname === "/topics") && <div className="topics-world-shell" aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
+      <TopicsLibraryWorld active={pathname === "/topics"} />
     </div>}
     <div className={overview ? "dashboard-route-overlay" : "learning-route-content"}>{children}</div>
   </NavigationContext.Provider>;

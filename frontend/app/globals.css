@@ -382,13 +382,14 @@ html::-webkit-scrollbar {
   .voxel-close { grid-column: 2; justify-self: start; }
 }
 
-/* The canvas exists only while the Dashboard route is mounted. */
+/* Visited world canvases stay mounted and are paused while their route is hidden. */
 .dashboard-world-layer { position: fixed; inset: 0; z-index: 0; background: #126f8d; }
 .dashboard-route-overlay { position: relative; z-index: 40; pointer-events: none; }
 .dashboard-route-overlay nav, .dashboard-route-overlay [role="alert"], .dashboard-route-overlay button { pointer-events: auto; }
 .learning-route-content { position: relative; z-index: 40; }
 
 /* Topics: the existing academy island sits behind a focused, layered library. */
+.topics-world-shell { position: fixed; inset: 0; z-index: 0; background: #19132f; }
 .topics-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #19132f; }
 .topics-world-backdrop { position: absolute; inset: 0; pointer-events: none; }
 .topics-world-backdrop { filter: blur(.6px) saturate(.83) brightness(.68); transform: scale(1.02); animation: topicsBackdropArrival 1.35s cubic-bezier(.2,.8,.2,1) both; }
