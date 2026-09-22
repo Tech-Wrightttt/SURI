@@ -1,28 +1,453 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import confetti from "canvas-confetti";
+import { ArrowRight, CheckCircle2, Circle, ShieldAlert, Target } from "lucide-react";
 import {
-  getSession,
   decideProgression,
-  updateSession,
+  getSession,
+  ProgressionDecision,
   saveProgress,
   simplifyContent,
-  ProgressionDecision,
+  updateSession,
 } from "../../../../lib/api";
-import confetti from "canvas-confetti";
-import { 
-  Compass, 
-  Leaf, 
-  Flame, 
-  ShieldAlert, 
-  Loader2, 
-  Sparkles, 
-  ArrowRight, 
-  Check, 
-  Trophy,
-  Sprout
-} from "lucide-react";
+
+const RESULTS_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@600;700;800;900&display=swap');
+
+  .quest-result {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(118px, 14vh, 150px) 22px 34px;
+    font-family: "Nunito", sans-serif;
+    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    color: #3b1766;
+  }
+
+  .quest-result::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 39%, rgba(255, 239, 185, .34), transparent 28%),
+      linear-gradient(90deg, rgba(19, 13, 38, .34), transparent 26%, transparent 72%, rgba(31, 15, 44, .24)),
+      linear-gradient(180deg, rgba(255, 255, 255, .08), transparent 45%, rgba(43, 29, 40, .2));
+    pointer-events: none;
+  }
+
+  .quest-result-shell {
+    width: min(900px, 100%);
+    position: relative;
+    z-index: 1;
+  }
+
+  .quest-crest {
+    position: absolute;
+    width: min(560px, 92vw);
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -57%);
+    z-index: 3;
+    filter: drop-shadow(0 18px 16px rgba(42, 18, 24, .38));
+    pointer-events: none;
+  }
+
+  .parchment-frame {
+    position: relative;
+    padding: 24px;
+    border-radius: 32px 28px 34px 30px;
+    background:
+      linear-gradient(90deg, #70411f 0 18px, transparent 18px calc(100% - 18px), #70411f calc(100% - 18px)),
+      linear-gradient(180deg, #8b5527 0 18px, transparent 18px calc(100% - 18px), #8b5527 calc(100% - 18px)),
+      #70411f;
+    box-shadow:
+      0 28px 46px rgba(42, 24, 20, .36),
+      inset 0 0 0 4px #3b1d13,
+      inset 0 0 0 10px rgba(255, 198, 92, .22);
+  }
+
+  .parchment-frame::before,
+  .parchment-frame::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: 24px;
+    pointer-events: none;
+  }
+
+  .parchment-frame::before {
+    background:
+      radial-gradient(circle at 3% 12%, #4a2413 0 16px, transparent 17px),
+      radial-gradient(circle at 97% 13%, #4a2413 0 16px, transparent 17px),
+      radial-gradient(circle at 4% 91%, #4a2413 0 15px, transparent 16px),
+      radial-gradient(circle at 96% 90%, #4a2413 0 15px, transparent 16px);
+    opacity: .76;
+  }
+
+  .parchment-panel {
+    position: relative;
+    border-radius: 22px 20px 24px 22px;
+    padding: clamp(72px, 9vw, 94px) clamp(22px, 6vw, 62px) clamp(26px, 5vw, 46px);
+    background:
+      radial-gradient(circle at 18% 24%, rgba(255, 255, 255, .34), transparent 26%),
+      radial-gradient(circle at 80% 76%, rgba(174, 102, 34, .12), transparent 31%),
+      linear-gradient(135deg, rgba(129, 73, 24, .08) 0 14%, transparent 14% 28%, rgba(129, 73, 24, .06) 28% 42%, transparent 42% 57%, rgba(129, 73, 24, .06) 57% 70%, transparent 70%),
+      #f6ddaa;
+    box-shadow:
+      inset 0 0 0 2px rgba(124, 70, 28, .2),
+      inset 0 0 34px rgba(116, 65, 22, .18);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .parchment-panel::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 2px solid rgba(111, 61, 28, .13);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+
+  .result-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .quest-title {
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(34px, 5.1vw, 54px);
+    line-height: 1;
+    color: #3c126b;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, .55);
+  }
+
+  .quest-subtitle {
+    margin: 12px auto 0;
+    max-width: 620px;
+    color: #4e3477;
+    font-size: clamp(15px, 1.9vw, 20px);
+    font-weight: 900;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 24px auto 26px;
+    max-width: 470px;
+    color: #7d36bb;
+  }
+
+  .ornament::before,
+  .ornament::after {
+    content: "";
+    height: 2px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, currentColor);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .55);
+  }
+
+  .ornament::after {
+    background: linear-gradient(90deg, currentColor, transparent);
+  }
+
+  .ornament span {
+    width: 23px;
+    height: 23px;
+    background: currentColor;
+    clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .7));
+  }
+
+  .result-summary {
+    margin: 0 auto 20px;
+    max-width: 680px;
+    padding: 14px 18px;
+    border: 2px solid #8749b7;
+    border-radius: 15px;
+    background: linear-gradient(180deg, rgba(81, 39, 120, .96), rgba(55, 27, 91, .98));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .15),
+      0 3px 0 rgba(72, 31, 94, .44);
+    color: #fff8e8;
+    font-size: clamp(15px, 1.7vw, 18px);
+    font-weight: 900;
+  }
+
+  .result-error {
+    width: min(680px, 100%);
+    margin: 0 auto 18px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 2px solid #bb3d42;
+    border-radius: 14px;
+    background: rgba(111, 20, 45, .14);
+    color: #6f1430;
+    text-align: left;
+    font-weight: 900;
+  }
+
+  .evaluation-card {
+    width: min(720px, 100%);
+    margin: 0 auto;
+    border: 2px solid rgba(124, 70, 28, .32);
+    border-radius: 18px;
+    background: rgba(255, 248, 232, .72);
+    box-shadow: inset 0 0 22px rgba(116, 65, 22, .12);
+    overflow: hidden;
+  }
+
+  .evaluation-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    color: #3c126b;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(23px, 3vw, 30px);
+    text-align: left;
+    border-bottom: 2px solid rgba(124, 70, 28, .22);
+  }
+
+  .evaluation-note {
+    padding: 0 18px 16px;
+    color: #50306c;
+    font-size: 16px;
+    font-weight: 900;
+    text-align: left;
+  }
+
+  .node-list {
+    display: grid;
+    gap: 12px;
+    padding: 0 18px 18px;
+  }
+
+  .node-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 2px solid #8749b7;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .58);
+    text-align: left;
+  }
+
+  .node-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .node-icon {
+    margin-top: 2px;
+    color: #6b10d0;
+    flex: 0 0 auto;
+  }
+
+  .node-label {
+    color: #3b1766;
+    font-size: clamp(16px, 1.8vw, 19px);
+    font-weight: 900;
+    line-height: 1.16;
+  }
+
+  .node-id {
+    margin-top: 3px;
+    color: #6b5684;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 132px;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-improved {
+    color: #17633a;
+    background: #dff5c8;
+  }
+
+  .status-needs-work {
+    color: #87221f;
+    background: #ffd9d4;
+  }
+
+  .status-current {
+    color: #3b1766;
+    background: #ffe79f;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 14px;
+    width: min(720px, 100%);
+    margin: 26px auto 0;
+  }
+
+  .button-row.stacked {
+    flex-direction: column;
+  }
+
+  .quest-button-wrap {
+    flex: 1;
+    padding: 8px;
+    clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+    background: linear-gradient(180deg, #ffcf66, #9a541f);
+    filter: drop-shadow(0 8px 0 rgba(72, 34, 16, .72));
+  }
+
+  .quest-button {
+    width: 100%;
+    min-height: 62px;
+    clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.12), transparent 18%, transparent 82%, rgba(255,255,255,.12)),
+      linear-gradient(180deg, #9232cc, #58158f 52%, #391071);
+    color: #fffaf6;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 900;
+    letter-spacing: 0;
+    text-shadow: 0 3px 0 #32104d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform .12s ease, filter .12s ease;
+  }
+
+  .quest-button:hover:not(:disabled) {
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.18), transparent 18%, transparent 82%, rgba(255,255,255,.18)),
+      linear-gradient(180deg, #a940e0, #6c1cab 52%, #451387);
+    box-shadow: 0 0 20px rgba(146, 50, 204, .6);
+    transform: translateY(-2px);
+  }
+
+  .quest-button:active:not(:disabled) {
+    transform: translateY(3px);
+  }
+
+  .quest-button:disabled {
+    cursor: not-allowed;
+    filter: saturate(.45) brightness(.86);
+  }
+
+  .quest-button.secondary {
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.2), transparent 18%, transparent 82%, rgba(255,255,255,.2)),
+      linear-gradient(180deg, #fff1bc, #f3bd50 54%, #a96525);
+    color: #3c126b;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, .55);
+  }
+
+  .loading-panel {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    font-family: "Nunito", sans-serif;
+  }
+
+  .loading-card {
+    width: min(360px, calc(100% - 32px));
+    padding: 24px;
+    border: 2px solid #8749b7;
+    border-radius: 18px;
+    background: rgba(255, 248, 232, .88);
+    color: #3b1766;
+    font-weight: 900;
+    text-align: center;
+    box-shadow: 0 16px 32px rgba(42, 24, 20, .28);
+  }
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 14px;
+    border: 5px solid rgba(60, 18, 107, .18);
+    border-top-color: #6b10d0;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 720px) {
+    .quest-result {
+      min-height: 100svh;
+      padding: 112px 12px 18px;
+      background-position: center;
+    }
+
+    .quest-crest {
+      width: min(430px, 94vw);
+      transform: translate(-50%, -55%);
+    }
+
+    .parchment-frame {
+      padding: 14px;
+      border-radius: 24px;
+    }
+
+    .parchment-panel {
+      padding: 58px 15px 24px;
+      border-radius: 18px;
+    }
+
+    .quest-title {
+      font-size: 34px;
+    }
+
+    .quest-subtitle,
+    .evaluation-note {
+      font-size: 15px;
+    }
+
+    .node-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .status-badge {
+      width: 100%;
+    }
+
+    .button-row {
+      flex-direction: column;
+    }
+
+    .quest-button {
+      min-height: 58px;
+      font-size: 22px;
+    }
+  }
+`;
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -30,13 +455,10 @@ export default function ResultsPage() {
   const sessionId = params.session_id as string;
 
   const [loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState("Calculating your results...");
   const [currentNode, setCurrentNode] = useState("");
   const [result, setResult] = useState<ProgressionDecision | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const [simplifying, setSimplifying] = useState(false);
-  const [simplifyText, setSimplifyText] = useState("Getting a simpler explanation...");
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -70,16 +492,13 @@ export default function ResultsPage() {
     }
   }, [sessionId]);
 
-  // Launch celebratory confetti when user successfully advances past a module [2]
   useEffect(() => {
     if (result && result.decision === "advance") {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     }
   }, [result]);
 
-  const masteryLabel = result
-    ? `${result.passed_count} out of 5 correct`
-    : "";
+  const masteryLabel = result ? `${result.passed_count} out of 5 correct` : "";
 
   const handleContinue = async () => {
     if (!result?.next_node_id) return;
@@ -114,7 +533,6 @@ export default function ResultsPage() {
 
   const handleReviewSimplified = async () => {
     setSimplifying(true);
-    setSimplifyText("Getting a simpler explanation...");
     try {
       await simplifyContent(currentNode);
       router.push(`/session/${sessionId}/lesson`);
@@ -140,15 +558,11 @@ export default function ResultsPage() {
 
   if (loading || simplifying) {
     return (
-      <div className="min-h-screen bg-[#1b261c] flex flex-col items-center justify-center p-8">
-        <div className="bg-[#faf8f5] border-[4px] border-[#1F2720] rounded-[32px] p-8 max-w-sm w-full text-center shadow-[8px_8px_0px_0px_#1F2720]">
-          <div className="relative w-12 h-12 mx-auto mb-4">
-            <div className="absolute inset-0 border-4 border-[#e6e8ea] rounded-full" />
-            <div className="absolute inset-0 border-4 border-[#1F2720] border-t-[#fdd400] rounded-full animate-spin" />
-          </div>
-          <p className="font-['Manrope'] text-xs text-[#1F2720] font-black animate-pulse uppercase tracking-wider">
-            {simplifying ? simplifyText : loadingText}
-          </p>
+      <div className="loading-panel" aria-label={simplifying ? "Loading simpler explanation" : "Calculating results"}>
+        <style dangerouslySetInnerHTML={{ __html: RESULTS_CSS }} />
+        <div className="loading-card">
+          <div className="loading-spinner" />
+          <p>{simplifying ? "Getting a simpler explanation..." : "Calculating your results..."}</p>
         </div>
       </div>
     );
@@ -156,222 +570,247 @@ export default function ResultsPage() {
 
   if (errorMsg || !result) {
     return (
-      <div className="min-h-screen bg-[#1b261c] p-6 md:p-8 flex flex-col justify-center items-center font-['Manrope']">
-        <div className="w-full max-w-xl bg-[#faf8f5] border-[4px] border-[#1F2720] rounded-[32px] p-8 shadow-[8px_8px_0px_0px_#1F2720] text-center relative overflow-hidden">
-          <span className="font-black text-[10px] text-red-900 bg-red-100 border-2 border-[#1F2720] px-3 py-1.5 rounded-md uppercase tracking-wider">EVALUATION FAULT</span>
-          <h2 className="text-xl font-black text-[#1F2720] mt-4 mb-2">Error</h2>
-          <p className="font-black text-xs text-red-900 bg-red-50 border-2 border-[#1F2720] rounded-xl p-3 my-4 break-all text-left">
-            [FAULT_LOG] {errorMsg || "No results available."}
-          </p>
-          <button
-            onClick={() => router.push(`/session/${sessionId}/practice`)}
-            className="w-full bg-[#fdd400] text-[#1F2720] border-[3.5px] border-[#1F2720] py-3.5 px-6 text-xs font-black uppercase rounded-2xl tracking-wider transition-all cursor-pointer shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5"
-          >
-            Back to Practice
-          </button>
-        </div>
-      </div>
+      <main className="quest-result">
+        <style dangerouslySetInnerHTML={{ __html: RESULTS_CSS }} />
+        <section className="quest-result-shell" aria-labelledby="result-error-heading">
+          <img
+            className="quest-crest"
+            src="/login/suri-math-quest-crest.svg"
+            alt="SURI Math Quest"
+          />
+          <div className="parchment-frame">
+            <div className="parchment-panel">
+              <div className="result-content">
+                <h1 id="result-error-heading" className="quest-title">Error</h1>
+                <div className="ornament" aria-hidden="true">
+                  <span />
+                </div>
+                <div className="result-error" role="alert">
+                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+                  <span>{errorMsg || "No results available."}</span>
+                </div>
+                <div className="button-row">
+                  <div className="quest-button-wrap">
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/session/${sessionId}/practice`)}
+                      className="quest-button"
+                    >
+                      <span>Back to Practice</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
     );
   }
 
-  const getHeaderDetails = () => {
-    if (result.decision === "advance") {
-      if (result.topic_complete) {
-        return { title: "Topic Complete!", label: "ADVANCEMENT ARCHIVED", emoji: "🎉" };
-      }
-      return { title: "Concept Mastered", label: "MILESTONE ACHIEVED", emoji: "✓" };
-    }
-    return { title: "Keep Practicing", label: "REMEDIATION MODULE", emoji: "⚡" };
-  };
-
-  const headerInfo = getHeaderDetails();
-
-  // Determine dynamic diagnostic result evaluations [1]
   const isAdvanceDecision = result.decision === "advance";
-  const mascotSrc = isAdvanceDecision ? "/suri-snake-happy.png" : "/suri-snake-sad.png";
-  const suriQuote = isAdvanceDecision
-    ? "💬 \"Sss-ensational math skills! The trail path is clear and completely safe to pass!\""
-    : "💬 \"Oh sss-no! Tricky thorns are blocking our advance. Let'sss strengthen our foundation!\"";
-
-  const renderHeader = () => (
-    <header className="bg-gradient-to-b from-[#1b261c] to-[#2e3e2d] rounded-[32px] p-6 md:p-8 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden flex flex-col justify-between min-h-[160px]">
-      <div className="absolute top-0 right-1/4 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="flex items-center justify-between mb-4 z-10 border-b-4 border-[#1F2720]/30 pb-3">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#fdd400] animate-pulse shadow-[0_0_8px_#fdd400] border border-[#1F2720]" />
-          <span className="font-['Manrope'] text-[10px] text-emerald-300 tracking-[0.2em] uppercase font-black">{headerInfo.label}</span>
-        </div>
-        <span className="font-['Manrope'] text-[9px] font-black text-[#1F2720] bg-[#fdd400] px-2.5 py-1 rounded-md border-2 border-[#1F2720] uppercase">GO1_EVAL</span>
-      </div>
-
-      <div className="z-10 flex justify-between items-end gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white font-['Hanken_Grotesk'] drop-shadow-[2.5px_2.5px_0px_#1F2720]">
-            {headerInfo.title}
-          </h1>
-          <p className="font-['Manrope'] text-[10px] text-emerald-200 mt-1.5 font-bold uppercase tracking-wider">
-            Session ID: <span className="text-[#fdd400] font-black">{sessionId}</span>
-          </p>
-        </div>
-        {headerInfo.emoji && (
-          <span className="text-3xl md:text-4xl bg-white/10 p-3 rounded-2xl border-2 border-white/20 select-none">{headerInfo.emoji}</span>
-        )}
-      </div>
-    </header>
-  );
+  const title = isAdvanceDecision
+    ? result.topic_complete
+      ? "Topic Complete"
+      : "Concept Mastered"
+    : "Keep Practicing";
+  const resultSummary = isAdvanceDecision
+    ? "You met the score needed to move forward."
+    : "This topic still needs improvement. Choose how to continue.";
+  const statusBadge = isAdvanceDecision
+    ? { text: "Improved", className: "status-improved" }
+    : { text: "Needs Improvement", className: "status-needs-work" };
 
   return (
-    <div className="bg-[#1b261c] min-h-screen text-[#1F2720] py-8 px-4 md:px-8 relative overflow-hidden font-['Manrope'] flex flex-col items-center">
-      
-      {/* Background Forest Silhouette */}
-      <div className="absolute inset-0 opacity-15 bg-cover bg-bottom mix-blend-overlay pointer-events-none" 
-           style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAEXma6INVd0pxsf2NimA83gxdCqv-1PqJrcWOioIbkPEtj3Z7oIxOvuUvLYNc4Dp9x3Y1BdR1CuvLCFJx5RSzJA9_Kk02IsPNQSy0DeGhX33fZvqV6ZTAci5gEWEnXt3d5H0IqVOBVrHAtZ0wRSpSPEhIZkwT8lWCqZo0inU40TzVsVWo-vjMqvT5w8nLCUkx-agKpKsnu_I62S8u6WesHawWnmWYTE_400YVkv8YcJ_L_q-lbQ4H0O-Ey3ld_l4PtBxxi-Kv7vQ8')" }} />
+    <main className="quest-result">
+      <style dangerouslySetInnerHTML={{ __html: RESULTS_CSS }} />
 
-      {/* Floating Glowing Fireflies */}
-      <div className="firefly w-2 h-2" style={{ left: "10%", bottom: "10%", animation: "floatFirefly 8s ease-in-out infinite" }} />
-      <div className="firefly w-2.5 h-2.5" style={{ left: "22%", bottom: "5%", animation: "floatFirefly 11s ease-in-out infinite 1.5s" }} />
+      <section className="quest-result-shell" aria-labelledby="results-heading">
+        <img
+          className="quest-crest"
+          src="/login/suri-math-quest-crest.svg"
+          alt="SURI Math Quest"
+        />
 
-      <div className="max-w-xl w-full mx-auto space-y-6 relative z-10">
-        
-        {renderHeader()}
+        <div className="parchment-frame">
+          <div className="parchment-panel">
+            <div className="result-content">
+              <h1 id="results-heading" className="quest-title">{title}</h1>
 
-        {/* Dynamic Speech Interaction Balloon [1] */}
-        <div className="relative bg-[#ffe170] text-[#1F2720] font-black text-xs md:text-sm p-5 rounded-3xl border-[4px] border-[#1F2720] shadow-[6px_6px_0px_0px_#1F2720] w-full transform hover:scale-[1.01] transition-transform flex items-center gap-4">
-          <img 
-            src={mascotSrc} 
-            alt="Suri" 
-            className="h-14 w-auto object-contain select-none shrink-0 animate-bounce" 
-            style={{ animationDuration: "2.5s" }} 
-          />
-          <span>{suriQuote}</span>
-        </div>
+              <div className="ornament" aria-hidden="true">
+                <span />
+              </div>
 
-        {/* Performance Score Display */}
-        <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-6 text-center shadow-[6px_6px_0px_0px_#1F2720]">
-          <p className="font-['Manrope'] text-xs text-slate-500 uppercase tracking-widest font-black mb-1">Session Mastery Results</p>
-          <p className="font-['Hanken_Grotesk'] text-3xl font-black text-[#1F2720]">{masteryLabel}</p>
-          <p className="text-xs text-slate-500 font-bold mt-1.5 leading-normal">Your solved formulas have been evaluated by SURI</p>
-        </div>
+              <p className="result-summary">{resultSummary}</p>
 
-        {/* ROUTE 1: ADVANCED AND COMPLETE */}
-        {result.decision === "advance" && result.topic_complete && (
-          <div className="flex flex-col gap-4">
-            <button
-              onClick={() => router.push("/topics")}
-              disabled={actionLoading}
-              className="w-full bg-[#fdd400] text-[#1F2720] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[4px_4px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              Choose Next Topic <ArrowRight className="w-5 h-5 stroke-[3px]" />
-            </button>
-            
-            <button
-              onClick={handleDashboard}
-              disabled={actionLoading}
-              className="w-full bg-white text-[#1F2720] border-[3.5px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer disabled:opacity-50"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        )}
+              {errorMsg && (
+                <div className="result-error" role="alert">
+                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
 
-        {/* ROUTE 2: ADVANCED TO NEXT NODE */}
-        {result.decision === "advance" && !result.topic_complete && (
-          <>
-            <div className="bg-[#faf8f5] rounded-3xl border-[4px] border-[#1F2720] p-5 text-center shadow-[4px_4px_0px_0px_#1F2720] flex items-center justify-center gap-3">
-              <span className="h-3 w-3 rounded-full bg-[#fdd400] border-2 border-[#1F2720]" />
-              <p className="font-['Manrope'] text-xs text-slate-700 uppercase tracking-wider font-black">
-                Next Path Step: <span className="text-[#1F2720] font-black">{result.next_node_label}</span>
-              </p>
+              <div className="evaluation-card">
+                <h2 className="evaluation-heading">
+                  <Target className="h-7 w-7" />
+                  Result Evaluation
+                </h2>
+                <p className="evaluation-note">
+                  Your practice score is listed below. The next step is based on whether the score passed the topic requirement.
+                </p>
+
+                <div className="node-list">
+                  <div className="node-row">
+                    <div className="node-title">
+                      {isAdvanceDecision ? (
+                        <CheckCircle2 className="node-icon h-6 w-6" />
+                      ) : (
+                        <Circle className="node-icon h-6 w-6" />
+                      )}
+                      <div>
+                        <h3 className="node-label">Session Mastery</h3>
+                        <p className="node-id">{masteryLabel}</p>
+                      </div>
+                    </div>
+                    <span className={`status-badge ${statusBadge.className}`}>
+                      {statusBadge.text}
+                    </span>
+                  </div>
+
+                  {result.decision === "advance" && !result.topic_complete && (
+                    <div className="node-row">
+                      <div className="node-title">
+                        <ArrowRight className="node-icon h-6 w-6" />
+                        <div>
+                          <h3 className="node-label">Next Topic</h3>
+                          <p className="node-id">{result.next_node_label}</p>
+                        </div>
+                      </div>
+                      <span className="status-badge status-current">Next</span>
+                    </div>
+                  )}
+
+                  {result.decision !== "advance" && result.go_deeper_available && result.go_deeper_node && (
+                    <div className="node-row">
+                      <div className="node-title">
+                        <ArrowRight className="node-icon h-6 w-6" />
+                        <div>
+                          <h3 className="node-label">Recommended Review</h3>
+                          <p className="node-id">{result.go_deeper_node.node_label}</p>
+                        </div>
+                      </div>
+                      <span className="status-badge status-current">Start Here</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {result.decision === "advance" && result.topic_complete && (
+                <div className="button-row">
+                  <div className="quest-button-wrap">
+                    <button
+                      type="button"
+                      onClick={() => router.push("/topics")}
+                      disabled={actionLoading}
+                      className="quest-button"
+                    >
+                      <span>Choose Next Topic</span>
+                      <ArrowRight className="h-6 w-6" />
+                    </button>
+                  </div>
+
+                  <div className="quest-button-wrap">
+                    <button
+                      type="button"
+                      onClick={handleDashboard}
+                      disabled={actionLoading}
+                      className="quest-button secondary"
+                    >
+                      <span>Dashboard</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {result.decision === "advance" && !result.topic_complete && (
+                <div className="button-row">
+                  <div className="quest-button-wrap">
+                    <button
+                      type="button"
+                      onClick={handleContinue}
+                      disabled={actionLoading}
+                      className="quest-button"
+                    >
+                      <span>Continue</span>
+                      <ArrowRight className="h-6 w-6" />
+                    </button>
+                  </div>
+
+                  <div className="quest-button-wrap">
+                    <button
+                      type="button"
+                      onClick={handleDashboard}
+                      disabled={actionLoading}
+                      className="quest-button secondary"
+                    >
+                      <span>Dashboard</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {result.decision !== "advance" && (
+                <div className="button-row stacked">
+                  {result.go_deeper_available && result.go_deeper_node && (
+                    <ResultAction
+                      title="Review Prerequisite"
+                      onAction={() => handleNavigateToNode(result.go_deeper_node!.node_id)}
+                      actionLoading={actionLoading}
+                    />
+                  )}
+                  <ResultAction
+                    title="Review This Topic"
+                    onAction={handleReviewSimplified}
+                    actionLoading={actionLoading}
+                    secondary
+                  />
+                  <ResultAction
+                    title="Save and Quit"
+                    onAction={handleQuit}
+                    actionLoading={actionLoading}
+                    secondary
+                  />
+                </div>
+              )}
             </div>
-
-            <div className="flex flex-col gap-4">
-              <button
-                onClick={handleContinue}
-                disabled={actionLoading}
-                className="w-full bg-[#fdd400] text-[#1F2720] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[4px_4px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                Continue Pathway <ArrowRight className="w-5 h-5 stroke-[3px]" />
-              </button>
-              
-              <button
-                onClick={handleDashboard}
-                disabled={actionLoading}
-                className="w-full bg-white text-[#1F2720] border-[3.5px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer disabled:opacity-50"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* ROUTE 3: REMEDIATION BLOCK (Keep Practicing) */}
-        {result.decision !== "advance" && (
-          <div className="space-y-4.5">
-            {result.go_deeper_available && result.go_deeper_node && (
-              <RemediateCard
-                title="Go Deeper into Prerequisites"
-                subtitle={`Work on: ${result.go_deeper_node.node_label}`}
-                onAction={() => handleNavigateToNode(result.go_deeper_node!.node_id)}
-                actionLoading={actionLoading}
-              />
-            )}
-
-            <RemediateCard
-              title="Review This Topic"
-              subtitle="Re-read the lesson with a simpler explanation"
-              onAction={handleReviewSimplified}
-              actionLoading={actionLoading}
-            />
-
-            <RemediateCard
-              title="Quit"
-              subtitle="Your progress will be saved"
-              onAction={handleQuit}
-              actionLoading={actionLoading}
-            />
           </div>
-        )}
-
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }
 
-function RemediateCard({
+function ResultAction({
   title,
-  subtitle,
-  disabled = false,
   onAction,
-  actionLoading = false,
+  actionLoading,
+  secondary = false,
 }: {
   title: string;
-  subtitle: string;
-  disabled?: boolean;
-  onAction?: () => void;
-  actionLoading?: boolean;
+  onAction: () => void;
+  actionLoading: boolean;
+  secondary?: boolean;
 }) {
-  const disabledClass = disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
-
   return (
-    <div className={`border-[3.5px] border-[#1F2720] rounded-[24px] transition-all duration-300 overflow-hidden bg-white shadow-[4px_4px_0px_0px_#1F2720] hover:shadow-[6px_6px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] ${disabledClass}`}>
+    <div className="quest-button-wrap">
       <button
         type="button"
         onClick={onAction}
-        disabled={disabled || actionLoading}
-        className="w-full text-left p-5 disabled:cursor-not-allowed flex items-center justify-between gap-4 group"
+        disabled={actionLoading}
+        className={`quest-button ${secondary ? "secondary" : ""}`}
       >
-        <div className="space-y-1">
-          <p className="font-[#Hanken_Grotesk] text-base font-black text-[#1F2720] group-hover:text-emerald-800 transition-colors">
-            {title}
-          </p>
-          <p className="font-['Manrope'] text-xs font-bold text-slate-500">
-            {subtitle}
-          </p>
-        </div>
-        <span className="font-['Manrope'] text-sm text-[#1F2720] font-black group-hover:translate-x-1 transition-transform">
-          <ArrowRight className="w-5 h-5 stroke-[3px]" />
-        </span>
+        <span>{title}</span>
+        <ArrowRight className="h-6 w-6" />
       </button>
     </div>
   );

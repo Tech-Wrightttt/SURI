@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="A leafy fantasy battle arena with a wooden platform">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#173d3a"/>
+      <stop offset=".48" stop-color="#2b6244"/>
+      <stop offset="1" stop-color="#1d2a23"/>
+    </linearGradient>
+    <radialGradient id="sun" cx=".5" cy=".14" r=".42">
+      <stop offset="0" stop-color="#ffd874" stop-opacity=".95"/>
+      <stop offset=".33" stop-color="#f3a94a" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#f3a94a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a6733"/>
+      <stop offset=".42" stop-color="#6f4423"/>
+      <stop offset="1" stop-color="#2d1d16"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#88c85f"/>
+      <stop offset="1" stop-color="#396c35"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="900" fill="url(#sun)"/>
+  <g opacity=".22" filter="url(#soft)">
+    <ellipse cx="220" cy="140" rx="180" ry="80" fill="#d0f5a7"/>
+    <ellipse cx="1280" cy="180" rx="230" ry="90" fill="#d0f5a7"/>
+  </g>
+  <g fill="#143225">
+    <path d="M0 588 C170 470 320 490 440 590 C565 700 755 575 880 635 C1050 718 1255 490 1600 610 L1600 900 L0 900 Z"/>
+    <path d="M0 660 C255 530 360 720 560 628 C760 535 910 705 1078 614 C1260 512 1400 612 1600 535 L1600 900 L0 900 Z" opacity=".72"/>
+  </g>
+  <g opacity=".55">
+    <path d="M114 38 C70 92 92 190 38 250" fill="none" stroke="#4e8f48" stroke-width="20" stroke-linecap="round"/>
+    <path d="M1485 18 C1535 86 1510 178 1570 242" fill="none" stroke="#4e8f48" stroke-width="20" stroke-linecap="round"/>
+    <g fill="#75b95d">
+      <ellipse cx="78" cy="78" rx="54" ry="28" transform="rotate(-30 78 78)"/>
+      <ellipse cx="136" cy="128" rx="58" ry="28" transform="rotate(26 136 128)"/>
+      <ellipse cx="1518" cy="72" rx="62" ry="28" transform="rotate(28 1518 72)"/>
+      <ellipse cx="1466" cy="142" rx="58" ry="28" transform="rotate(-24 1466 142)"/>
+    </g>
+  </g>
+  <g opacity=".55">
+    <rect x="120" y="210" width="50" height="440" rx="20" fill="#4a2d1d"/>
+    <rect x="1428" y="205" width="52" height="450" rx="20" fill="#4a2d1d"/>
+    <path d="M145 230 C245 215 278 170 340 90" fill="none" stroke="#3f7c3a" stroke-width="18" stroke-linecap="round"/>
+    <path d="M1454 238 C1350 210 1300 160 1240 82" fill="none" stroke="#3f7c3a" stroke-width="18" stroke-linecap="round"/>
+  </g>
+  <g opacity=".34" fill="#f9e38c">
+    <circle cx="312" cy="228" r="5"/>
+    <circle cx="515" cy="152" r="4"/>
+    <circle cx="906" cy="216" r="5"/>
+    <circle cx="1180" cy="150" r="4"/>
+    <circle cx="1385" cy="302" r="5"/>
+  </g>
+  <g transform="translate(160 545)">
+    <ellipse cx="640" cy="155" rx="650" ry="92" fill="#17241f" opacity=".72"/>
+    <path d="M55 52 C210 10 435 0 640 0 C850 0 1065 10 1225 52 L1290 142 C1120 196 860 212 640 212 C410 212 175 196 0 142 Z" fill="url(#wood)" stroke="#2f1d14" stroke-width="12"/>
+    <path d="M55 52 C230 92 455 102 640 102 C834 102 1062 92 1225 52" fill="none" stroke="#c18a4a" stroke-width="10" opacity=".72"/>
+    <path d="M0 142 C185 195 410 214 640 214 C876 214 1110 196 1290 142 L1254 202 C1088 263 850 286 640 286 C430 286 190 263 36 202 Z" fill="#3f2719" stroke="#21140e" stroke-width="10"/>
+    <g stroke="#2a170f" stroke-width="8" opacity=".56">
+      <path d="M212 66 C188 112 182 160 204 210"/>
+      <path d="M438 91 C408 142 410 202 432 266"/>
+      <path d="M650 100 C618 156 620 218 650 284"/>
+      <path d="M878 88 C918 146 910 220 884 270"/>
+      <path d="M1096 66 C1144 128 1124 188 1084 235"/>
+    </g>
+    <path d="M18 40 C210 5 428 -12 640 -12 C868 -12 1095 2 1274 42 C1228 70 1050 86 882 90 C750 92 600 88 474 88 C280 88 112 74 18 40 Z" fill="url(#grass)"/>
+  </g>
+</svg>

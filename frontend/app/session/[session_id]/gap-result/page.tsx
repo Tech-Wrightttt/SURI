@@ -1,21 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { ArrowRight, CheckCircle2, Circle, ShieldAlert, Target } from "lucide-react";
 import {
   getSession,
-  getTopicChain,
   getStudentProgress,
+  getTopicChain,
 } from "../../../../lib/api";
-import {
-  Compass,
-  Leaf,
-  ShieldAlert,
-  ArrowRight,
-  Sparkles,
-  Flame,
-  Sprout
-} from "lucide-react";
 
 const NODE_LABELS: Record<string, string> = {
   QE: "Quadratic Equations",
@@ -32,8 +24,440 @@ const NODE_LABELS: Record<string, string> = {
   RER: "Rational Exponents & Radicals",
   PE: "Polynomial Equations",
   PD: "Polynomial Division",
-  PO: "Polynomial Operations"
+  PO: "Polynomial Operations",
 };
+
+const GAP_RESULT_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@600;700;800;900&display=swap');
+
+  .quest-result {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(118px, 14vh, 150px) 22px 34px;
+    font-family: "Nunito", sans-serif;
+    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    color: #3b1766;
+  }
+
+  .quest-result::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 39%, rgba(255, 239, 185, .34), transparent 28%),
+      linear-gradient(90deg, rgba(19, 13, 38, .34), transparent 26%, transparent 72%, rgba(31, 15, 44, .24)),
+      linear-gradient(180deg, rgba(255, 255, 255, .08), transparent 45%, rgba(43, 29, 40, .2));
+    pointer-events: none;
+  }
+
+  .quest-result-shell {
+    width: min(900px, 100%);
+    position: relative;
+    z-index: 1;
+  }
+
+  .quest-crest {
+    position: absolute;
+    width: min(560px, 92vw);
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -57%);
+    z-index: 3;
+    filter: drop-shadow(0 18px 16px rgba(42, 18, 24, .38));
+    pointer-events: none;
+  }
+
+  .parchment-frame {
+    position: relative;
+    padding: 24px;
+    border-radius: 32px 28px 34px 30px;
+    background:
+      linear-gradient(90deg, #70411f 0 18px, transparent 18px calc(100% - 18px), #70411f calc(100% - 18px)),
+      linear-gradient(180deg, #8b5527 0 18px, transparent 18px calc(100% - 18px), #8b5527 calc(100% - 18px)),
+      #70411f;
+    box-shadow:
+      0 28px 46px rgba(42, 24, 20, .36),
+      inset 0 0 0 4px #3b1d13,
+      inset 0 0 0 10px rgba(255, 198, 92, .22);
+  }
+
+  .parchment-frame::before,
+  .parchment-frame::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: 24px;
+    pointer-events: none;
+  }
+
+  .parchment-frame::before {
+    background:
+      radial-gradient(circle at 3% 12%, #4a2413 0 16px, transparent 17px),
+      radial-gradient(circle at 97% 13%, #4a2413 0 16px, transparent 17px),
+      radial-gradient(circle at 4% 91%, #4a2413 0 15px, transparent 16px),
+      radial-gradient(circle at 96% 90%, #4a2413 0 15px, transparent 16px);
+    opacity: .76;
+  }
+
+  .parchment-panel {
+    position: relative;
+    border-radius: 22px 20px 24px 22px;
+    padding: clamp(72px, 9vw, 94px) clamp(22px, 6vw, 62px) clamp(26px, 5vw, 46px);
+    background:
+      radial-gradient(circle at 18% 24%, rgba(255, 255, 255, .34), transparent 26%),
+      radial-gradient(circle at 80% 76%, rgba(174, 102, 34, .12), transparent 31%),
+      linear-gradient(135deg, rgba(129, 73, 24, .08) 0 14%, transparent 14% 28%, rgba(129, 73, 24, .06) 28% 42%, transparent 42% 57%, rgba(129, 73, 24, .06) 57% 70%, transparent 70%),
+      #f6ddaa;
+    box-shadow:
+      inset 0 0 0 2px rgba(124, 70, 28, .2),
+      inset 0 0 34px rgba(116, 65, 22, .18);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .parchment-panel::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 2px solid rgba(111, 61, 28, .13);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+
+  .result-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .quest-title {
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(34px, 5.1vw, 54px);
+    line-height: 0;
+    color: #3c126b;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, .55);
+  }
+
+  .quest-subtitle {
+    margin: 12px auto 0;
+    max-width: 620px;
+    color: #4e3477;
+    font-size: clamp(15px, 1.9vw, 20px);
+    font-weight: 900;
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 24px auto 26px;
+    max-width: 470px;
+    color: #7d36bb;
+  }
+
+  .ornament::before,
+  .ornament::after {
+    content: "";
+    height: 2px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, currentColor);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .55);
+  }
+
+  .ornament::after {
+    background: linear-gradient(90deg, currentColor, transparent);
+  }
+
+  .ornament span {
+    width: 23px;
+    height: 23px;
+    background: currentColor;
+    clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .7));
+  }
+
+  .result-summary {
+    margin: 0 auto 20px;
+    max-width: 680px;
+    padding: 14px 18px;
+    border: 2px solid #8749b7;
+    border-radius: 15px;
+    background: linear-gradient(180deg, rgba(81, 39, 120, .96), rgba(55, 27, 91, .98));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .15),
+      0 3px 0 rgba(72, 31, 94, .44);
+    color: #fff8e8;
+    font-size: clamp(15px, 1.7vw, 18px);
+    font-weight: 900;
+  }
+
+  .result-error {
+    width: min(680px, 100%);
+    margin: 0 auto 18px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 2px solid #bb3d42;
+    border-radius: 14px;
+    background: rgba(111, 20, 45, .14);
+    color: #6f1430;
+    text-align: left;
+    font-weight: 900;
+  }
+
+  .evaluation-card {
+    width: min(720px, 100%);
+    margin: 0 auto;
+    border: 2px solid rgba(124, 70, 28, .32);
+    border-radius: 18px;
+    background: rgba(255, 248, 232, .72);
+    box-shadow: inset 0 0 22px rgba(116, 65, 22, .12);
+    overflow: hidden;
+  }
+
+  .evaluation-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    color: #3c126b;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(23px, 3vw, 30px);
+    text-align: left;
+    border-bottom: 2px solid rgba(124, 70, 28, .22);
+  }
+
+  .evaluation-note {
+    padding: 0 18px 16px;
+    color: #50306c;
+    font-size: 16px;
+    font-weight: 900;
+    text-align: left;
+  }
+
+  .node-list {
+    display: grid;
+    gap: 12px;
+    padding: 0 18px 18px;
+  }
+
+  .node-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 2px solid #8749b7;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .58);
+    text-align: left;
+  }
+
+  .node-row.is-gap {
+    border-color: #6b10d0;
+    background: rgba(255, 231, 159, .72);
+    box-shadow: 0 0 0 4px rgba(125, 54, 187, .15);
+  }
+
+  .node-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .node-icon {
+    margin-top: 2px;
+    color: #6b10d0;
+    flex: 0 0 auto;
+  }
+
+  .node-label {
+    color: #3b1766;
+    font-size: clamp(16px, 1.8vw, 19px);
+    font-weight: 900;
+    line-height: 1.16;
+  }
+
+  .node-id {
+    margin-top: 3px;
+    color: #6b5684;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 132px;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 2px solid currentColor;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-improved {
+    color: #17633a;
+    background: #dff5c8;
+  }
+
+  .status-needs-work {
+    color: #87221f;
+    background: #ffd9d4;
+  }
+
+  .status-current {
+    color: #3b1766;
+    background: #ffe79f;
+  }
+
+  .status-unchecked {
+    color: #5f6470;
+    background: #f1f1f3;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 14px;
+    width: min(720px, 100%);
+    margin: 26px auto 0;
+  }
+
+  .quest-button-wrap {
+    flex: 1;
+    padding: 8px;
+    clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+    background: linear-gradient(180deg, #ffcf66, #9a541f);
+    filter: drop-shadow(0 8px 0 rgba(72, 34, 16, .72));
+  }
+
+  .quest-button {
+    width: 100%;
+    min-height: 62px;
+    clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.12), transparent 18%, transparent 82%, rgba(255,255,255,.12)),
+      linear-gradient(180deg, #9232cc, #58158f 52%, #391071);
+    color: #fffaf6;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 900;
+    letter-spacing: 0;
+    text-shadow: 0 3px 0 #32104d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform .12s ease, filter .12s ease;
+  }
+
+  .quest-button:hover {
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.18), transparent 18%, transparent 82%, rgba(255,255,255,.18)),
+      linear-gradient(180deg, #a940e0, #6c1cab 52%, #451387);
+    box-shadow: 0 0 20px rgba(146, 50, 204, .6);
+    transform: translateY(-2px);
+  }
+
+  .quest-button:active {
+    transform: translateY(3px);
+  }
+
+  .quest-button.secondary {
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.2), transparent 18%, transparent 82%, rgba(255,255,255,.2)),
+      linear-gradient(180deg, #fff1bc, #f3bd50 54%, #a96525);
+    color: #3c126b;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, .55);
+  }
+
+  .empty-results {
+    width: min(680px, 100%);
+    margin: 0 auto;
+    color: #50306c;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .loading-panel {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+  }
+
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(60, 18, 107, .18);
+    border-top-color: #6b10d0;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 720px) {
+    .quest-result {
+      min-height: 100svh;
+      padding: 112px 12px 18px;
+      background-position: center;
+    }
+
+    .quest-crest {
+      width: min(430px, 94vw);
+      transform: translate(-50%, -55%);
+    }
+
+    .parchment-frame {
+      padding: 14px;
+      border-radius: 24px;
+    }
+
+    .parchment-panel {
+      padding: 58px 15px 24px;
+      border-radius: 18px;
+    }
+
+    .quest-title {
+      font-size: 34px;
+    }
+
+    .quest-subtitle,
+    .evaluation-note {
+      font-size: 15px;
+    }
+
+    .node-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .status-badge {
+      width: 100%;
+    }
+
+    .button-row {
+      flex-direction: column;
+    }
+
+    .quest-button {
+      min-height: 58px;
+      font-size: 22px;
+    }
+  }
+`;
 
 interface NodeStatusInfo {
   status: string;
@@ -98,226 +522,148 @@ export default function GapResultPage() {
     router.push(`/session/${sessionId}/lesson`);
   };
 
-  const getStatusBadge = (status: string | undefined) => {
+  const getStatusBadge = (status: string | undefined, isGapNode: boolean) => {
+    if (isGapNode) {
+      return {
+        text: "Start Here",
+        className: "status-current",
+      };
+    }
+
     switch (status) {
       case "mastered":
         return {
-          text: "Clear Trail",
-          bg: "bg-green-100 text-green-900 border-[#1F2720]"
+          text: "Improved",
+          className: "status-improved",
         };
       case "unresolved":
         return {
-          text: "Thorny Path",
-          bg: "bg-red-100 text-red-900 border-[#1F2720]"
+          text: "Needs Improvement",
+          className: "status-needs-work",
         };
       case "in_progress":
         return {
-          text: "Exploring",
-          bg: "bg-[#ffe170]/40 text-[#1F2720] border-[#1F2720]"
+          text: "Working On It",
+          className: "status-current",
         };
       default:
         return {
-          text: "Unexplored",
-          bg: "bg-slate-100 text-slate-500 border-slate-300"
+          text: "Not Checked",
+          className: "status-unchecked",
         };
     }
   };
 
-  // Determine dynamic diagnostic result evaluations
-  const allMastered = chain.length > 0 && chain.every(id => nodeStatuses[id]?.status === "mastered");
-  const mascotSrc = allMastered ? "/suri-snake-happy.png" : "/suri-snake-sad.png";
-  const suriQuote = allMastered
-    ? "💬 \"Sss-pectacular! You fully cleared all trails in this chain! No obstacles detected!\""
-    : "💬 \"We found a thorny gap blocking your path. Let'sss clear those algebra brambles together, Ranger!\"";
+  const allImproved = chain.length > 0 && chain.every((id) => nodeStatuses[id]?.status === "mastered");
+  const resultSummary = allImproved
+    ? "All checked topics improved. No starting gap was found."
+    : "Some topics still need improvement. Start with the first topic marked below.";
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#1b261c] flex items-center justify-center">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 border-4 border-[#1F2720]/20 rounded-full" />
-          <div className="absolute inset-0 border-4 border-[#1F2720] border-t-[#fdd400] rounded-full animate-spin" />
-        </div>
+      <div className="loading-panel" aria-label="Loading diagnostic results">
+        <style dangerouslySetInnerHTML={{ __html: GAP_RESULT_CSS }} />
+        <div className="loading-spinner" />
       </div>
     );
   }
 
   return (
-    <div className="bg-[#1b261c] min-h-screen text-[#1F2720] py-8 px-4 md:px-8 relative overflow-hidden font-['Manrope'] flex flex-col items-center">
+    <main className="quest-result">
+      <style dangerouslySetInnerHTML={{ __html: GAP_RESULT_CSS }} />
 
-      {/* Inline styles for custom animations */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes floatFirefly {
-          0% { transform: translateY(110%) translateX(0); opacity: 0; }
-          20% { opacity: 0.8; }
-          80% { opacity: 0.8; }
-          100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
-        }
-        @keyframes pulseGlow {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.15); opacity: 0.6; }
-        }
-        @keyframes bounceJelly {
-          0%, 100% { transform: translateY(0) scale(1); }
-          30% { transform: translateY(-6px) scale(0.95, 1.05); }
-          50% { transform: translateY(0) scale(1.05, 0.95); }
-          70% { transform: translateY(-2px) scale(0.98, 1.02); }
-        }
-        .firefly {
-          position: absolute;
-          background: #fdd400;
-          border-radius: 50%;
-          filter: drop-shadow(0 0 5px #ffe170);
-          pointer-events: none;
-        }
-        .animate-jelly {
-          animation: bounceJelly 2.5s ease-in-out infinite;
-        }
-      ` }} />
+      <section className="quest-result-shell" aria-labelledby="gap-result-heading">
+        
 
-      {/* Background Forest Overlay */}
-      <div className="absolute inset-0 opacity-15 bg-cover bg-bottom mix-blend-overlay pointer-events-none"
-        style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAEXma6INVd0pxsf2NimA83gxdCqv-1PqJrcWOioIbkPEtj3Z7oIxOvuUvLYNc4Dp9x3Y1BdR1CuvLCFJx5RSzJA9_Kk02IsPNQSy0DeGhX33fZvqV6ZTAci5gEWEnXt3d5H0IqVOBVrHAtZ0wRSpSPEhIZkwT8lWCqZo0inU40TzVsVWo-vjMqvT5w8nLCUkx-agKpKsnu_I62S8u6WesHawWnmWYTE_400YVkv8YcJ_L_q-lbQ4H0O-Ey3ld_l4PtBxxi-Kv7vQ8')" }} />
-
-      {/* Floating Glowing Fireflies */}
-      <div className="firefly w-2 h-2" style={{ left: "8%", bottom: "12%", animation: "floatFirefly 7s ease-in-out infinite" }} />
-      <div className="firefly w-2.5 h-2.5" style={{ left: "24%", bottom: "6%", animation: "floatFirefly 10s ease-in-out infinite 1.5s" }} />
-      <div className="firefly w-1.5 h-1.5" style={{ left: "48%", bottom: "16%", animation: "floatFirefly 5s ease-in-out infinite 0.5s" }} />
-
-      <div className="max-w-3xl w-full mx-auto space-y-6 relative z-10">
-
-        {/* Premium Bento Header (Forest with Gold Accents) */}
-        <header className="bg-gradient-to-b from-[#1b261c] to-[#2e3e2d] rounded-[32px] p-6 md:p-8 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden flex flex-col justify-between min-h-[160px]">
-          <div className="absolute top-0 right-1/4 w-32 h-32 bg-yellow-400/25 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex items-center justify-between mb-4 z-10 border-b-4 border-[#1F2720]/30 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#fdd400] animate-pulse shadow-[0_0_8px_#fdd400] border border-[#1F2720]" />
-              <span className="font-['Manrope'] text-[10px] text-emerald-300 tracking-[0.2em] uppercase font-black">EVALUATION REPORT</span>
-            </div>
-            <span className="font-['Manrope'] text-[9px] font-black text-[#1F2720] bg-[#fdd400] px-2.5 py-1 rounded-md border-2 border-[#1F2720] uppercase">
-              GO1_DB
-            </span>
-          </div>
-
-          <div className="z-10 flex items-center gap-4">
-            <img
-              src={mascotSrc}
-              alt="Suri Guide"
-              className="h-20 w-auto object-contain select-none shrink-0 animate-jelly"
-            />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white font-['Hanken_Grotesk'] drop-shadow-[2px_2px_0px_#1F2720]">
+        <div className="parchment-frame">
+          <div className="parchment-panel">
+            <div className="result-content">
+              <h1 id="gap-result-heading" className="quest-title">
                 Diagnostic Results
               </h1>
-              <p className="font-['Manrope'] text-[10px] text-emerald-200 mt-1 font-bold uppercase tracking-wider">
-                Session ID: <span className="text-[#fdd400]">{sessionId}</span>
-              </p>
-            </div>
-          </div>
-        </header>
+             
 
-        {/* Interactive Speech Bubble Display */}
-        <div className="relative bg-[#ffe170] text-[#1F2720] font-black text-xs md:text-sm p-5 rounded-3xl border-[4px] border-[#1F2720] shadow-[6px_6px_0px_0px_#1F2720] w-full transform hover:scale-[1.01] transition-transform">
-          <span>{suriQuote}</span>
-        </div>
+              <div className="ornament" aria-hidden="true">
+                <span />
+              </div>
 
-        {/* Global Error Alerts */}
-        {errorMsg && (
-          <div className="bg-red-100 border-[3.5px] border-[#1F2720] rounded-[24px] p-5 shadow-[4px_4px_0px_0px_#1F2720] flex items-start gap-4">
-            <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-['Manrope'] text-[11px] text-red-900 font-black uppercase tracking-widest block mb-1">
-                [DIAGNOSTIC FAULT DETECTED]
-              </span>
-              <p className="font-['Manrope'] text-xs text-red-900 font-extrabold">{errorMsg}</p>
-            </div>
-          </div>
-        )}
+              <p className="result-summary">{resultSummary}</p>
 
-        {chain.length > 0 ? (
-          <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-6 md:p-8 shadow-[8px_8px_0px_0px_#1F2720]">
+              {errorMsg && (
+                <div className="result-error" role="alert">
+                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
 
-            {/* Upper Map Description */}
-            <div className="mb-8">
-              <h2 className="text-sm font-['Manrope'] font-black text-[#1F2720] uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Leaf className="w-5 h-5 text-emerald-700 fill-emerald-700" />
-                Path Evaluation
-              </h2>
-              <p className="font-['Manrope'] text-sm md:text-base text-slate-700 leading-relaxed font-bold">
-                Your mathematical understanding has been mapped directly to your active topic chain. Remediation begins at the first identified weak node to ensure structurally solid foundations.
-              </p>
-            </div>
+              {chain.length > 0 ? (
+                <div className="evaluation-card">
+                  <h2 className="evaluation-heading">
+                    <Target className="h-7 w-7" />
+                    Path Evaluation
+                  </h2>
+                  <p className="evaluation-note">
+                    Each topic is listed in order. &quot;Improved&quot; means the topic was passed. &quot;Needs Improvement&quot; means the topic still needs review.
+                  </p>
 
-            {/* List of nodes in topic chain in order */}
-            <div className="space-y-4 my-8">
-              {chain.map((nodeId) => {
-                const label = NODE_LABELS[nodeId] || nodeId;
-                const isGapNode = nodeId === gapNode;
-                const nodeInfo = nodeStatuses[nodeId];
-                const status = nodeInfo?.status;
-                const badge = getStatusBadge(status);
+                  <div className="node-list">
+                    {chain.map((nodeId) => {
+                      const label = NODE_LABELS[nodeId] || nodeId;
+                      const isGapNode = nodeId === gapNode;
+                      const status = nodeStatuses[nodeId]?.status;
+                      const badge = getStatusBadge(status, isGapNode);
 
-                let cardStyle = "border-[#1F2720] bg-white hover:bg-slate-50 shadow-[3px_3px_0px_0px_#1F2720]";
-                if (isGapNode) {
-                  cardStyle = "border-[#1F2720] bg-[#ffe170]/15 shadow-[6px_6px_0px_0px_#1F2720] ring-2 ring-[#1F2720] scale-[1.01]";
-                }
+                      return (
+                        <div
+                          key={nodeId}
+                          className={`node-row ${isGapNode ? "is-gap" : ""}`}
+                        >
+                          <div className="node-title">
+                            {status === "mastered" ? (
+                              <CheckCircle2 className="node-icon h-6 w-6" />
+                            ) : (
+                              <Circle className="node-icon h-6 w-6" />
+                            )}
+                            <div>
+                              <h3 className="node-label">{label}</h3>
+                      
+                            </div>
+                          </div>
 
-                return (
-                  <div
-                    key={nodeId}
-                    className={`p-4 md:p-5 border-[3px] rounded-2xl transition-all duration-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${cardStyle}`}
-                  >
-                    <div className="flex items-start sm:items-center gap-3">
-                      {isGapNode ? (
-                        <span className="font-['Manrope'] text-[9px] font-black text-[#1F2720] bg-[#fdd400] px-2.5 py-1.5 rounded-md shrink-0 uppercase tracking-widest animate-pulse border-2 border-[#1F2720] shadow-[2.5px_2.5px_0px_0px_#1F2720]">
-                          START HERE →
-                        </span>
-                      ) : (
-                        <div className="h-3 w-3 rounded-full bg-slate-200 mt-1.5 sm:mt-0 shrink-0 border border-[#1F2720]/20" />
-                      )}
-                      <div>
-                        <h3 className="text-sm md:text-base font-black font-['Hanken_Grotesk'] text-[#1F2720] leading-snug">
-                          {label}
-                        </h3>
-                        <p className="text-[10px] font-['Manrope'] font-bold text-slate-400 mt-0.5">NODE ID: {nodeId}</p>
-                      </div>
-                    </div>
-
-                    <div className="self-start sm:self-auto shrink-0">
-                      <span className={`inline-block border-2 text-[10px] uppercase px-2.5 py-1 rounded-lg font-black tracking-wider ${badge.bg}`}>
-                        {badge.text}
-                      </span>
-                    </div>
+                          <span className={`status-badge ${badge.className}`}>
+                            {badge.text}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              ) : (
+                <p className="empty-results">No diagnostic results are available for this session.</p>
+              )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
-              <button
-                onClick={handleStartRemediation}
-                className="flex-1 bg-[#fdd400] text-[#1F2720] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[4px_4px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                Start Remediation Track <ArrowRight className="w-4 h-4 stroke-[3px]" />
-              </button>
+              <div className="button-row">
+                <div className="quest-button-wrap">
+                  <button type="button" onClick={handleStartRemediation} className="quest-button">
+                    <span>Start Practice</span>
+                    <ArrowRight className="h-6 w-6" />
+                  </button>
+                </div>
 
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="flex-1 bg-white text-[#1F2720] border-[3.5px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer"
-              >
-                Return to Dashboard
-              </button>
+                <div className="quest-button-wrap">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/dashboard")}
+                    className="quest-button secondary"
+                  >
+                    <span>Dashboard</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        ) : (
-          <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-8 text-center shadow-[6px_6px_0px_0px_#1F2720]">
-            <p className="font-['Manrope'] text-sm text-slate-500 font-bold">No diagnostic results mapped in the registry.</p>
-          </div>
-        )}
-
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }

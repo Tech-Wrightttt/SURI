@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 390">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe8a2"/>
+      <stop offset=".48" stop-color="#e6a743"/>
+      <stop offset="1" stop-color="#a85c24"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#704126"/>
+      <stop offset="1" stop-color="#321b20"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7847a7"/>
+      <stop offset="1" stop-color="#32174e"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="#160c20" flood-opacity=".6"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <!-- Wooden title plaque, matching the reference crest -->
+    <path d="M170 92 L221 42 L679 42 L730 92 L760 207
+             Q450 265 140 207 Z"
+          fill="url(#gold)" stroke="#43251c" stroke-width="11"
+          stroke-linejoin="round"/>
+
+    <path d="M194 103 L236 65 L664 65 L706 103 L729 190
+             Q450 239 171 190 Z"
+          fill="url(#wood)" stroke="#d4933d" stroke-width="4"/>
+
+    <!-- Compass/star emblem -->
+    <circle cx="450" cy="48" r="37" fill="#35184e"
+            stroke="url(#gold)" stroke-width="9"/>
+    <circle cx="450" cy="48" r="23" fill="#241332"
+            stroke="#dca04b" stroke-width="2"/>
+    <path d="M450 26 L457 41 L474 48 L457 55 L450 71
+             L443 55 L426 48 L443 41 Z"
+          fill="#ffe5a1"/>
+
+    <!-- SURI lettering -->
+    <text x="450" y="181" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="126" font-weight="900" letter-spacing="4"
+          fill="#ffd978" stroke="#241329" stroke-width="9"
+          paint-order="stroke">
+      SURI
+    </text>
+
+    <!-- Purple banner -->
+    <path d="M130 188 L237 205 L663 205 L770 188
+             L738 293 L649 270 L251 270 L162 293 Z"
+          fill="url(#ribbon)" stroke="#28142f" stroke-width="10"
+          stroke-linejoin="round"/>
+
+    <path d="M163 200 L241 216 L659 216 L737 200
+             L718 269 L646 251 L254 251 L182 269 Z"
+          fill="none" stroke="#9e63c3" stroke-width="3"/>
+
+    <text x="450" y="252" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="49" font-weight="700" letter-spacing="1"
+          fill="#fff0c2" stroke="#28152f" stroke-width="2"
+          paint-order="stroke">
+      Math Quest
+    </text>
+
+    <!-- Small gold star accents -->
+    <g fill="#ffe19a" stroke="#6d3c22" stroke-width="3">
+      <path d="M770 100 L780 119 L801 122 L786 137
+               L790 158 L770 148 L751 158 L754 137
+               L739 122 L760 119 Z"/>
+      <path d="M130 111 L137 124 L152 126 L141 137
+               L144 152 L130 145 L116 152 L119 137
+               L108 126 L123 124 Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import confetti from "canvas-confetti";
@@ -9,7 +9,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 
-import { 
+import {
   getSession,
   getTopicChain,
   getDiagnosticProbe,
@@ -18,443 +18,1316 @@ import {
   skipDiagnostic,
   DiagnosticProbe,
 } from "../../../../lib/api";
-import { 
-  Compass, 
-  Leaf, 
-  Loader2, 
-  Sparkles, 
-  BookOpen, 
-  ShieldAlert, 
-  ArrowRight 
-} from "lucide-react";
 
-const RenderMath = ({ text }: { text: string }) => (
-  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-    {text}
-  </ReactMarkdown>
-);
+const GAME_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
+  :root {
+    --void-dark: #0a0010; --void-purple: #2d0a4e; --glow-purple: #9b59b6;
+    --glow-red: #e74c3c; --glow-gold: #f9c31f; --glow-green: #3dbf6e;
+    --heart-red: #ff2244; --heart-empty: #3a1a2a;
+  }
+  * { box-sizing: border-box; }
+  .battle-body { font-family: 'Nunito', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; }
+  .arena-bg { background: url('/login/arena.png') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .fog-wisp { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(40px); animation: fogDrift linear infinite; opacity: 0; }
+  @keyframes fogDrift { 0% { opacity: 0; transform: translateX(-60px) scaleX(0.8); } 20% { opacity: 0.18; } 80% { opacity: 0.12; } 100% { opacity: 0; transform: translateX(80px) scaleX(1.2); } }
+  .pillar { position: absolute; bottom: 32%; width: 48px; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #1c0c2e 0%, #2a1040 30%, #100618 100%); border: 1px solid rgba(155,89,182,0.2); box-shadow: inset 2px 0 6px rgba(0,0,0,0.6), inset -2px 0 6px rgba(0,0,0,0.6); }
+  .pillar::before { content: ''; position: absolute; top: -14px; left: -6px; right: -6px; height: 14px; background: linear-gradient(180deg, #3a1a5a, #2a1040); border-radius: 4px 4px 0 0; border: 1px solid rgba(155,89,182,0.3); box-shadow: 0 -4px 12px rgba(155,89,182,0.2); }
+  .pillar::after { content: ''; position: absolute; bottom: 0; left: -4px; right: -4px; height: 20px; background: linear-gradient(180deg, #2a1040, #1c0828); border-radius: 2px; }
+  .skull-deco { position: absolute; pointer-events: none; opacity: 0.25; animation: skullBob 4s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(155,89,182,0.4)); }
+  @keyframes skullBob { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+  @keyframes emberRise { 0% { transform: translate(0,0) scale(1); opacity: 0.8; } 50% { transform: translate(var(--ex),-60px) scale(0.7); opacity: 0.6; } 100% { transform: translate(var(--ex2),-130px) scale(0.3); opacity: 0; } }
+  .ember { position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(circle,#fff 0%,#ffaa00 40%,#ff4400 80%,transparent 100%); animation: emberRise ease-out infinite; filter: blur(0.5px); }
+  @keyframes fireflyMove { 0% { transform: translate(0,0) scale(0.7); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 0.8; } 100% { transform: translate(var(--ftx),var(--fty)) scale(1.2); opacity: 0; } }
+  .firefly { position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(circle,#ffd700 0%,#ff9500 60%,transparent 100%); animation: fireflyMove linear infinite; filter: blur(1px); }
+  .hud-bar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 8px 20px; background: linear-gradient(180deg,rgba(10,0,20,0.98) 0%,rgba(15,0,30,0.92) 100%); border-bottom: 2px solid rgba(155,89,182,0.4); box-shadow: 0 4px 20px rgba(0,0,0,0.8); backdrop-filter: blur(10px); flex-shrink: 0; }
+  .hud-brand { display: flex; align-items: center; gap: 10px; }
+  .hud-logo { font-family: 'Fredoka One', cursive; font-size: 20px; color: #fff; text-shadow: 0 0 10px rgba(155,89,182,0.8); letter-spacing: 2px; }
+  .hud-tag { background: rgba(155,89,182,0.25); border: 1px solid rgba(155,89,182,0.5); border-radius: 8px; padding: 3px 10px; font-size: 10px; font-weight: 800; color: #c49a6c; text-transform: uppercase; letter-spacing: 2px; }
+  .hud-center { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .hud-progress-text { font-family: 'Fredoka One', cursive; color: rgba(255,255,255,0.7); font-size: 13px; white-space: nowrap; }
+  .hud-progress-bar { width: 80px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; border: 1px solid rgba(155,89,182,0.3); overflow: hidden; }
+  .hud-progress-fill { height: 100%; background: linear-gradient(90deg,#9b59b6,#c39bd3); border-radius: 4px; transition: width 0.5s ease; box-shadow: 0 0 8px rgba(155,89,182,0.6); }
+  .hud-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .streak-pill { display: flex; align-items: center; gap: 4px; background: rgba(231,76,60,0.2); border: 1px solid rgba(231,76,60,0.5); border-radius: 14px; padding: 4px 10px; font-family: 'Fredoka One', cursive; color: #ff8c69; font-size: 14px; }
+  .score-chip { display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg,#f9d71c,#e8a21a); border: 2px solid #5c3a1e; border-radius: 20px; padding: 5px 12px; font-family: 'Fredoka One', cursive; color: #5c3a1e; font-size: 16px; box-shadow: 0 3px 0 #9a5c08; letter-spacing: 1px; }
+  .battle-layout { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; min-height: 0; }
+  .arena-section { display: flex; align-items: flex-end; justify-content: center; gap: 0; padding: 24px 32px 0; position: relative; }
+  .char-container { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 10; }
+  .char-container.suri-side { align-items: flex-start; flex: 1; max-width: 320px; }
+  .char-container.enemy-side { align-items: flex-end; flex: 1; max-width: 320px; }
+  .name-plate { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+  .char-name { font-family: 'Fredoka One', cursive; font-size: 16px; text-shadow: 1px 1px 0 rgba(0,0,0,0.8); letter-spacing: 1px; }
+  .char-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; }
+  .hearts-bar { display: flex; gap: 6px; align-items: center; justify-content: center; padding: 6px 12px; background: rgba(0,0,0,0.5); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px); }
+  .heart-icon { flex-shrink: 0; transition: all 0.3s; filter: drop-shadow(0 0 6px rgba(255,34,68,0.8)); }
+  .heart-icon.empty { opacity: 0.2; filter: grayscale(1); }
+  @keyframes heartBreak { 0% { transform: scale(1.5) rotate(-8deg); filter: drop-shadow(0 0 16px #ff2244) brightness(2); } 25% { transform: scale(0.8) rotate(12deg); } 50% { transform: scale(1.2) rotate(-5deg); } 100% { transform: scale(1) rotate(0); opacity: 0.2; filter: grayscale(1); } }
+  .heart-breaking { animation: heartBreak 0.7s ease-out forwards; }
+  .sprite-frame { position: relative; display: flex; align-items: flex-end; justify-content: center; }
+  .suri-sprite { height: 200px; width: auto; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(61,191,110,0.5)); transform-origin: bottom center; transition: filter 0.2s; }
+  @media (max-width: 700px) { .suri-sprite { height: 130px; } }
+  @keyframes suriAttack { 0% { transform: translateX(0) scaleX(1); } 20% { transform: translateX(40px) scaleX(1.15) skewX(-5deg); filter: drop-shadow(0 0 20px #3dbf6e) brightness(1.4); } 45% { transform: translateX(80px) scaleX(1.2) skewX(-8deg); filter: drop-shadow(0 0 30px #3dbf6e) brightness(1.6); } 70% { transform: translateX(20px) scaleX(1.05); } 100% { transform: translateX(0) scaleX(1); filter: drop-shadow(0 8px 20px rgba(61,191,110,0.5)); } }
+  .suri-attacking { animation: suriAttack 0.75s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+  @keyframes suriHit { 0% { transform: translateX(0); } 15% { transform: translateX(-30px) scaleX(0.9); filter: brightness(2.5) saturate(0) drop-shadow(0 0 20px #ff2244); } 55% { transform: translateX(-25px) scaleX(0.95); } 100% { transform: translateX(0) scaleX(1); filter: drop-shadow(0 8px 20px rgba(61,191,110,0.5)); } }
+  .suri-hit { animation: suriHit 0.7s ease-out forwards; }
+  @keyframes suriIdle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .suri-idle { animation: suriIdle 2.8s ease-in-out infinite; }
+  @keyframes suriDefeat { 0% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-10px) rotate(-8deg); filter: brightness(0.6) saturate(0.3); } 100% { transform: translateY(6px) rotate(-12deg); filter: brightness(0.5) saturate(0); opacity: 0.7; } }
+  .suri-defeated-anim { animation: suriDefeat 0.8s ease-out forwards; }
+  .enemy-sprite { width: 200px; height: 200px; object-fit: cover; drop-shadow(0 0 20px rgba(108,52,131,0.6)); transform-origin: bottom center; }
+  @media (max-width: 700px) { .enemy-sprite { width: 130px; height: 130px; } }
+  @keyframes enemyIdle { 0%,100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-6px) rotate(-1.5deg); } 75% { transform: translateY(-4px) rotate(1.5deg); } }
+  .enemy-idle { animation: enemyIdle 2.5s ease-in-out infinite; }
+  @keyframes enemyHit { 0% { transform: translateX(0) scale(1); } 10% { transform: translateX(30px) scale(1.08); filter: brightness(3) saturate(0); } 25% { transform: translateX(-20px) scale(0.94); filter: brightness(2) hue-rotate(30deg); } 55% { transform: translateX(-10px) scale(0.98); } 100% { transform: translateX(0) scale(1); filter: brightness(1); } }
+  .enemy-hit { animation: enemyHit 0.65s ease-out forwards; }
+  @keyframes enemyAttack { 0% { transform: translateX(0) scale(1); } 20% { transform: translateX(-50px) scale(1.15); filter: brightness(1.8) hue-rotate(-20deg); } 45% { transform: translateX(-90px) scale(1.2); filter: brightness(2) drop-shadow(0 0 20px #e74c3c); } 100% { transform: translateX(0) scale(1); filter: brightness(1); } }
+  .enemy-attacking { animation: enemyAttack 0.8s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+  @keyframes enemyAppear { 0% { transform: scale(0) rotate(-30deg); opacity: 0; filter: brightness(3); } 60% { transform: scale(1.18) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; filter: brightness(1); } }
+  .enemy-appear { animation: enemyAppear 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes enemyDefeated { 0% { transform: scale(1) rotate(0); opacity: 1; } 20% { transform: scale(1.2) rotate(-10deg); filter: brightness(3) saturate(0.5); } 100% { transform: scale(0) rotate(400deg); opacity: 0; } }
+  .enemy-defeated-anim { animation: enemyDefeated 1s ease-in forwards; }
+  .vs-divider { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 40px; gap: 10px; z-index: 10; flex-shrink: 0; width: 80px; }
+  .vs-badge { background: linear-gradient(135deg,#f9d71c,#e8a21a); border: 3px solid #5c3a1e; border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka One', cursive; font-size: 18px; color: #5c3a1e; box-shadow: 0 4px 0 #9a5c08, 0 0 20px rgba(249,199,31,0.5); animation: vsGlow 2s ease-in-out infinite; flex-shrink: 0; }
+  @keyframes vsGlow { 0%,100% { box-shadow: 0 4px 0 #9a5c08, 0 0 20px rgba(249,199,31,0.5); } 50% { box-shadow: 0 4px 0 #9a5c08, 0 0 40px rgba(249,199,31,0.8); } }
+  @keyframes dmgPop { 0% { opacity: 1; transform: translate(-50%,0) scale(1.4); } 40% { opacity: 1; transform: translate(-50%,-30px) scale(1); } 100% { opacity: 0; transform: translate(-50%,-80px) scale(0.6); } }
+  .dmg-number { position: absolute; pointer-events: none; z-index: 200; font-family: 'Fredoka One', cursive; font-size: 36px; text-shadow: 2px 2px 0 rgba(0,0,0,0.8); animation: dmgPop 0.9s ease-out forwards; left: 50%; top: 10%; white-space: nowrap; }
+  .dmg-enemy { color: #ff4757; } .dmg-suri { color: #ff8c69; }
+  @keyframes screenShake { 0%,100% { transform: translate(0,0); } 10% { transform: translate(-6px,-3px); } 20% { transform: translate(6px,3px); } 30% { transform: translate(-4px,2px); } 50% { transform: translate(-3px,1px); } 70% { transform: translate(-2px,1px); } 90% { transform: translate(-1px,0); } }
+  .screen-shake { animation: screenShake 0.45s ease-out; }
+  .battle-panel { position: relative; z-index: 10; margin: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+  @media (min-width: 900px) { .battle-panel { margin: 12px 60px 28px; } }
+  .question-scroll { background: linear-gradient(160deg,rgba(20,5,40,0.95) 0%,rgba(15,3,30,0.98) 100%); border: 2px solid rgba(155,89,182,0.5); border-radius: 20px; padding: 16px 20px; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(155,89,182,0.2); backdrop-filter: blur(10px); }
+  .question-scroll::before { content: ''; position: absolute; inset: 0; border-radius: 20px; background: radial-gradient(ellipse at 50% 0%,rgba(155,89,182,0.1) 0%,transparent 70%); pointer-events: none; }
+  .question-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg,rgba(155,89,182,0.3),rgba(108,52,131,0.4)); border: 1px solid rgba(155,89,182,0.5); border-radius: 10px; padding: 4px 12px; font-family: 'Fredoka One', cursive; font-size: 11px; color: #c39bd3; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .question-text { font-family: 'Nunito', sans-serif; font-weight: 800; color: #f0e8ff; font-size: 17px; line-height: 1.6; margin: 0; }
+  @media (max-width: 600px) { .question-text { font-size: 15px; } }
+  .spell-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .spell-grid { grid-template-columns: 1fr; gap: 8px; } }
+  .spell-tile { position: relative; border-radius: 14px; border: 2px solid rgba(155,89,182,0.3); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s; overflow: hidden; user-select: none; background: linear-gradient(160deg,rgba(30,10,55,0.9) 0%,rgba(20,5,40,0.95) 100%); padding: 12px 14px; }
+  .spell-tile::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(255,255,255,0.05) 0%,transparent 100%); border-radius: inherit; pointer-events: none; }
+  .spell-tile:hover:not(.locked):not(.selected) { transform: translateY(-4px) scale(1.02); border-color: rgba(155,89,182,0.7); box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 20px rgba(155,89,182,0.3); }
+  .spell-tile:active:not(.locked) { transform: translateY(1px) scale(0.98); }
+  .spell-tile.selected { border-color: rgba(200,150,255,0.8); box-shadow: 0 0 0 2px rgba(155,89,182,0.4); transform: translateY(-2px); animation: selectedSpell 1.5s ease-in-out infinite; }
+  @keyframes selectedSpell { 0%,100% { box-shadow: 0 0 0 2px rgba(155,89,182,0.4); } 50% { box-shadow: 0 0 0 4px rgba(155,89,182,0.2), 0 0 20px rgba(155,89,182,0.3); } }
+  .spell-tile.locked { cursor: default; opacity: 0.75; }
+  .spell-tile.correct-reveal { background: linear-gradient(160deg,rgba(30,90,50,0.95),rgba(15,60,30,0.98)) !important; border-color: #3dbf6e !important; box-shadow: 0 0 20px rgba(61,191,110,0.5) !important; }
+  .spell-tile.wrong-reveal { background: linear-gradient(160deg,rgba(90,20,20,0.95),rgba(60,10,10,0.98)) !important; border-color: #e74c3c !important; box-shadow: 0 0 20px rgba(231,76,60,0.5) !important; }
+  .spell-label { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: rgba(155,89,182,0.3); border: 1px solid rgba(155,89,182,0.5); border-radius: 8px; font-family: 'Fredoka One', cursive; font-size: 16px; color: #c39bd3; flex-shrink: 0; margin-bottom: 6px; }
+  .spell-text { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; color: rgba(255,255,255,0.92); line-height: 1.4; word-break: break-word; }
+  .spell-check { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: rgba(200,150,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; z-index: 10; color: #2d0a4e; font-weight: 900; }
+  @keyframes tileIn { 0% { opacity: 0; transform: translateY(24px) scale(0.88); } 60% { transform: translateY(-4px) scale(1.03); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  .spell-tile-enter { animation: tileIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity: 0; }
+  .spell-tile-enter:nth-child(1) { animation-delay: 0.00s; }
+  .spell-tile-enter:nth-child(2) { animation-delay: 0.07s; }
+  .spell-tile-enter:nth-child(3) { animation-delay: 0.14s; }
+  .spell-tile-enter:nth-child(4) { animation-delay: 0.21s; }
+  @keyframes feedbackIn { 0% { opacity: 0; transform: translateY(12px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  .feedback-banner { border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; animation: feedbackIn 0.35s ease-out forwards; border: 2px solid rgba(0,0,0,0.2); }
+  .feedback-banner.correct { background: linear-gradient(135deg,rgba(30,80,50,0.97),rgba(20,60,35,0.99)); border-color: rgba(61,191,110,0.6); box-shadow: 0 4px 0 rgba(15,50,25,0.8), 0 0 20px rgba(61,191,110,0.2); }
+  .feedback-banner.wrong { background: linear-gradient(135deg,rgba(80,15,15,0.97),rgba(60,8,8,0.99)); border-color: rgba(231,76,60,0.6); box-shadow: 0 4px 0 rgba(50,5,5,0.8), 0 0 20px rgba(231,76,60,0.2); }
+  .feedback-title { font-family: 'Fredoka One', cursive; font-size: 16px; color: #fff; margin-bottom: 3px; }
+  .feedback-quote { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 12px; color: rgba(255,255,255,0.8); font-style: italic; margin: 0; }
+  .feedback-suri { height: 56px; width: auto; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+  @keyframes feedbackExcited { 0%,100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-8px) rotate(-5deg); } 75% { transform: translateY(-5px) rotate(5deg); } }
+  .feedback-excited { animation: feedbackExcited 0.5s ease-in-out infinite; }
+  .attack-btn { width: 100%; font-family: 'Fredoka One', cursive; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; border-radius: 16px; padding: 14px 20px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border: none; outline: none; }
+  .attack-btn:active { transform: translateY(3px) !important; }
+  .attack-btn.ready { background: linear-gradient(180deg,#b24dff 0%,#7b00dd 100%); box-shadow: 0 6px 0 #4a0099, 0 0 20px rgba(155,89,182,0.4), inset 0 1px 0 rgba(255,255,255,0.25); color: #fff; }
+  .attack-btn.ready:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #4a0099, 0 0 30px rgba(155,89,182,0.6), inset 0 1px 0 rgba(255,255,255,0.25); }
+  .attack-btn.disabled { background: rgba(255,255,255,0.06); box-shadow: none; color: rgba(255,255,255,0.25); cursor: not-allowed; }
+  .outcome-overlay { position: absolute; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; animation: overlayFadeIn 0.4s ease-out; padding: 20px; }
+  @keyframes overlayFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+  .defeat-overlay {
+    top: -34px;
+    bottom: -34px;
+    min-height: calc(100% + 68px);
+    background: radial-gradient(ellipse at center,rgba(80,10,10,0.95) 0%,rgba(10,0,5,0.98) 100%);
+  }
+  .outcome-title { font-family: 'Fredoka One', cursive; font-size: 42px; text-align: center; letter-spacing: 3px; animation: outcomePulse 0.9s ease-in-out infinite; }
+  @keyframes outcomePulse { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.05) rotate(1deg); } }
+  .defeat-title { color: #ff4757; text-shadow: 3px 3px 0 #5c0000; }
+  .outcome-subtitle { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 14px; color: rgba(255,255,255,0.85); text-align: center; max-width: 340px; line-height: 1.6; }
+  .outcome-suri { height: 120px; width: auto; object-fit: contain; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: outcomePulse 1.2s ease-in-out infinite; }
+  .outcome-btn { background: linear-gradient(180deg,#f9d71c 0%,#e8a21a 100%); border: 4px solid #5c3a1e; border-radius: 18px; padding: 14px 36px; font-family: 'Fredoka One', cursive; font-size: 18px; color: #5c3a1e; cursor: pointer; box-shadow: 0 6px 0 #9a5c08; letter-spacing: 2px; text-transform: uppercase; transition: transform 0.1s, box-shadow 0.1s; }
+  .outcome-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #9a5c08; }
+  .outcome-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #9a5c08; }
+  @keyframes spinGlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .spin-loader { animation: spinGlow 1s linear infinite; display: inline-block; }
+  .intro-screen { position: relative; z-index: 10; min-height: calc(100vh - 60px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 24px 40px; gap: 20px; }
+  .intro-subtitle { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; color: rgba(255,255,255,0.75); text-align: center; max-width: 480px; line-height: 1.7; }
+  @keyframes titlePulse { 0%,100% { transform: scale(1) rotate(-1deg); text-shadow: 3px 3px 0 #5c3a1e, 0 0 30px rgba(249,199,31,0.5); } 50% { transform: scale(1.04) rotate(1deg); text-shadow: 3px 3px 0 #5c3a1e, 0 0 60px rgba(249,199,31,0.8); } }
+  .intro-title { font-family: 'Fredoka One', cursive; font-size: clamp(32px,6vw,52px); color: #f9c31f; text-shadow: 3px 3px 0 #5c3a1e, 0 0 30px rgba(249,199,31,0.5); animation: titlePulse 2.5s ease-in-out infinite; letter-spacing: 3px; margin: 0; }
+  .intro-vs { display: flex; align-items: flex-end; justify-content: center; gap: 20px; width: 100%; max-width: 600px; }
+  .intro-char { display: flex; flex-direction: column;  justify-content: center; align-items: center; }
+  .intro-enemy-img { width: clamp(110px,20vw,180px); height: clamp(110px,20vw,180px); object-fit: contain; filter: drop-shadow(0 0 30px rgba(108,52,131,0.7)); animation: enemyIdle 2.5s ease-in-out infinite; } 
+  .intro-info-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .info-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(155,89,182,0.3); border-radius: 14px; padding: 10px 18px; text-align: center; min-width: 90px; backdrop-filter: blur(8px); }
+  .info-card-icon { font-size: 20px; } .info-card-value { font-family: 'Fredoka One', cursive; color: #f9c31f; font-size: 15px; } .info-card-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); }
+  .intro-start-btn { width: 100%; max-width: 480px; background: linear-gradient(180deg,#b24dff 0%,#7b00dd 100%); border: 4px solid rgba(155,89,182,0.8); border-radius: 20px; padding: 18px 20px; font-family: 'Fredoka One', cursive; font-size: 22px; color: #fff; cursor: pointer; box-shadow: 0 6px 0 #4a0099, 0 0 30px rgba(155,89,182,0.4); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s, box-shadow 0.1s; }
+  .intro-start-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 9px 0 #4a0099, 0 0 50px rgba(155,89,182,0.6); }
+  .intro-start-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #4a0099; }
+  .intro-start-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+  .intro-skip-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 10px 20px; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.45); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; transition: color 0.2s, border-color 0.2s; width: 100%; max-width: 480px; }
+  .intro-skip-btn:hover:not(:disabled) { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+  .intro-skip-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .speech-bubble { background: rgba(10,0,20,0.9); border: 1px solid rgba(155,89,182,0.4); border-radius: 12px; padding: 8px 14px; font-size: 12px; font-weight: 700; color: rgba(220,200,255,0.9); font-style: italic; text-align: center; max-width: 340px; }
+  .error-banner { margin: 0 20px 12px; background: linear-gradient(135deg,rgba(231,76,60,0.2),rgba(192,57,43,0.25)); border: 1px solid rgba(231,76,60,0.5); border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; gap: 10px; z-index: 10; position: relative; }
+  .error-banner span { font-size: 12px; font-weight: 700; color: rgba(255,180,170,0.9); }
+  .loading-quest { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px; }
+  .loading-text { font-family: 'Fredoka One', cursive; font-size: 14px; color: #c39bd3; letter-spacing: 2px; text-transform: uppercase; }
+  .game-icon { width: 1em; height: 1em; display: inline-block; flex: 0 0 auto; filter: drop-shadow(0 2px 0 rgba(0,0,0,0.28)); }
+  .game-icon.lg { width: 28px; height: 28px; }
+  .game-icon.xl { width: 38px; height: 38px; }
+  .battle-body { background: #193827; color: #fff; }
+  .pillar { display: none; }
+  .skull-deco { display: none; }
+  .hud-bar { background: linear-gradient(180deg,rgba(32,43,27,0.96),rgba(18,30,24,0.92)); border-bottom-color: rgba(255,218,112,0.46); }
+  .hud-logo { display: inline-flex; align-items: center; gap: 8px; letter-spacing: 1px; }
+  .hud-tag { border-color: rgba(255,218,112,0.5); background: rgba(48,76,39,0.5); color: #ffe08d; }
+  .streak-pill, .score-chip { min-height: 32px; }
+  .streak-pill { background: rgba(101,56,30,0.72); border-color: rgba(255,184,82,0.55); color: #ffd49a; }
+  .score-chip { background: linear-gradient(180deg,#ffe08d,#e0a63a); border-color: #5e421b; color: #3d2a12; }
+  .arena-section { padding: clamp(14px, 3vw, 30px) clamp(18px, 5vw, 72px) 0; align-items: flex-end; }
+  .arena-section::after { content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: clamp(58px, 10vw, 104px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(11,17,13,0.68), rgba(11,17,13,0.18) 48%, transparent 70%); z-index: 1; pointer-events: none; }
+  .char-container { z-index: 12; }
+  .char-container.suri-side, .char-container.enemy-side { max-width: 380px; }
+  .char-name { display: inline-flex; align-items: center; gap: 7px; }
+  .name-plate { background: linear-gradient(180deg, rgba(16,30,23,0.9), rgba(10,18,15,0.8)); border: 1px solid rgba(255,218,112,0.25); border-radius: 10px; padding: 8px 12px; box-shadow: 0 5px 0 rgba(0,0,0,0.24); width: auto; min-width: 160px; }
+  .hearts-bar { background: rgba(14,24,18,0.78); border-color: rgba(255,218,112,0.24); border-radius: 12px; }
+  .suri-sprite { height: clamp(160px, 24vw, 280px); drop-shadow(0 8px 20px rgb(148, 82, 223)5))}
+  .enemy-sprite { width: clamp(150px, 22vw, 240px); height: clamp(150px, 22vw, 240px); }
+  .vs-divider { padding-bottom: clamp(66px, 10vw, 120px); }
+  .vs-badge { border-radius: 12px; border-color: #5e421b; background: linear-gradient(180deg,#ffe08d,#e0a63a); color: #3d2a12; }
+  .battle-panel { margin: 0 clamp(12px, 4vw, 60px) clamp(14px, 3vw, 30px); gap: 10px; }
+  .battle-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: stretch; min-height: clamp(230px, 28vh, 330px); }
+  .question-scroll, .choices-panel { min-height: 100%; background: linear-gradient(180deg, rgba(44,64,40,0.96), rgba(16,27,21,0.98)); border: 2px solid rgba(255,218,112,0.46); border-radius: 8px; box-shadow: 0 10px 0 rgba(45,29,16,0.82), 0 22px 42px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.14); backdrop-filter: blur(8px); }
+  .question-scroll { display: flex; flex-direction: column; padding: clamp(16px, 2.5vw, 24px); }
+  .question-scroll::before, .choices-panel::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(255,218,112,0.18); border-radius: 5px; pointer-events: none; }
+  .question-badge { width: fit-content; border-radius: 6px; color: #ffe08d; background: rgba(28,49,30,0.9); border-color: rgba(255,218,112,0.42); }
+  .question-text { font-size: clamp(17px, 1.75vw, 24px); line-height: 1.45; color: #fff8df; overflow: auto; }
+  .question-text p { margin: 0 0 10px; }
+  .question-text p:last-child { margin-bottom: 0; }
+  .choices-panel { position: relative; display: flex; flex-direction: column; padding: clamp(14px, 2vw, 20px); gap: 12px; }
+  .spell-grid { grid-template-columns: 1fr; gap: 9px; flex: 1; min-height: 0; }
+  .spell-tile { display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 54px; padding: 10px 42px 10px 10px; border-radius: 8px; background: linear-gradient(180deg, rgba(67,92,45,0.95), rgba(28,47,30,0.98)); border-color: rgba(255,218,112,0.32); text-align: left; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 3px 0 rgba(28,18,10,0.5); }
+  .spell-tile:hover:not(.locked):not(.selected) { transform: translateX(-3px); border-color: rgba(255,218,112,0.76); box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 5px 0 rgba(28,18,10,0.55), 0 0 20px rgba(255,218,112,0.2); }
+  .spell-label { margin: 0; width: 34px; height: 34px; border-radius: 6px; color: #3d2a12; background: linear-gradient(180deg,#ffe08d,#d69a32); border-color: #6f4a1c; }
+  .spell-text { font-size: clamp(13px, 1.25vw, 15px); color: #fff8df; }
+  .spell-text p { margin: 0; }
+  .spell-check { width: 24px; height: 24px; font-size: 0; color: transparent; }
+  .spell-check::before { content: ""; width: 12px; height: 7px; border-left: 3px solid #173421; border-bottom: 3px solid #173421; transform: rotate(-45deg); margin-top: -2px; }
+  .spell-check.wrong-mark::before { width: 12px; height: 12px; border: 0; background: linear-gradient(45deg, transparent 40%, #fff 40% 60%, transparent 60%), linear-gradient(-45deg, transparent 40%, #fff 40% 60%, transparent 60%); transform: none; margin: 0; }
+  .feedback-banner { border-radius: 8px; margin-top: auto; min-height: 70px; }
+  .feedback-title { display: flex; align-items: center; gap: 8px; }
+  .attack-btn { border-radius: 8px; min-height: 56px; }
+  .attack-btn.ready { background: linear-gradient(180deg,#f1c553,#ba7f27); box-shadow: 0 6px 0 #5e421b, 0 0 20px rgba(255,218,112,0.24), inset 0 1px 0 rgba(255,255,255,0.24); color: #2d1d12; }
+  .attack-btn.ready:hover { box-shadow: 0 8px 0 #5e421b, 0 0 30px rgba(255,218,112,0.38), inset 0 1px 0 rgba(255,255,255,0.24); }
+  .loading-quest { min-height: clamp(230px, 28vh, 330px); justify-content: center; }
+  @media (max-width: 860px) {
+    .hud-bar { gap: 10px; flex-wrap: wrap; }
+    .hud-center { order: 3; width: 100%; justify-content: center; }
+    .intro-screen { justify-content: flex-start; gap: 12px; padding: 14px 20px 28px; min-height: auto; }
+    .intro-title { font-size: 30px; }
+    .intro-subtitle { font-size: 12px; line-height: 1.45; max-width: 360px; }
+    .intro-vs { max-width: 360px; gap: 10px; }
+    .intro-suri-img { height: 105px; }
+    .intro-enemy-img { width: 105px; }
+    .speech-bubble { max-width: 330px; padding: 7px 12px; }
+    .intro-info-row { gap: 8px; }
+    .info-card { min-width: 102px; padding: 9px 12px; border-radius: 10px; }
+    .intro-start-btn { font-size: 18px; padding: 15px 18px; border-radius: 14px; }
+    .intro-skip-btn { padding: 9px 16px; border-radius: 10px; }
+    .arena-section { padding-inline: 12px; }
+    .name-plate { min-width: 0; padding: 6px 8px; }
+    .char-name { font-size: 13px; }
+    .char-title { font-size: 8px; }
+    .vs-divider { width: 48px; padding-bottom: 70px; }
+    .vs-badge { width: 44px; height: 44px; font-size: 15px; }
+    .battle-form { grid-template-columns: 1fr; min-height: 0; }
+    .question-scroll, .choices-panel { min-height: 190px; }
+  }
+  /* Storybook diagnostic reskin */
+  .battle-body {
+    font-family: Georgia, 'Times New Roman', serif;
+    padding: clamp(10px, 1.5vw, 18px);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(250,204,96,0.16), transparent 28%),
+      linear-gradient(135deg, #1b0e12 0%, #392016 42%, #151025 100%);
+    color: #fff4d5;
+  }
+  .battle-body::before {
+    content: "";
+    position: fixed;
+    inset: 8px;
+    z-index: 3;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .skull-deco { display: none; }
+  .hud-bar {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: minmax(190px, 1fr) minmax(240px, 1.25fr) minmax(190px, 1fr);
+    gap: 12px;
+    min-height: 98px;
+    max-width: 1380px;
+    margin: 0 auto 12px;
+    padding: 13px clamp(14px, 3vw, 36px);
+    border: 4px solid #80511f;
+    outline: 2px solid rgba(253,224,131,0.36);
+    background: linear-gradient(180deg, rgba(253,222,150,0.95), rgba(198,140,62,0.98) 44%, rgba(77,42,19,0.98));
+    box-shadow: 0 8px 0 #211009, 0 18px 42px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.4);
+    clip-path: polygon(2% 0, 98% 0, 100% 32%, 97% 100%, 3% 100%, 0 32%);
+  }
+  .hud-brand, .hud-right, .combatant-card { display: flex; align-items: center; gap: 10px; }
+  .hud-right { justify-content: flex-end; }
+  .combatant-card {
+    min-width: 0;
+    padding: 9px 10px;
+    border: 2px solid rgba(255,222,131,0.45);
+    background: rgba(42,20,12,0.55);
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.28);
+  }
+  .hero-card { border-radius: 26px 7px 7px 26px; }
+  .enemy-card { border-radius: 7px 26px 26px 7px; justify-content: flex-end; text-align: right; }
+  .level-badge {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #3e2412;
+    background: radial-gradient(circle at 35% 25%, #fff1ad, #d69a32 58%, #7b491d);
+    color: #2b170d;
+    font-weight: 900;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+  }
+  .chapter-banner {
+    justify-self: center;
+    width: min(100%, 520px);
+    padding: 10px 18px;
+    text-align: center;
+    color: #3a2111;
+    border: 2px solid #8b5823;
+    border-radius: 50% 50% 10px 10px / 38% 38% 10px 10px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.4), transparent 58%), linear-gradient(180deg, #fff1bf, #ddb86c);
+    box-shadow: inset 0 0 0 3px rgba(100,60,23,0.16), 0 4px 0 rgba(73,39,16,0.55);
+  }
+  .chapter-eyebrow, .combatant-subtitle {
+    display: block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+  .chapter-eyebrow { color: #81511f; }
+  .hud-logo {
+    display: block;
+    color: #2a160d;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(18px, 2vw, 28px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+  }
+  .combatant-name {
+    display: block;
+    color: #fff2bd;
+    font-size: 16px;
+    font-weight: 900;
+    text-shadow: 0 2px 0 #1a0c08;
+  }
+  .combatant-subtitle { color: rgba(255,241,191,0.8); }
+  .hud-progress-bar {
+    width: min(100%, 260px);
+    height: 9px;
+    margin: 8px auto 0;
+    border: 1px solid #80511f;
+    border-radius: 0;
+    background: rgba(64,34,16,0.36);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.32);
+  }
+  .hud-progress-fill { background: linear-gradient(90deg,#4cc275,#f5c75d); box-shadow: 0 0 12px rgba(76,194,117,0.72); }
+  .hearts-bar { gap: 4px; padding: 0; background: transparent; border: 0; border-radius: 0; }
+  .heart-icon { width: 24px; height: 24px; filter: drop-shadow(0 2px 0 #35110d) drop-shadow(0 0 5px rgba(255,42,68,0.75)); }
+  .streak-pill, .score-chip {
+    border: 2px solid #6d411c;
+    border-radius: 7px;
+    background: linear-gradient(180deg,#f7dc85,#b8792d);
+    color: #2a160d;
+    box-shadow: 0 4px 0 rgba(44,22,9,0.7);
+  }
+  .battle-layout {
+    z-index: 4;
+    max-width: 1380px;
+    min-height: calc(100vh - 136px);
+    margin: 0 auto;
+    display: grid;
+    grid-template-rows: clamp(310px, 43vh, 455px) minmax(350px, auto);
+  }
+  .arena-section {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.9fr) minmax(160px, 0.8fr) minmax(170px, 0.9fr);
+    align-items: end;
+    gap: clamp(8px, 3vw, 42px);
+    height: clamp(310px, 43vh, 455px);
+    flex-shrink: 0;
+    padding: 18px clamp(16px, 4vw, 62px) 0;
+    border: 3px solid rgba(245,199,93,0.34);
+    border-bottom: 0;
+    background: url('/login/arena.png') center bottom / cover no-repeat;
+    box-shadow: inset 0 0 0 4px rgba(50,25,14,0.58), inset 0 -40px 70px rgba(0,0,0,0.38);
+  }
+  .arena-section::after {
+    left: 14%;
+    right: 14%;
+    bottom: -2px;
+    height: clamp(70px, 10vw, 115px);
+    background: radial-gradient(ellipse at center, rgba(7,5,8,0.78), rgba(7,5,8,0.24) 47%, transparent 72%);
+  }
+  .reaction-space {
+    align-self: start;
+    justify-self: center;
+    min-width: min(360px, 100%);
+    min-height: 84px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12px;
+    z-index: 8;
+  }
+  .speech-bubble {
+    position: relative;
+    max-width: 360px;
+    padding: 13px 18px;
+    border: 3px solid #2c160d;
+    border-radius: 18px 18px 18px 6px;
+    background: linear-gradient(180deg, #fff2c8, #e5bf73);
+    color: #341c11;
+    font-size: clamp(15px, 1.6vw, 21px);
+    font-weight: 900;
+    text-align: center;
+    box-shadow: 0 5px 0 rgba(43,22,10,0.74), 0 0 24px rgba(255,207,89,0.24);
+  }
+  .speech-bubble::after {
+    content: "";
+    position: absolute;
+    left: 36px;
+    bottom: -13px;
+    width: 20px;
+    height: 20px;
+    background: #e5bf73;
+    border-right: 3px solid #2c160d;
+    border-bottom: 3px solid #2c160d;
+    transform: rotate(45deg);
+  }
+  .name-plate { display: none; }
+  .char-container.suri-side, .char-container.enemy-side { max-width: none; }
+  .sprite-frame { min-height: clamp(180px, 27vw, 300px); }
+  .sprite-frame::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 78%;
+    height: 25px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.62), transparent 68%);
+    transform: translateX(-50%);
+    z-index: -1;
+  }
+  .sprite-frame::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    width: 64%;
+    height: 42px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(114,255,194,0.28), rgba(255,198,90,0.13) 44%, transparent 72%);
+    transform: translateX(-50%);
+    z-index: -2;
+  }
+  .suri-sprite {
+    height: clamp(178px, 25vw, 295px);
+    filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 5px 0 #17100a) drop-shadow(0 14px 18px rgba(76,194,117,0.44));
+  }
+  .enemy-sprite {
+    width: clamp(170px, 23vw, 275px);
+    height: clamp(170px, 23vw, 275px);
+    object-position: center top;
+    filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 5px 0 #17100a) drop-shadow(0 14px 18px rgba(153, 114, 241, 0.62));
+  }
+  .vs-divider, .vs-badge { display: none; }
+  .battle-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 14px;
+    align-items: stretch;
+    margin: 0;
+    padding: 14px;
+    border: 5px solid #5e3619;
+    background: linear-gradient(90deg, rgba(25,12,8,0.92), rgba(83,46,24,0.94), rgba(25,12,8,0.92)), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 66px);
+    box-shadow: 0 9px 0 #160b07, inset 0 0 0 3px rgba(245,199,93,0.28);
+    min-height: 350px;
+  }
+  .side-panel, .question-scroll, .choices-panel {
+    border: 3px solid #8e5b20;
+    border-radius: 0;
+    background: linear-gradient(180deg, #57321d, #24130d);
+    box-shadow: inset 0 0 0 3px rgba(20,9,5,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .side-panel { min-height: 282px; padding: 13px; }
+  .panel-title {
+    margin: 0 0 12px;
+    color: #ffe8a2;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .inventory-grid { display: grid; gap: 10px; }
+  .power-up {
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    color: #fff2c5;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .power-icon {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 58px;
+    border: 3px solid #7d654f;
+    border-bottom-color: #2a1c17;
+    border-radius: 30px 30px 8px 8px;
+    background: radial-gradient(circle at 50% 22%, rgba(255,236,170,0.14), transparent 35%), linear-gradient(180deg, #514554, #171318);
+    box-shadow: inset 0 -8px 13px rgba(0,0,0,0.36), 0 4px 0 rgba(0,0,0,0.34);
+    font-size: 27px;
+  }
+  .lore-panel { background: linear-gradient(90deg, rgba(26,8,12,0.72), transparent 18% 82%, rgba(26,8,12,0.72)), linear-gradient(180deg, #751d2f, #2d1017); border-color: #c68b42; }
+  .lore-box {
+    min-height: 194px;
+    padding: 15px 13px;
+    border: 2px solid rgba(255,216,116,0.45);
+    background: rgba(34,10,16,0.72);
+    color: #f7dfad;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: inset 0 0 18px rgba(0,0,0,0.44);
+  }
+  .lore-box strong { display: block; margin-bottom: 8px; color: #ffe694; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; }
+  .battle-form { display: grid; grid-template-rows: auto 1fr; gap: 12px; min-height: 0; }
+  .question-scroll { padding: 11px; }
+  .question-scroll::before, .choices-panel::before { display: none; }
+  .question-strip {
+    min-height: 76px;
+    padding: clamp(13px, 2vw, 18px) clamp(16px, 2.4vw, 24px);
+    border: 2px solid #9c672b;
+    background: radial-gradient(circle at 18% 12%, rgba(255,255,255,0.32), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b);
+    color: #2b170d;
+    box-shadow: inset 0 0 0 2px rgba(89,48,18,0.14);
+  }
+  .question-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 7px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #81511f;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+  .question-text {
+    color: #28150c;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(16px, 1.7vw, 23px);
+    font-weight: 900;
+    line-height: 1.35;
+  }
+  .question-text p, .spell-text p { margin: 0; }
+  .choices-panel { padding: clamp(12px, 1.6vw, 18px); gap: 12px; }
+  .spell-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; align-content: start; }
+  .spell-tile {
+    grid-template-columns: 38px minmax(0, 1fr);
+    min-height: 68px;
+    padding: 11px 40px 11px 11px;
+    border: 3px solid #725131;
+    border-radius: 7px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 38%), linear-gradient(180deg, #69574a, #33271f);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 5px 0 #1b0f0a, 0 8px 14px rgba(0,0,0,0.25);
+  }
+  .spell-tile:hover:not(.locked):not(.selected) {
+    transform: translateY(-3px);
+    border-color: #f5c75d;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 7px 0 #1b0f0a, 0 0 22px rgba(245,199,93,0.28);
+  }
+  .spell-label { width: 34px; height: 34px; border: 2px solid #6d411c; border-radius: 6px; background: linear-gradient(180deg,#ffe596,#c7832e); color: #28150c; font-family: Georgia, 'Times New Roman', serif; font-weight: 900; }
+  .spell-text { color: #fff6dc; font-family: 'Nunito', sans-serif; font-size: clamp(14px, 1.15vw, 16px); font-weight: 900; }
+  .feedback-banner { border-radius: 0; border: 2px solid rgba(255,226,136,0.35); background: rgba(28,13,9,0.76); box-shadow: inset 0 0 18px rgba(0,0,0,0.35); }
+  .bottom-bar { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(150px, 0.8fr) minmax(220px, 1.25fr) minmax(130px, 0.7fr); gap: 12px; }
+  .attack-btn, .ornate-btn, .intro-start-btn, .intro-skip-btn, .outcome-btn {
+    min-height: 54px;
+    border: 3px solid #6d411c;
+    border-radius: 7px;
+    background: linear-gradient(180deg,#ffe596,#b8792d);
+    color: #2a160d;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0;
+    box-shadow: 0 6px 0 #28150c, inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .attack-btn { min-height: 64px; font-size: clamp(17px, 1.7vw, 23px); background: linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%); color: #071d0f; border-color: #ffe288; box-shadow: 0 7px 0 #12361e, 0 0 28px rgba(88,255,138,0.33), inset 0 1px 0 rgba(255,255,255,0.42); }
+  .attack-btn.ready:hover, .ornate-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+  .loading-quest { min-height: 310px; justify-content: center; }
+  .loading-bar {
+    width: min(280px, 70%);
+    height: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255,226,136,0.55);
+    background: rgba(19,9,8,0.72);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.45);
+  }
+  .loading-bar::before {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 45%;
+    background: linear-gradient(90deg, #65d783, #ffe288, #65d783);
+    box-shadow: 0 0 18px rgba(255,226,136,0.45);
+    animation: loadingBar 1.1s ease-in-out infinite;
+  }
+  @keyframes loadingBar {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(240%); }
+  }
+  .intro-screen { border: 5px solid #5e3619; background: rgba(28,14,10,0.6); box-shadow: inset 0 0 0 4px rgba(245,199,93,0.25); }
+  .intro-title { color: #ffe288; font-family: Georgia, 'Times New Roman', serif; letter-spacing: 0; text-shadow: 4px 4px 0 #211009, 0 0 26px rgba(245,199,93,0.34); }
+  .intro-suri-img { filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 10px 20px rgba(76,194,117,0.44)); }
+  @media (max-width: 1020px) {
+    .hud-bar { grid-template-columns: 1fr; clip-path: none; }
+    .hud-brand, .hud-right { justify-content: center; }
+    .battle-panel { grid-template-columns: 1fr; }
+    .bottom-bar { grid-template-columns: 1fr; }
+    .side-panel { min-height: 0; }
+    .inventory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .lore-box { min-height: auto; }
+  }
+  @media (max-width: 760px) {
+    .battle-body { padding: 8px; }
+    .battle-body::before { inset: 4px; }
+    .battle-layout { grid-template-rows: 280px minmax(350px, auto); }
+    .arena-section { grid-template-columns: 1fr 0.75fr 1fr; gap: 4px; height: 280px; padding-inline: 8px; }
+    .reaction-space { min-width: 0; min-height: 64px; }
+    .speech-bubble { padding: 9px 12px; font-size: 13px; }
+    .suri-sprite { height: 142px; }
+    .enemy-sprite { width: 136px; height: 136px; }
+    .sprite-frame { min-height: 168px; }
+    .spell-grid { grid-template-columns: 1fr; }
+    .combatant-card { flex-wrap: wrap; justify-content: center; text-align: center; }
+    .enemy-card { justify-content: center; }
+  }
+  .hud-bar {
+    min-height: 108px;
+    padding: 16px clamp(14px, 3vw, 34px);
+    border: 0;
+    outline: 0;
+    border-radius: 0 0 26px 26px;
+    background:
+      linear-gradient(90deg, #70411f 0 16px, transparent 16px calc(100% - 16px), #70411f calc(100% - 16px)),
+      linear-gradient(180deg, #8b5527 0 14px, transparent 14px calc(100% - 14px), #8b5527 calc(100% - 14px)),
+      linear-gradient(180deg, rgba(252,229,177,0.97), rgba(235,189,105,0.97));
+    box-shadow:
+      0 12px 0 rgba(39,18,10,0.84),
+      0 24px 42px rgba(0,0,0,0.38),
+      inset 0 0 0 4px #3b1d13,
+      inset 0 0 0 10px rgba(255,198,92,0.18);
+    clip-path: none;
+    overflow: visible;
+  }
+  .hud-bar::before {
+    content: "";
+    position: absolute;
+    inset: 13px;
+    border: 2px solid rgba(111,61,28,0.18);
+    border-radius: 0 0 18px 18px;
+    pointer-events: none;
+  }
+  .combatant-card {
+    min-height: 72px;
+    padding: 10px 13px;
+    border: 2px solid #8749b7;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255,255,255,0.16), transparent 26%),
+      linear-gradient(180deg, rgba(81,39,120,0.96), rgba(55,27,91,0.98));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.16),
+      0 5px 0 rgba(72,31,94,0.58);
+  }
+  .hero-card { border-radius: 18px 10px 10px 18px; }
+  .enemy-card { border-radius: 10px 18px 18px 10px; }
+  .level-badge {
+    width: 46px;
+    height: 46px;
+    border-color: #6d411c;
+    background: radial-gradient(circle at 35% 25%, #fff6aa, #ffd35c 48%, #a84e1d);
+    color: #321008;
+    font-family: "Bree Serif", Georgia, serif;
+  }
+  .combatant-name {
+    color: #fff8e8;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: 18px;
+    text-shadow: 0 2px 0 #32104d;
+  }
+  .combatant-subtitle {
+    color: rgba(255,231,159,0.86);
+    font-family: 'Nunito', sans-serif;
+  }
+  .chapter-banner {
+    position: relative;
+    min-height: 76px;
+    padding: 11px 24px 13px;
+    border: 2px solid #8749b7;
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,255,255,0.22), transparent 42%),
+      linear-gradient(180deg, rgba(81,39,120,0.98), rgba(55,27,91,0.99));
+    box-shadow:
+      0 5px 0 rgba(72,31,94,0.62),
+      inset 0 1px 0 rgba(255,255,255,0.16);
+  }
+  .hud-crest {
+    position: absolute;
+    left: 50%;
+    top: -52px;
+    width: min(270px, 52vw);
+    transform: translateX(-50%);
+    filter: drop-shadow(0 10px 9px rgba(42,18,24,0.38));
+    pointer-events: none;
+  }
+  .chapter-eyebrow {
+    position: relative;
+    z-index: 1;
+    color: #ffe79f;
+    text-shadow: 0 2px 0 #32104d;
+  }
+  .hud-logo {
+    position: relative;
+    z-index: 1;
+    color: #fffaf6;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(19px, 2vw, 27px);
+    text-shadow: 0 3px 0 #32104d;
+  }
+  .hud-progress-bar {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 300px);
+    height: 11px;
+    border: 1px solid #d7a7ff;
+    border-radius: 999px;
+    background: rgba(24,8,36,0.62);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.42);
+  }
+  .hud-progress-fill {
+    background: linear-gradient(90deg,#ffd35c,#9b43cf);
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(255,211,92,0.55), 0 0 14px rgba(155,67,207,0.5);
+  }
+  .hearts-bar {
+    margin-top: 3px;
+    gap: 5px;
+  }
+  .streak-pill, .score-chip {
+    border-color: #6d411c;
+    border-radius: 999px;
+    background: linear-gradient(180deg,#fff6aa,#ffd35c 58%,#c7832e);
+    color: #321008;
+    box-shadow: 0 4px 0 rgba(72,34,16,0.72);
+  }
+  @media (max-width: 1020px) {
+    .hud-bar { border-radius: 0 0 22px 22px; padding-top: 48px; }
+    .hud-crest { top: -36px; width: min(230px, 76vw); }
+  }
+  @media (max-width: 760px) {
+    .hud-bar { min-height: 0; padding: 42px 10px 14px; }
+    .chapter-banner { width: 100%; padding-inline: 14px; }
+    .hud-crest { width: min(210px, 82vw); }
+  }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); } ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.5); border-radius: 3px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+`;
+
+const MAX_HEARTS = 5;
+const LABELS = ["A", "B", "C", "D"];
+
+function ArenaBackground() {
+  return (
+    <div className="arena-bg" aria-hidden="true">
+  </div>
+  );
+}
+
+function HeartIcon({ full, breaking }: { full: boolean; breaking?: boolean }) {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24"
+      className={`heart-icon${breaking ? " heart-breaking" : full ? "" : " empty"}`}
+      fill={full || breaking ? "#ff2244" : "#3a1a2a"}
+      aria-label={full ? "Full heart" : "Empty heart"}>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+type GameIconName = "sword" | "flame" | "coin" | "heart" | "bolt" | "target" | "gear" | "warning" | "book" | "retry" | "play" | "check" | "cross";
+
+function GameIcon({ name, className = "" }: { name: GameIconName; className?: string }) {
+  const cls = `game-icon ${className}`.trim();
+
+  if (name === "sword") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M22.8 3.2 29 3l-.2 6.2-13 13-3.1-3.1 10.1-15.9Z" fill="#d9f3ff" stroke="#33505f" strokeWidth="1.5" />
+        <path d="m12.7 19.1-2.8 2.8" stroke="#ffe08d" strokeWidth="4" strokeLinecap="round" />
+        <path d="m8.8 20.4 2.8 2.8-5.8 5.8-2.8-2.8 5.8-5.8Z" fill="#8b5629" stroke="#3f2719" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+  if (name === "flame") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M17.1 3.4c2.6 5.1 8 7.6 8 15.1A9.1 9.1 0 0 1 16 27.8a9.1 9.1 0 0 1-9.1-9.3c0-4.9 3.2-8.1 6.1-11.7-.2 3.4 1.2 5.2 3 6.6 1.8-2.3 2.4-5.6 1.1-10Z" fill="#f36b32" stroke="#6b2d18" strokeWidth="1.5" />
+        <path d="M16.2 14.4c2 2.5 3.6 4.1 3.6 7.1a3.8 3.8 0 1 1-7.6 0c0-2.5 1.8-4.3 4-7.1Z" fill="#ffe08d" />
+      </svg>
+    );
+  }
+  if (name === "coin") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="#f4c653" stroke="#6b491b" strokeWidth="2" />
+        <circle cx="16" cy="16" r="7" fill="#ffe08d" opacity=".7" />
+        <path d="M16 9v14M11 13c1.7-2.1 8.4-2 9.5 0 .8 1.6-.7 2.8-4.3 3.1-3.9.4-5 1.4-4.2 3 .9 2 7.2 2.4 9.3-.1" fill="none" stroke="#6b491b" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (name === "heart") {
+    return <HeartIcon full />;
+  }
+  if (name === "bolt") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M18.5 2 7 18h8l-1.5 12L25 13h-8l1.5-11Z" fill="#ffe08d" stroke="#6b491b" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (name === "target") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <circle cx="16" cy="16" r="12" fill="#e7f0d0" stroke="#315437" strokeWidth="2" />
+        <circle cx="16" cy="16" r="7" fill="#f36b32" />
+        <circle cx="16" cy="16" r="3" fill="#ffe08d" />
+      </svg>
+    );
+  }
+  if (name === "gear") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M14 3h4l1 4 3 1.3 3.6-2 2.8 2.8-2 3.6 1.3 3 4 1v4l-4 1-1.3 3 2 3.6-2.8 2.8-3.6-2-3 1.3-1 4h-4l-1-4-3-1.3-3.6 2-2.8-2.8 2-3.6-1.3-3-4-1v-4l4-1 1.3-3-2-3.6 2.8-2.8 3.6 2L13 7l1-4Z" fill="#c8d6c0" stroke="#324934" strokeWidth="1.5" />
+        <circle cx="16" cy="16" r="4.5" fill="#33543a" />
+      </svg>
+    );
+  }
+  if (name === "warning") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="m16 4 13 23H3L16 4Z" fill="#f4c653" stroke="#6b491b" strokeWidth="2" />
+        <path d="M16 12v7" stroke="#3d2a12" strokeWidth="3" strokeLinecap="round" />
+        <circle cx="16" cy="23" r="1.8" fill="#3d2a12" />
+      </svg>
+    );
+  }
+  if (name === "book") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M5 6.5c4.2-.8 7.4-.1 11 2.2v18.1c-3.4-2.2-6.8-3-11-2.2V6.5Z" fill="#f4e1a0" stroke="#5b3a20" strokeWidth="1.8" />
+        <path d="M27 6.5c-4.2-.8-7.4-.1-11 2.2v18.1c3.4-2.2 6.8-3 11-2.2V6.5Z" fill="#d7f0c0" stroke="#5b3a20" strokeWidth="1.8" />
+        <path d="M16 8.7v18.1" stroke="#5b3a20" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+  if (name === "retry") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M24 10a10 10 0 1 0 1.4 10" fill="none" stroke="#3d2a12" strokeWidth="3" strokeLinecap="round" />
+        <path d="M24 4v7h-7" fill="none" stroke="#3d2a12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (name === "play") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M10 6 26 16 10 26V6Z" fill="#fff8df" stroke="#173421" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (name === "cross") {
+    return (
+      <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+        <path d="M9 9 23 23M23 9 9 23" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 32 32" className={cls} aria-hidden="true">
+      <path d="m8 16 5 5L24 10" fill="none" stroke="#173421" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+type SuriState      = "idle" | "attack" | "hit" | "happy" | "sad" | "defeated";
+type EnemyAnimState = "idle" | "attack" | "hit" | "defeated" | "appear";
+
+function suriImg(s: SuriState): string {
+  if (s === "happy") return "/suri-snake-happy.png";
+  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.png";
+  if (s === "attack") return "/suri-snake-right.png";
+  return "/suri-snake-right.png";
+}
+function suriAlt(s: SuriState): string {
+  if (s === "happy")    return "Suri celebrating";
+  if (s === "sad")      return "Suri sad";
+  if (s === "hit")      return "Suri recoiling";
+  if (s === "defeated") return "Suri defeated";
+  if (s === "attack")   return "Suri attacking";
+  return "Suri in battle stance";
+}
+function suriCls(s: SuriState): string {
+  if (s === "attack")   return "suri-sprite suri-attacking";
+  if (s === "hit")      return "suri-sprite suri-hit";
+  if (s === "defeated") return "suri-sprite suri-defeated-anim";
+  return "suri-sprite suri-idle";
+}
+function enemyCls(s: EnemyAnimState): string {
+  if (s === "hit")      return "enemy-sprite enemy-hit";
+  if (s === "defeated") return "enemy-sprite enemy-defeated-anim";
+  if (s === "appear")   return "enemy-sprite enemy-appear";
+  if (s === "attack")   return "enemy-sprite enemy-attacking";
+  return "enemy-sprite enemy-idle";
+}
 
 export default function DiagnosticPage() {
-  const router = useRouter();
-  const params = useParams();
+  const router    = useRouter();
+  const params    = useParams();
   const sessionId = params.session_id as string;
 
-  const [phase, setPhase] = useState<"intro" | "probes">("intro");
-  const [probe, setProbe] = useState<DiagnosticProbe | null>(null);
+  const [phase, setPhase]             = useState<"intro" | "battle" | "defeat">("intro");
+  const [probe, setProbe]             = useState<DiagnosticProbe | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [skipping, setSkipping] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ correct: boolean; nextAction: string } | null>(null);
-  const [topicEntryNode, setTopicEntryNode] = useState<string>("");
-
-  // Per-node question progress
-  const [nodeQuestionCount, setNodeQuestionCount] = useState(0);  // questions answered for current node
-  const [nodeQuestionTotal, setNodeQuestionTotal] = useState(8);  // always 8
-  const [currentNodeLabel, setCurrentNodeLabel] = useState("");
-
-  // Show toast and confetti on feedback change
-  useEffect(() => {
-    if (feedback) {
-      toast.success(feedback.correct ? "✅ Correct!" : "❌ Incorrect");
-      if (feedback.correct) {
-        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-      }
-    }
-  }, [feedback]);
-
-  const [totalQuestions, setTotalQuestions] = useState<number>(0);
-  const [answeredCount, setAnsweredCount] = useState<number>(0);
-
-  const fetchNextProbe = async () => {
-    setLoading(true);
-    setSelectedIdx(null);
-    setFeedback(null);
-    setError(null);
-    try {
-      const data = await getDiagnosticProbe(sessionId);
-      setProbe(data);
-      setPhase("probes");
-      // Update per-node progress from the response
-      if (data.questions_answered !== undefined) setNodeQuestionCount(data.questions_answered);
-      if (data.questions_total !== undefined) setNodeQuestionTotal(data.questions_total);
-      if (data.node_label) setCurrentNodeLabel(data.node_label);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to load diagnostic question.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading]         = useState(false);
+  const [submitting, setSubmitting]   = useState(false);
+  const [skipping, setSkipping]       = useState(false);
+  const [showingResults, setShowingResults] = useState(false);
+  const [error, setError]             = useState<string | null>(null);
+  const [feedback, setFeedback]       = useState<{ correct: boolean; nextAction: string } | null>(null);
+  const [tileKey, setTileKey]         = useState(0);
+  const [answeredCount, setAnsweredCount]   = useState(0);
+  const [score, setScore]   = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [suriState, setSuriState]       = useState<SuriState>("idle");
+  const [suriHearts, setSuriHearts]     = useState(MAX_HEARTS);
+  const [suriBreaking, setSuriBreaking] = useState<number | null>(null);
+  const [enemyAnimState, setEnemyAnimState] = useState<EnemyAnimState>("idle");
+  const [enemyHearts, setEnemyHearts]       = useState(MAX_HEARTS);
+  const [enemyBreaking, setEnemyBreaking]   = useState<number | null>(null);
+  const [enemyDmg, setEnemyDmg] = useState<string | null>(null);
+  const [suriDmg, setSuriDmg]   = useState<string | null>(null);
+  const [shaking, setShaking]   = useState(false);
+  const [locked, setLocked]     = useState(false);
+  const pendingNext = useRef<string | null>(null);
 
   useEffect(() => {
     sessionStorage.removeItem("diagnostic_answers");
     sessionStorage.removeItem("diagnostic_submit_result");
-    
-    // Fetch total questions for UI
-    const initTotal = async () => {
-      try {
-        const session = await getSession(sessionId);
-        setTopicEntryNode(session.topic_entry_node);
-        const { chain } = await getTopicChain(session.topic_entry_node);
-        setTotalQuestions(chain.length);
-      } catch (e) {
-        console.error("Failed to load chain length", e);
-      }
-    };
-    initTotal();
   }, [sessionId]);
 
-  const finalizeDiagnostic = async () => {
-    const session = await getSession(sessionId);
-    const { chain } = await getTopicChain(session.topic_entry_node);
-    const answersObj = JSON.parse(
-      sessionStorage.getItem("diagnostic_answers") || "{}"
-    ) as Record<string, boolean>;
-    const answers = chain.map((node_id) => ({
-      node_id,
-      correct: !!answersObj[node_id],
-    }));
-
+  const finalize = useCallback(async (redirectOverride?: string) => {
+    const s = await getSession(sessionId);
+    const { chain } = await getTopicChain(s.topic_entry_node);
+    const raw = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}") as Record<string, boolean>;
+    const answers = chain.map(node_id => ({ node_id, correct: !!raw[node_id] }));
     const res = await submitDiagnostic(sessionId, { answers });
     sessionStorage.setItem("diagnostic_submit_result", JSON.stringify(res));
+    if (res.gap_node)         sessionStorage.setItem("identified_node_id", res.gap_node);
+    if (res.mastered_nodes)   sessionStorage.setItem("diagnostic_mastered",   JSON.stringify(res.mastered_nodes));
+    if (res.unresolved_nodes) sessionStorage.setItem("diagnostic_unresolved", JSON.stringify(res.unresolved_nodes));
+    router.push(redirectOverride ?? res.redirect);
+  }, [sessionId, router]);
 
-    if (res.all_mastered) {
-      router.push(res.redirect);
-      return;
-    }
+  const fetchProbe = useCallback(async () => {
+    setLoading(true); setSelectedIdx(null); setFeedback(null);
+    setError(null); setLocked(false);
+    setSuriState("idle"); setEnemyAnimState("idle");
+    try {
+      const data = await getDiagnosticProbe(sessionId);
+      setProbe(data); setPhase("battle"); setTileKey(k => k + 1);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load question.");
+    } finally { setLoading(false); }
+  }, [sessionId]);
 
-    if (res.gap_node) {
-      sessionStorage.setItem("identified_node_id", res.gap_node);
+  const advance = useCallback(async (nextAction: string) => {
+    try {
+      if (nextAction === "next_probe") await fetchProbe();
+      else if (nextAction === "complete") await finalize();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to advance.");
     }
-    if (res.mastered_nodes) {
-      sessionStorage.setItem(
-        "diagnostic_mastered",
-        JSON.stringify(res.mastered_nodes)
-      );
-    }
-    if (res.unresolved_nodes) {
-      sessionStorage.setItem(
-        "diagnostic_unresolved",
-        JSON.stringify(res.unresolved_nodes)
-      );
-    }
-    router.push(res.redirect);
-  };
+  }, [fetchProbe, finalize]);
+
+  const triggerEnemyHit = useCallback((nextAction: string) => {
+    setSuriState("attack");
+    setEnemyDmg("-1"); setTimeout(() => setEnemyDmg(null), 900);
+    setShaking(true);     setTimeout(() => setShaking(false), 500);
+    setEnemyAnimState("hit");
+    setTimeout(() => {
+      setEnemyHearts(prev => {
+        const next = prev - 1;
+        setEnemyBreaking(next);
+        if (next <= 0) {
+          setTimeout(() => {
+            setEnemyAnimState("defeated");
+            confetti({ particleCount: 180, spread: 110, origin: { y: 0.4 }, colors: ["#f9d71c","#e8a21a","#ff4757","#2ed573","#5352ed","#c39bd3"] });
+            setTimeout(() => {
+              setEnemyBreaking(null); setEnemyHearts(MAX_HEARTS);
+              setEnemyAnimState("appear"); setSuriState("happy");
+              setTimeout(async () => {
+                setSuriState("idle"); setEnemyAnimState("idle"); setLocked(false);
+                await advance(nextAction);
+              }, 900);
+            }, 1400);
+          }, 300);
+          return 0;
+        } else {
+          setTimeout(() => {
+            setEnemyBreaking(null); setEnemyAnimState("idle");
+            setSuriState("happy"); setTimeout(() => setSuriState("idle"), 800);
+            setLocked(false);
+            const na = pendingNext.current; pendingNext.current = null;
+            if (na) advance(na);
+          }, 700);
+          return next;
+        }
+      });
+    }, 150);
+  }, [advance]);
+
+  const triggerSuriHit = useCallback(() => {
+    setEnemyAnimState("attack");
+    setSuriDmg("-1"); setTimeout(() => setSuriDmg(null), 900);
+    setShaking(true);     setTimeout(() => setShaking(false), 500);
+    setTimeout(() => {
+      setSuriState("hit");
+      setSuriHearts(prev => {
+        const next = prev - 1;
+        setSuriBreaking(next);
+        if (next <= 0) {
+          setTimeout(() => {
+            setSuriState("defeated"); setSuriBreaking(null);
+            setPhase("defeat"); setEnemyAnimState("idle");
+          }, 700);
+          return 0;
+        } else {
+          setTimeout(() => {
+            setSuriBreaking(null); setSuriState("sad"); setEnemyAnimState("idle");
+            setTimeout(() => setSuriState("idle"), 800);
+            setLocked(false);
+            const na = pendingNext.current; pendingNext.current = null;
+            if (na) advance(na);
+          }, 700);
+          return next;
+        }
+      });
+    }, 200);
+  }, [advance]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedIdx === null || !probe || submitting) return;
-
-    setSubmitting(true);
-    setError(null);
-
+    if (selectedIdx === null || !probe || submitting || locked) return;
+    setSubmitting(true); setLocked(true); setError(null);
     try {
-      const res = await submitDiagnosticAnswer(sessionId, {
-        node_id: probe.node_id,
-        selected_option_index: selectedIdx,
-      });
-
-      setFeedback({ correct: res.correct, nextAction: res.next_action });
-
-      // If node is complete, store the pass/fail result per node
-      if (res.node_complete) {
-        const currentAnswers = JSON.parse(
-          sessionStorage.getItem("diagnostic_answers") || "{}"
-        );
-        currentAnswers[probe.node_id] = res.node_passed ?? res.correct;
-        sessionStorage.setItem("diagnostic_answers", JSON.stringify(currentAnswers));
-        setAnsweredCount(Object.keys(currentAnswers).length);
-        // Reset per-node counter for the next node
-        setNodeQuestionCount(0);
+      const res = await submitDiagnosticAnswer(sessionId, { node_id: probe.node_id, selected_option_index: selectedIdx });
+      const nextAnswered = answeredCount + 1;
+      const nextAction = res.correct && enemyHearts <= 1 ? "complete" : "next_probe";
+      setFeedback({ correct: res.correct, nextAction });
+      const cur = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}");
+      cur[probe.node_id] = res.correct;
+      sessionStorage.setItem("diagnostic_answers", JSON.stringify(cur));
+      setAnsweredCount(nextAnswered);
+      if (res.correct) {
+        setScore(s => s + (10 + streak * 5)); setStreak(s => s + 1);
+        toast.success("Direct hit!");
+        pendingNext.current = nextAction;
+        triggerEnemyHit(nextAction);
       } else {
-        // Update question counter within the current node
-        if (res.questions_answered !== undefined) setNodeQuestionCount(res.questions_answered);
+        setStreak(0);
+        toast.error("The enemy counters!");
+        pendingNext.current = nextAction;
+        triggerSuriHit();
       }
-
-      setTimeout(async () => {
-        try {
-          if (res.next_action === "next_probe") {
-            await fetchNextProbe();
-          } else if (res.next_action === "complete") {
-            await finalizeDiagnostic();
-          }
-        } catch (err: unknown) {
-          setError(
-            err instanceof Error ? err.message : "Failed to finalize diagnostic."
-          );
-        } finally {
-          setSubmitting(false);
-        }
-      }, 1000);
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Failed to submit answer."
-      );
-      setSubmitting(false);
-    }
+      setError(err instanceof Error ? err.message : "Failed to submit answer.");
+      setLocked(false);
+    } finally { setSubmitting(false); }
   };
 
   const handleSkip = async () => {
-    setSkipping(true);
-    setError(null);
+    setSkipping(true); setError(null);
+    try { const res = await skipDiagnostic(sessionId); router.push(res.redirect); }
+    catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed to skip."); setSkipping(false); }
+  };
+
+  const handleSeeResults = async () => {
+    setShowingResults(true); setError(null);
     try {
-      const res = await skipDiagnostic(sessionId);
-      router.push(res.redirect);
+      await finalize(`/session/${sessionId}/gap-result`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to skip diagnostic.");
-      setSkipping(false);
+      setError(err instanceof Error ? err.message : "Failed to show results.");
+      setShowingResults(false);
     }
   };
 
+  const retryAfterDefeat = () => {
+    sessionStorage.removeItem("diagnostic_answers");
+    setAnsweredCount(0); setScore(0); setStreak(0);
+    setSuriHearts(MAX_HEARTS); setSuriBreaking(null); setSuriState("idle");
+    setEnemyHearts(MAX_HEARTS); setEnemyBreaking(null); setEnemyAnimState("idle");
+    setPhase("battle"); setFeedback(null); setLocked(false); setSelectedIdx(null);
+    pendingNext.current = null;
+    void fetchProbe();
+  };
+
+  const enemyDefeatedHits = MAX_HEARTS - enemyHearts;
+  const pct = Math.min((enemyDefeatedHits / MAX_HEARTS) * 100, 100);
+
   return (
-    <div className="bg-[#1b261c] min-h-screen text-[#1F2720] py-8 px-4 md:px-8 relative overflow-hidden font-['Manrope']">
-      
-      {/* Inline styles for custom gamification animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes floatFirefly {
-          0% { transform: translateY(110%) translateX(0); opacity: 0; }
-          20% { opacity: 0.8; }
-          80% { opacity: 0.8; }
-          100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
-        }
-        @keyframes pulseGlow {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.15); opacity: 0.6; }
-        }
-        @keyframes bounceJelly {
-          0%, 100% { transform: translateY(0) scale(1); }
-          30% { transform: translateY(-6px) scale(0.95, 1.05); }
-          50% { transform: translateY(0) scale(1.05, 0.95); }
-          70% { transform: translateY(-2px) scale(0.98, 1.02); }
-        }
-        .firefly {
-          position: absolute;
-          background: #fdd400;
-          border-radius: 50%;
-          filter: drop-shadow(0 0 5px #ffe170);
-          pointer-events: none;
-        }
-        .animate-jelly {
-          animation: bounceJelly 2.5s ease-in-out infinite;
-        }
-      ` }} />
-
-      {/* Background Forest Silhouette Pattern */}
-      <div className="absolute inset-0 opacity-15 bg-cover bg-bottom mix-blend-overlay pointer-events-none" 
-           style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAEXma6INVd0pxsf2NimA83gxdCqv-1PqJrcWOioIbkPEtj3Z7oIxOvuUvLYNc4Dp9x3Y1BdR1CuvLCFJx5RSzJA9_Kk02IsPNQSy0DeGhX33fZvqV6ZTAci5gEWEnXt3d5H0IqVOBVrHAtZ0wRSpSPEhIZkwT8lWCqZo0inU40TzVsVWo-vjMqvT5w8nLCUkx-agKpKsnu_I62S8u6WesHawWnmWYTE_400YVkv8YcJ_L_q-lbQ4H0O-Ey3ld_l4PtBxxi-Kv7vQ8')" }} />
-
-      {/* Floating Glowing Fireflies */}
-      <div className="firefly w-2 h-2" style={{ left: "10%", bottom: "10%", animation: "floatFirefly 7s ease-in-out infinite" }} />
-      <div className="firefly w-2.5 h-2.5" style={{ left: "22%", bottom: "6%", animation: "floatFirefly 10s ease-in-out infinite 1.5s" }} />
-      <div className="firefly w-1.5 h-1.5" style={{ left: "45%", bottom: "12%", animation: "floatFirefly 5s ease-in-out infinite 0.5s" }} />
-      <div className="firefly w-3 h-3" style={{ left: "78%", bottom: "14%", animation: "floatFirefly 9s ease-in-out infinite 2s" }} />
-
-      <div className="max-w-3xl mx-auto space-y-6 relative z-10">
-
-        {/* Dynamic Header Block */}
-        <header className="bg-gradient-to-b from-[#1b261c] to-[#2e3e2d] rounded-[32px] p-6 md:p-8 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden flex flex-col justify-between min-h-[160px]">
-          
-          {/* Backlight gold orb */}
-          <div className="absolute top-0 right-1/4 w-32 h-32 bg-yellow-400/25 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex items-center justify-between mb-4 z-10 border-b-4 border-[#1F2720]/30 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#fdd400] animate-pulse shadow-[0_0_8px_#fdd400] border border-[#1F2720]" />
-              <span className="font-['Manrope'] text-[10px] text-emerald-300 tracking-[0.2em] uppercase font-black">
-                {phase === "intro" ? "PLACEMENT DIAGNOSTIC" : "EVALUATION ACTIVE"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push(`/topics/${topicEntryNode}`)}
-                className="font-['Manrope'] text-[10px] text-[#1F2720] bg-white hover:bg-slate-100 px-3 py-2 rounded-xl border-2 border-[#1F2720] shadow-[2.5px_2.5px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[0px_0px_0px_0px_#1F2720] transition-all cursor-pointer font-black uppercase tracking-wider"
-              >
-                Exit
-              </button>
-              <span className="font-['Manrope'] text-[9px] font-black text-[#1F2720] bg-[#fdd400] px-2.5 py-1 rounded-md border-2 border-[#1F2720] uppercase">
-                DB_SYNC
-              </span>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: GAME_CSS }} />
+      <div className={`battle-body${shaking ? " screen-shake" : ""}`}>
+        <ArenaBackground />
+        
+        {phase !== "intro" && (
+        <header className="hud-bar" role="banner">
+          <div className="hud-brand">
+            <div className="combatant-card hero-card">
+              <span className="level-badge">Lv 1</span>
+              <div>
+                <span className="combatant-name">Suri</span>
+                <span className="combatant-subtitle">Graduate Bookworm</span>
+                <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${MAX_HEARTS}`}>
+                  {Array.from({ length: MAX_HEARTS }, (_, i) => (
+                    <HeartIcon key={i} full={i < suriHearts} breaking={suriBreaking === i} />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="z-10 flex items-center gap-4">
-            <img 
-              src={phase === "intro" ? "/suri-snake-right.png" : "/suri-snake-left.png"} 
-              alt="Suri Guide" 
-              className="h-16 w-auto object-contain select-none shrink-0 animate-jelly" 
-            />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white font-['Hanken_Grotesk'] drop-shadow-[2px_2px_0px_#1F2720]">
-                {phase === "intro" ? "Baseline Diagnostic" : "Diagnostic Probe"}
-              </h1>
-              <p className="font-['Manrope'] text-[10px] text-emerald-200 mt-1 font-bold uppercase tracking-wider">
-                Session ID: <span className="text-[#fdd400]">{sessionId}</span>
-              </p>
+          <div className="chapter-banner">
+            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${MAX_HEARTS}`}</span>
+            <span className="hud-logo">Diagnostic Battle</span>
+            <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
+              <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+          <div className="hud-right">
+            <div className="combatant-card enemy-card">
+              <div>
+                <span className="combatant-name">Count Calculus</span>
+                <span className="combatant-subtitle">Rune Wizard</span>
+                <div className="hearts-bar" aria-label={`Enemy hearts: ${enemyHearts} of ${MAX_HEARTS}`}>
+                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < enemyHearts} breaking={enemyBreaking === hi} />; })}
+                </div>
+              </div>
+              {streak > 1 && <div className="streak-pill" aria-label={`${streak} answer streak`}><GameIcon name="flame" /> {streak}x</div>}
+              <div className="score-chip" aria-label={`Score: ${score}`}><GameIcon name="coin" /> {score}</div>
             </div>
           </div>
         </header>
-
-        {/* Global Error Exception Alert */}
-        {error && (
-          <div className="bg-red-100 border-[3.5px] border-[#1F2720] rounded-[24px] p-5 shadow-[4px_4px_0px_0px_#1F2720] flex items-start gap-4">
-            <ShieldAlert className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-['Manrope'] text-[11px] text-red-900 font-black uppercase tracking-widest block mb-1">
-                [DIAGNOSTIC EXCEPTION]
-              </span>
-              <p className="font-['Manrope'] text-xs text-red-900 font-extrabold">{error}</p>
-            </div>
-          </div>
         )}
 
-        {/* PHASE 1: INTRO COMPONENT */}
-        {phase === "intro" ? (
-          <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-6 md:p-8 shadow-[8px_8px_0px_0px_#1F2720] space-y-6">
-            <p className="font-['Manrope'] text-sm md:text-base text-slate-700 leading-relaxed font-bold">
-              This short diagnostic builds up from foundational prerequisites to your active topic. 
-              Your answers help map out existing baseline knowledge block skills to identify custom starting nodes.
+        {phase === "intro" && (
+          <main className="intro-screen" id="intro-screen">
+            <h1 className="intro-title"> DIAGNOSTIC BATTLE</h1>
+            <p className="intro-subtitle">
+              Prove your knowledge in the arena! Answer correctly to strike the enemy —
+              every wrong answer lets them hit back. Survive with 5 hearts!
             </p>
-
-            <div className="space-y-4 pt-2">
-              <button
-                type="button"
-                onClick={fetchNextProbe}
-                disabled={loading}
-                className="w-full bg-[#fdd400] text-[#1F2720] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[4px_4px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer disabled:opacity-50"
-              >
-                {loading ? "Initializing Diagnostics..." : "Start Placement Diagnostic"}
-              </button>
-
-              <div className="text-center pt-3 border-t-2 border-[#1F2720]/10">
-                <button
-                  type="button"
-                  onClick={handleSkip}
-                  disabled={skipping}
-                  className="w-full bg-[#f2f4f6] text-[#1F2720] border-[3.5px] border-[#1F2720] py-3.5 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {skipping ? "Redirecting..." : "Skip Diagnostics"}
-                </button>
-                <p className="font-['Manrope'] text-[10px] text-slate-400 mt-2.5 font-bold uppercase">
-                  Bypass questions and jump directly to the first active lesson segment.
-                </p>
-              </div>
+          
+            <div className="speech-bubble">
+              &ldquo;Ready to test your skills? Let&apos;s see what you&apos;ve got!&rdquo;
             </div>
-          </div>
-        ) : (
-          /* PHASE 2: ACTIVE EVALUATION PROBES */
-          <>
-            {loading ? (
-              <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-12 shadow-[8px_8px_0px_0px_#1F2720] flex flex-col items-center justify-center space-y-4">
-                <Loader2 size={36} className="animate-spin text-[#1F2720]" />
-                <p className="font-['Manrope'] text-[11px] text-slate-500 tracking-widest uppercase font-black animate-pulse">
-                  Retrieving next evaluation query...
-                </p>
+                <div className="intro-char">
+                <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
               </div>
-            ) : probe ? (
-              <form 
-                onSubmit={handleSubmit} 
-                className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-6 md:p-8 shadow-[8px_8px_0px_0px_#1F2720] space-y-6"
-              >
-                {/* Probe Header Details */}
-                <div className="flex flex-col gap-3 pb-3.5 border-b-[4px] border-[#1F2720]/15 mb-6">
-                  <div className="flex items-center justify-between">
-                    <span className="bg-[#fdd400] text-[#1F2720] font-['Manrope'] text-[10px] font-black uppercase px-2.5 py-1.5 rounded-md border-2 border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720]">
-                      {currentNodeLabel || probe.node_id}
-                    </span>
-                    <span className="font-['Manrope'] text-[11px] font-black text-slate-500 uppercase tracking-widest">
-                      Question {nodeQuestionCount + 1} of {nodeQuestionTotal}
-                    </span>
-                  </div>
-                  {/* Per-node progress bar */}
-                  <div className="w-full h-2 bg-slate-200 rounded-full border border-[#1F2720]/20 overflow-hidden">
-                    <div
-                      className="h-full bg-[#fdd400] rounded-full transition-all duration-500"
-                      style={{ width: `${((nodeQuestionCount) / nodeQuestionTotal) * 100}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Question Body */}
-                <div className="text-base md:text-lg font-['Hanken_Grotesk'] font-black text-[#1F2720] leading-snug mb-6 markdown-content">
-                  <RenderMath text={probe.question_text} />
-                </div>
-
-                {/* Multi Choice Radio Blocks */}
-                <div className="space-y-4 mb-8">
-                  {probe.options.map((option, idx) => (
-                    <label
-                      key={idx}
-                      className={`flex items-start p-4 rounded-2xl border-[3.5px] cursor-pointer transition-all duration-200 shadow-[3px_3px_0px_0px_#1F2720] hover:shadow-[5px_5px_0px_0px_#1F2720] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] ${
-                        selectedIdx === idx
-                          ? "border-[#1F2720] bg-[#ffe170] text-[#1F2720] font-black"
-                          : "border-[#1F2720] bg-white text-slate-700 font-bold hover:bg-slate-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="probe-option"
-                        checked={selectedIdx === idx}
-                        onChange={() => setSelectedIdx(idx)}
-                        disabled={submitting || feedback !== null}
-                        className="sr-only"
-                      />
-                      <span className={`font-['Manrope'] text-sm mr-3 font-black shrink-0 ${selectedIdx === idx ? "text-[#1F2720]" : "text-emerald-700"}`}>
-                        {String.fromCharCode(65 + idx)}.
-                      </span>
-                      <span className="font-['Manrope'] text-sm markdown-content"><RenderMath text={option} /></span>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Interactive Answer Feedback Overlay */}
-                {feedback && (
-                  <div className={`rounded-2xl p-4 mb-5 text-center font-['Manrope'] text-xs uppercase tracking-wider font-black border-[3px] border-[#1F2720] shadow-[4px_4px_0px_0px_#1F2720] ${
-                    feedback.correct 
-                      ? "bg-green-100 text-green-900" 
-                      : "bg-red-100 text-red-900"
-                  }`}>
-                    {feedback.correct ? "✓ [CORRECT! SSS-PECTACULAR]" : "✗ [INCORRECT! KEEP FOCUSSED RANGER]"} Moving on to next trail segment...
-                  </div>
-                )}
-
-                {/* Dynamic mascot mood feedback */}
-                {feedback && (
-                  <div className="flex flex-col items-center justify-center gap-3 mt-4 mb-6 animate-jelly">
-                    <img 
-                      src={feedback.correct ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} 
-                      alt={feedback.correct ? "Suri Happy" : "Suri Sad"} 
-                      className="w-24 h-auto object-contain select-none animate-bounce" 
-                      style={{ animationDuration: "2s" }}
-                    />
-                    <p className="font-['Manrope'] text-[11px] font-black text-[#1F2720] bg-white py-1.5 px-4 rounded-full border-2 border-[#1F2720] shadow-[2.5px_2.5px_0px_0px_#1F2720]">
-                      {feedback.correct 
-                        ? "💬 \"Sss-pot on, Ranger! Beautifully solved!\"" 
-                        : "💬 \"Oh sss-no! Don't let the thorns stop you!\""}
-                    </p>
-                  </div>
-                )}
-
-                {/* Submission Action */}
-                <button
-                  type="submit"
-                  disabled={selectedIdx === null || submitting || feedback !== null}
-                  className="w-full bg-[#fdd400] text-[#1F2720] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-2xl tracking-wider shadow-[4px_4px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {submitting ? "Submitting Evaluation..." : "Submit Answer"}
-                </button>
-              </form>
-            ) : (
-              <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-8 text-center shadow-[6px_6px_0px_0px_#1F2720]">
-                <p className="font-['Manrope'] text-sm text-slate-500 font-bold">No active evaluation targets.</p>
-              </div>
-            )}
-          </>
+             
+      
+            <button id="start-battle-btn" className="intro-start-btn" onClick={fetchProbe} disabled={loading} aria-busy={loading}>
+              {loading ? <><span className="spin-loader"><GameIcon name="gear" /></span> Loading...</> : <>START BATTLE</>}
+            </button>
+            <button id="skip-diagnostic-btn" className="intro-skip-btn" onClick={handleSkip} disabled={skipping || loading}>
+              {skipping ? "Skipping..." : "Skip Diagnostic >"}
+            </button>
+            {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
+          </main>
         )}
 
+        {(phase === "battle" || phase === "defeat") && (
+          <div className="battle-layout">
+            <div className="arena-section" aria-label="Battle arena">
+              <div className="char-container suri-side">
+                <div className="name-plate">
+                  <span className="char-name" style={{ color: "#8fe06a" }}>Suri</span>
+                  <span className="char-title" style={{ color: "#3dbf6e" }}>Your Champion</span>
+                </div>
+                <div className="sprite-frame">
+                  {suriDmg && <div className="dmg-number dmg-suri" aria-live="assertive">{suriDmg}</div>}
+                  <img src={suriImg(suriState)} alt={suriAlt(suriState)} className={suriCls(suriState)} draggable={false} />
+                </div>
+              </div>
+              <div className="reaction-space" aria-live="polite">
+                {feedback ? (
+                  <div className="speech-bubble">
+                    {feedback.correct ? "Correct!" : "Nice Try!"}
+                  </div>
+                ) : null}
+              </div>
+              <div className="char-container enemy-side">
+                <div className="name-plate" style={{ alignItems: "flex-end" }}>
+                  <span className="char-name" style={{ color: "#ffd780" }}>Math Villain</span>
+                  <span className="char-title" style={{ color: "#c39bd3" }}>The Enemy</span>
+                </div>
+                <div className="sprite-frame">
+                  {enemyDmg && <div className="dmg-number dmg-enemy" aria-live="assertive">{enemyDmg}</div>}
+                  <img src="/enemy-math-villain.png" alt="The Math Villain" className={enemyCls(enemyAnimState)} draggable={false} />
+                </div>
+              </div>
+              {phase === "defeat" && (
+                <div className="outcome-overlay defeat-overlay" role="dialog" aria-label="Defeat screen">
+                  <img src="/suri-snake-sad.png" alt="Suri defeated" className="outcome-suri" />
+                  <h2 className="outcome-title defeat-title">DEFEATED!</h2>
+                  <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat...</p>
+                  <button id="retry-btn" className="outcome-btn" onClick={retryAfterDefeat}><GameIcon name="retry" /> TRY AGAIN</button>
+                  <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={handleSeeResults} disabled={showingResults}>
+                    <GameIcon name="play" /> {showingResults ? "LOADING..." : "SEE RESULTS"}
+                  </button>
+                </div>
+              )}
+            </div>
+            {phase === "battle" && (
+              <section className="battle-panel" aria-label="Question panel">
+                {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
+                {loading ? (
+                  <div className="loading-quest question-scroll">
+                    <span className="spin-loader" style={{ fontSize: 36 }}><GameIcon name="gear" /></span>
+                    <p className="loading-text">Loading challenge...</p>
+                    <div className="loading-bar" aria-hidden="true" />
+                  </div>
+                ) : probe ? (
+                  <form onSubmit={handleSubmit} noValidate className="battle-form">
+                    <div className="question-scroll" role="region" aria-label="Current question">
+                      <div className="question-strip">
+                        <div className="question-badge"><GameIcon name="book" /> Question</div>
+                        <div className="question-text" id="question-text">
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{probe.question_text}</ReactMarkdown>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="choices-panel">
+                      <div className="question-badge"><GameIcon name="bolt" /> Choices</div>
+                      <div className="spell-grid" role="radiogroup" aria-labelledby="question-text" key={tileKey}>
+                        {probe.options.map((opt, idx) => {
+                          const isSelected = selectedIdx === idx;
+                          const isCorrect  = feedback !== null && isSelected && feedback.correct;
+                          const isWrong    = feedback !== null && isSelected && !feedback.correct;
+                          let cls = "spell-tile spell-tile-enter";
+                          if (isSelected) cls += " selected";
+                          if (locked)     cls += " locked";
+                          if (isCorrect && feedback) cls += " correct-reveal";
+                          if (isWrong)    cls += " wrong-reveal";
+                          return (
+                            <button key={idx} type="button" role="radio" aria-checked={isSelected} id={`spell-option-${idx}`} className={cls}
+                              onClick={() => { if (!locked && !feedback) setSelectedIdx(idx); }} disabled={!!feedback || locked}>
+                              <div className="spell-label">{LABELS[idx]}</div>
+                              <div className="spell-text">
+                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{opt}</ReactMarkdown>
+                              </div>
+                              {isSelected && !feedback && <div className="spell-check"><GameIcon name="check" /></div>}
+                              {isCorrect && feedback && <div className="spell-check" style={{ background: "#3dbf6e" }}><GameIcon name="check" /></div>}
+                              {isWrong && <div className="spell-check wrong-mark" style={{ background: "#e74c3c" }}><GameIcon name="cross" /></div>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {feedback && (
+                        <div className={`feedback-banner ${feedback.correct ? "correct" : "wrong"}`} role="status">
+                          <img src={feedback.correct ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} alt={feedback.correct ? "Suri happy" : "Suri sad"} className={`feedback-suri${feedback.correct ? " feedback-excited" : ""}`} />
+                          <div>
+                            <p className="feedback-title"><GameIcon name={feedback.correct ? "sword" : "warning"} /> {feedback.correct ? "Direct Hit!" : "Enemy Strikes!"}</p>
+                            <p className="feedback-quote">{feedback.correct ? "Excellent spell! The villain recoils in pain!" : "That spell was not effective!"}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="bottom-bar">
+                      <button type="button" className="ornate-btn" onClick={handleSkip} disabled={skipping || submitting || locked}>
+                        {skipping ? "Skipping..." : "Skip to Lesson"}
+                      </button>
+                      {!feedback && (
+                        <button id="cast-spell-btn" type="submit" className={`attack-btn ${selectedIdx !== null && !locked ? "ready" : "disabled"}`} disabled={selectedIdx === null || locked || submitting} aria-disabled={selectedIdx === null || locked || submitting}>
+                          {submitting ? <><span className="spin-loader"><GameIcon name="gear" /></span> Casting...</> : selectedIdx !== null ? <><GameIcon name="bolt" /> Attack/Submit</> : "Choose an answer"}
+                        </button>
+                      )}
+                      {feedback && (
+                        <button type="button" className="attack-btn ready" disabled>
+                          {feedback.correct ? "Resolving Hit..." : "Resolving Counter..."}
+                        </button>
+                      )}
+                      <button type="button" className="ornate-btn" onClick={() => router.push("/dashboard")}>
+                        Back to Menu
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
+                <aside className="side-panel lore-panel" aria-label="Enemy lore">
+                  <h2 className="panel-title">Villain Lore</h2>
+                  <div className="lore-box">
+                    <strong>Count Calculus</strong>
+                    A horned keeper of forgotten formulas, he binds every wrong answer into a glowing rune on his staff. Break his spell by choosing the truest path.
+                  </div>
+                </aside>
+              </section>
+            )}
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }

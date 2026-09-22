@@ -1,6 +1,6 @@
 "use client";
 import "mathlive";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { 
   getSession, 
@@ -16,25 +16,12 @@ import "katex/dist/katex.min.css";
 import React from "react";
 import confetti from "canvas-confetti";
 import { 
-  Compass, 
-  Leaf, 
   Flame, 
   ShieldAlert, 
-  Loader2, 
   Sparkles, 
   ArrowRight, 
   BookOpen, 
-  Check, 
-  Calendar 
 } from "lucide-react";
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "math-field": any;
-    }
-  }
-}
 
 type MathFieldProps = {
   value: string;
@@ -42,12 +29,16 @@ type MathFieldProps = {
   disabled?: boolean;
 };
 
+type MathFieldElement = HTMLElement & {
+  value: string;
+};
+
 function MathField({
   value,
   onChange,
   disabled = false,
 }: MathFieldProps) {
-  const mathFieldRef = useRef<any>(null);
+  const mathFieldRef = useRef<MathFieldElement | null>(null);
 
   useEffect(() => {
     if (mathFieldRef.current && mathFieldRef.current.value !== value) {
@@ -80,15 +71,484 @@ function MathField({
       minWidth: "180px",
       minHeight: "48px",
       padding: "10px 14px",
-      border: "3px solid #1F2720",
-      borderRadius: "14px",
-      background: "white",
+      border: "3px solid #6d411c",
+      borderRadius: "8px",
+      background: "linear-gradient(180deg, #fff4ca, #e7c67d)",
       fontSize: "0.95rem",
       fontWeight: "bold",
-      boxShadow: "3px 3px 0px 0px #1F2720",
+      boxShadow: "0 5px 0 #28150c, inset 0 0 0 2px rgba(255,255,255,0.24)",
       outline: "none",
     },
   });
+}
+
+const PRACTICE_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  .practice-forge {
+    min-height: 100vh;
+    padding: clamp(10px, 1.5vw, 18px);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(250,204,96,0.18), transparent 28%),
+      linear-gradient(135deg, #1b0e12 0%, #392016 42%, #151025 100%);
+    color: #fff4d5;
+    font-family: Georgia, 'Times New Roman', serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+  .practice-forge::before {
+    content: "";
+    position: fixed;
+    inset: 8px;
+    z-index: 0;
+    pointer-events: none;
+    background: rgba(0,0,0,0.36);
+  }
+  .practice-forge::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 16% 22%, rgba(255,211,92,0.12), transparent 24%),
+      radial-gradient(circle at 84% 18%, rgba(155,67,207,0.16), transparent 26%),
+      url('/login/arena.png') center bottom / cover no-repeat;
+    opacity: .38;
+    mix-blend-mode: screen;
+  }
+  .forge-shell {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, 100%);
+    margin: 0 auto;
+  }
+  .forge-hud {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: center;
+    min-height: 120px;
+    margin-bottom: 18px;
+    padding: 18px clamp(16px, 3vw, 34px);
+    border-radius: 0 0 26px 26px;
+    background:
+      linear-gradient(90deg, #70411f 0 16px, transparent 16px calc(100% - 16px), #70411f calc(100% - 16px)),
+      linear-gradient(180deg, #8b5527 0 14px, transparent 14px calc(100% - 14px), #8b5527 calc(100% - 14px)),
+      linear-gradient(180deg, rgba(252,229,177,0.97), rgba(235,189,105,0.97));
+    box-shadow: 0 12px 0 rgba(39,18,10,0.84), 0 24px 42px rgba(0,0,0,0.38), inset 0 0 0 4px #3b1d13, inset 0 0 0 10px rgba(255,198,92,0.18);
+  }
+  .forge-hud::before {
+    content: "";
+    position: absolute;
+    inset: 13px;
+    border: 2px solid rgba(111,61,28,0.18);
+    border-radius: 0 0 18px 18px;
+    pointer-events: none;
+  }
+  .forge-title-block {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+  .forge-suri {
+    height: 74px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(3px 0 0 #17100a) drop-shadow(-3px 0 0 #17100a) drop-shadow(0 10px 18px rgba(76,194,117,0.44));
+  }
+  .forge-eyebrow {
+    display: block;
+    color: #6c278e;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+  .forge-title {
+    color: #3a2111;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 900;
+    line-height: 1;
+    text-shadow: 0 2px 0 rgba(255,255,255,0.45);
+  }
+  .forge-subtitle {
+    margin-top: 6px;
+    color: #4e3477;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+  }
+  .forge-exit {
+    position: relative;
+    z-index: 1;
+    min-height: 46px;
+    padding: 0 20px;
+    border: 3px solid #6d411c;
+    border-radius: 8px;
+    background: linear-gradient(180deg,#fff6aa,#ffd35c 58%,#c7832e);
+    color: #321008;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: 16px;
+    font-weight: 900;
+    box-shadow: 0 5px 0 rgba(72,34,16,0.72);
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .forge-exit:hover { transform: translateY(-2px); filter: brightness(1.04); }
+  .forge-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(270px, 330px);
+    gap: 16px;
+    align-items: start;
+  }
+  .forge-card {
+    position: relative;   /* add */
+    z-index: 1;   
+    border: 5px solid #5e3619;
+    background: linear-gradient(90deg, rgba(25,12,8,0.92), rgba(83,46,24,0.94), rgba(25,12,8,0.92)), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 66px);
+    box-shadow: 0 9px 0 #160b07, inset 0 0 0 3px rgba(245,199,93,0.28);
+    padding: 14px;
+  }
+  .forge-panel {
+    border: 3px solid #8e5b20;
+    border-radius: 0;
+    background: linear-gradient(180deg, #57321d, #24130d);
+    box-shadow: inset 0 0 0 3px rgba(20,9,5,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+    padding: clamp(14px, 2vw, 20px);
+  }
+  .forge-panel + .forge-panel { margin-top: 14px; }
+  .forge-panel-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    color: #ffe8a2;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+  }
+  .forge-scroll {
+    border: 2px solid #9c672b;
+    background: radial-gradient(circle at 18% 12%, rgba(255,255,255,0.32), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b);
+    color: #2b170d;
+    box-shadow: inset 0 0 0 2px rgba(89,48,18,0.14);
+    padding: clamp(14px, 2vw, 22px);
+  }
+  .forge-expression {
+    display: flex;
+    justify-content: center;
+    color: #28150c;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 900;
+  }
+  .rune-board {
+    position: sticky;
+    top: 16px;
+    border: 5px solid #5e3619;
+    background: linear-gradient(180deg, rgba(38,15,54,.96), rgba(25,12,8,.96));
+    box-shadow: 0 9px 0 #160b07, inset 0 0 0 3px rgba(245,199,93,0.24);
+    padding: 16px;
+  }
+  .rune-circle {
+    position: relative;
+    min-height: 310px;
+    display: grid;
+    place-items: center;
+    border: 2px solid rgba(255,226,136,0.35);
+    background: radial-gradient(circle at 50% 50%, rgba(155,67,207,0.24), transparent 52%), rgba(26,8,12,0.72);
+    overflow: hidden;
+  }
+  .rune-circle::before {
+    content: "";
+    position: absolute;
+    width: 210px;
+    height: 210px;
+    border: 2px dashed rgba(255,226,136,0.45);
+    border-radius: 50%;
+    box-shadow: 0 0 26px rgba(155,67,207,0.24);
+  }
+  .rune-core {
+    position: relative;
+    z-index: 1;
+    width: 116px;
+    height: 116px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 3px solid #8749b7;
+    background: radial-gradient(circle at 35% 25%, #fff6aa, #ffd35c 42%, #7f2cad);
+    box-shadow: 0 0 24px rgba(255,211,92,0.45), inset 0 0 0 5px rgba(50,16,77,0.2);
+    color: #32104d;
+  }
+  .rune-node {
+    position: absolute;
+    z-index: 2;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 3px solid #725131;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #69574a, #33271f);
+    color: #fff6dc;
+    box-shadow: 0 5px 0 #1b0f0a, inset 0 1px 0 rgba(255,255,255,0.18);
+    transform: translate(-50%, -50%);
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: 18px;
+  }
+  .rune-node.is-lit {
+    border-color: #ffe288;
+    background: linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%);
+    color: #071d0f;
+    box-shadow: 0 5px 0 #12361e, 0 0 24px rgba(88,255,138,0.36);
+  }
+  .rune-node.is-cracked {
+    border-color: #ff8e7c;
+    background: linear-gradient(180deg, #7b2630, #351017);
+    color: #ffd9d4;
+    animation: runeFlicker .9s ease-in-out infinite;
+  }
+  @keyframes runeFlicker {
+    0%, 100% { filter: brightness(1); transform: translate(-50%, -50%) rotate(0); }
+    45% { filter: brightness(1.45); transform: translate(-50%, -50%) rotate(-2deg); }
+    70% { filter: brightness(.75); transform: translate(-50%, -50%) rotate(2deg); }
+  }
+  .rune-copy {
+    margin-top: 13px;
+    color: #f7dfad;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.45;
+  }
+  .step-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+    border: 3px solid #8e5b20;
+    background: linear-gradient(180deg, #57321d, #24130d);
+    box-shadow: 0 6px 0 #160b07, inset 0 0 0 3px rgba(20,9,5,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+    padding: 14px;
+  }
+  .step-card.is-correct { border-color: #ffe288; }
+  .step-card.is-wrong { border-color: #ff8e7c; }
+  .step-rune {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 3px solid #725131;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #69574a, #33271f);
+    color: #fff6dc;
+    box-shadow: 0 5px 0 #1b0f0a;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: 20px;
+  }
+  .step-card.is-correct .step-rune {
+    border-color: #ffe288;
+    background: linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%);
+    color: #071d0f;
+    box-shadow: 0 5px 0 #12361e, 0 0 24px rgba(88,255,138,0.33);
+  }
+  .step-card.is-wrong .step-rune {
+    border-color: #ff8e7c;
+    background: linear-gradient(180deg, #7b2630, #351017);
+    color: #ffd9d4;
+    animation: runeFlicker .9s ease-in-out infinite;
+  }
+  .step-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,226,136,0.18);
+  }
+  .step-title {
+    color: #ffe8a2;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .forge-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 9px;
+    border: 2px solid #6d411c;
+    border-radius: 7px;
+    background: linear-gradient(180deg,#fff6aa,#ffd35c 58%,#c7832e);
+    color: #321008;
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .step-instruction {
+    margin-top: 12px;
+    color: #fff6dc;
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(14px, 1.25vw, 16px);
+    font-weight: 900;
+    line-height: 1.55;
+  }
+  .rune-input-row {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid #9c672b;
+    background: radial-gradient(circle at 18% 12%, rgba(255,255,255,0.26), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b);
+    color: #28150c;
+    box-shadow: inset 0 0 0 2px rgba(89,48,18,0.14);
+    padding: 12px;
+  }
+  .rune-text-input {
+    width: min(260px, 100%);
+    min-height: 48px;
+    border: 3px solid #6d411c;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fff4ca, #e7c67d);
+    padding: 10px 14px;
+    color: #28150c;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    text-align: center;
+    box-shadow: 0 5px 0 #28150c, inset 0 0 0 2px rgba(255,255,255,0.24);
+    outline: none;
+  }
+  .submitted-value {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 5px 10px;
+    border: 2px solid #6d411c;
+    border-radius: 8px;
+    font-weight: 900;
+  }
+  .submitted-value.is-correct { color: #08351a; background: #dff5c8; }
+  .submitted-value.is-wrong { color: #87221f; background: #ffd9d4; }
+  .feedback-rune {
+    margin-top: 12px;
+    border-left: 5px solid #ff8e7c;
+    background: rgba(34,10,16,0.72);
+    border-top: 2px solid rgba(255,216,116,0.45);
+    border-right: 2px solid rgba(255,216,116,0.45);
+    border-bottom: 2px solid rgba(255,216,116,0.45);
+    color: #f7dfad;
+    padding: 13px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .forge-action {
+    width: 100%;
+    min-height: 62px;
+    border: 3px solid #6d411c;
+    border-radius: 8px;
+    background: linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%);
+    color: #071d0f;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(18px, 2vw, 24px);
+    font-weight: 900;
+    box-shadow: 0 7px 0 #12361e, 0 0 28px rgba(88,255,138,0.25), inset 0 1px 0 rgba(255,255,255,0.42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .forge-action:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+  .forge-action:disabled {
+    cursor: not-allowed;
+    color: rgba(255,246,220,0.38);
+    background: linear-gradient(180deg, #69574a, #33271f);
+    box-shadow: none;
+  }
+  .forge-action.secondary {
+    background: linear-gradient(180deg,#ffe596,#b8792d);
+    color: #2a160d;
+    box-shadow: 0 6px 0 #28150c, inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .completion-card {
+    width: min(760px, 100%);
+    margin: 0 auto;
+    text-align: center;
+  }
+  .completion-rune {
+    width: 128px;
+    height: 128px;
+    margin: 0 auto 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 4px solid #8749b7;
+    background: radial-gradient(circle at 35% 25%, #fff6aa, #ffd35c 42%, #7f2cad);
+    box-shadow: 0 0 38px rgba(255,211,92,0.62), 0 0 48px rgba(155,67,207,0.42);
+    color: #32104d;
+    animation: completePulse 1.3s ease-in-out infinite;
+  }
+  @keyframes completePulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border: 2px solid #8749b7;
+    background: rgba(255,255,255,.58);
+    color: #3b1766;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+  }
+  .markdown-content p { margin: 0; }
+  .markdown-content .katex {
+    font-weight: 900 !important;
+    color: inherit !important;
+  }
+  .markdown-content .katex-display { margin: .8rem 0 !important; }
+  @media (max-width: 900px) {
+    .forge-hud, .forge-grid { grid-template-columns: 1fr; }
+    .rune-board { position: relative; top: auto; }
+  }
+  @media (max-width: 640px) {
+    .practice-forge { padding: 8px; }
+    .forge-hud { padding: 16px 12px; }
+    .forge-title-block { align-items: flex-start; }
+    .forge-suri { height: 58px; }
+    .step-card { grid-template-columns: 1fr; }
+    .step-rune { width: 44px; height: 44px; }
+  }
+`;
+
+function ForgeRuneIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
+      <path d="M32 5 50 15v20L32 59 14 35V15L32 5Z" fill="currentColor" opacity=".18" />
+      <path d="M32 5 50 15v20L32 59 14 35V15L32 5Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" />
+      <path d="M32 15v34M22 24h20L24 42h18" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
 export default function PracticePage() {
@@ -113,7 +573,7 @@ export default function PracticePage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Load the session and practice set
-  const loadPracticeData = async () => {
+  const loadPracticeData = useCallback(async () => {
     setLoading(true);
     setErrorMsg(null);
     setLoadingText("Loading practice problems...");
@@ -130,18 +590,19 @@ export default function PracticePage() {
 
       setProblems(practiceData.problems);
       setLoading(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMsg(err.detail || err.message || "Failed to load practice problems. Please try again.");
+      const message = err instanceof Error ? err.message : "Failed to load practice problems. Please try again.";
+      setErrorMsg(message);
       setLoading(false);
     }
-  };
+  }, [sessionId]);
 
   useEffect(() => {
     if (sessionId) {
-      loadPracticeData();
+      void Promise.resolve().then(loadPracticeData);
     }
-  }, [sessionId]);
+  }, [sessionId, loadPracticeData]);
 
   // Handle value change for step inputs
   const handleInputChange = (stepIdx: number, val: string) => {
@@ -186,9 +647,10 @@ export default function PracticePage() {
       if (allCorrect) {
         confetti({ particleCount: 100, spread: 80, origin: { y: 0.75 } });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMsg(err.detail || err.message || "Failed to submit answers. Please try again.");
+      const message = err instanceof Error ? err.message : "Failed to submit answers. Please try again.";
+      setErrorMsg(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -214,13 +676,17 @@ export default function PracticePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#1b261c] flex flex-col items-center justify-center p-8">
-        <div className="bg-[#faf8f5] border-[4px] border-[#1F2720] rounded-[32px] p-8 max-w-sm w-full text-center shadow-[8px_8px_0px_0px_#1F2720]">
+      <div className="practice-forge flex flex-col items-center justify-center">
+        <style dangerouslySetInnerHTML={{ __html: PRACTICE_CSS }} />
+        <div className="forge-card max-w-sm w-full text-center">
+          <div className="forge-panel">
           <div className="relative w-12 h-12 mx-auto mb-4">
-            <div className="absolute inset-0 border-4 border-[#e6e8ea] rounded-full" />
-            <div className="absolute inset-0 border-4 border-[#1F2720] border-t-[#fdd400] rounded-full animate-spin" />
+            <div className="absolute inset-0 border-4 border-[#6d411c] rounded-full" />
+            <div className="absolute inset-0 border-4 border-[#ffe288] border-t-[#8749b7] rounded-full animate-spin" />
           </div>
-          <p className="font-['Manrope'] text-xs text-slate-500 font-black animate-pulse uppercase tracking-wider">{loadingText}</p>
+          <p className="forge-panel-title justify-center w-full animate-pulse">{loadingText}</p>
+          <p className="rune-copy">Suri is heating the forge and laying out the counter-runes.</p>
+          </div>
         </div>
       </div>
     );
@@ -228,26 +694,27 @@ export default function PracticePage() {
 
   if (errorMsg && problems.length === 0) {
     return (
-      <div className="min-h-screen bg-[#1b261c] p-6 md:p-8 flex flex-col justify-center items-center font-['Manrope']">
-        <div className="w-full max-w-xl bg-[#faf8f5] border-[4px] border-[#1F2720] rounded-[32px] p-8 shadow-[8px_8px_0px_0px_#1F2720] text-center relative overflow-hidden">
-          <span className="font-['Manrope'] text-[10px] text-red-900 bg-red-100 border-2 border-[#1F2720] px-3 py-1.5 rounded-md font-black uppercase tracking-wider">DIAGNOSTIC FAULT</span>
-          <h2 className="text-xl font-black text-[#1F2720] mt-4 mb-2">Error</h2>
-          <p className="font-['Manrope'] text-xs text-red-900 bg-red-50 border-2 border-[#1F2720] rounded-xl p-3 my-4 break-all text-left font-bold">
-            [FAULT_LOG] {errorMsg}
-          </p>
+      <div className="practice-forge flex flex-col justify-center items-center">
+        <style dangerouslySetInnerHTML={{ __html: PRACTICE_CSS }} />
+        <div className="forge-card w-full max-w-xl text-center">
+          <div className="forge-panel">
+          <span className="forge-badge">Rune Forge Fault</span>
+          <h2 className="forge-title mt-4 mb-2">Error</h2>
+          <p className="feedback-rune break-all text-left">[FAULT_LOG] {errorMsg}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <button
               onClick={loadPracticeData}
-              className="bg-[#fdd400] text-[#1F2720] border-[3px] border-[#1F2720] py-3 px-6 text-xs font-black uppercase rounded-2xl tracking-wider transition-all cursor-pointer shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5"
+              className="forge-action secondary"
             >
-              Retry Connection
+              Rekindle Forge
             </button>
             <button
               onClick={handleBackToTopics}
-              className="bg-white text-[#1F2720] border-[3px] border-[#1F2720] py-3 px-6 text-xs font-black uppercase rounded-2xl tracking-wider transition-all cursor-pointer shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5"
+              className="forge-action"
             >
-              Back to Topics
+              Back to Lesson
             </button>
+          </div>
           </div>
         </div>
       </div>
@@ -265,45 +732,47 @@ export default function PracticePage() {
     const isHighestResult = fullyCorrectCount === problems.length;
 
     return (
-      <div className="min-h-screen bg-[#1b261c] text-[#1F2720] p-6 md:p-8 flex items-center justify-center font-['Manrope']">
-        <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] p-8 max-w-2xl w-full shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden text-center space-y-6">
-          <div className="absolute top-0 right-1/4 w-32 h-32 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
-
-          <span className="font-black text-[10px] text-[#1F2720] bg-[#fdd400] border-2 border-[#1F2720] px-4.5 py-1.5 rounded-md uppercase tracking-widest shadow-[2px_2px_0px_0px_#1F2720]">SESSION COMPLETE</span>
+      <div className="practice-forge flex items-center justify-center">
+        <style dangerouslySetInnerHTML={{ __html: PRACTICE_CSS }} />
+        <div className="forge-card completion-card space-y-6">
+          <span className="forge-badge">Counter-Spell Forged</span>
           
           <div className="flex flex-col items-center justify-center gap-3">
+            <div className="completion-rune">
+              <ForgeRuneIcon className="w-16 h-16" />
+            </div>
             <img 
               src={isHighestResult ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} 
               alt={isHighestResult ? "Suri Happy" : "Suri Supportive"} 
-              className="h-24 w-auto object-contain select-none animate-bounce" 
+              className="h-24 w-auto object-contain select-none" 
             />
-            <p className="text-xs font-black bg-white py-1.5 px-4 rounded-full border-2 border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720]">
+            <p className="speech-bubble mx-auto">
               {isHighestResult 
-                ? "💬 \"Sss-pectacular performance, Ranger! Perfect trail map complete!\"" 
-                : "💬 \"You made it through the thorny branches! Let'sss review those stumbling blocks.\""}
+                ? "Sss-pectacular! Every rune in the chain is stable." 
+                : "The spell holds, but a few runes need another polish."}
             </p>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-[#1F2720] font-['Hanken_Grotesk']">Practice Complete!</h1>
+          <h1 className="forge-title">Practice Complete!</h1>
           
-          <div className="border-[3px] border-[#1F2720] py-6 my-4 bg-white rounded-2xl px-4 shadow-[4px_4px_0px_0px_#1F2720]">
-            <p className="text-slate-400 uppercase text-[10px] tracking-wider font-black">Your Score</p>
-            <p className="text-5xl font-black mt-1 text-[#1F2720]">
+          <div className="forge-scroll">
+            <p className="forge-panel-title justify-center w-full">Stable Runes</p>
+            <p className="text-5xl font-black mt-1 text-[#3a2111]">
               {fullyCorrectCount} <span className="text-slate-300">/</span> {problems.length}
             </p>
-            <p className="text-xs font-bold mt-2.5 text-slate-500">
-              Problems solved perfectly without missteps
+            <p className="text-sm font-black mt-2.5 text-[#4e3477]">
+              Problems forged perfectly without unstable steps
             </p>
           </div>
 
           {/* Results Summary Logs */}
-          <div className="text-left font-semibold text-xs space-y-3 max-w-md mx-auto bg-white p-4.5 rounded-2xl border-[3px] border-[#1F2720] shadow-[4px_4px_0px_0px_#1F2720]">
+          <div className="text-left space-y-3 max-w-md mx-auto">
             {problems.map((prob, idx) => {
               const res = submittedResults[idx];
               const allCorrect = res?.step_results.every(r => r.correct);
               return (
-                <div key={prob.id} className="flex justify-between items-center border-b-2 border-[#1F2720]/10 last:border-b-0 pb-2.5 last:pb-0">
-                  <span className="text-[#1F2720] font-black truncate max-w-[240px]">Problem {idx + 1}: {cleanMathExpr(prob.problem_expr)}</span>
+                <div key={prob.id} className="summary-row">
+                  <span className="truncate max-w-[240px]">Problem {idx + 1}: {cleanMathExpr(prob.problem_expr)}</span>
                   <span className={`text-[9px] font-black px-2.5 py-1 rounded-md border-2 ${
                     allCorrect 
                       ? "bg-green-100 text-green-900 border-[#1F2720]" 
@@ -318,7 +787,7 @@ export default function PracticePage() {
 
           <button
             onClick={handleGetResults}
-            className="w-full bg-[#fdd400] text-[#1F2720] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase rounded-[20px] tracking-wider transition-all cursor-pointer shadow-[6px_6px_0px_0px_#1F2720] hover:-translate-y-0.5 active:translate-y-1 active:translate-x-1 active:shadow-[2px_2px_0px_0px_#1F2720] flex items-center justify-center gap-2"
+            className="forge-action secondary"
           >
             Get Session Summary <ArrowRight className="w-5 h-5 stroke-[3px]" />
           </button>
@@ -350,95 +819,45 @@ export default function PracticePage() {
     return { fixedBefore: before, fixedAfter: after };
   };
 
+  const runeAngles = problem.steps.map((_, idx) => {
+    const total = Math.max(problem.steps.length, 1);
+    return -90 + (idx * 360) / total;
+  });
+  const stableRuneCount = submissionResult
+    ? submissionResult.step_results.filter(r => r.correct).length
+    : 0;
+  const unstableRuneCount = submissionResult
+    ? submissionResult.step_results.filter(r => !r.correct).length
+    : 0;
 
   return (
-    <div className="bg-[#1b261c] min-h-screen text-[#1F2720] py-8 px-4 md:px-8 relative overflow-hidden font-['Manrope'] flex flex-col items-center">
-      
-      {/* Background Forest Silhouette */}
-      <div className="absolute inset-0 opacity-15 bg-cover bg-bottom mix-blend-overlay pointer-events-none" 
-           style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAEXma6INVd0pxsf2NimA83gxdCqv-1PqJrcWOioIbkPEtj3Z7oIxOvuUvLYNc4Dp9x3Y1BdR1CuvLCFJx5RSzJA9_Kk02IsPNQSy0DeGhX33fZvqV6ZTAci5gEWEnXt3d5H0IqVOBVrHAtZ0wRSpSPEhIZkwT8lWCqZo0inU40TzVsVWo-vjMqvT5w8nLCUkx-agKpKsnu_I62S8u6WesHawWnmWYTE_400YVkv8YcJ_L_q-lbQ4H0O-Ey3ld_l4PtBxxi-Kv7vQ8')" }} />
-
-      {/* Floating Glowing Fireflies */}
-      <div className="firefly w-2 h-2" style={{ left: "10%", bottom: "10%", animation: "floatFirefly 8s ease-in-out infinite" }} />
-      <div className="firefly w-2.5 h-2.5" style={{ left: "22%", bottom: "5%", animation: "floatFirefly 11s ease-in-out infinite 1.5s" }} />
-
-      {/* Dynamic Math styles overrides */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .markdown-content {
-          line-height: 2.1;
-        }
-        .markdown-content p {
-          margin-bottom: 1.25rem;
-          color: #1F2720;
-          font-weight: 700;
-        }
-        .markdown-content .katex {
-          font-weight: 900 !important;
-          font-size: 1.08em;
-          color: #1b4320 !important;
-          background-color: rgba(121, 255, 143, 0.22) !important;
-          padding: 3px 8px !important;
-          border-radius: 8px !important;
-          border: 1.5px solid #1F2720 !important;
-          display: inline-block;
-        }
-        .markdown-content .katex-display {
-          margin: 1.5rem 0 !important;
-          padding: 0 !important;
-        }
-        .markdown-content .katex-display .katex {
-          background-color: #ffffff !important;
-          border: 3px solid #1F2720 !important;
-          padding: 12px 22px !important;
-          border-radius: 16px !important;
-          box-shadow: 3px 3px 0px 0px #1F2720 !important;
-          display: inline-block !important;
-        }
-      `}} />
-
-      <div className="max-w-3xl w-full mx-auto space-y-6 relative z-10">
+    <div className="practice-forge">
+      <style dangerouslySetInnerHTML={{ __html: PRACTICE_CSS }} />
+      <div className="forge-shell">
 
         {/* Dynamic header banner */}
-        <header className="bg-gradient-to-b from-[#1b261c] to-[#2e3e2d] rounded-[32px] p-6 md:p-8 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden flex flex-col justify-between min-h-[160px]">
-          <div className="absolute top-0 right-1/4 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="flex items-center justify-between mb-4 z-10 border-b-4 border-[#1F2720]/30 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#fdd400] animate-pulse shadow-[0_0_8px_#fdd400] border border-[#1F2720]" />
-              <span className="font-['Manrope'] text-[10px] text-emerald-300 tracking-[0.2em] uppercase font-black">SCAFFOLDED PRACTICE</span>
-            </div>
-            
-            <button
-              onClick={handleBackToTopics}
-              className="font-['Manrope'] text-[10px] text-[#1F2720] bg-[#fdd400] hover:bg-[#ffe170] px-4.5 py-2 rounded-xl border-2 border-[#1F2720] shadow-[2.5px_2.5px_0px_0px_#1F2720] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0px_0px_0px_0px_#1F2720] transition-all cursor-pointer font-black uppercase tracking-wider"
-            >
-              Exit
-            </button>
-          </div>
-
-          <div className="z-10 flex items-center gap-4">
-            <img src="/suri-snake-left.png" alt="Suri Guide" className="h-16 w-auto object-contain select-none shrink-0 animate-bounce" style={{ animationDuration: "2.5s" }} />
+        <header className="forge-hud">
+          <div className="forge-title-block">
+            <img src="/suri-snake-left.png" alt="Suri Guide" className="forge-suri select-none shrink-0" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white font-['Hanken_Grotesk'] drop-shadow-[2.5px_2.5px_0px_#1F2720]">
-                Problem Solving Workspace
-              </h1>
-              <p className="font-['Manrope'] text-[10px] text-emerald-200 mt-1.5 font-bold uppercase tracking-wider">
-                Problem <span className="text-[#fdd400] font-black">{currentProblemIdx + 1}</span> of {problems.length}
+              <span className="forge-eyebrow">Scaffolded Practice</span>
+              <h1 className="forge-title">Rune Forging Workspace</h1>
+              <p className="forge-subtitle">
+                Problem <span>{currentProblemIdx + 1}</span> of {problems.length} | Build Suri&apos;s counter-spell one rune at a time
               </p>
             </div>
           </div>
+          <button onClick={handleBackToTopics} className="forge-exit">Exit</button>
         </header>
 
-        <main className="space-y-6">
+        <main className="forge-grid">
+          <div className="forge-card">
           
           {/* Word Problem Card */}
           {problem.word_problem_text && (
-            <section className="bg-white rounded-[28px] border-[4px] border-[#1F2720] p-6 shadow-[6px_6px_0px_0px_#1F2720] relative overflow-hidden">
-              <span className="absolute top-0 right-0 bg-[#fdd400] text-[#1F2720] px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-bl-2xl border-l-2 border-b-2 border-[#1F2720]">
-                REAL-WORLD QUEST
-              </span>
-              <div className="text-[#1F2720] text-sm md:text-base leading-relaxed mt-2 markdown-content">
+            <section className="forge-panel">
+              <span className="forge-panel-title"><BookOpen className="w-4 h-4" /> Quest Context</span>
+              <div className="forge-scroll text-sm md:text-base leading-relaxed markdown-content">
                 <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                   {problem.word_problem_text}
                 </ReactMarkdown>
@@ -447,10 +866,9 @@ export default function PracticePage() {
           )}
 
           {/* Expression Focus Panel */}
-          <div className="bg-[#faf8f5] rounded-[24px] border-[3.5px] border-[#1F2720] p-5 shadow-[4px_4px_0px_0px_#1F2720] text-center relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[5px] w-24 bg-[#fdd400] rounded-b-full border-x-2 border-b-2 border-[#1F2720] shadow-[0_0_6px_#fdd400]" />
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Target Mathematical Expression</p>
-            <div className="text-2xl md:text-3xl font-bold mt-2 text-[#1F2720] flex justify-center markdown-content select-none">
+          <div className="forge-panel">
+            <p className="forge-panel-title"><Sparkles className="w-4 h-4" /> Target Expression</p>
+            <div className="forge-scroll forge-expression markdown-content select-none">
               <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                 {cleanMathExpr(problem.problem_expr).startsWith("$") ? cleanMathExpr(problem.problem_expr) : `$${cleanMathExpr(problem.problem_expr)}$`}
               </ReactMarkdown>
@@ -458,9 +876,9 @@ export default function PracticePage() {
           </div>
 
           {/* Scaffold Steps */}
-          <section className="space-y-4">
-            <h2 className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
-              Guided Equation Steps
+          <section>
+            <h2 className="forge-panel-title">
+              <Flame className="w-4 h-4" /> Rune Chain Steps
             </h2>
 
             {problem.steps.map((step, idx) => {
@@ -472,7 +890,7 @@ export default function PracticePage() {
               const hasSubmitted = !!submissionResult;
               const isTextStep = requiresTextInput(step.correct_value);
 
-              let cleanBlankExpr = cleanMathExpr(step.blank_expression).replace("?", "___");
+              const cleanBlankExpr = cleanMathExpr(step.blank_expression).replace("?", "___");
               const exprParts = cleanBlankExpr.split("___");
               const rawBefore = exprParts[0];
               const rawAfter = exprParts[1] || "";
@@ -482,23 +900,15 @@ export default function PracticePage() {
                 submissionResult?.misconception_found &&
                 submissionResult?.misconception_step_index === step.step_index;
 
-              let borderClass = "border-[#1F2720] hover:border-emerald-700 shadow-[4px_4px_0px_0px_#1F2720]";
-              let bgClass = "bg-white";
-              let accentClass = "bg-[#fdd400] shadow-[0_0_6px_rgba(253,212,0,0.5)] border-[#1F2720]";
+              let stateClass = "";
 
               if (hasSubmitted) {
                 if (isCorrect) {
-                  borderClass = "border-[#1F2720] shadow-[4px_4px_0px_0px_#1F2720]";
-                  bgClass = "bg-green-50/50";
-                  accentClass = "bg-[#79ff8f] border-[#1F2720]";
+                  stateClass = "is-correct";
                 } else if (isMisconceptionStep) {
-                  borderClass = "border-[#1F2720] shadow-[4px_4px_0px_0px_#1F2720]";
-                  bgClass = "bg-red-50/50";
-                  accentClass = "bg-[#ef4444] border-[#1F2720]";
+                  stateClass = "is-wrong";
                 } else {
-                  borderClass = "border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720]";
-                  bgClass = "bg-slate-50";
-                  accentClass = "bg-slate-400 border-[#1F2720]";
+                  stateClass = "is-wrong";
                 }
               }
 
@@ -510,44 +920,42 @@ export default function PracticePage() {
               return (
                 <div
                   key={step.step_index}
-                  className={`border-[3.5px] rounded-[24px] p-5 md:p-6 transition-all duration-300 relative overflow-hidden flex gap-4 ${borderClass} ${bgClass}`}
+                  className={`step-card ${stateClass}`}
                 >
-                  <div className={`w-1.5 h-14 rounded-full self-center shrink-0 border-2 ${accentClass} transition-all duration-300`} />
+                  <div className="step-rune">
+                    <ForgeRuneIcon className="w-7 h-7" />
+                  </div>
 
                   <div className="flex-1 space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#1F2720]/10 pb-2.5">
+                    <div className="step-header">
                       <div className="flex items-center gap-2">
-                        <span className="font-['Manrope'] text-xs font-black text-[#1F2720]">Step {idx + 1}</span>
-                        <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-md border-2 border-[#1F2720] ${
-                          step.step_type === "variable_identification"
-                            ? "bg-blue-100 text-blue-900"
-                            : "bg-purple-100 text-purple-900"
-                        }`}>
+                        <span className="step-title">Rune {idx + 1}</span>
+                        <span className="forge-badge">
                           {step.step_type === "variable_identification" ? "Concept Setup" : "Algebraic Step"}
                         </span>
                       </div>
 
                       {hasSubmitted && (
-                        <span className={`font-black text-[10px] uppercase px-2.5 py-1 rounded-md border-2 border-[#1F2720] ${
+                        <span className={`forge-badge ${
                           isCorrect ? "bg-green-100 text-green-900" : "bg-red-100 text-red-900"
                         }`}>
-                          {isCorrect ? "✓ Correct" : "✗ Incorrect"}
+                          {isCorrect ? "Stable Rune" : "Unstable Rune"}
                         </span>
                       )}
                     </div>
 
-                    <div className="text-[#1F2720] text-sm md:text-base font-black leading-relaxed markdown-content">
+                    <div className="step-instruction markdown-content">
                       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                         {step.instruction}
                       </ReactMarkdown>
                     </div>
 
                     {/* Checkpoint equation input blocks */}
-                    <div className="font-mono text-sm md:text-base flex flex-wrap items-center gap-2 bg-[#faf8f5] border-[3px] border-[#1F2720] rounded-xl p-3 shadow-inner">
+                    <div className="rune-input-row font-mono text-sm md:text-base">
                       <ReactMarkdown
                         remarkPlugins={[remarkMath]}
                         rehypePlugins={[rehypeKatex]}
-                        components={{ p: ({ node, ...props }) => <span {...props} /> }}
+                        components={{ p: (props) => <span {...props} /> }}
                       >
                         {beforeBlank}
                       </ReactMarkdown>
@@ -560,7 +968,7 @@ export default function PracticePage() {
                             onChange={(e) => handleInputChange(step.step_index, e.target.value)}
                             disabled={isSubmitting}
                             placeholder="..."
-                            className="border-[3px] border-[#1F2720] rounded-xl bg-white px-3 py-2 text-center font-black focus:outline-none focus:border-[#fdd400] shadow-[2px_2px_0px_0px_#1F2720] w-64 max-w-full text-sm font-mono"
+                            className="rune-text-input text-sm font-mono"
                           />
                         ) : (
                           <div className="w-64 max-w-full">
@@ -572,16 +980,16 @@ export default function PracticePage() {
                           </div>
                         )
                       ) : (
-                        <span className={`font-black px-2.5 py-1 rounded-lg border-2 border-[#1F2720] text-sm md:text-base ${
+                        <span className={`submitted-value text-sm md:text-base ${
                           isCorrect
-                            ? "text-green-900 bg-green-100"
-                            : "text-red-900 bg-red-100"
+                            ? "is-correct"
+                            : "is-wrong"
                         }`}>
                           {stepResult?.submitted_value ? (
                             <ReactMarkdown
                               remarkPlugins={[remarkMath]}
                               rehypePlugins={[rehypeKatex]}
-                              components={{ p: ({ node, ...props }) => <span {...props} /> }}
+                              components={{ p: (props) => <span {...props} /> }}
                             >
                               {isTextStep
                                 ? stepResult.submitted_value
@@ -596,20 +1004,20 @@ export default function PracticePage() {
                       <ReactMarkdown
                         remarkPlugins={[remarkMath]}
                         rehypePlugins={[rehypeKatex]}
-                        components={{ p: ({ node, ...props }) => <span {...props} /> }}
+                        components={{ p: (props) => <span {...props} /> }}
                       >
                         {afterBlank}
                       </ReactMarkdown>
                     </div>
 
                     {hasSubmitted && !isCorrect && (
-                      <p className="text-[10px] font-black text-slate-500 flex flex-wrap items-center gap-1.5 mt-2">
-                        Expected Formulation:
-                        <span className="font-black text-[#1F2720] bg-slate-100 px-2 py-0.5 rounded border-2 border-[#1F2720]">
+                      <p className="rune-copy flex flex-wrap items-center gap-1.5 mt-2">
+                        Stable pattern:
+                        <span className="submitted-value is-correct">
                           <ReactMarkdown
                             remarkPlugins={[remarkMath]}
                             rehypePlugins={[rehypeKatex]}
-                            components={{ p: ({ node, ...props }) => <span {...props} /> }}
+                            components={{ p: (props) => <span {...props} /> }}
                           >
                             {formatMathValue(cleanMathExpr(step.correct_value))}
                           </ReactMarkdown>
@@ -619,14 +1027,14 @@ export default function PracticePage() {
 
                     {/* SURI's targeted feedback layout block */}
                     {isMisconceptionStep && submissionResult?.feedback_text && (
-                      <div className="border-l-[5px] border-[#ef4444] bg-[#faf8f5] rounded-r-2xl border-[3.5px] border-l-0 border-[#1F2720] p-4.5 mt-4 text-[#1F2720] shadow-[3px_3px_0px_0px_#1F2720]">
+                      <div className="feedback-rune">
                         <div className="flex items-center gap-2 mb-2">
                           <img src="/suri-snake-sad.png" alt="Suri sad" className="w-9 h-auto shrink-0" />
-                          <p className="text-[10px] font-black uppercase tracking-widest text-[#1F2720]">
-                            Tutor Feedback Guidance
+                          <p className="forge-panel-title mb-0">
+                            Rune Stabilizing Hint
                           </p>
                         </div>
-                        <div className="text-xs font-bold leading-relaxed markdown-content">
+                        <div className="text-xs leading-relaxed markdown-content">
                           <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {submissionResult.feedback_text}
                           </ReactMarkdown>
@@ -638,35 +1046,75 @@ export default function PracticePage() {
               );
             })}
           </section>
+          </div>
+
+          <aside className="rune-board" aria-label="Rune forging progress">
+            <div className="rune-circle">
+              <div className="rune-core">
+                <ForgeRuneIcon className="w-16 h-16" />
+              </div>
+              {problem.steps.map((step, idx) => {
+                const stepResult = submissionResult?.step_results.find(r => r.step_index === step.step_index);
+                const angle = runeAngles[idx] * (Math.PI / 180);
+                const radius = 105;
+                const left = 50 + (Math.cos(angle) * radius) / 3.1;
+                const top = 50 + (Math.sin(angle) * radius) / 3.1;
+                const nodeClass = !submissionResult
+                  ? ""
+                  : stepResult?.correct
+                    ? "is-lit"
+                    : "is-cracked";
+                return (
+                  <div
+                    key={step.step_index}
+                    className={`rune-node ${nodeClass}`}
+                    style={{ left: `${left}%`, top: `${top}%` }}
+                    aria-label={`Rune ${idx + 1}${nodeClass === "is-lit" ? " stable" : nodeClass === "is-cracked" ? " unstable" : " pending"}`}
+                  >
+                    {idx + 1}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="rune-copy">
+              Each algebra step forges one rune in Suri&apos;s counter-spell. Stable runes lock into the chain; unstable runes flicker so you can retry without losing your path.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="forge-scroll text-center">
+                <p className="forge-panel-title justify-center w-full">Stable</p>
+                <p className="text-3xl font-black text-[#17633a]">{stableRuneCount}</p>
+              </div>
+              <div className="forge-scroll text-center">
+                <p className="forge-panel-title justify-center w-full">Unstable</p>
+                <p className="text-3xl font-black text-[#87221f]">{unstableRuneCount}</p>
+              </div>
+            </div>
+          </aside>
         </main>
 
         {errorMsg && (
-          <div className="mt-6 border-[3.5px] border-[#1F2720] bg-red-100 p-4 text-xs font-black text-red-900 rounded-[20px] shadow-[4px_4px_0px_0px_#1F2720] flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-red-700 shrink-0" />
+          <div className="feedback-rune mt-6 flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 shrink-0" />
             <span>[ERROR EXCEPTION] {errorMsg}</span>
           </div>
         )}
 
         {/* Action Bottom Nav */}
-        <footer className="mt-8 pt-6 border-t-4 border-[#1F2720]/15">
+        <footer className="mt-8">
           {!problemCompleted ? (
             <button
               onClick={handleSubmitProblem}
               disabled={!allInputsFilled || isSubmitting}
-              className={`w-full py-4 text-xs font-black uppercase rounded-[24px] tracking-wider transition-all border-[4px] border-[#1F2720] flex items-center justify-center gap-2 cursor-pointer shadow-[6px_6px_0px_0px_#1F2720] ${
-                !allInputsFilled || isSubmitting
-                  ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none"
-                  : "bg-[#fdd400] text-[#1F2720] hover:bg-[#ffe170] hover:-translate-y-0.5 active:translate-y-1 active:translate-x-1 active:shadow-[1px_1px_0px_0px_#1F2720]"
-              }`}
+              className="forge-action"
             >
-              {isSubmitting ? "Evaluating steps..." : "Submit Answer"}
+              {isSubmitting ? "Testing rune stability..." : "Forge Counter-Rune"}
             </button>
           ) : (
             <button
               onClick={handleNextProblem}
-              className="w-full bg-[#fdd400] text-[#1F2720] hover:bg-[#ffe170] border-[4px] border-[#1F2720] py-4 text-xs font-black uppercase tracking-wider transition-all rounded-[24px] shadow-[6px_6px_0px_0px_#1F2720] hover:-translate-y-0.5 active:translate-y-1 active:translate-x-1 active:shadow-[1px_1px_0px_0px_#1F2720] cursor-pointer flex items-center justify-center gap-2"
+              className="forge-action secondary"
             >
-              {currentProblemIdx + 1 === problems.length ? "See Results" : "Next Problem"} <ArrowRight className="w-5 h-5 stroke-[3px]" />
+              {currentProblemIdx + 1 === problems.length ? "Unleash Final Spell" : "Forge Next Chain"} <ArrowRight className="w-5 h-5 stroke-[3px]" />
             </button>
           )}
         </footer>

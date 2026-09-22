@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "katex/dist/katex.min.css";
 
 export const metadata: Metadata = {
   title: "SURI | Grade 9-10 Algebra Mastery",
