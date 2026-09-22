@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LearningShell from "@/components/navigation/LearningShell";
 
 export const metadata: Metadata = {
   title: "SURI | Grade 9-10 Algebra Mastery",
@@ -22,7 +23,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-[#f7f9fb] text-[#191c1e] min-h-screen font-['Manrope']">
-        {children}
+        <LearningShell>{children}</LearningShell>
       </body>
     </html>
   );

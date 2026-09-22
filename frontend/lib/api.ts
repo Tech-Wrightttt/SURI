@@ -30,6 +30,7 @@ async function request<T>(
   const url = `${API_BASE}${path}`;
   const res = await fetch(url, {
     credentials: "include",
+    signal: options.signal ?? (options.method && options.method !== "GET" ? undefined : AbortSignal.timeout(15000)),
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
@@ -42,7 +43,11 @@ async function request<T>(
     throw new ApiError(res.status, body.detail || res.statusText);
   }
 
-  return res.json() as Promise<T>;
+  const data = await res.json() as T;
+  if (typeof window !== "undefined" && options.method && options.method !== "GET") {
+    window.dispatchEvent(new CustomEvent("suri:data-changed", { detail: path.startsWith("/api/auth/") ? "auth" : "progress" }));
+  }
+  return data;
 }
 
 // ─── Types ───────────────────────────────────────────
@@ -425,6 +430,7 @@ export async function startPractice(body: {
   const res = await fetch(url, {
     method: "POST",
     credentials: "include",
+    signal: AbortSignal.timeout(15000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
@@ -595,4 +601,5 @@ export function finishQuiz(body: {
     body: JSON.stringify(body),
   });
 }
+
 

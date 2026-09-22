@@ -3,9 +3,8 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
+import { ensureLearningData } from "@/lib/learningData";
 import { 
-  getMe, 
-  getStudentProgress, 
   createSession, 
   skipDiagnostic, 
   MisconceptionHistoryItem 
@@ -64,8 +63,9 @@ function ErrorHistoryContent() {
   useEffect(() => {
     const load = async () => {
       try {
-        const me = await getMe();
-        const progress = await getStudentProgress(me.student_id);
+        // This shares the route prefetch with the persistent dashboard shell.
+        const data = await ensureLearningData();
+        const progress = data.progress;
         setActiveSessions(progress.active_sessions || []);
         setMisconceptions(progress.misconception_history || []);
       } catch (err: unknown) {
