@@ -21,6 +21,7 @@ export default function TopicsPage() {
   return <MainPage immersive>
     <div className="topics-library-page">
       <header className="topics-library-header">
+        <button type="button" className="topics-library-back" onClick={() => router.back()} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
         <div className="topics-library-kicker"><span /> THE SURI ACADEMY ARCHIVES <span /></div>
         <h1>Grand <em>Library</em></h1>
         <p>Choose a volume from the living collection and continue your learning journey.</p>
@@ -51,10 +52,7 @@ export default function TopicsPage() {
                 <div className="topics-library-book-crest">{isCompleted ? "✦" : isActive ? "✧" : "⌁"}</div>
                 <small>TRAIL · {topic.node_id}</small><h3>{topic.label}</h3><p>Grade {topic.grade} curriculum volume</p>
                 <div className="topics-library-book-progress"><span>Mastery</span><b>{String(trackPct).padStart(2, "0")}%</b><i><em style={{ width: `${trackPct}%` }} /></i></div>
-              </div>
-              <div className="topics-library-book-details">
-                <p>{isCompleted ? "This volume is fully mastered. Return whenever you wish to review its lessons." : isActive ? "Your bookmark is waiting here. Continue where your current learning journey left off." : "An unopened academy volume. Begin this trail whenever you are ready."}</p>
-                <button onClick={action}>{isActive ? "Resume quest" : isCompleted ? "Review again" : "Open volume"}<span>→</span></button>
+                <button type="button" className="topics-library-book-action" onClick={action}>{isActive ? "Resume quest" : isCompleted ? "Review again" : "Open volume"}<span>→</span></button>
               </div>
             </article>;
           })}
