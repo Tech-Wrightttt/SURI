@@ -6,6 +6,7 @@ export const CAMERA_POSITION = [130, 130, 130] as const;
 export const CAMERA_TARGET = [0, 1, -8] as const;
 export const WORLD_ROTATION = Math.PI / 4;
 export const LANDMARK_SCALE = 0.68;
+export const LANDMARK_LABEL_LIFT = 1.75;
 export const LANDMARK_BOUNDS = {
   keep: [11,12.5,10], academy: [8,9,7], records: [13,8,13], champions: [13,11,13],
   calculator: [13,11,13], guild: [10,7,8], topics: [13,13,13], ranger: [7,8,7], arena: [9,6,9],

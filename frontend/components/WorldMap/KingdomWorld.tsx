@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, Suspense, useEffect, useRef, useState, type RefObject } from "react";
+import { memo, Suspense, useEffect, useState } from "react";
 import type { CameraCommand } from "@/lib/worldMap/navigation";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -13,52 +13,46 @@ import type { LandmarkKind } from "@/lib/worldMap/architecture";
 import { SITES, sitePosition } from "@/lib/worldMap/landscape";
 import styles from "./landmarks.module.css";
 import { Ocean } from "@/components/ReferenceVoxel/Ocean";
-import { LANDMARK_BOUNDS, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
+import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
 
 type Point3 = [number, number, number];
 const COLORS = { gold: "#dfc188", purple: "#a99bd1" };
 const noRaycast: THREE.Mesh["raycast"] = () => {};
-const tooltipPoint = new THREE.Vector3();
-
-// The tooltip gets its own body-level portal and is clamped just enough to keep
-// its 210px card inside the locked dashboard viewport.
-function tooltipPosition(object: THREE.Object3D, camera: THREE.Camera, size: { width: number; height: number }) {
-  tooltipPoint.setFromMatrixPosition(object.matrixWorld).project(camera);
-  const x = tooltipPoint.x * size.width * 0.5 + size.width * 0.5;
-  const y = -tooltipPoint.y * size.height * 0.5 + size.height * 0.5;
-  return [Math.min(size.width - 116, Math.max(116, x)), Math.min(size.height - 22, Math.max(118, y))];
-}
-
-function Landmark({ title, detail, position, kind, onClick, accent, selected=false, tooltipPortal }: { title: string; detail: string; position: Point3; kind: LandmarkKind; onClick?: () => void; accent?: string; selected?: boolean; tooltipPortal?: RefObject<HTMLElement> }) {
+function Landmark({ title, detail, position, kind, onClick, accent, selected=false }: { title: string; detail: string; position: Point3; kind: LandmarkKind; onClick?: () => void; accent?: string; selected?: boolean }) {
   const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
 
-  const highlighted = hovered || focused || selected;
+  const highlighted = hovered || selected;
   const enter = () => { onClick?.(); };
+  const setLandmarkHover = (next: boolean) => {
+    setHovered(next);
+    document.body.style.cursor = next && onClick ? "pointer" : "default";
+  };
   useEffect(() => () => { document.body.style.cursor = "default"; }, []);
   const label = title.includes(" · ") ? title.split(" · ")[0] : title;
   const bounds = LANDMARK_BOUNDS[kind];
+  const glowOuterRadius = Math.hypot(bounds[0] / 2, bounds[2] / 2) + 2.4;
+  const glowInnerRadius = glowOuterRadius - 0.8;
   return <group position={position} scale={LANDMARK_SCALE}>
     <LandmarkArchitecture kind={kind} />
     {/* Only this single, unchanging mesh receives pointer intersections. */}
     <mesh name={`landmark-hitbox-${kind}`} position={[0, bounds[1] / 2, 0]}
-      onPointerOver={(event) => { event.stopPropagation(); setHovered(true); document.body.style.cursor = onClick ? "pointer" : "default"; }}
-      onPointerOut={() => { setHovered(false); document.body.style.cursor = "default"; }}
+      onPointerOver={(event) => { event.stopPropagation(); setLandmarkHover(true); }}
+      onPointerOut={() => { setLandmarkHover(false); }}
       onClick={(event) => { event.stopPropagation(); if (event.delta < 5) enter(); }}>
       <boxGeometry args={bounds} />
       <meshBasicMaterial transparent opacity={0} colorWrite={false} depthWrite={false} />
     </mesh>
-    {highlighted && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.12, 0]} raycast={noRaycast}><ringGeometry args={[4.6, 4.7, 64]} /><meshBasicMaterial color={accent || COLORS.gold} transparent opacity={0.65} depthWrite={false} /></mesh>}
-    <Html position={[0, bounds[1] + 0.4, 0]} center zIndexRange={[30, 10]} style={{ pointerEvents: "none" }}>
+    {highlighted && <>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 0]} raycast={noRaycast}><circleGeometry args={[glowOuterRadius, 64]} /><meshBasicMaterial color="#f5c542" transparent opacity={0.18} blending={THREE.AdditiveBlending} toneMapped={false} depthWrite={false} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.12, 0]} raycast={noRaycast}><ringGeometry args={[glowInnerRadius, glowOuterRadius, 64]} /><meshBasicMaterial color={accent || COLORS.gold} transparent opacity={0.95} blending={THREE.AdditiveBlending} toneMapped={false} depthWrite={false} /></mesh>
+    </>}
+    <Html position={[0, bounds[1] + LANDMARK_LABEL_LIFT, 0]} zIndexRange={[30, 10]} style={{ pointerEvents: "none" }}>
       <div className={styles.anchor} data-landmark={kind}>
-        {onClick ? <button className={styles.marker} aria-label={`${title}: ${detail}`} onClick={enter} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>{label}</button>
-          : <span className={`${styles.marker} ${styles.scenic}`}>{label}</span>}
+        {onClick ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${detail}`} onClick={enter} onPointerEnter={() => setLandmarkHover(true)} onPointerLeave={() => setLandmarkHover(false)}><span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span><span className={styles.markerDetail}>{detail}</span></button>
+          : <span className={`${styles.marker} ${styles.scenic} ${hovered ? styles.markerExpanded : ""}`} onPointerEnter={() => setLandmarkHover(true)} onPointerLeave={() => setLandmarkHover(false)}><span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span><span className={styles.markerDetail}>{detail}</span></span>}
       </div>
     </Html>
-    {highlighted && tooltipPortal && <Html position={[0, bounds[1] + 0.4, 0]} center portal={tooltipPortal} calculatePosition={tooltipPosition} zIndexRange={[1, 1]} style={{ pointerEvents: "none" }}>
-      <div className={styles.tooltipAnchor}><div className={styles.detail}><strong>{title}</strong><span>{detail}</span></div></div>
-    </Html>}
   </group>;
 }
 
@@ -75,7 +69,7 @@ function FrameGate({ active }: { active: boolean }) {
   return null;
 }
 
-function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible, tooltipPortal }: WorldProps & { tooltipPortal?: RefObject<HTMLElement> }) {
+function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible }: WorldProps) {
   const size = useThree(state => state.size);
   const frame = worldFrame(size.width, size.height, playableProjectionBounds());
   const visit = (_site: keyof typeof SITES, href: string) => { if(!busy)navigate(href); };
@@ -91,11 +85,11 @@ function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, 
         <Ocean />
         <Landscape />
 
-        <Landmark title="SURI Keep" detail="The central welcome hall for your learning kingdom" position={sitePosition("keep")} accent={COLORS.gold} kind="keep" tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Topics · Learning Grove" detail="Browse topics and choose your next learning trail" position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} kind="topics" selected={selectedSite === "topics"} tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Error History · Hall of Records" detail={`${errors.length} misconception records · inspect the error history`} position={sitePosition("records")} onClick={() => visit("records", "/error-history")} kind="records" selected={selectedSite === "records"} tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Progress · Hall of Champions" detail={`${progress.mastered}/${progress.total || 0} skills mastered · view progress`} position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} kind="champions" selected={selectedSite === "champions"} tooltipPortal={visible ? tooltipPortal : undefined} />
-        <Landmark title="Calculator · Arcane Tower" detail="Solve and explore equations" position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} kind="calculator" selected={selectedSite === "calculator"} tooltipPortal={visible ? tooltipPortal : undefined} />
+        <Landmark title="SURI Keep" detail="The central welcome hall for your learning kingdom" position={sitePosition("keep")} accent={COLORS.gold} kind="keep" />
+        <Landmark title="Topics · Learning Grove" detail="Browse topics and choose your next learning trail" position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} kind="topics" selected={selectedSite === "topics"} />
+        <Landmark title="Error History · Hall of Records" detail={`${errors.length} misconception records · inspect the error history`} position={sitePosition("records")} onClick={() => visit("records", "/error-history")} kind="records" selected={selectedSite === "records"} />
+        <Landmark title="Progress · Hall of Champions" detail={`${progress.mastered}/${progress.total || 0} skills mastered · view progress`} position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} kind="champions" selected={selectedSite === "champions"} />
+        <Landmark title="Calculator · Arcane Tower" detail="Solve and explore equations" position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} kind="calculator" selected={selectedSite === "calculator"} />
       </group>
     </>
   );
@@ -120,8 +114,6 @@ function TutorialModal({ onClose }: { onClose: () => void }) {
 
 function DashboardWorld(props: WorldProps) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
-  const tooltipPortal = useRef<HTMLElement>(null!);
-  const [tooltipPortalReady, setTooltipPortalReady] = useState(false);
   const [showSaved, setShowSaved] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("saved") === "true");
   useEffect(() => {
     if (!showSaved) return;
@@ -132,14 +124,6 @@ function DashboardWorld(props: WorldProps) {
     const openTutorial = () => setTutorialOpen(true);
     window.addEventListener("suri:open-tutorial", openTutorial);
     return () => window.removeEventListener("suri:open-tutorial", openTutorial);
-  }, []);
-  useEffect(() => {
-    const portal = document.createElement("div");
-    portal.className = styles.tooltipPortal;
-    document.body.appendChild(portal);
-    tooltipPortal.current = portal;
-    const frame = window.requestAnimationFrame(() => setTooltipPortalReady(true));
-    return () => { window.cancelAnimationFrame(frame); portal.remove(); tooltipPortal.current = null!; };
   }, []);
   return (
     <div className={`dashboard-world ${styles.world}`}>
@@ -159,7 +143,7 @@ function DashboardWorld(props: WorldProps) {
         }}
       >
         <FrameGate active={props.visible} />
-        <Suspense fallback={null}><CoastalWorld {...props} tooltipPortal={tooltipPortalReady ? tooltipPortal : undefined} /></Suspense>
+        <Suspense fallback={null}><CoastalWorld {...props} /></Suspense>
       </Canvas></div>
       {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}
     </div>

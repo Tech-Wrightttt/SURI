@@ -389,11 +389,11 @@ html::-webkit-scrollbar {
 .learning-route-content { position: relative; z-index: 40; }
 
 /* Topics: the existing academy island sits behind a focused, layered library. */
-.topics-world-shell { position: fixed; inset: 0; z-index: 0; background: #19132f; }
-.topics-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #19132f; }
+.topics-world-shell { position: fixed; inset: 0; z-index: 0; background: #1b261c; }
+.topics-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; }
 .topics-world-backdrop { position: absolute; inset: 0; pointer-events: none; }
 .topics-world-backdrop { filter: blur(.6px) saturate(.83) brightness(.68); transform: scale(1.02); animation: topicsBackdropArrival 1.35s cubic-bezier(.2,.8,.2,1) both; }
-.topics-world-backdrop::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, transparent 8%, rgba(19, 10, 38, .15) 52%, rgba(8, 4, 21, .62) 100%), linear-gradient(180deg, rgba(26, 14, 62, .17), rgba(8, 5, 25, .45)); }
+.topics-world-backdrop::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, transparent 8%, rgba(27, 57, 33, .15) 52%, rgba(9, 22, 13, .62) 100%), linear-gradient(180deg, rgba(44, 82, 43, .17), rgba(9, 22, 13, .45)); }
 .topics-world canvas { display: block; width: 100% !important; height: 100% !important; }
 
 .topics-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 7.3rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; animation: topicsContentArrival .7s .24s both; }
@@ -425,3 +425,218 @@ html::-webkit-scrollbar {
 @keyframes topicsContentArrival { from { opacity: 0; transform: translateY(1.1rem); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .topics-world-backdrop, .topics-library-page { animation: none; } }
 @media (max-width: 640px) { .topics-library-page { padding: 6.7rem .8rem 2.5rem; }.topics-library-header { margin-bottom: 1.5rem; }.topics-library-stats div { min-width: 8rem; padding-inline: .6rem; }.topics-library-stats span { font-size: .62rem; }.topics-library-collection { padding: 1rem .75rem; }.topics-book-stacks { grid-template-columns: 1fr; }.topics-library-book, .topics-library-book-cover { min-height: 26rem; } }
+
+/* Progress: the Hall of Champions is the same focused-island experience as Topics. */
+.progress-world-shell { position: fixed; inset: 0; z-index: 0; background: #1b261c; }
+.progress-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; }
+.progress-world-backdrop { position: absolute; inset: 0; pointer-events: none; filter: blur(.6px) saturate(.83) brightness(.68); transform: scale(1.02); animation: progressBackdropArrival 1.35s cubic-bezier(.2,.8,.2,1) both; }
+.progress-world-backdrop::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, transparent 8%, rgba(43, 68, 33, .16) 52%, rgba(9, 22, 13, .62) 100%), linear-gradient(180deg, rgba(67, 86, 43, .15), rgba(9, 22, 13, .45)); }
+.progress-world canvas { display: block; width: 100% !important; height: 100% !important; }
+
+.progress-route-page { position: relative; z-index: 3; min-height: 100vh; padding: 7.3rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; animation: progressContentArrival .7s .24s both; }
+.progress-route-header { width: min(52rem, 100%); margin: 0 auto 2.4rem; text-align: center; text-shadow: 2px 2px 0 rgba(19, 51, 42, .68); }
+.progress-route-back { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; inline-size: 8.25rem; margin-bottom: 2.6rem; padding: .68rem .9rem; border: 3px solid #163a31; border-radius: 999px; color: #163a31; background: #f4cd57; box-shadow: 3px 3px 0 #060b09; font: 800 .72rem/1 "Manrope", sans-serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
+.progress-route-back:hover { background: #ffe28a; transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #060b09; }
+.progress-route-back span { color: inherit; font-size: 1rem; }
+.progress-route-kicker { display: flex; align-items: center; justify-content: center; gap: .7rem; color: #ffe28a; font: 800 .75rem/1 "Manrope", sans-serif; letter-spacing: .18em; }
+.progress-route-kicker span { display: inline-block; width: 2.5rem; height: 3px; background: #f4cd57; }
+.progress-route-header h1 { margin: .55rem 0 0; color: #fff; font: 800 clamp(2.7rem, 7vw, 5.2rem)/.92 "Hanken Grotesk", sans-serif; letter-spacing: -.07em; }
+.progress-route-header h1 em { color: #f4cd57; font-style: normal; text-shadow: 2px 2px 0 #163a31; }
+.progress-route-header > p { max-width: 39rem; margin: 1rem auto 0; color: #f4f8ed; font: 700 1.05rem/1.6 "Manrope", sans-serif; }
+.progress-route-stats { display: inline-grid; grid-template-columns: repeat(3, minmax(8.5rem, 1fr)); margin-top: 1.35rem; overflow: hidden; border: 3px solid #163a31; border-radius: 1rem; background: #fffdf6; box-shadow: 5px 5px 0 #060b09; text-shadow: none; }
+.progress-route-stats div { display: grid; gap: .38rem; min-width: 0; padding: .78rem 1rem; text-align: center; text-shadow: none; }
+.progress-route-stats div + div { border-left: 2px solid #163a31; }
+.progress-route-stats b { color: #163a31; font: 800 1.6rem/1 "Hanken Grotesk", sans-serif; text-shadow: none; }
+.progress-route-stats span { color: #356b4e; font: 800 .74rem/1.35 "Manrope", sans-serif; letter-spacing: .06em; text-shadow: none; text-transform: uppercase; }
+
+.progress-route-collection { width: min(78rem, 100%); margin: 0 auto; padding: clamp(1rem, 3vw, 2rem); border: 3px solid #e8dc7b; border-radius: 2rem; background: rgba(17, 47, 40, .94); box-shadow: 9px 9px 0 #060b09; backdrop-filter: blur(10px); }
+.progress-route-collection-title { display: flex; align-items: center; justify-content: center; gap: .75rem; padding-bottom: clamp(1rem, 3vw, 1.45rem); color: #fffdf6; text-align: center; }
+.progress-route-collection-title > span { font-size: 1rem; color: #f4cd57; text-shadow: 2px 2px 0 #0a201a; }
+.progress-route-collection-title small { color: #b9e5bc; font: 800 .7rem/1 "Manrope", sans-serif; letter-spacing: .14em; }
+.progress-route-collection-title h2 { margin: .3rem 0 0; color: #fffdf6; font: 800 1.8rem/1 "Hanken Grotesk", sans-serif; letter-spacing: -.03em; }
+.progress-route-scroll { max-height: min(46rem, calc(100vh - 25rem)); padding: .1rem .6rem .35rem .1rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: #78a988 rgba(255,255,255,.08); scrollbar-width: thin; }
+.progress-route-scroll::-webkit-scrollbar { width: .55rem; }
+.progress-route-scroll::-webkit-scrollbar-thumb { border: 2px solid #112f28; border-radius: 99px; background: #78a988; }
+
+.progress-shelves { display: grid; gap: 1.3rem; }
+.progress-chapter-shelf { position: relative; overflow: hidden; padding: .85rem .85rem 1.6rem; border: 3px solid #78a988; border-radius: 1.1rem .75rem .75rem 1.1rem; color: #193b33; background: #fffaf0; box-shadow: inset 4px 0 rgba(255,255,255,.42), inset -9px 0 rgba(32,56,44,.08), 5px 5px 0 #060b09; }
+.progress-chapter-shelf:nth-child(3n+2) { background: #f8f0e0; }
+.progress-chapter-shelf:nth-child(3n) { background: #fff6e3; }
+.progress-chapter-shelf::before { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(25,59,51,.14); border-radius: .65rem .4rem .4rem .65rem; pointer-events: none; }
+.progress-chapter-shelf::after { content: ""; position: absolute; right: .72rem; bottom: .62rem; left: .72rem; height: .68rem; border: 2px solid #493725; border-radius: .24rem; background: repeating-linear-gradient(90deg, #7c5633 0 1.4rem, #956c41 1.4rem 2.7rem, #69452b 2.7rem 3.2rem); box-shadow: 0 3px 0 #352416; }
+.progress-shelf-header { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .55rem .55rem .95rem; border-bottom: 2px solid rgba(25,59,51,.2); }
+.progress-shelf-title { min-width: 0; }
+.progress-shelf-number { display: inline-block; margin-bottom: .48rem; padding: .3rem .48rem; border: 2px solid #163a31; border-radius: .4rem; color: #fffdf6; background: #163a31; font: 800 .52rem/1 "Manrope", sans-serif; letter-spacing: .09em; text-transform: uppercase; }
+.progress-shelf-header small { display: block; color: #8b731c; font: 800 .56rem/1 "Manrope", sans-serif; letter-spacing: .13em; }
+.progress-shelf-header h3 { margin: .48rem 0 0; color: #163a31; font: 800 clamp(1.2rem, 2.3vw, 1.65rem)/1.1 "Hanken Grotesk", sans-serif; letter-spacing: -.04em; }
+.progress-shelf-header p { margin: .45rem 0 0; color: #426653; font: 700 .72rem/1.45 "Manrope", sans-serif; }
+.progress-shelf-mastery { flex: 0 1 15rem; min-width: 11rem; padding: .65rem .75rem; border: 2px solid #163a31; border-radius: .7rem; background: rgba(255,253,246,.8); box-shadow: 3px 3px 0 #356b4e; }
+.progress-shelf-mastery > div { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; color: #163a31; font: 800 .66rem/1 "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.progress-shelf-mastery b { color: #8b731c; font: 900 1rem/1 "Hanken Grotesk", sans-serif; }
+.progress-shelf-mastery i { display: block; height: .62rem; margin-top: .52rem; overflow: hidden; border: 2px solid #163a31; border-radius: 99px; background: #e3eadf; }
+.progress-shelf-mastery em { display: block; height: 100%; border-radius: inherit; background: #5fbd7a; }
+.progress-shelf-books { position: relative; z-index: 1; display: flex; gap: .9rem; margin: 0; padding: 1.05rem .4rem 1.3rem; overflow-x: auto; list-style: none; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; scrollbar-color: #78a988 transparent; scrollbar-width: thin; }
+.progress-shelf-books::-webkit-scrollbar { height: .5rem; }
+.progress-shelf-books::-webkit-scrollbar-thumb { border: 2px solid #fffaf0; border-radius: 99px; background: #78a988; }
+.progress-shelf-book { position: relative; flex: 0 0 clamp(11.5rem, 18vw, 13.25rem); min-height: 19.5rem; perspective: 900px; scroll-snap-align: start; transform-style: preserve-3d; transition: transform .34s cubic-bezier(.2,.7,.2,1), filter .34s; }
+.progress-shelf-book:hover { z-index: 2; filter: drop-shadow(0 15px 12px rgba(0,0,0,.3)); transform: translateY(-.4rem) rotateX(2deg) rotateY(-2deg); }
+.progress-shelf-book-cover { position: relative; display: flex; flex-direction: column; min-height: 19.5rem; height: 100%; padding: .9rem .95rem .8rem; overflow: hidden; border: 3px solid #78a988; border-radius: .9rem .9rem .5rem .5rem; color: #193b33; background: #fffaf0; box-shadow: inset 4px 0 rgba(255,255,255,.42), inset -8px 0 rgba(32,56,44,.08), 4px 4px 0 #060b09; transform-origin: left center; transition: transform .34s ease, box-shadow .34s ease; }
+.progress-shelf-book:hover .progress-shelf-book-cover { transform: rotateY(-4deg) translateZ(8px); }
+.progress-shelf-book:nth-child(4n+2) .progress-shelf-book-cover { background: #f8f0e0; }
+.progress-shelf-book:nth-child(4n+3) .progress-shelf-book-cover { background: #fff6e3; }
+.progress-shelf-book:nth-child(4n) .progress-shelf-book-cover { background: #f4f0df; }
+.progress-shelf-book.mastered .progress-shelf-book-cover { border-color: #78a988; box-shadow: inset 4px 0 rgba(255,255,255,.45), 0 0 0 3px #5fbd7a, 0 0 1rem rgba(95,189,122,.48), 5px 5px 0 #060b09; }
+.progress-shelf-book.in-progress .progress-shelf-book-cover { border-color: #c89a33; box-shadow: inset 4px 0 rgba(255,255,255,.45), 0 0 0 3px #f4cd57, 0 0 1rem rgba(244,205,87,.5), 5px 5px 0 #060b09; }
+.progress-shelf-book.needs-work .progress-shelf-book-cover { border-color: #bd6c65; }
+.progress-shelf-book.is-locked .progress-shelf-book-cover { color: #6d756d; background: #f0f0ea; border-color: #aeb8ae; box-shadow: inset 4px 0 rgba(255,255,255,.34), inset -8px 0 rgba(32,56,44,.07), 4px 4px 0 #7d897d; }
+.progress-shelf-book-cover::after { content: ""; position: absolute; inset: .45rem; border: 2px solid rgba(25,59,51,.15); border-radius: .45rem; pointer-events: none; }
+.progress-shelf-book-number, .progress-shelf-book-status { position: relative; z-index: 1; font: 800 .54rem/1 "Manrope", sans-serif; letter-spacing: .085em; text-transform: uppercase; }
+.progress-shelf-book-number { color: #8b731c; }
+.progress-shelf-book-status { align-self: center; margin: .65rem auto .4rem; padding: .3rem .5rem; border: 2px solid #163a31; border-radius: 99px; color: #fffdf6; background: #163a31; text-align: center; }
+.progress-shelf-book.mastered .progress-shelf-book-status { background: #23734c; }
+.progress-shelf-book.in-progress .progress-shelf-book-status { color: #163a31; background: #f4cd57; }
+.progress-shelf-book.needs-work .progress-shelf-book-status { background: #a64242; }
+.progress-shelf-book-crest { position: relative; z-index: 1; display: grid; place-items: center; width: 2.65rem; height: 2.65rem; margin: .45rem auto .65rem; border: 3px solid #e8dc7b; border-radius: 50%; color: #fffaf0; background: #163a31; box-shadow: 3px 3px 0 #060b09; font-size: 1.05rem; }
+.progress-shelf-book.in-progress .progress-shelf-book-crest { color: #163a31; background: #f4cd57; }
+.progress-shelf-book.mastered .progress-shelf-book-crest { background: #23734c; }
+.progress-shelf-book.needs-work .progress-shelf-book-crest { background: #a64242; }
+.progress-shelf-book-crest svg { color: #fffaf0; }
+.progress-shelf-book-cover small { position: relative; z-index: 1; color: #426653; font: 800 .52rem/1 "Manrope", sans-serif; letter-spacing: .1em; }
+.progress-shelf-book-cover h4 { position: relative; z-index: 1; margin: .45rem 0 0; color: #163a31; font: 800 1.05rem/1.1 "Hanken Grotesk", sans-serif; letter-spacing: -.035em; }
+.progress-shelf-book-cover > p { position: relative; z-index: 1; margin: .52rem 0 0; color: #426653; font: 700 .66rem/1.4 "Manrope", sans-serif; }
+.progress-shelf-book-target { position: relative; z-index: 1; align-self: flex-start; margin-top: .6rem; padding: .28rem .42rem; border: 1px solid #b9851c; border-radius: .35rem; color: #745416; background: #fff1bd; font: 800 .5rem/1 "Manrope", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.progress-shelf-book-footer { position: relative; z-index: 1; margin-top: auto; padding-top: .7rem; }
+.progress-shelf-book-action { display: inline-flex; align-items: center; justify-content: center; gap: .32rem; width: 100%; min-height: 2rem; padding: .5rem; border: 3px solid #163a31; border-radius: .58rem; color: #fff; background: #163a31; box-shadow: 3px 3px 0 #356b4e; font: 800 .55rem/1 "Manrope", sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: transform .18s, box-shadow .18s, background .18s, color .18s; }
+.progress-shelf-book-action:hover:not(:disabled) { color: #163a31; background: #f4cd57; box-shadow: 4px 4px 0 #163a31; transform: translate(-1px, -1px); }
+.progress-shelf-book-action.is-review { color: #163a31; background: #e1f1e3; }
+.progress-shelf-book-action.is-locked, .progress-shelf-book-action:disabled { cursor: not-allowed; opacity: .58; box-shadow: none; }
+.progress-shelf-empty { position: relative; z-index: 1; margin: 1rem .4rem .25rem; padding: 1.25rem; border: 2px dashed rgba(22,58,49,.36); border-radius: .75rem; color: #426653; text-align: center; }
+.progress-shelf-empty b { display: block; color: #163a31; font: 800 .65rem/1.2 "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.progress-shelf-empty p { margin: .55rem 0 0; font: 700 .7rem/1.45 "Manrope", sans-serif; }
+
+/* One compact shelf per mapped chapter. The grid replaces the old scrollable
+   row of prerequisite volumes, so a complete chapter path stays in view. */
+.progress-route-scroll { max-height: none; padding: .1rem; overflow: visible; }
+.progress-shelves { grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: .75rem; }
+.progress-chapter-shelf { min-height: 8.15rem; padding: .55rem .55rem 1.35rem; }
+.progress-chapter-shelf::after { z-index: 0; }
+.progress-shelf-header { align-items: flex-start; min-height: 3.55rem; padding: .2rem .25rem .4rem; border-bottom: 0; }
+.progress-shelf-number { margin-bottom: .22rem; padding: .2rem .32rem; font-size: .44rem; }
+.progress-shelf-header small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .49rem; }
+.progress-shelf-header h3 { display: -webkit-box; margin-top: .18rem; overflow: hidden; font-size: .85rem; line-height: 1.05; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.progress-shelf-header p { margin-top: .18rem; overflow: hidden; font-size: .52rem; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
+.progress-shelf-volume { position: relative; z-index: 1; display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); gap: .25rem .38rem; align-items: center; padding: .38rem .42rem; border: 2px solid #163a31; border-radius: .55rem; background: rgba(255,253,246,.88); box-shadow: 3px 3px 0 #356b4e; }
+.progress-chapter-shelf.mastered .progress-shelf-volume { border-color: #23734c; box-shadow: 3px 3px 0 #5fbd7a; }
+.progress-chapter-shelf.in-progress .progress-shelf-volume { border-color: #c89a33; box-shadow: 3px 3px 0 #f4cd57; }
+.progress-chapter-shelf.needs-work .progress-shelf-volume { border-color: #bd6c65; box-shadow: 3px 3px 0 #d9908a; }
+.progress-chapter-shelf.is-locked .progress-shelf-volume { border-color: #aeb8ae; color: #6d756d; background: #f0f0ea; box-shadow: 3px 3px 0 #7d897d; }
+.progress-shelf-volume-crest { display: grid; grid-row: 1 / span 2; place-items: center; width: 1.9rem; height: 1.9rem; border: 2px solid #e8dc7b; border-radius: 50%; color: #fffaf0; background: #163a31; box-shadow: 2px 2px 0 #060b09; font-size: .75rem; }
+.progress-chapter-shelf.mastered .progress-shelf-volume-crest { background: #23734c; }
+.progress-chapter-shelf.in-progress .progress-shelf-volume-crest { color: #163a31; background: #f4cd57; }
+.progress-chapter-shelf.needs-work .progress-shelf-volume-crest { background: #a64242; }
+.progress-shelf-volume-crest svg { color: #fffaf0; }
+.progress-shelf-volume-copy { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; min-width: 0; }
+.progress-shelf-status, .progress-shelf-target { display: inline-flex; align-items: center; justify-content: center; min-height: 1.1rem; padding: .18rem .28rem; border: 1px solid currentColor; border-radius: 99px; font: 800 .42rem/1 "Manrope", sans-serif; letter-spacing: .04em; text-align: center; text-transform: uppercase; white-space: nowrap; }
+.progress-shelf-status.mastered { color: #23734c; background: #e4f4e8; }
+.progress-shelf-status.in-progress { color: #8b6718; background: #fff1bd; }
+.progress-shelf-status.needs-work { color: #9c3b3b; background: #fae0df; }
+.progress-shelf-status.not-attempted { color: #66756b; background: #edf0ea; }
+.progress-shelf-target { max-width: 100%; overflow: hidden; color: #745416; background: #fff1bd; text-overflow: ellipsis; }
+.progress-shelf-volume-footer { display: flex; align-items: center; gap: .35rem; min-width: 0; }
+.progress-shelf-progress { flex: 1 1 auto; min-width: 0; color: #163a31; }
+.progress-shelf-progress span { display: flex; justify-content: space-between; gap: .2rem; overflow: hidden; font: 800 .4rem/1 "Manrope", sans-serif; letter-spacing: .035em; text-transform: uppercase; white-space: nowrap; }
+.progress-shelf-progress b { color: #8b731c; font-family: "Hanken Grotesk", sans-serif; font-size: .55rem; }
+.progress-shelf-progress i { display: block; height: .35rem; margin-top: .2rem; overflow: hidden; border: 1px solid #163a31; border-radius: 99px; background: #e3eadf; }
+.progress-shelf-progress em { display: block; height: 100%; border-radius: inherit; background: #5fbd7a; }
+.progress-shelf-action { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: .2rem; min-height: 1.5rem; padding: .3rem .35rem; border: 2px solid #163a31; border-radius: .4rem; color: #fff; background: #163a31; box-shadow: 2px 2px 0 #356b4e; font: 800 .43rem/1 "Manrope", sans-serif; letter-spacing: .045em; text-transform: uppercase; cursor: pointer; transition: transform .18s, box-shadow .18s, background .18s, color .18s; }
+.progress-shelf-action:hover:not(:disabled) { color: #163a31; background: #f4cd57; box-shadow: 3px 3px 0 #163a31; transform: translate(-1px, -1px); }
+.progress-shelf-action.is-review { color: #163a31; background: #e1f1e3; }
+.progress-shelf-action.is-locked, .progress-shelf-action:disabled { cursor: not-allowed; opacity: .58; box-shadow: none; }
+.progress-route-loading, .progress-route-empty { display: grid; place-items: center; gap: .75rem; min-height: 14rem; padding: 1.5rem; color: #fffdf6; text-align: center; }
+.progress-route-loading { font: 800 .82rem/1 "Manrope", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.progress-route-loading i { width: 2.3rem; height: 2.3rem; border: 3px solid rgba(255,255,255,.24); border-top-color: #f4cd57; border-radius: 50%; animation: worldSpin 1.1s linear infinite; }
+.progress-route-empty { border: 2px dashed rgba(232,220,123,.55); border-radius: .9rem; font: 700 .92rem/1.5 "Manrope", sans-serif; }
+.progress-route-empty b { font: 800 .86rem/1.2 "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.progress-route-empty p { margin: 0; opacity: .78; }
+.progress-route-error { display: flex; align-items: center; gap: .8rem; width: min(46rem, 100%); margin: 0 auto 1.2rem; padding: .85rem 1rem; border: 1px solid rgba(255,149,157,.56); border-radius: .75rem; color: #ffdadd; background: rgba(93, 17, 48, .87); box-shadow: 0 12px 35px rgba(15, 2, 20, .32); backdrop-filter: blur(12px); }
+.progress-route-error img { width: 2.6rem; height: 2.6rem; object-fit: contain; }
+.progress-route-error strong { font: 800 .76rem/1 "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.progress-route-error p { margin: .32rem 0 0; font: 600 .88rem/1.4 "Manrope", sans-serif; }
+@keyframes progressBackdropArrival { from { filter: blur(3px) saturate(.62) brightness(.52); transform: scale(.94); } to { filter: blur(.6px) saturate(.83) brightness(.68); transform: scale(1.02); } }
+@keyframes progressContentArrival { from { opacity: 0; transform: translateY(1.1rem); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .progress-world-backdrop, .progress-route-page { animation: none; }.progress-shelf-action { transition: none; } }
+@media (max-width: 720px) {
+  .progress-shelves { grid-template-columns: repeat(auto-fit, minmax(16.5rem, 1fr)); }
+}
+@media (max-width: 640px) {
+  .progress-route-page { padding: 6.7rem .8rem 2.5rem; }
+  .progress-route-header { margin-bottom: 1.5rem; }
+  .progress-route-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+  .progress-route-stats div { padding: .7rem .3rem; }
+  .progress-route-stats span { font-size: .63rem; letter-spacing: .04em; }
+  .progress-route-collection { padding: 1rem .75rem; }
+  .progress-route-scroll { max-height: none; padding-right: 0; overflow: visible; }
+  .progress-chapter-shelf { padding: .7rem .7rem 1.5rem; }
+  .progress-shelves { grid-template-columns: 1fr; }
+  .progress-shelf-volume-footer { align-items: stretch; flex-direction: column; }
+  .progress-shelf-action { width: 100%; }
+}
+
+/* Grade containers restore the original top-to-bottom prerequisite sequence. */
+.progress-grade-containers { display: grid; gap: 1.25rem; }
+.progress-grade-container { position: relative; overflow: hidden; padding: 1rem 1rem 1.45rem; border: 3px solid #78a988; border-radius: 1.1rem .75rem .75rem 1.1rem; color: #193b33; background: #fffaf0; box-shadow: inset 4px 0 rgba(255,255,255,.42), inset -9px 0 rgba(32,56,44,.08), 5px 5px 0 #060b09; }
+.progress-grade-container::before { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(25,59,51,.14); border-radius: .65rem .4rem .4rem .65rem; pointer-events: none; }
+.progress-grade-header { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .32rem .35rem .9rem; border-bottom: 2px solid rgba(25,59,51,.2); }
+.progress-grade-header > div { min-width: 0; }
+.progress-grade-header > div > small { display: block; color: #8b731c; font: 800 .7rem/1 "Manrope", sans-serif; letter-spacing: .13em; }
+.progress-grade-header h3 { margin: .48rem 0 0; color: #163a31; font: 800 clamp(1.45rem, 2.8vw, 1.9rem)/1.1 "Hanken Grotesk", sans-serif; letter-spacing: -.04em; }
+.progress-grade-header p { margin: .48rem 0 0; color: #426653; font: 700 .88rem/1.45 "Manrope", sans-serif; }
+.progress-grade-progress { position: relative; z-index: 1; height: .85rem; margin: .85rem .35rem 0; overflow: hidden; border: 2px solid #163a31; border-radius: 99px; background: #dce8d9; box-shadow: inset 0 1px rgba(255,255,255,.75); }
+.progress-grade-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5fbd7a, #a8d95c); box-shadow: inset 0 -2px rgba(22,58,49,.14); transition: width .35s ease; }
+.progress-grade-path { position: relative; z-index: 1; display: grid; gap: .9rem; margin: 0; padding: 1.2rem .35rem .35rem 3.1rem; list-style: none; }
+.progress-grade-path::before { content: ""; position: absolute; top: 1.45rem; bottom: 1.25rem; left: 1rem; width: 3px; background: #c7d4c1; }
+.progress-grade-step { position: relative; }
+.progress-grade-marker { position: absolute; top: 1.05rem; left: -3.1rem; z-index: 2; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 3px solid #6f8171; border-radius: 50%; color: #163a31; background: #fffdf6; box-shadow: 0 0 0 4px rgba(95,189,122,.12); font: 800 .66rem/1 "Manrope", sans-serif; letter-spacing: .04em; }
+.progress-grade-step.mastered .progress-grade-marker { border-color: #23734c; color: #fffdf6; background: #5fbd7a; }
+.progress-grade-step.in-progress .progress-grade-marker { border-color: #b9851c; background: #f4cd57; }
+.progress-grade-step.needs-work .progress-grade-marker { border-color: #a64242; color: #fffdf6; background: #e98282; }
+.progress-grade-chapter { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .45rem .9rem; align-items: start; padding: 1rem 1.05rem; border: 2px solid #163a31; border-radius: .75rem; background: rgba(255,253,246,.92); box-shadow: 3px 3px 0 #356b4e; }
+.progress-grade-step.mastered .progress-grade-chapter { border-color: #23734c; box-shadow: 3px 3px 0 #5fbd7a; }
+.progress-grade-step.in-progress .progress-grade-chapter { border-color: #c89a33; box-shadow: 3px 3px 0 #f4cd57; }
+.progress-grade-step.needs-work .progress-grade-chapter { border-color: #bd6c65; box-shadow: 3px 3px 0 #d9908a; }
+.progress-grade-step.is-locked .progress-grade-chapter { border-color: #aeb8ae; color: #6d756d; background: #f0f0ea; box-shadow: 3px 3px 0 #7d897d; }
+.progress-grade-chapter-copy { min-width: 0; }
+.progress-grade-chapter-copy small { display: block; overflow: hidden; color: #8b731c; font: 800 .66rem/1.15 "Manrope", sans-serif; letter-spacing: .08em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.progress-grade-chapter-copy h4 { margin: .48rem 0 0; color: #163a31; font: 800 1.25rem/1.18 "Hanken Grotesk", sans-serif; letter-spacing: -.025em; }
+.progress-grade-chapter-copy p { margin: .42rem 0 0; color: #426653; font: 700 .78rem/1.4 "Manrope", sans-serif; }
+.progress-grade-chapter-meta { display: grid; justify-items: end; gap: .3rem; }
+.progress-grade-status { display: inline-flex; align-items: center; justify-content: center; min-height: 1.65rem; padding: .32rem .52rem; border: 1px solid currentColor; border-radius: 99px; font: 800 .64rem/1 "Manrope", sans-serif; letter-spacing: .055em; text-align: center; text-transform: uppercase; white-space: nowrap; }
+.progress-grade-status.mastered { color: #23734c; background: #e4f4e8; }
+.progress-grade-status.in-progress { color: #8b6718; background: #fff1bd; }
+.progress-grade-status.needs-work { color: #9c3b3b; background: #fae0df; }
+.progress-grade-status.not-attempted { color: #66756b; background: #edf0ea; }
+.progress-grade-prerequisite { grid-column: 1 / -1; margin: .16rem 0 0; padding: .48rem .6rem; border-left: 3px solid #c89a33; border-radius: .22rem; color: #745416; background: #fff8de; font: 800 .72rem/1.4 "Manrope", sans-serif; letter-spacing: .02em; }
+.progress-grade-prerequisite.is-cleared { border-left-color: #5fbd7a; color: #356b4e; background: #ecf6eb; }
+.progress-grade-chapter-footer { display: flex; grid-column: 1 / -1; align-items: center; gap: .65rem; min-width: 0; padding-top: .2rem; }
+.progress-grade-mastery { flex: 1 1 auto; min-width: 0; color: #163a31; }
+.progress-grade-mastery span { display: flex; justify-content: space-between; gap: .4rem; font: 800 .66rem/1 "Manrope", sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.progress-grade-mastery b { color: #8b731c; font-family: "Hanken Grotesk", sans-serif; font-size: .85rem; }
+.progress-grade-mastery i { display: block; height: .6rem; margin-top: .34rem; overflow: hidden; border: 1px solid #163a31; border-radius: 99px; background: #e3eadf; }
+.progress-grade-mastery em { display: block; height: 100%; border-radius: inherit; background: #5fbd7a; }
+.progress-grade-action { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: .35rem; min-height: 2.2rem; padding: .5rem .7rem; border: 2px solid #163a31; border-radius: .45rem; color: #fff; background: #163a31; box-shadow: 2px 2px 0 #356b4e; font: 800 .7rem/1 "Manrope", sans-serif; letter-spacing: .055em; text-transform: uppercase; cursor: pointer; transition: transform .18s, box-shadow .18s, background .18s, color .18s; }
+.progress-grade-action:hover:not(:disabled) { color: #163a31; background: #f4cd57; box-shadow: 3px 3px 0 #163a31; transform: translate(-1px, -1px); }
+.progress-grade-action.is-review { color: #163a31; background: #e1f1e3; }
+.progress-grade-action.is-locked, .progress-grade-action:disabled { cursor: not-allowed; opacity: .58; box-shadow: none; }
+@media (max-width: 640px) {
+  .progress-grade-container { padding: .8rem .75rem 1.35rem; }
+  .progress-grade-header { align-items: flex-start; }
+  .progress-grade-header p { font-size: .84rem; }
+  .progress-grade-progress { margin-inline: .15rem; }
+  .progress-grade-path { padding-left: 2.75rem; }
+  .progress-grade-path::before { left: .85rem; }
+  .progress-grade-marker { left: -2.75rem; width: 2rem; height: 2rem; }
+  .progress-grade-chapter { grid-template-columns: 1fr; }
+  .progress-grade-chapter-meta { justify-items: start; grid-auto-flow: column; justify-content: start; }
+  .progress-grade-chapter-footer { align-items: stretch; flex-direction: column; }
+  .progress-grade-action { width: 100%; }
+}

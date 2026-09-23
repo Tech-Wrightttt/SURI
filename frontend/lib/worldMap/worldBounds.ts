@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { ArchitectureBuilder, type Shape } from "./architecture";
-import { LANDMARK_BOUNDS, LANDMARK_SCALE, projectWorldPoint } from "./framing";
+import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, projectWorldPoint } from "./framing";
 import { ROADS, SITES, WORLD_BOUNDS, roadHeight, shoreDistance, sitePosition, terrainHeight } from "./landscape";
 import { makeSettlements, makeVegetation } from "./settlements";
 
@@ -38,7 +38,7 @@ export function playableProjectionBounds() {
     const builder=new ArchitectureBuilder();builder.landmark(site);
     const matrix=new THREE.Matrix4().makeTranslation(...sitePosition(site)).scale(new THREE.Vector3().setScalar(LANDMARK_SCALE));
     corners(architectureBounds(builder,matrix)).forEach(add);
-    const label=new THREE.Vector3(0,LANDMARK_BOUNDS[site][1]+0.4,0).applyMatrix4(matrix);
+    const label=new THREE.Vector3(0,LANDMARK_BOUNDS[site][1]+LANDMARK_LABEL_LIFT,0).applyMatrix4(matrix);
     add(label);
   }
   // Keep the actual decorative geometry in the envelope, without introducing
