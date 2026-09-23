@@ -43,9 +43,10 @@ export default function TopicsPage() {
             const trackTotal = chain.length;
             const trackMastered = chain.filter(node => nodeStatuses[node.node_id] === "mastered").length;
             const trackPct = trackTotal > 0 ? Math.round((trackMastered / trackTotal) * 100) : 0;
+            const hasProgress = trackPct > 0 || isActive;
             const statusText = trackPct === 100 ? "Mastered" : trackPct > 0 || isActive ? "In Progress" : "Not Attempted";
             const action = () => isActive ? resumeTopic(activeTopics[topic.node_id]) : openTopic(topic.node_id);
-            return <article key={topic.node_id} className={`topics-library-book ${isActive ? "is-active" : ""} ${isCompleted ? "is-completed" : ""}`}>
+            return <article key={topic.node_id} className={`topics-library-book ${hasProgress ? "has-progress" : ""} ${isActive ? "is-active" : ""} ${isCompleted ? "is-completed" : ""}`}>
               <div className="topics-library-book-cover">
                 <span className="topics-library-book-number">{String(index + 1).padStart(2, "0")}</span>
                 <span className="topics-library-book-status">{isCompleted ? "✦" : isActive ? "●" : "○"} {statusText}</span>
