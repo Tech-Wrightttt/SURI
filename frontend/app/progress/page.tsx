@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
 import { ensureLearningData } from "@/lib/learningData";
@@ -151,6 +151,16 @@ function ProgressContent() {
     }
   };
 
+  const getGradeShelfSubtitle = (grade: number) => {
+    switch (grade) {
+      case 6: return "Foundations & prerequisites";
+      case 7: return "Foundations & prerequisites";
+      case 8: return "Building algebraic fluency";
+      case 9: return "Expanding algebraic thinking";
+      default: return "Advanced problem solving";
+    }
+  };
+
   const displayCount = (value: number) => loading ? "--" : String(value).padStart(2, "0");
 
   return <MainPage immersive>
@@ -169,18 +179,14 @@ function ProgressContent() {
 
       {errorMsg && <div className="progress-route-error" role="alert"><img src="/suri-snake-sad.png" alt="Sad Suri" /><div><strong>The trail lantern has dimmed.</strong><p>{errorMsg}</p></div></div>}
 
-      <section className="progress-route-collection" aria-label="Learning progress">
-        <div className="progress-route-collection-title"><span>✦</span><div><small>CURATED FOR YOUR PATH</small><h2>The Grade Paths</h2></div><span>✦</span></div>
-        {loading ? <div className="progress-route-loading" role="status"><i /><p>Reading the academy trail markers…</p></div> : chapterShelves.length === 0 ? <div className="progress-route-empty"><b>No trail markers are ready yet.</b><p>Return after your next lesson to see your learning path here.</p></div> : <div className="progress-route-scroll">
-          <div className="progress-grade-containers">
+      <section className="progress-route-collections" aria-label="Learning progress">
+        {loading ? <div className="progress-route-collection"><div className="progress-route-loading" role="status"><i /><p>Reading the academy trail markers…</p></div></div> : chapterShelves.length === 0 ? <div className="progress-route-collection"><div className="progress-route-empty"><b>No trail markers are ready yet.</b><p>Return after your next lesson to see your learning path here.</p></div></div> : <div className="progress-grade-containers">
           {gradeGroups.map(([grade, chapters]) => {
             const gradeMastery = chapters.length === 0 ? 0 : Math.round((chapters.filter((chapter) => nodeStatuses[chapter.node.node_id] === "mastered").length / chapters.length) * 100);
 
-            return <section key={grade} className="progress-grade-container" aria-labelledby={`grade-path-${grade}`}>
-            <header className="progress-grade-header">
-              <div><small>{grade < 7 ? "FOUNDATIONAL PREREQUISITES" : `GRADE ${grade} CURRICULUM`}</small><h3 id={`grade-path-${grade}`}>{grade < 7 ? `Foundation · Grade ${grade}` : `Grade ${grade} Path`}</h3><p>Complete the path in order to unlock the next chapter.</p></div>
-            </header>
-            <div className="progress-grade-progress" role="progressbar" aria-label={`Grade ${grade} path mastery`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={gradeMastery}><span style={{ width: `${gradeMastery}%` }} /></div>
+            return <section key={grade} className="progress-route-collection progress-grade-shelf" aria-labelledby={`grade-path-${grade}`} style={{ "--grade-path-mastery": `${gradeMastery}%` } as CSSProperties}>
+            <header className="progress-route-collection-title"><span>✦</span><div className="progress-grade-shelf-heading"><h2 id={`grade-path-${grade}`}>Grade {grade}</h2><p>{getGradeShelfSubtitle(grade)}</p></div><span>✦</span></header>
+            <div className="progress-grade-progress" role="progressbar" aria-label={`Grade ${grade} path mastery`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={gradeMastery} />
             <ol className="progress-grade-path">
               {chapters.map((chapter, pathIndex) => {
                 const { node, topic, trackPct, priorNodeIds, previousNodeId } = chapter;
@@ -212,7 +218,6 @@ function ProgressContent() {
             </ol>
           </section>;
           })}
-          </div>
         </div>}
       </section>
     </div>

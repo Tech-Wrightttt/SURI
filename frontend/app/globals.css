@@ -449,7 +449,8 @@ html::-webkit-scrollbar {
 .progress-route-stats b { color: #163a31; font: 800 1.6rem/1 "Hanken Grotesk", sans-serif; text-shadow: none; }
 .progress-route-stats span { color: #356b4e; font: 800 .74rem/1.35 "Manrope", sans-serif; letter-spacing: .06em; text-shadow: none; text-transform: uppercase; }
 
-.progress-route-collection { width: min(78rem, 100%); margin: 0 auto; padding: clamp(1rem, 3vw, 2rem); border: 3px solid #e8dc7b; border-radius: 2rem; background: rgba(17, 47, 40, .94); box-shadow: 9px 9px 0 #060b09; backdrop-filter: blur(10px); }
+.progress-route-collections { display: grid; gap: 1.25rem; width: min(78rem, 100%); margin: 0 auto; }
+.progress-route-collection { width: 100%; margin: 0; padding: clamp(1rem, 3vw, 2rem); border: 3px solid #e8dc7b; border-radius: 2rem; background: rgba(17, 47, 40, .94); box-shadow: 9px 9px 0 #060b09; backdrop-filter: blur(10px); }
 .progress-route-collection-title { display: flex; align-items: center; justify-content: center; gap: .75rem; padding-bottom: clamp(1rem, 3vw, 1.45rem); color: #fffdf6; text-align: center; }
 .progress-route-collection-title > span { font-size: 1rem; color: #f4cd57; text-shadow: 2px 2px 0 #0a201a; }
 .progress-route-collection-title small { color: #b9e5bc; font: 800 .7rem/1 "Manrope", sans-serif; letter-spacing: .14em; }
@@ -584,6 +585,10 @@ html::-webkit-scrollbar {
 
 /* Grade containers restore the original top-to-bottom prerequisite sequence. */
 .progress-grade-containers { display: grid; gap: 1.25rem; }
+.progress-grade-shelf .progress-route-collection-title { padding-bottom: .2rem; }
+.progress-grade-shelf-heading { display: grid; gap: .42rem; }
+.progress-grade-shelf .progress-route-collection-title h2 { margin: 0; }
+.progress-grade-shelf-heading p { margin: 0; color: #b9e5bc; font: 800 .7rem/1.25 "Manrope", sans-serif; letter-spacing: .13em; text-transform: uppercase; }
 .progress-grade-container { position: relative; overflow: hidden; padding: 1rem 1rem 1.45rem; border: 3px solid #78a988; border-radius: 1.1rem .75rem .75rem 1.1rem; color: #193b33; background: #fffaf0; box-shadow: inset 4px 0 rgba(255,255,255,.42), inset -9px 0 rgba(32,56,44,.08), 5px 5px 0 #060b09; }
 .progress-grade-container::before { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(25,59,51,.14); border-radius: .65rem .4rem .4rem .65rem; pointer-events: none; }
 .progress-grade-header { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .32rem .35rem .9rem; border-bottom: 2px solid rgba(25,59,51,.2); }
@@ -591,16 +596,17 @@ html::-webkit-scrollbar {
 .progress-grade-header > div > small { display: block; color: #8b731c; font: 800 .7rem/1 "Manrope", sans-serif; letter-spacing: .13em; }
 .progress-grade-header h3 { margin: .48rem 0 0; color: #163a31; font: 800 clamp(1.45rem, 2.8vw, 1.9rem)/1.1 "Hanken Grotesk", sans-serif; letter-spacing: -.04em; }
 .progress-grade-header p { margin: .48rem 0 0; color: #426653; font: 700 .88rem/1.45 "Manrope", sans-serif; }
-.progress-grade-progress { position: relative; z-index: 1; height: .85rem; margin: .85rem .35rem 0; overflow: hidden; border: 2px solid #163a31; border-radius: 99px; background: #dce8d9; box-shadow: inset 0 1px rgba(255,255,255,.75); }
-.progress-grade-progress > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5fbd7a, #a8d95c); box-shadow: inset 0 -2px rgba(22,58,49,.14); transition: width .35s ease; }
-.progress-grade-path { position: relative; z-index: 1; display: grid; gap: .9rem; margin: 0; padding: 1.2rem .35rem .35rem 3.1rem; list-style: none; }
-.progress-grade-path::before { content: ""; position: absolute; top: 1.45rem; bottom: 1.25rem; left: 1rem; width: 3px; background: #c7d4c1; }
-.progress-grade-step { position: relative; }
-.progress-grade-marker { position: absolute; top: 1.05rem; left: -3.1rem; z-index: 2; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 3px solid #6f8171; border-radius: 50%; color: #163a31; background: #fffdf6; box-shadow: 0 0 0 4px rgba(95,189,122,.12); font: 800 .66rem/1 "Manrope", sans-serif; letter-spacing: .04em; }
+.progress-grade-progress { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); border: 0; white-space: nowrap; }
+.progress-grade-path { --marker-diameter: 2.25rem; --path-inset: .35rem; --rail-center: calc(var(--path-inset) + (var(--marker-diameter) / 2)); position: relative; z-index: 1; display: grid; gap: .9rem; margin: 0; padding: 1.2rem var(--path-inset) .35rem; list-style: none; }
+.progress-grade-path::before { content: ""; position: absolute; z-index: 0; top: 1.45rem; bottom: 1.25rem; left: var(--rail-center); width: .72rem; border: 2px solid #356b4e; border-radius: 99px; background: linear-gradient(to bottom, #5fbd7a 0 var(--grade-path-mastery), #dce8d9 var(--grade-path-mastery) 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.42), 0 0 0 2px rgba(232,220,123,.15); transform: translateX(-50%); }
+.progress-grade-path::after { content: ""; position: absolute; z-index: 1; top: 1.7rem; bottom: 1.5rem; left: var(--rail-center); width: .12rem; border-radius: 99px; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.6) 0 .18rem, transparent .18rem .48rem); pointer-events: none; transform: translateX(-50%); }
+.progress-grade-step { display: grid; grid-template-columns: var(--marker-diameter) minmax(0, 1fr); gap: .85rem; align-items: center; min-width: 0; }
+.progress-grade-marker { position: relative; z-index: 2; display: grid; grid-column: 1; place-items: center; justify-self: center; align-self: center; width: var(--marker-diameter); height: var(--marker-diameter); border: 3px solid #7d897f; border-radius: 50%; color: #526057; background: #e6eae5; box-shadow: 0 0 0 4px rgba(160,174,164,.2); font: 800 .66rem/1 "Manrope", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.progress-grade-step.not-attempted .progress-grade-marker { border-color: #7d897f; color: #526057; background: #e6eae5; box-shadow: 0 0 0 4px rgba(160,174,164,.2); }
 .progress-grade-step.mastered .progress-grade-marker { border-color: #23734c; color: #fffdf6; background: #5fbd7a; }
 .progress-grade-step.in-progress .progress-grade-marker { border-color: #b9851c; background: #f4cd57; }
 .progress-grade-step.needs-work .progress-grade-marker { border-color: #a64242; color: #fffdf6; background: #e98282; }
-.progress-grade-chapter { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .45rem .9rem; align-items: start; padding: 1rem 1.05rem; border: 2px solid #163a31; border-radius: .75rem; background: rgba(255,253,246,.92); box-shadow: 3px 3px 0 #356b4e; }
+.progress-grade-chapter { display: grid; grid-column: 2; grid-template-columns: minmax(0, 1fr) auto; gap: .45rem .9rem; align-items: start; min-width: 0; padding: 1rem 1.05rem; border: 2px solid #163a31; border-radius: .75rem; background: rgba(255,253,246,.92); box-shadow: 3px 3px 0 #356b4e; }
 .progress-grade-step.mastered .progress-grade-chapter { border-color: #23734c; box-shadow: 3px 3px 0 #5fbd7a; }
 .progress-grade-step.in-progress .progress-grade-chapter { border-color: #c89a33; box-shadow: 3px 3px 0 #f4cd57; }
 .progress-grade-step.needs-work .progress-grade-chapter { border-color: #bd6c65; box-shadow: 3px 3px 0 #d9908a; }
@@ -628,13 +634,12 @@ html::-webkit-scrollbar {
 .progress-grade-action.is-review { color: #163a31; background: #e1f1e3; }
 .progress-grade-action.is-locked, .progress-grade-action:disabled { cursor: not-allowed; opacity: .58; box-shadow: none; }
 @media (max-width: 640px) {
+  .progress-route-collections { gap: 1rem; }
   .progress-grade-container { padding: .8rem .75rem 1.35rem; }
   .progress-grade-header { align-items: flex-start; }
   .progress-grade-header p { font-size: .84rem; }
-  .progress-grade-progress { margin-inline: .15rem; }
-  .progress-grade-path { padding-left: 2.75rem; }
-  .progress-grade-path::before { left: .85rem; }
-  .progress-grade-marker { left: -2.75rem; width: 2rem; height: 2rem; }
+  .progress-grade-path { --marker-diameter: 2rem; --path-inset: .15rem; padding: 1.05rem var(--path-inset) .35rem; }
+  .progress-grade-step { gap: .75rem; }
   .progress-grade-chapter { grid-template-columns: 1fr; }
   .progress-grade-chapter-meta { justify-items: start; grid-auto-flow: column; justify-content: start; }
   .progress-grade-chapter-footer { align-items: stretch; flex-direction: column; }
