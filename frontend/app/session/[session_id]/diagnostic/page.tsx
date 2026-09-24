@@ -27,7 +27,7 @@ const GAME_CSS = `
     --heart-red: #ff2244; --heart-empty: #3a1a2a;
   }
   * { box-sizing: border-box; }
-  .battle-body { font-family: 'Nunito', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; }
+  .battle-body { font-family: 'Nunito', sans-serif; min-height: 100dvh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; }
   .arena-bg { background: url('/login/arena.png') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .fog-wisp { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(40px); animation: fogDrift linear infinite; opacity: 0; }
   @keyframes fogDrift { 0% { opacity: 0; transform: translateX(-60px) scaleX(0.8); } 20% { opacity: 0.18; } 80% { opacity: 0.12; } 100% { opacity: 0; transform: translateX(80px) scaleX(1.2); } }
@@ -250,7 +250,6 @@ const GAME_CSS = `
   /* Storybook diagnostic reskin */
   .battle-body {
     font-family: Georgia, 'Times New Roman', serif;
-    padding: clamp(10px, 1.5vw, 18px);
     background:
       radial-gradient(circle at 50% 0%, rgba(250,204,96,0.16), transparent 28%),
       linear-gradient(135deg, #1b0e12 0%, #392016 42%, #151025 100%);
@@ -706,14 +705,12 @@ const GAME_CSS = `
     position: relative;
     min-height: 76px;
     padding: 11px 24px 13px;
-    border: 2px solid #8749b7;
+    border: 2px solid #318138;
     border-radius: 18px;
     background:
       radial-gradient(circle at 50% 0%, rgba(255,255,255,0.22), transparent 42%),
-      linear-gradient(180deg, rgba(81,39,120,0.98), rgba(55,27,91,0.99));
-    box-shadow:
-      0 5px 0 rgba(72,31,94,0.62),
-      inset 0 1px 0 rgba(255,255,255,0.16);
+      linear-gradient(180deg, rgba(29, 85, 27, 0.98), rgba(13, 61, 25, 0.99));
+    
   }
   .hud-crest {
     position: absolute;
@@ -1409,7 +1406,6 @@ export default function DiagnosticPage() {
             </div>
           </div>
           <div className="chapter-banner">
-            <img className="hud-crest" src="/login/suri-math-quest-crest.svg" alt="SURI Math Quest" />
             <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${MAX_HEARTS}`}</span>
             <span className="hud-logo">Diagnostic Battle</span>
             <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
