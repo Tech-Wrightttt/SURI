@@ -319,6 +319,10 @@ export default function AlgebraCalculatorPage() {
         </div>
         <div className="calculator-input-row">
           <MathField value={expression} disabled={loading} onChange={setExpression} onEnter={() => handleSolve()} />
+          <button type="button" className="calculator-reset-button" onClick={handleReset} disabled={loading || (!expression && !hasResult && !error)}>
+            <RefreshCw size={16} aria-hidden="true" />
+            Reset
+          </button>
           <button type="button" className="calculator-solve-button" onClick={() => handleSolve()} disabled={loading || !expression.trim()}>
             {loading ? <Loader2 size={17} className="animate-spin" /> : <ChevronRight size={18} />}
             {loading ? "Solving…" : "Show steps"}
@@ -378,8 +382,6 @@ export default function AlgebraCalculatorPage() {
           <div className="calculator-final-answer-copy"><small id="calculator-final-answer-heading">FINAL ANSWER</small><MathDisplay value={finalExpression} className="calculator-final-math" /></div>
         </section>
       </div>}
-
-      {(expression || hasResult || error) && <div className="calculator-reset-row"><button type="button" onClick={handleReset}><RefreshCw size={15} /> Start a new expression</button></div>}
       <div className="calculator-route-top">
         <BackToTopButton className="calculator-route-back" />
       </div>
