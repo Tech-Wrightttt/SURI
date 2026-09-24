@@ -8,8 +8,10 @@ import { ISLAND_ROUTES, type CameraCommand, type IslandRoute } from "@/lib/world
 
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
 const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
+const loadProgressWorld = () => import("@/components/WorldMap/ProgressTrailWorld");
 const DashboardWorld = dynamic(loadWorld, { ssr: false });
 const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
+const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
 const NavigationContext = createContext<{
   navigate: (href: string) => void; busy: boolean; error: string | null; clearSession: () => void;
@@ -33,6 +35,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   // immediate instead of rebuilding a second WebGL context on every route.
   const [dashboardWorldMounted, setDashboardWorldMounted] = useState(overview);
   const [topicsWorldMounted, setTopicsWorldMounted] = useState(pathname === "/topics");
+  const [progressWorldMounted, setProgressWorldMounted] = useState(pathname === "/progress");
   const locked = useRef(false);
   const serial = useRef(0);
   const previous = useRef(pathname);
@@ -50,13 +53,14 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   }, [managed, pathname, router]);
 
   useEffect(() => {
-    if (!overview && pathname !== "/topics") return;
+    if (!overview && pathname !== "/topics" && pathname !== "/progress") return;
     // Delay bookkeeping to the next frame: the active route is rendered from
     // the pathname immediately, while this only records that it should stay
     // mounted after the user leaves it.
     const frame = window.requestAnimationFrame(() => {
       if (overview) setDashboardWorldMounted(true);
       if (pathname === "/topics") setTopicsWorldMounted(true);
+      if (pathname === "/progress") setProgressWorldMounted(true);
     });
     return () => window.cancelAnimationFrame(frame);
   }, [overview, pathname]);
@@ -65,7 +69,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     if (!managed) return;
     // Route prefetching fetches code in most cases. This idle preload is a
     // fallback that keeps Three.js from competing with the first paint.
-    const preload = () => { void loadWorld(); void loadTopicsWorld(); };
+    const preload = () => { void loadWorld(); void loadTopicsWorld(); void loadProgressWorld(); };
     const idle = window.requestIdleCallback?.(preload, { timeout: 2500 });
     const timeout = idle === undefined ? window.setTimeout(preload, 1200) : undefined;
     return () => {
@@ -121,7 +125,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     // zoom. The route is shown only after that critical module is available.
     const worldReady = href === "/topics"
       ? loadTopicsWorld().then(() => undefined).catch(() => undefined)
-      : Promise.resolve();
+      : href === "/progress"
+        ? loadProgressWorld().then(() => undefined).catch(() => undefined)
+        : Promise.resolve();
     const site=ISLAND_ROUTES[href as IslandRoute];
     const camera = new Promise<void>(resolve => {
       if (overview && site) setCommand({id:++serial.current,kind:"island",site,onComplete:resolve});
@@ -161,6 +167,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     </div>}
     {(topicsWorldMounted || pathname === "/topics") && <div className="topics-world-shell" aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
       <TopicsLibraryWorld active={pathname === "/topics"} />
+    </div>}
+    {(progressWorldMounted || pathname === "/progress") && <div className="progress-world-shell" aria-hidden={pathname !== "/progress"} style={{ visibility: pathname === "/progress" ? "visible" : "hidden" }}>
+      <ProgressTrailWorld active={pathname === "/progress"} />
     </div>}
     <div className={overview ? "dashboard-route-overlay" : "learning-route-content"}>{children}</div>
   </NavigationContext.Provider>;

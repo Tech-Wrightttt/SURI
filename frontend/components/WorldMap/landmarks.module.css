@@ -1,75 +1,46 @@
 .marker {
+  --marker-background: #fffaf0;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 7px;
-  width: max-content;
-  padding: 7px 11px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 5px;
-  background: rgba(29, 42, 45, 0.82);
-  box-shadow: 0 3px 12px #16292926;
-  color: #fffaf0;
-  font: 600 11px/1.2 "Manrope", sans-serif;
-  letter-spacing: 0.025em;
-  white-space: nowrap;
+  gap: 0;
+  width: fit-content;
+  max-width: 10.5rem;
+  height: auto;
+  min-height: 0;
+  padding: .5rem .75rem;
+  border: 2px solid #163a31;
+  border-radius: .65rem;
+  background: var(--marker-background);
+  box-shadow: 3px 3px 0 #060b09;
+  color: #163a31;
+  font: 800 .62rem/1.1 "Manrope", sans-serif;
+  letter-spacing: .08em;
+  text-align: center;
+  text-transform: uppercase;
   cursor: pointer;
-}
-.marker::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #ebcf8d;
-  box-shadow: 0 0 8px #ebcf8d66;
-}
-.marker::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  width: 1px;
-  height: 12px;
-  background: rgba(255,255,255,0.65);
-}
-.marker:hover, .marker:focus-visible {
-  outline: 2px solid #ebcf8d;
-  outline-offset: 3px;
-  background: #303943;
+  transform: translateZ(0);
+  transform-origin: bottom center;
+  transition: width .2s ease, max-width .2s ease, padding .2s ease, transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 .scenic { cursor: default; }
-.detail {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: none;
-  width: 210px;
-  padding: 12px 14px;
-  border: 1px solid #e9d09a66;
-  border-radius: 7px;
-  background: rgba(25, 29, 39, 0.94);
-  color: #fff9ec;
-  box-shadow: 0 8px 24px #17262433;
-  font: 500 11px/1.5 "Manrope", sans-serif;
-  z-index: 2;
-}
-.detail strong { display: block; margin-bottom: 4px; font-size: 13px; }
-.detail span { color: #d0d6d1; }
+.markerHeading { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: fit-content; height: auto; gap: 6px; white-space: nowrap; }
+.markerIcon { flex: 0 0 auto; color: #c59625; font-size: .85rem; line-height: 1; }
+.markerTitle { color: inherit; font: 800 .82rem/1 "Hanken Grotesk", sans-serif; letter-spacing: -.02em; }
+.markerDetail { display: block; align-self: stretch; height: 0; max-height: 0; margin: 0; padding: 0; overflow: hidden; opacity: 0; transform: translateY(4px); color: #426653; font: 700 .62rem/1.4 "Manrope", sans-serif; letter-spacing: .015em; text-transform: none; pointer-events: none; transition: max-height .2s ease, margin-top .2s ease, opacity .2s ease, transform .2s ease; }
+.marker:hover, .marker:focus-visible, .markerExpanded { --marker-background: #fffdf6; width: 17rem; max-width: calc(100vw - 2rem); padding: .5rem .75rem; box-shadow: 5px 5px 0 #060b09; transform: translate(-2px, -2px) scale(1.025); }
+.marker:hover .markerIcon, .marker:focus-visible .markerIcon, .markerExpanded .markerIcon { color: #f4cd57; }
+.marker:hover .markerDetail, .marker:focus-visible .markerDetail, .markerExpanded .markerDetail { height: auto; max-height: 8rem; margin-top: .4rem; opacity: 1; transform: translateY(0); pointer-events: auto; }
 @media (max-width: 600px) {
-  .marker { padding: 5px 7px; gap: 4px; font-size: 9px; }
+  .marker { padding: .5rem .75rem; gap: 0; font-size: 9px; }
 }
 
-/* World labels never become competing pointer targets. Native buttons remain
-   keyboard focusable; pointer/touch activation goes through the 3D hitboxes. */
-.anchor { position: relative; z-index: 1; }
-.tooltipPortal {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-}
-.tooltipAnchor { position: relative; width: 0; height: 0; pointer-events: none; }
-.anchor, .marker, .detail { pointer-events: none; }
+/* Anchor the pointer tip to the landmark. As content grows, the card grows up. */
+.anchor { --label-offset-x: 0px; --label-offset-y: 0px; position: relative; z-index: 1; transform: translate(calc(-50% + var(--label-offset-x)), calc(-100% - .56rem + var(--label-offset-y))); }
+.marker { position: relative; z-index: 1; pointer-events: auto; }
+.marker::before, .marker::after { content: ""; position: absolute; left: 50%; width: 0; height: 0; transform: translateX(-50%); }
+.marker::before { z-index: -1; bottom: -9px; border-right: 9px solid transparent; border-left: 9px solid transparent; border-top: 9px solid #163a31; }
+.marker::after { z-index: 0; bottom: -6px; border-right: 7px solid transparent; border-left: 7px solid transparent; border-top: 7px solid var(--marker-background); }
 .viewport { position: absolute; inset: 0; }
 @media (max-aspect-ratio: 1/1) {
   .viewport { top: 50%; bottom: auto; height: 66.667vw; transform: translateY(-50%); }
@@ -79,14 +50,14 @@
 .world::before, .world::after { display: none; }
 .viewport { z-index: 2; }
 @media (max-width: 600px) {
-  .marker { padding: 4px 6px; font-size: 8px; }
+  .marker { padding: .5rem .75rem; font-size: 8px; }
 }
 
 /* Separate the dense hub labels when the full archipelago fits a phone width. */
 @media (max-width: 600px) {
-  .anchor[data-landmark="keep"] { transform: translate(8px, -22px); }
-  .anchor[data-landmark="academy"] { transform: translate(-6px, 0); }
-  .anchor[data-landmark="ranger"] { transform: translate(20px, 0); }
-  .anchor[data-landmark="guild"] { transform: translate(-9px, 10px); }
-  .anchor[data-landmark="arena"] { transform: translate(-18px, 16px); }
+  .anchor[data-landmark="keep"] { --label-offset-x: 8px; --label-offset-y: -22px; }
+  .anchor[data-landmark="academy"] { --label-offset-x: -6px; }
+  .anchor[data-landmark="ranger"] { --label-offset-x: 20px; }
+  .anchor[data-landmark="guild"] { --label-offset-x: -9px; --label-offset-y: 10px; }
+  .anchor[data-landmark="arena"] { --label-offset-x: -18px; --label-offset-y: 16px; }
 }
