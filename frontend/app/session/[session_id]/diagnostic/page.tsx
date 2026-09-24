@@ -218,7 +218,7 @@ const GAME_CSS = `
   .spell-check { width: 24px; height: 24px; font-size: 0; color: transparent; }
   .spell-check::before { content: ""; width: 12px; height: 7px; border-left: 3px solid #173421; border-bottom: 3px solid #173421; transform: rotate(-45deg); margin-top: -2px; }
   .spell-check.wrong-mark::before { width: 12px; height: 12px; border: 0; background: linear-gradient(45deg, transparent 40%, #fff 40% 60%, transparent 60%), linear-gradient(-45deg, transparent 40%, #fff 40% 60%, transparent 60%); transform: none; margin: 0; }
-  .feedback-banner { border-radius: 8px; margin-top: auto; min-height: 70px; }
+  .feedback-banner { border-radius: 0; border: 2px solid rgba(255,226,136,0.35); background: rgba(28,13,9,0.76); box-shadow: inset 0 0 18px rgba(0,0,0,0.35); }
   .feedback-title { display: flex; align-items: center; gap: 8px; }
   .attack-btn { border-radius: 8px; min-height: 56px; }
   .attack-btn.ready { background: linear-gradient(180deg,#f1c553,#ba7f27); box-shadow: 0 6px 0 #5e421b, 0 0 20px rgba(255,218,112,0.24), inset 0 1px 0 rgba(255,255,255,0.24); color: #2d1d12; }
@@ -773,6 +773,264 @@ const GAME_CSS = `
     .chapter-banner { width: 100%; padding-inline: 14px; }
     .hud-crest { width: min(210px, 82vw); }
   }
+  .diagnostic-before {
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(118px, 14vh, 150px) 22px 34px;
+    font-family: "Nunito", sans-serif;
+    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    color: #3b1766;
+  }
+  .diagnostic-before .arena-bg {
+    display: none;
+  }
+  .diagnostic-before::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 50% 39%, rgba(255, 239, 185, .34), transparent 28%),
+      linear-gradient(90deg, rgba(19, 13, 38, .34), transparent 26%, transparent 72%, rgba(31, 15, 44, .24)),
+      linear-gradient(180deg, rgba(255, 255, 255, .08), transparent 45%, rgba(43, 29, 40, .2));
+    pointer-events: none;
+  }
+  .diagnostic-before .intro-screen {
+    width: min(900px, 100%);
+    min-height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    gap: 0;
+  }
+  .intro-parchment-frame {
+    position: relative;
+    width: 100%;
+    padding: 24px;
+    border-radius: 32px 28px 34px 30px;
+    background:
+      linear-gradient(90deg, #70411f 0 18px, transparent 18px calc(100% - 18px), #70411f calc(100% - 18px)),
+      linear-gradient(180deg, #8b5527 0 18px, transparent 18px calc(100% - 18px), #8b5527 calc(100% - 18px)),
+      #70411f;
+    box-shadow:
+      0 28px 46px rgba(42, 24, 20, .36),
+      inset 0 0 0 4px #3b1d13,
+      inset 0 0 0 10px rgba(255, 198, 92, .22);
+  }
+  .intro-parchment-frame::before {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border-radius: 24px;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 3% 12%, #4a2413 0 16px, transparent 17px),
+      radial-gradient(circle at 97% 13%, #4a2413 0 16px, transparent 17px),
+      radial-gradient(circle at 4% 91%, #4a2413 0 15px, transparent 16px),
+      radial-gradient(circle at 96% 90%, #4a2413 0 15px, transparent 16px);
+    opacity: .76;
+  }
+  .intro-crest {
+    position: absolute;
+    width: min(420px, 88vw);
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -55%);
+    z-index: 3;
+    filter: drop-shadow(0 16px 14px rgba(42, 18, 24, .38));
+    pointer-events: none;
+  }
+  .intro-parchment-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px 20px 24px 22px;
+    padding: clamp(48px, 7vw, 70px) clamp(22px, 6vw, 62px) clamp(26px, 5vw, 46px);
+    background:
+      radial-gradient(circle at 18% 24%, rgba(255, 255, 255, .34), transparent 26%),
+      radial-gradient(circle at 80% 76%, rgba(174, 102, 34, .12), transparent 31%),
+      linear-gradient(135deg, rgba(129, 73, 24, .08) 0 14%, transparent 14% 28%, rgba(129, 73, 24, .06) 28% 42%, transparent 42% 57%, rgba(129, 73, 24, .06) 57% 70%, transparent 70%),
+      #f6ddaa;
+    box-shadow:
+      inset 0 0 0 2px rgba(124, 70, 28, .2),
+      inset 0 0 34px rgba(116, 65, 22, .18);
+    text-align: center;
+  }
+  .intro-parchment-panel::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 2px solid rgba(111, 61, 28, .13);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+  .intro-content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+  }
+  .diagnostic-before .intro-title {
+    color: #3c126b;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(34px, 5.1vw, 54px);
+    line-height: 1;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, .55);
+    animation: none;
+  }
+  .intro-ornament {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: min(470px, 100%);
+    margin: 24px auto 24px;
+    color: #7d36bb;
+  }
+  .intro-ornament::before,
+  .intro-ornament::after {
+    content: "";
+    height: 2px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, currentColor);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .55);
+  }
+  .intro-ornament::after {
+    background: linear-gradient(90deg, currentColor, transparent);
+  }
+  .intro-ornament span {
+    width: 23px;
+    height: 23px;
+    background: currentColor;
+    clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .7));
+  }
+  .diagnostic-before .intro-subtitle,
+  .diagnostic-before .speech-bubble {
+    max-width: 680px;
+    margin: 0 auto 18px;
+    padding: 14px 18px;
+    border: 2px solid #8749b7;
+    border-radius: 15px;
+    background: linear-gradient(180deg, rgba(81, 39, 120, .96), rgba(55, 27, 91, .98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 3px 0 rgba(72, 31, 94, .44);
+    color: #fff8e8;
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(15px, 1.7vw, 18px);
+    font-style: normal;
+    font-weight: 900;
+    line-height: 1.5;
+  }
+  .diagnostic-before .speech-bubble::after {
+    display: none;
+  }
+  .diagnostic-before .intro-char {
+    width: min(720px, 100%);
+    margin: 2px auto 22px;
+    padding: 18px;
+    border: 2px solid rgba(124, 70, 28, .32);
+    border-radius: 18px;
+    background: rgba(255, 248, 232, .72);
+    box-shadow: inset 0 0 22px rgba(116, 65, 22, .12);
+  }
+  .diagnostic-before .intro-enemy-img {
+    width: clamp(130px, 22vw, 210px);
+    height: clamp(130px, 22vw, 210px);
+    filter: drop-shadow(0 14px 16px rgba(42, 18, 24, .32));
+  }
+  .intro-button-row {
+    display: flex;
+    gap: 14px;
+    width: min(720px, 100%);
+    margin: 0 auto;
+  }
+  .intro-button-wrap {
+    flex: 1;
+    padding: 8px;
+    clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+    background: linear-gradient(180deg, #ffcf66, #9a541f);
+    filter: drop-shadow(0 8px 0 rgba(72, 34, 16, .72));
+  }
+  .diagnostic-before .intro-start-btn,
+  .diagnostic-before .intro-skip-btn {
+    width: 100%;
+    max-width: none;
+    min-height: 62px;
+    margin: 0;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 0;
+    clip-path: polygon(9% 0, 91% 0, 100% 50%, 91% 100%, 9% 100%, 0 50%);
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.12), transparent 18%, transparent 82%, rgba(255,255,255,.12)),
+      linear-gradient(180deg, #9232cc, #58158f 52%, #391071);
+    color: #fffaf6;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 900;
+    letter-spacing: 0;
+    text-shadow: 0 3px 0 #32104d;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-transform: none;
+  }
+  .diagnostic-before .intro-skip-btn {
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.2), transparent 18%, transparent 82%, rgba(255,255,255,.2)),
+      linear-gradient(180deg, #fff1bc, #f3bd50 54%, #a96525);
+    color: #3c126b;
+    text-shadow: 0 2px 0 rgba(255, 255, 255, .55);
+  }
+  .diagnostic-before .intro-start-btn:hover:not(:disabled),
+  .diagnostic-before .intro-skip-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+  }
+  .diagnostic-before .error-banner {
+    width: min(680px, 100%);
+    margin: 18px auto 0;
+    border: 2px solid #bb3d42;
+    border-radius: 14px;
+    background: rgba(111, 20, 45, .14);
+    color: #6f1430;
+  }
+  .diagnostic-before .error-banner span {
+    color: #6f1430;
+  }
+  @media (max-width: 720px) {
+    .diagnostic-before {
+      min-height: 100svh;
+      padding: 112px 12px 18px;
+    }
+    .intro-crest {
+      width: min(320px, 90vw);
+      transform: translate(-50%, -52%);
+    }
+    .intro-parchment-frame {
+      padding: 14px;
+      border-radius: 24px;
+    }
+    .intro-parchment-panel {
+      padding: 42px 15px 24px;
+      border-radius: 18px;
+    }
+    .diagnostic-before .intro-title {
+      font-size: 34px;
+    }
+    .intro-button-row {
+      flex-direction: column;
+    }
+    .diagnostic-before .intro-start-btn,
+    .diagnostic-before .intro-skip-btn {
+      min-height: 58px;
+      font-size: 22px;
+    }
+  }
   ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); } ::-webkit-scrollbar-thumb { background: rgba(155,89,182,0.5); border-radius: 3px; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;
@@ -1131,7 +1389,7 @@ export default function DiagnosticPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: GAME_CSS }} />
-      <div className={`battle-body${shaking ? " screen-shake" : ""}`}>
+      <div className={`battle-body${shaking ? " screen-shake" : ""}${phase === "intro" ? " diagnostic-before" : ""}`}>
         <ArenaBackground />
         
         {phase !== "intro" && (
@@ -1151,6 +1409,7 @@ export default function DiagnosticPage() {
             </div>
           </div>
           <div className="chapter-banner">
+            <img className="hud-crest" src="/login/suri-math-quest-crest.svg" alt="SURI Math Quest" />
             <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${MAX_HEARTS}`}</span>
             <span className="hud-logo">Diagnostic Battle</span>
             <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
@@ -1175,27 +1434,46 @@ export default function DiagnosticPage() {
 
         {phase === "intro" && (
           <main className="intro-screen" id="intro-screen">
-            <h1 className="intro-title"> DIAGNOSTIC BATTLE</h1>
-            <p className="intro-subtitle">
-              Prove your knowledge in the arena! Answer correctly to strike the enemy —
-              every wrong answer lets them hit back. Survive with 5 hearts!
-            </p>
-          
-            <div className="speech-bubble">
-              &ldquo;Ready to test your skills? Let&apos;s see what you&apos;ve got!&rdquo;
-            </div>
-                <div className="intro-char">
-                <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
+            <div className="intro-parchment-frame">
+              
+              <div className="intro-parchment-panel">
+                <div className="intro-content">
+                  <h1 className="intro-title">DIAGNOSTIC BATTLE</h1>
+
+                  <div className="intro-ornament" aria-hidden="true">
+                    <span />
+                  </div>
+
+                  <p className="intro-subtitle">
+                    Prove your knowledge in the arena! Answer correctly to strike the enemy —
+                    every wrong answer lets them hit back. Survive with 5 hearts!
+                  </p>
+
+                  <div className="speech-bubble">
+                    &ldquo;Ready to test your skills? Let&apos;s see what you&apos;ve got!&rdquo;
+                  </div>
+
+                  <div className="intro-char">
+                    <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
+                  </div>
+
+                  <div className="intro-button-row">
+                    <div className="intro-button-wrap">
+                      <button id="start-battle-btn" className="intro-start-btn" onClick={fetchProbe} disabled={loading} aria-busy={loading}>
+                        {loading ? <><span className="spin-loader"><GameIcon name="gear" /></span> Loading...</> : <>START BATTLE</>}
+                      </button>
+                    </div>
+                    <div className="intro-button-wrap">
+                      <button id="skip-diagnostic-btn" className="intro-skip-btn" onClick={handleSkip} disabled={skipping || loading}>
+                        {skipping ? "Skipping..." : "Skip Diagnostic >"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
+                </div>
               </div>
-             
-      
-            <button id="start-battle-btn" className="intro-start-btn" onClick={fetchProbe} disabled={loading} aria-busy={loading}>
-              {loading ? <><span className="spin-loader"><GameIcon name="gear" /></span> Loading...</> : <>START BATTLE</>}
-            </button>
-            <button id="skip-diagnostic-btn" className="intro-skip-btn" onClick={handleSkip} disabled={skipping || loading}>
-              {skipping ? "Skipping..." : "Skip Diagnostic >"}
-            </button>
-            {error && <div className="error-banner" role="alert"><GameIcon name="warning" /><span>{error}</span></div>}
+            </div>
           </main>
         )}
 
