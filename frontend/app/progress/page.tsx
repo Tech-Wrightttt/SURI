@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
+import { useWorldNavigation } from "@/components/navigation/LearningShell";
 import { ensureLearningData } from "@/lib/learningData";
 import { createSession, skipDiagnostic } from "@/lib/api";
 import { BookOpen, Loader2, Lock } from "lucide-react";
@@ -36,6 +37,7 @@ export default function ProgressPage() {
 
 function ProgressContent() {
   const router = useRouter();
+  const { navigate } = useWorldNavigation();
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -166,7 +168,7 @@ function ProgressContent() {
   return <MainPage immersive>
     <div className="progress-route-page">
       <header className="progress-route-header">
-        <button type="button" className="progress-route-back" onClick={() => router.back()} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
+        <button type="button" className="progress-route-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
         <div className="progress-route-kicker"><span /> THE SURI ACADEMY PATHFINDER <span /></div>
         <h1>Mastery <em>Trail</em></h1>
         <p>Follow each grade-level path in order, completing every prerequisite before the next chapter unlocks.</p>

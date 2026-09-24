@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
-import { useLearningData } from "@/components/navigation/LearningShell";
+import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
 
 export default function TopicsPage() {
   const router = useRouter();
+  const { navigate } = useWorldNavigation();
   const { data, error: loadError } = useLearningData();
   const topics = data?.topics ?? [];
   const activeTopics = Object.fromEntries((data?.progress.active_sessions ?? []).map(session => [session.topic_entry_node, session.id]));
@@ -21,7 +22,7 @@ export default function TopicsPage() {
   return <MainPage immersive>
     <div className="topics-library-page">
       <header className="topics-library-header">
-        <button type="button" className="topics-library-back" onClick={() => router.back()} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
+        <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
         <div className="topics-library-kicker"><span /> THE SURI ACADEMY ARCHIVES <span /></div>
         <h1>Grand <em>Library</em></h1>
         <p>Choose a volume from the living collection and continue your learning journey.</p>

@@ -60,7 +60,7 @@ const EMPTY_ERRORS: MisconceptionHistoryItem[] = [];
 type WorldProps = {
   active?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
-  command: CameraCommand | null; visible: boolean; busy: boolean; navigate: (href: string) => void;
+  command: CameraCommand | null; visible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void;
 };
 
 function FrameGate({ active }: { active: boolean }) {
@@ -69,7 +69,7 @@ function FrameGate({ active }: { active: boolean }) {
   return null;
 }
 
-function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible }: WorldProps) {
+function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible, preserveCameraOnActivate }: WorldProps) {
   const size = useThree(state => state.size);
   const frame = worldFrame(size.width, size.height, playableProjectionBounds());
   const visit = (_site: keyof typeof SITES, href: string) => { if(!busy)navigate(href); };
@@ -80,7 +80,7 @@ function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, 
       <ambientLight intensity={0.7} color="#fff8e7" />
       <directionalLight position={[-38, 60, 35]} intensity={2.6} color="#fffde7" castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-50} shadow-camera-right={50} shadow-camera-top={42} shadow-camera-bottom={-42} shadow-camera-far={130} shadow-normalBias={0.06} shadow-bias={-0.0004} />
       <hemisphereLight args={["#c4dfef", "#697653", 0.7]} />
-      <MapCamera command={command} active={visible} />
+      <MapCamera command={command} active={visible} preserveCameraOnActivate={preserveCameraOnActivate} />
       <group position={frame.position} rotation={[0, frame.rotation, 0]} scale={frame.scale}>
         <Ocean />
         <Landscape />

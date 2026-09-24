@@ -19,7 +19,7 @@ type FocusedIslandSceneProps = {
   site: keyof typeof SITES;
 };
 
-function FocusedIslandCamera({ site }: Pick<FocusedIslandSceneProps, "site">) {
+function FocusedIslandCamera({ site, arrive = true }: Pick<FocusedIslandSceneProps, "site"> & { arrive?: boolean }) {
   const getThree = useThree((state) => state.get);
   const size = useThree((state) => state.size);
   const invalidate = useThree((state) => state.invalidate);
@@ -42,11 +42,14 @@ function FocusedIslandCamera({ site }: Pick<FocusedIslandSceneProps, "site">) {
       camera.right = -camera.left;
       camera.top = CAMERA_HALF_HEIGHT;
       camera.bottom = -CAMERA_HALF_HEIGHT;
-      camera.zoom = 0.84;
+      camera.zoom = arrive ? 0.84 : 1.08;
     }
+    camera.position.copy(arrive ? distant : close);
+    camera.lookAt(focal);
+    elapsed.current = arrive ? 0 : 0.9;
     camera.updateProjectionMatrix();
     invalidate();
-  }, [distant, focal, getThree, size, invalidate]);
+  }, [arrive, close, distant, focal, getThree, size, invalidate]);
 
   useFrame((_, delta) => {
     if (elapsed.current >= 0.9) return;
@@ -65,7 +68,7 @@ function FocusedIslandCamera({ site }: Pick<FocusedIslandSceneProps, "site">) {
   return null;
 }
 
-export function FocusedIslandScene({ focus, landmark, site }: FocusedIslandSceneProps) {
+export function FocusedIslandScene({ focus, landmark, site, arrive = true }: FocusedIslandSceneProps & { arrive?: boolean }) {
   const position = sitePosition(site);
 
   return <>
@@ -73,7 +76,7 @@ export function FocusedIslandScene({ focus, landmark, site }: FocusedIslandScene
     <ambientLight intensity={0.7} color="#fff8e7" />
     <hemisphereLight args={["#c4dfef", "#697653", 0.7]} />
     <directionalLight position={[-38, 60, 35]} intensity={2.6} color="#fffde7" castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-50} shadow-camera-right={50} shadow-camera-top={42} shadow-camera-bottom={-42} shadow-camera-far={130} shadow-normalBias={0.06} shadow-bias={-0.0004} />
-    <FocusedIslandCamera site={site} />
+    <FocusedIslandCamera site={site} arrive={arrive} />
     <group rotation={[0, WORLD_ROTATION, 0]}>
       <Ocean island={focus.island as IslandFocus} />
       <Landscape focus={focus} />
@@ -82,27 +85,34 @@ export function FocusedIslandScene({ focus, landmark, site }: FocusedIslandScene
   </>;
 }
 
-function FrameGate({ active }: { active: boolean }) {
+function FrameGate({ active, onReady }: { active: boolean; onReady?: () => void }) {
   const invalidate = useThree((state) => state.invalidate);
-  useEffect(() => { if (active) invalidate(); }, [active, invalidate]);
+  useEffect(() => {
+    if (!active) return;
+    invalidate();
+    const frame = window.requestAnimationFrame(() => onReady?.());
+    return () => window.cancelAnimationFrame(frame);
+  }, [active, invalidate, onReady]);
   return null;
 }
 
 type FocusedIslandWorldProps = FocusedIslandSceneProps & {
   active?: boolean;
+  arrive?: boolean;
   className: string;
+  onReady?: () => void;
 };
 
 /** Shared fullscreen treatment for route-level close-ups of the dashboard islands. */
-export default function FocusedIslandWorld({ active = true, className, focus, landmark, site }: FocusedIslandWorldProps) {
+export default function FocusedIslandWorld({ active = true, arrive = true, className, focus, landmark, site, onReady }: FocusedIslandWorldProps) {
   return <div className={className} aria-hidden="true">
     <div className={`${className}-backdrop`}>
       <Canvas frameloop={active ? "demand" : "never"} orthographic shadows="percentage" dpr={[1, 1.25]} camera={{ position: [82, 82, 82], near: 0.5, far: 420 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => {
         gl.shadowMap.enabled = true;
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
       }}>
-        <FrameGate active={active} />
-        <FocusedIslandScene focus={focus} landmark={landmark} site={site} />
+        <FrameGate active={active} onReady={onReady} />
+        <FocusedIslandScene focus={focus} landmark={landmark} site={site} arrive={arrive} />
       </Canvas>
     </div>
   </div>;

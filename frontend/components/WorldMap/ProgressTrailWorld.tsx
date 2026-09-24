@@ -11,12 +11,14 @@ const PROGRESS_FOCUS = {
   bounds: { minX: -58, maxX: -27, minZ: -23, maxZ: 13, padding: 2.4, island: "progress" },
 } satisfies LandscapeFocus;
 
-export default function ProgressTrailWorld({ active = true }: { active?: boolean }) {
+export default function ProgressTrailWorld({ active = true, onReady }: { active?: boolean; onReady?: () => void }) {
   return <FocusedIslandWorld
     active={active}
+    arrive={false}
     className="progress-world"
     focus={PROGRESS_FOCUS}
     landmark="champions"
     site="champions"
+    onReady={onReady}
   />;
 }

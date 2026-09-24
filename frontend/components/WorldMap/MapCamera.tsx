@@ -5,14 +5,14 @@ import * as THREE from "three";
 import { CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, worldFrame } from "@/lib/worldMap/framing";
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
 import { SITES, sitePosition } from "@/lib/worldMap/landscape";
-import { cameraEase, islandCameraPose, RETURN_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
+import { cameraEase, islandCameraPose, RETURN_DURATION, TOPICS_APPROACH_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
 export { CAMERA_POSITION } from "@/lib/worldMap/framing";
 
-export function MapCamera({ command, active = true }: { command: CameraCommand | null; active?: boolean }) {
+export function MapCamera({ command, active = true, preserveCameraOnActivate = false }: { command: CameraCommand | null; active?: boolean; preserveCameraOnActivate?: boolean }) {
   const getThree=useThree(state=>state.get),size=useThree(state=>state.size),invalidate=useThree(state=>state.invalidate);
   const initialized=useRef(false);
   const wasActive=useRef(false);
-  const animation=useRef<{elapsed:number;duration:number;from:THREE.Vector3;to:THREE.Vector3;fromZoom:number;toZoom:number;done:()=>void}|null>(null);
+  const animation=useRef<{elapsed:number;duration:number;from:THREE.Vector3;to:THREE.Vector3;fromZoom:number;toZoom:number;fromQuaternion:THREE.Quaternion;toQuaternion:THREE.Quaternion;done:()=>void}|null>(null);
   useLayoutEffect(()=>{
     const {camera}=getThree();
     if(!initialized.current){
@@ -27,7 +27,7 @@ export function MapCamera({ command, active = true }: { command: CameraCommand |
   },[getThree,size]);
   useLayoutEffect(() => {
     const { camera } = getThree();
-    if (active && !wasActive.current) {
+    if (active && !wasActive.current && !preserveCameraOnActivate) {
       // A retained canvas otherwise comes back still zoomed into the island
       // selected just before navigation.
       camera.position.set(...CAMERA_POSITION);
@@ -37,20 +37,29 @@ export function MapCamera({ command, active = true }: { command: CameraCommand |
       invalidate();
     }
     wasActive.current = active;
-  }, [active, getThree, invalidate]);
+  }, [active, getThree, invalidate, preserveCameraOnActivate]);
   useLayoutEffect(()=>{
     if(!command)return;
     const {camera}=getThree();
-    let to=new THREE.Vector3(...CAMERA_POSITION),toZoom=1;
+    let to=new THREE.Vector3(...CAMERA_POSITION),toZoom=1,toQuaternion=camera.quaternion.clone();
+    if (command.kind === "overview") {
+      const overviewCamera = new THREE.PerspectiveCamera();
+      overviewCamera.position.set(...CAMERA_POSITION);
+      overviewCamera.lookAt(...CAMERA_TARGET);
+      toQuaternion = overviewCamera.quaternion;
+    }
     if(command.kind==="island"&&command.site&&command.site in SITES){
       const frame=worldFrame(size.width,size.height,playableProjectionBounds());
       const point=new THREE.Vector3(...sitePosition(command.site as keyof typeof SITES))
         .applyAxisAngle(new THREE.Vector3(0,1,0),frame.rotation).multiplyScalar(frame.scale).add(new THREE.Vector3(...frame.position));
-      const pose=islandCameraPose(point);to=pose.position;toZoom=pose.zoom;
+      const close=command.site==="topics" || command.site==="champions";
+      if (close) point.y += 3.2 * frame.scale;
+      const pose=islandCameraPose(point, close ? { close: true, worldScale: frame.scale } : undefined);
+      to=pose.position;toZoom=pose.zoom;toQuaternion=pose.quaternion;
     }
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    animation.current={elapsed:0,duration:reduced?0:command.kind==="overview"?RETURN_DURATION:ZOOM_DURATION,
-      from:camera.position.clone(),to,fromZoom:camera.zoom,toZoom,done:command.onComplete};
+    animation.current={elapsed:0,duration:reduced||command.instant?0:command.duration ?? (command.kind==="overview"?RETURN_DURATION:command.site==="topics" || command.site==="champions" ?TOPICS_APPROACH_DURATION:ZOOM_DURATION),
+      from:camera.position.clone(),to,fromZoom:camera.zoom,toZoom,fromQuaternion:camera.quaternion.clone(),toQuaternion,done:command.onComplete};
     invalidate();
   },[command,getThree,size,invalidate]);
   useFrame((_,delta)=>{
@@ -60,8 +69,8 @@ export function MapCamera({ command, active = true }: { command: CameraCommand |
     const {camera}=getThree();
     camera.position.lerpVectors(motion.from,motion.to,cameraEase(t));
     camera.zoom=THREE.MathUtils.lerp(motion.fromZoom,motion.toZoom,cameraEase(t));
+    camera.quaternion.slerpQuaternions(motion.fromQuaternion,motion.toQuaternion,cameraEase(t));
     camera.updateProjectionMatrix();
-    // No lookAt during motion: the original isometric quaternion stays locked.
     if(t===1){animation.current=null;motion.done();}
     else invalidate();
   });

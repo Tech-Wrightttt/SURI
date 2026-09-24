@@ -15,6 +15,9 @@ export function TopicsIsland() {
   return <FocusedIslandScene focus={TOPICS_FOCUS} landmark="topics" site="topics" />;
 }
 
-export default function TopicsLibraryWorld({ active = true }: { active?: boolean }) {
-  return <FocusedIslandWorld active={active} className="topics-world" focus={TOPICS_FOCUS} landmark="topics" site="topics" />;
+export default function TopicsLibraryWorld({ active = true, onReady }: { active?: boolean; onReady?: () => void }) {
+  // The dashboard already performs the full approach. Starting the close-up at
+  // its resting camera pose makes the canvas handoff a continuation, not a
+  // second zoom that can expose a change in scale.
+  return <FocusedIslandWorld active={active} arrive={false} className="topics-world" focus={TOPICS_FOCUS} landmark="topics" site="topics" onReady={onReady} />;
 }
