@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
+import BackToTopButton from "@/components/navigation/BackToTopButton";
 import { useWorldNavigation } from "@/components/navigation/LearningShell";
 import { ensureLearningData } from "@/lib/learningData";
 import { createSession, skipDiagnostic } from "@/lib/api";
@@ -222,6 +223,9 @@ function ProgressContent() {
           })}
         </div>}
       </section>
+      <div className="progress-route-top">
+        <BackToTopButton className="progress-route-back" />
+      </div>
     </div>
   </MainPage>;
 }

@@ -52,13 +52,18 @@ export function MapCamera({ command, active = true, preserveCameraOnActivate = f
       const frame=worldFrame(size.width,size.height,playableProjectionBounds());
       const point=new THREE.Vector3(...sitePosition(command.site as keyof typeof SITES))
         .applyAxisAngle(new THREE.Vector3(0,1,0),frame.rotation).multiplyScalar(frame.scale).add(new THREE.Vector3(...frame.position));
-      const close=command.site==="topics" || command.site==="champions";
+      // A focused route must finish at the exact pose its retained close-up
+      // canvas uses. Calculator is an Arcane Tower close-up just like Topics
+      // and Progress, so treating it as an ordinary island causes a visible
+      // jump when the route canvas takes over.
+      const close = command.site === "topics" || command.site === "champions" || command.site === "calculator";
       if (close) point.y += 3.2 * frame.scale;
       const pose=islandCameraPose(point, close ? { close: true, worldScale: frame.scale } : undefined);
       to=pose.position;toZoom=pose.zoom;toQuaternion=pose.quaternion;
     }
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    animation.current={elapsed:0,duration:reduced||command.instant?0:command.duration ?? (command.kind==="overview"?RETURN_DURATION:command.site==="topics" || command.site==="champions" ?TOPICS_APPROACH_DURATION:ZOOM_DURATION),
+    const focusedIsland = command.site === "topics" || command.site === "champions" || command.site === "calculator";
+    animation.current={elapsed:0,duration:reduced||command.instant?0:command.duration ?? (command.kind==="overview"?RETURN_DURATION:focusedIsland ?TOPICS_APPROACH_DURATION:ZOOM_DURATION),
       from:camera.position.clone(),to,fromZoom:camera.zoom,toZoom,fromQuaternion:camera.quaternion.clone(),toQuaternion,done:command.onComplete};
     invalidate();
   },[command,getThree,size,invalidate]);

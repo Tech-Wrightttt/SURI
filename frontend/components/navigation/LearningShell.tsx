@@ -9,19 +9,60 @@ import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type Islan
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
 const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
 const loadProgressWorld = () => import("@/components/WorldMap/ProgressTrailWorld");
+const loadCalculatorWorld = () => import("@/components/WorldMap/CalculatorTowerWorld");
 const DashboardWorld = dynamic(loadWorld, { ssr: false });
 const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
 const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
+const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
+
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
+const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator"] as const;
+type FocusedRouteKey = typeof FOCUSED_ROUTE_KEYS[number];
 type FocusedTransition = "idle" | "entering" | "revealing" | "visible" | "leaving" | "zooming-out";
+type FocusedTransitionMap = Record<FocusedRouteKey, FocusedTransition>;
+type FocusedWorldMap = Record<FocusedRouteKey, boolean>;
+
+// Every close-up route uses this same handoff: the dashboard camera finishes its
+// approach, the matching retained island takes over, then foreground content fades
+// in. Keeping the route specifics here prevents each page from inventing its own
+// version of the transition.
+const FOCUSED_ROUTES = {
+  "/topics": { key: "topics", site: "topics", load: loadTopicsWorld, contentClass: "topic-route-content" },
+  "/progress": { key: "progress", site: "champions", load: loadProgressWorld, contentClass: "progress-route-content" },
+  "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
+} as const;
+
 const TOPICS_WORLD_CROSSFADE_MS = 260;
 const TOPICS_CONTENT_EXIT_MS = 360;
 const NavigationContext = createContext<{
   navigate: (href: string) => void; busy: boolean; error: string | null; clearSession: () => void;
 }>({ navigate: () => {}, busy: false, error: null, clearSession: () => {} });
+
 export const useWorldNavigation = () => useContext(NavigationContext);
 export function useLearningData() {
   return useSyncExternalStore(subscribeLearningData, getLearningSnapshot, getServerLearningSnapshot);
+}
+
+function getFocusedRoute(pathname: string) {
+  return FOCUSED_ROUTES[pathname as keyof typeof FOCUSED_ROUTES];
+}
+
+function createTransitionMap(pathname: string): FocusedTransitionMap {
+  const route = getFocusedRoute(pathname);
+  return {
+    topics: route?.key === "topics" ? "visible" : "idle",
+    progress: route?.key === "progress" ? "visible" : "idle",
+    calculator: route?.key === "calculator" ? "visible" : "idle",
+  };
+}
+
+function createWorldMap(pathname: string): FocusedWorldMap {
+  const route = getFocusedRoute(pathname);
+  return {
+    topics: route?.key === "topics",
+    progress: route?.key === "progress",
+    calculator: route?.key === "calculator",
+  };
 }
 
 export default function LearningShell({ children }: { children: React.ReactNode }) {
@@ -33,70 +74,58 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [command, setCommand] = useState<CameraCommand | null>(null);
-  const [topicsTransition, setTopicsTransition] = useState<FocusedTransition>(pathname === "/topics" ? "visible" : "idle");
-  const [progressTransition, setProgressTransition] = useState<FocusedTransition>(pathname === "/progress" ? "visible" : "idle");
-  // Keep a scene alive once it has been opened. Reusing its renderer, compiled
-  // shaders, instanced meshes, and procedural geometry makes a return trip
-  // immediate instead of rebuilding a second WebGL context on every route.
+  const [focusedTransitions, setFocusedTransitions] = useState<FocusedTransitionMap>(() => createTransitionMap(pathname));
   const [dashboardWorldMounted, setDashboardWorldMounted] = useState(overview);
-  const [topicsWorldMounted, setTopicsWorldMounted] = useState(pathname === "/topics");
-  const [progressWorldMounted, setProgressWorldMounted] = useState(pathname === "/progress");
+  const [focusedWorldMounted, setFocusedWorldMounted] = useState<FocusedWorldMap>(() => createWorldMap(pathname));
   const locked = useRef(false);
   const serial = useRef(0);
   const previous = useRef(pathname);
   const transaction = useRef(0);
   const pendingRoute = useRef<string | null>(null);
-  const topicsTransitionRef = useRef(topicsTransition);
-  const progressTransitionRef = useRef(progressTransition);
-  const topicsRevealTimer = useRef<number | null>(null);
-  const progressRevealTimer = useRef<number | null>(null);
-  const setTopicsStage = useCallback((stage: FocusedTransition) => {
-    topicsTransitionRef.current = stage;
-    setTopicsTransition(stage);
+  const focusedTransitionsRef = useRef(focusedTransitions);
+  const revealTimers = useRef<Partial<Record<FocusedRouteKey, number>>>({});
+
+  const setFocusedStage = useCallback((key: FocusedRouteKey, stage: FocusedTransition) => {
+    focusedTransitionsRef.current = { ...focusedTransitionsRef.current, [key]: stage };
+    setFocusedTransitions(current => ({ ...current, [key]: stage }));
   }, []);
-  const setProgressStage = useCallback((stage: FocusedTransition) => {
-    progressTransitionRef.current = stage;
-    setProgressTransition(stage);
+  const resetFocusedStages = useCallback(() => {
+    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle" };
+    focusedTransitionsRef.current = idle;
+    setFocusedTransitions(idle);
   }, []);
-  const unlock = useCallback(() => { locked.current=false; setBusy(false); }, []);
+  const unlock = useCallback(() => { locked.current = false; setBusy(false); }, []);
+  const clearRevealTimers = useCallback(() => {
+    FOCUSED_ROUTE_KEYS.forEach(key => {
+      const timer = revealTimers.current[key];
+      if (timer !== undefined) window.clearTimeout(timer);
+    });
+    revealTimers.current = {};
+  }, []);
   const clearSession = useCallback(() => {
-    transaction.current++; clearLearningData(); setCommand(null); pendingRoute.current=null;
-    if (topicsRevealTimer.current !== null) window.clearTimeout(topicsRevealTimer.current);
-    if (progressRevealTimer.current !== null) window.clearTimeout(progressRevealTimer.current);
-    setTopicsStage("idle"); setProgressStage("idle"); unlock();
-  }, [setProgressStage, setTopicsStage, unlock]);
+    transaction.current++; clearLearningData(); setCommand(null); pendingRoute.current = null;
+    clearRevealTimers(); resetFocusedStages(); unlock();
+  }, [clearRevealTimers, resetFocusedStages, unlock]);
 
   const waitForMotion = useCallback((duration: number) => new Promise<void>(resolve => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { resolve(); return; }
     window.setTimeout(resolve, duration);
   }), []);
 
-  const revealTopicsContent = useCallback(() => {
-    if (pathname !== "/topics" || topicsTransitionRef.current !== "entering") return;
-    setTopicsStage("revealing");
-    if (topicsRevealTimer.current !== null) window.clearTimeout(topicsRevealTimer.current);
-    topicsRevealTimer.current = window.setTimeout(() => {
-      if (topicsTransitionRef.current !== "revealing") return;
-      setTopicsStage("visible");
+  const revealFocusedContent = useCallback((key: FocusedRouteKey) => {
+    const route = getFocusedRoute(pathname);
+    if (route?.key !== key || focusedTransitionsRef.current[key] !== "entering") return;
+    setFocusedStage(key, "revealing");
+    const existingTimer = revealTimers.current[key];
+    if (existingTimer !== undefined) window.clearTimeout(existingTimer);
+    revealTimers.current[key] = window.setTimeout(() => {
+      if (focusedTransitionsRef.current[key] !== "revealing") return;
+      setFocusedStage(key, "visible");
       unlock();
     }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : TOPICS_WORLD_CROSSFADE_MS);
-  }, [pathname, setTopicsStage, unlock]);
+  }, [pathname, setFocusedStage, unlock]);
 
-  const revealProgressContent = useCallback(() => {
-    if (pathname !== "/progress" || progressTransitionRef.current !== "entering") return;
-    setProgressStage("revealing");
-    if (progressRevealTimer.current !== null) window.clearTimeout(progressRevealTimer.current);
-    progressRevealTimer.current = window.setTimeout(() => {
-      if (progressTransitionRef.current !== "revealing") return;
-      setProgressStage("visible");
-      unlock();
-    }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : TOPICS_WORLD_CROSSFADE_MS);
-  }, [pathname, setProgressStage, unlock]);
-
-  useEffect(() => () => {
-    if (topicsRevealTimer.current !== null) window.clearTimeout(topicsRevealTimer.current);
-    if (progressRevealTimer.current !== null) window.clearTimeout(progressRevealTimer.current);
-  }, []);
+  useEffect(() => () => clearRevealTimers(), [clearRevealTimers]);
 
   useEffect(() => {
     if (!managed) return;
@@ -105,14 +134,14 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   }, [managed, pathname, router]);
 
   useEffect(() => {
-    if (!overview && pathname !== "/topics" && pathname !== "/progress") return;
+    const focusedRoute = getFocusedRoute(pathname);
+    if (!overview && !focusedRoute) return;
     // Delay bookkeeping to the next frame: the active route is rendered from
     // the pathname immediately, while this only records that it should stay
     // mounted after the user leaves it.
     const frame = window.requestAnimationFrame(() => {
       if (overview) setDashboardWorldMounted(true);
-      if (pathname === "/topics") setTopicsWorldMounted(true);
-      if (pathname === "/progress") setProgressWorldMounted(true);
+      if (focusedRoute) setFocusedWorldMounted(current => ({ ...current, [focusedRoute.key]: true }));
     });
     return () => window.cancelAnimationFrame(frame);
   }, [overview, pathname]);
@@ -121,7 +150,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     if (!managed) return;
     // Route prefetching fetches code in most cases. This idle preload is a
     // fallback that keeps Three.js from competing with the first paint.
-    const preload = () => { void loadWorld(); void loadTopicsWorld(); void loadProgressWorld(); };
+    const preload = () => { void loadWorld(); void loadTopicsWorld(); void loadProgressWorld(); void loadCalculatorWorld(); };
     const idle = window.requestIdleCallback?.(preload, { timeout: 2500 });
     const timeout = idle === undefined ? window.setTimeout(preload, 1200) : undefined;
     return () => {
@@ -152,55 +181,48 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     previous.current = pathname;
     if (from === pathname) return;
     transaction.current++;
-    pendingRoute.current=null;
+    pendingRoute.current = null;
     if (pathname === "/login" || pathname === "/register" || pathname === "/") {
       clearSession(); return;
     }
+    const focusedRoute = getFocusedRoute(pathname);
     if (overview) {
       // The retained dashboard camera resets itself as it becomes visible.
-      setTopicsStage("idle");
-      setProgressStage("idle");
+      resetFocusedStages();
       setCommand(null);
       unlock();
-    } else if (pathname === "/topics" && topicsTransitionRef.current === "entering") {
+    } else if (focusedRoute && focusedTransitionsRef.current[focusedRoute.key] === "entering") {
       // The content remains masked until the focused-island canvas has taken
       // over from the final dashboard camera frame.
-      setCommand(null);
-    } else if (pathname === "/progress" && progressTransitionRef.current === "entering") {
-      // Progress uses the same masked handoff as Topics, with the Hall of
-      // Champions already framed at its final scale before its UI appears.
       setCommand(null);
     } else {
       // Do not let a completed island command run when the world is paused.
       setCommand(null);
       unlock();
     }
-  }, [pathname, overview, clearSession, setProgressStage, setTopicsStage, unlock]);
+  }, [pathname, overview, clearSession, resetFocusedStages, unlock]);
 
   const navigate = useCallback((href: string) => {
     if (locked.current || href === pathname) return;
-    locked.current=true; setBusy(true); setError(null);
-    const token=++transaction.current;
-    pendingRoute.current=href;
+    locked.current = true; setBusy(true); setError(null);
+    const token = ++transaction.current;
+    pendingRoute.current = href;
     router.prefetch(href);
 
-    const returningFocusedRoute = href === "/dashboard" && (pathname === "/topics" || pathname === "/progress");
-    if (returningFocusedRoute) {
+    const currentFocusedRoute = getFocusedRoute(pathname);
+    if (href === "/dashboard" && currentFocusedRoute) {
       // Reverse the arrival in two deliberate phases: remove the route UI
       // first, then reveal the retained dashboard camera already positioned at
       // the matching close-up before it travels back to the overview.
-      const isTopics = pathname === "/topics";
-      const setStage = isTopics ? setTopicsStage : setProgressStage;
-      const site = isTopics ? "topics" : "champions";
-      setStage("leaving");
+      setFocusedStage(currentFocusedRoute.key, "leaving");
       setDashboardWorldMounted(true);
       const worldReady = loadWorld().then(() => undefined).catch(() => undefined);
       const closeCamera = new Promise<void>(resolve => {
-        setCommand({ id: ++serial.current, kind: "island", site, instant: true, onComplete: resolve });
+        setCommand({ id: ++serial.current, kind: "island", site: currentFocusedRoute.site, instant: true, onComplete: resolve });
       });
       void Promise.all([worldReady, closeCamera, waitForMotion(TOPICS_CONTENT_EXIT_MS)]).then(() => {
         if (token !== transaction.current) return;
-        setStage("zooming-out");
+        setFocusedStage(currentFocusedRoute.key, "zooming-out");
         setCommand({
           id: ++serial.current,
           kind: "overview",
@@ -209,8 +231,8 @@ export default function LearningShell({ children }: { children: React.ReactNode 
         });
       }).catch(cause => {
         if (token !== transaction.current) return;
-        pendingRoute.current=null;
-        setStage("visible");
+        pendingRoute.current = null;
+        setFocusedStage(currentFocusedRoute.key, "visible");
         setError(cause instanceof Error ? cause.message : "Unable to return to the kingdom. Please try again.");
         unlock();
       });
@@ -219,48 +241,45 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
     // Start the destination's expensive scene work during the intentional map
     // zoom. The route is shown only after that critical module is available.
-    const worldReady = href === "/topics"
-      ? loadTopicsWorld().then(() => undefined).catch(() => undefined)
-      : href === "/progress"
-        ? loadProgressWorld().then(() => undefined).catch(() => undefined)
-        : Promise.resolve();
-    const site=ISLAND_ROUTES[href as IslandRoute];
+    const destinationFocusedRoute = getFocusedRoute(href);
+    const worldReady = destinationFocusedRoute
+      ? destinationFocusedRoute.load().then(() => undefined).catch(() => undefined)
+      : Promise.resolve();
+    const site = ISLAND_ROUTES[href as IslandRoute];
     const camera = new Promise<void>(resolve => {
-      if (overview && site) setCommand({id:++serial.current,kind:"island",site,onComplete:resolve});
+      if (overview && site) setCommand({ id: ++serial.current, kind: "island", site, onComplete: resolve });
       else resolve();
     });
     // Prefetching starts eagerly, but navigation is deliberately gated only by
     // the short camera motion. A slow data request must never turn an island
     // click into a blank or spinner-bound intermediate state.
-    if (managedRoutes.includes(href) && href !== "/dashboard" && href !== "/calculator" && !getLearningSnapshot().data) {
+    if (managedRoutes.includes(href) && destinationFocusedRoute?.key !== "calculator" && !getLearningSnapshot().data) {
       void ensureLearningData().catch(() => {});
     }
     void Promise.all([camera, worldReady]).then(() => {
-      if(token!==transaction.current)return;
-      if (href === "/topics") setTopicsStage("entering");
-      if (href === "/progress") setProgressStage("entering");
+      if (token !== transaction.current) return;
+      if (destinationFocusedRoute) setFocusedStage(destinationFocusedRoute.key, "entering");
       router.push(href);
     }).catch(cause => {
-      if(token!==transaction.current)return;
-      pendingRoute.current=null;
-      if (href === "/topics") setTopicsStage("idle");
-      if (href === "/progress") setProgressStage("idle");
+      if (token !== transaction.current) return;
+      pendingRoute.current = null;
+      if (destinationFocusedRoute) setFocusedStage(destinationFocusedRoute.key, "idle");
       setError(cause instanceof Error ? cause.message : "Unable to open this section. Please try again.");
-      if(overview)setCommand({id:++serial.current,kind:"overview",onComplete:unlock});
+      if (overview) setCommand({ id: ++serial.current, kind: "overview", onComplete: unlock });
       else unlock();
     });
-  }, [pathname, overview, router, setProgressStage, setTopicsStage, unlock, waitForMotion]);
+  }, [pathname, overview, router, setFocusedStage, unlock, waitForMotion]);
 
   const progress = useMemo(() => {
-    const active=data?.progress.active_sessions ?? [], completed=data?.progress.completed_sessions ?? [];
-    const mastered=active.reduce((sum,s)=>sum+s.mastered_count,0),total=active.reduce((sum,s)=>sum+s.total_in_chain,0);
-    const pct=active.length?Math.round(active.reduce((sum,s)=>sum+(Number(s.completion_percentage)||0),0)/active.length):0;
-    const dewdrops=mastered*10+completed.length*50;
-    const rank=dewdrops>=1000?"Elder Canopy Sage":dewdrops>=600?"Wildwood Ranger":dewdrops>=300?"Dewdrop Pathfinder":dewdrops>=100?"Fern Scout":"Sprout Explorer";
-    return {mastered,total,pct,dewdrops,rank};
+    const active = data?.progress.active_sessions ?? [], completed = data?.progress.completed_sessions ?? [];
+    const mastered = active.reduce((sum, s) => sum + s.mastered_count, 0), total = active.reduce((sum, s) => sum + s.total_in_chain, 0);
+    const pct = active.length ? Math.round(active.reduce((sum, s) => sum + (Number(s.completion_percentage) || 0), 0) / active.length) : 0;
+    const dewdrops = mastered * 10 + completed.length * 50;
+    const rank = dewdrops >= 1000 ? "Elder Canopy Sage" : dewdrops >= 600 ? "Wildwood Ranger" : dewdrops >= 300 ? "Dewdrop Pathfinder" : dewdrops >= 100 ? "Fern Scout" : "Sprout Explorer";
+    return { mastered, total, pct, dewdrops, rank };
   }, [data]);
-  const context=useMemo(()=>({navigate,busy,error:error ?? dataError?.message ?? null,clearSession}),[navigate,busy,error,dataError,clearSession]);
-  const focusedTransition = topicsTransition !== "idle" ? topicsTransition : progressTransition;
+  const context = useMemo(() => ({ navigate, busy, error: error ?? dataError?.message ?? null, clearSession }), [navigate, busy, error, dataError, clearSession]);
+  const focusedTransition = FOCUSED_ROUTE_KEYS.map(key => focusedTransitions[key]).find(stage => stage !== "idle") ?? "idle";
   const dashboardLayerVisible = overview || ["entering", "revealing", "leaving", "zooming-out"].includes(focusedTransition);
   const dashboardActive = overview || ["entering", "leaving", "zooming-out"].includes(focusedTransition);
   const dashboardTransitionClass = focusedTransition === "revealing"
@@ -270,23 +289,26 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       : focusedTransition === "zooming-out"
         ? "is-returning-from-topics"
         : "";
+  const activeFocusedRoute = getFocusedRoute(pathname);
   const contentClass = overview
     ? "dashboard-route-overlay"
-    : pathname === "/topics"
-      ? `learning-route-content topic-route-content topic-transition-${topicsTransition}`
-      : pathname === "/progress"
-        ? `learning-route-content progress-route-content progress-transition-${progressTransition}`
-        : "learning-route-content";
+    : activeFocusedRoute
+      ? `learning-route-content focused-route-content ${activeFocusedRoute.contentClass} ${activeFocusedRoute.key}-transition-${focusedTransitions[activeFocusedRoute.key]}`
+      : "learning-route-content";
+
   return <NavigationContext.Provider value={context}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} busy={busy}
-        active={data?.progress.active_sessions} errors={data?.progress.misconception_history} progress={progress}/>
+        active={data?.progress.active_sessions} errors={data?.progress.misconception_history} progress={progress} />
     </div>}
-    {(topicsWorldMounted || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${topicsTransition}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
-      <TopicsLibraryWorld active={pathname === "/topics"} onReady={revealTopicsContent} />
+    {(focusedWorldMounted.topics || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${focusedTransitions.topics}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
+      <TopicsLibraryWorld active={pathname === "/topics"} onReady={() => revealFocusedContent("topics")} />
     </div>}
-    {(progressWorldMounted || pathname === "/progress") && <div className={`progress-world-shell progress-transition-${progressTransition}`} aria-hidden={pathname !== "/progress"} style={{ visibility: pathname === "/progress" ? "visible" : "hidden" }}>
-      <ProgressTrailWorld active={pathname === "/progress"} onReady={revealProgressContent} />
+    {(focusedWorldMounted.progress || pathname === "/progress") && <div className={`progress-world-shell progress-transition-${focusedTransitions.progress}`} aria-hidden={pathname !== "/progress"} style={{ visibility: pathname === "/progress" ? "visible" : "hidden" }}>
+      <ProgressTrailWorld active={pathname === "/progress"} onReady={() => revealFocusedContent("progress")} />
+    </div>}
+    {(focusedWorldMounted.calculator || pathname === "/calculator") && <div className={`calculator-world-shell calculator-transition-${focusedTransitions.calculator}`} aria-hidden={pathname !== "/calculator"} style={{ visibility: pathname === "/calculator" ? "visible" : "hidden" }}>
+      <CalculatorTowerWorld active={pathname === "/calculator"} onReady={() => revealFocusedContent("calculator")} />
     </div>}
     <div className={contentClass}>{children}</div>
   </NavigationContext.Provider>;

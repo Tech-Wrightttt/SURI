@@ -1,117 +1,180 @@
 "use client";
 
-import {
-  AlertCircle,
-  CheckCircle2,
-  ChevronRight,
-  Loader2,
-  RefreshCw,
-} from "lucide-react";
-
+import { ArrowDown, Calculator, CheckCircle2, ChevronRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import React from "react";
 import "mathlive";
+import MainPage from "@/components/mainpage";
+import BackToTopButton from "@/components/navigation/BackToTopButton";
+import { useWorldNavigation } from "@/components/navigation/LearningShell";
+
 if (typeof customElements !== "undefined") {
   const MFE = customElements.get("math-field");
-  if (MFE) (MFE as any).fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0.109.2/fonts";
+  if (MFE) (MFE as { fontsDirectory?: string }).fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0.109.2/fonts";
 }
-import MainPage from "@/components/mainpage";
-import React from "react";
-
-// ── Types ─────────────────────────────────────────────────────────
 
 interface MathStep {
-  step: number;
   changeType: string;
   oldNode: string | null;
   newNode: string | null;
-  substeps?: MathStep[]; // Supports nested substeps returned by the math engine
-  subSteps?: MathStep[]; // Fallback camelCase support
+  substeps?: MathStep[];
+  subSteps?: MathStep[];
 }
-
-// ── Sample problems ───────────────────────────────────────────────
 
 const SAMPLE_PROBLEMS = [
-  { label: "Simplify", expression: "2x + 3x" },
-  { label: "Simplify", expression: "x^2 + 2x + x^2" },
+  { label: "Combine terms", expression: "2x + 3x" },
+  { label: "Like powers", expression: "x^2 + 2x + x^2" },
   { label: "Simplify", expression: "4x - 2x + 6" },
-  { label: "Simplify", expression: "3x^2 + 2x^2 - x" },
+  { label: "Polynomials", expression: "3x^2 + 2x^2 - x" },
 ];
 
-// ── Helpers & Pedagogical Decoders ─────────────────────────────────
+const STEP_COPY: Record<string, { title: string; explanation: string }> = {
+  SIMPLIFY_BASICS: {
+    title: "Simplify the basics",
+    explanation: "Use basic rules such as x⁰ = 1 and multiplying by 1 leaves a value unchanged.",
+  },
+  EVALUATE_ARITHMETIC: {
+    title: "Calculate the numbers",
+    explanation: "Work out the number part first. This does not change the variables in the expression.",
+  },
+  SIMPLIFY_ARITHMETIC: {
+    title: "Calculate the numbers",
+    explanation: "Combine the numbers that can be evaluated to make the expression simpler.",
+  },
+  GROUP_LIKE_TERMS: {
+    title: "Identify like terms",
+    explanation: "Terms with the same variable and exponent are like terms, so they can be grouped together.",
+  },
+  COLLECT_LIKE_TERMS: {
+    title: "Identify like terms",
+    explanation: "Terms with matching variable parts belong together. Grouping them prepares us to combine them.",
+  },
+  COLLECT_AND_COMBINE_LIKE_TERMS: {
+    title: "Combine like terms",
+    explanation: "Add or subtract the coefficients of terms with the same variable and exponent.",
+  },
+  ADD_POLYNOMIAL_TERMS: {
+    title: "Combine like terms",
+    explanation: "The matching terms have the same variable part, so their coefficients can be added.",
+  },
+  ADD_COEFFICIENTS: {
+    title: "Add the coefficients",
+    explanation: "Add the numbers in front while keeping the shared variable part the same.",
+  },
+  ADD_COEFFICIENT_OF_ONE: {
+    title: "Show the hidden coefficient",
+    explanation: "A variable written by itself has a coefficient of 1. Showing it makes the addition clear.",
+  },
+  GROUP_COEFFICIENTS: {
+    title: "Group the coefficients",
+    explanation: "Factor out the shared variable so the numbers that need to be combined are easy to see.",
+  },
+  SUBTRACT_COEFFICIENTS: {
+    title: "Subtract the coefficients",
+    explanation: "Subtract the numbers in front while keeping the matching variable part unchanged.",
+  },
+  MULTIPLY_COEFFICIENTS: {
+    title: "Multiply the coefficients",
+    explanation: "Multiply the numerical factors, then keep the variable factors with the product.",
+  },
+  DISTRIBUTE: {
+    title: "Distribute through the parentheses",
+    explanation: "Multiply the outside term by every term inside the parentheses.",
+  },
+  EXPAND_EXPRESSION: {
+    title: "Expand the expression",
+    explanation: "Multiply the factors so the expression is written as a sum of terms.",
+  },
+  REMOVE_PARENTHESES: {
+    title: "Remove the parentheses",
+    explanation: "Apply the sign outside the parentheses to every term inside before removing the brackets.",
+  },
+  FACTOR_QUADRATIC: {
+    title: "Factor the quadratic",
+    explanation: "Rewrite the quadratic as factors that multiply back to the original expression.",
+  },
+  FACTOR_COMMON: {
+    title: "Factor out a common term",
+    explanation: "Take out the factor shared by every term. Multiplying it back gives the original expression.",
+  },
+  CANCEL_TERMS: {
+    title: "Cancel matching terms",
+    explanation: "Opposite terms add to zero, so removing them keeps the expression equal.",
+  },
+};
 
-function formatChangeType(raw: string): string {
-  return raw
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .replace(/^\w/, (c) => c.toUpperCase());
-}
-
-/**
- * Robust helper to safely get substeps array regardless of API key casing
- */
-function getSubsteps(step: any): MathStep[] {
+function getSubsteps(step: MathStep): MathStep[] {
   if (Array.isArray(step.substeps)) return step.substeps;
   if (Array.isArray(step.subSteps)) return step.subSteps;
   return [];
 }
 
-/**
- * Recursively flattens composite steps to extract and display all atomic substeps
- */
 function flattenMathSteps(steps: MathStep[]): MathStep[] {
   const result: MathStep[] = [];
-
-  function traverse(step: MathStep) {
-    const subs = getSubsteps(step);
-    if (subs.length > 0) {
-      subs.forEach((sub) => traverse(sub));
-    } else {
-      result.push(step);
-    }
-  }
-
-  steps.forEach((step) => traverse(step));
+  const addStep = (step: MathStep) => {
+    const substeps = getSubsteps(step);
+    if (substeps.length > 0) substeps.forEach(addStep);
+    else result.push(step);
+  };
+  steps.forEach(addStep);
   return result;
 }
 
-/**
- * Maps raw backend math change types to descriptive step‑by‑step student explanations
- */
-function getDetailedExplanation(changeType: string, oldNode: string | null, newNode: string | null): string {
-  const type = changeType.toUpperCase();
-
-  const explanations: Record<string, string> = {
-    SIMPLIFY_BASICS: "Simplify basics using primary algebraic axioms. Any value raised to the power of 0 simplifies directly to 1 (x^0 = 1), and multiplying a term by 1 leaves its value unchanged.",
-    EVALUATE_ARITHMETIC: "Evaluate normal numerical calculations. Combine constants together directly to clean up the expression's overall size.",
-    SIMPLIFY_ARITHMETIC: "Evaluate basic numerical operations. This simplifies integers or decimal constants into a single value.",
-    GROUP_LIKE_TERMS: "Group similar algebraic terms side‑by‑side. Like terms are terms that share identical variable factors raised to the exact same exponents (such as grouping x² variables or matching independent constants) so they are prepared to be combined.",
-    COLLECT_LIKE_TERMS: "Collect and group identical algebraic terms next to each other. Putting similar terms together makes the next simplification steps straightforward.",
-    ADD_POLYNOMIAL_TERMS: "Combine similar polynomial terms. Add the numeric coefficients of terms sharing identical variable groupings and exponent degrees.",
-    ADD_COEFFICIENTS: "Add the numerical coefficients of matching like terms. Combine the constants while keeping the shared variable factor unchanged.",
-    SUBTRACT_COEFFICIENTS: "Subtract the numeric coefficients of like terms. This simplifies their combined value while keeping the common variable structure intact.",
-    MULTIPLY_COEFFICIENTS: "Multiply the numerical constants or coefficients together. This simplifies multiple constant factors into a single coefficient.",
-    DISTRIBUTE: "Apply the distributive property: a(b + c) = ab + ac. Multiply the term outside the parentheses with each individual term inside to expand and eliminate the brackets.",
-    EXPAND_EXPRESSION: "Multiply out algebraic factors. Systematically expand terms using standard binomial expansion rules (FOIL).",
-    REMOVE_PARENTHESES: "Eliminate brackets safely. If there is a subtraction sign outside, ensure you distribute the negative sign to every individual term inside.",
-    FACTOR_QUADRATIC: "Factor the quadratic expression. Solve and resolve the trinomial into its constituent binomial factors (for example, factoring x² + 5x + 6 into (x + 2)(x + 3)).",
-    FACTOR_COMMON: "Factor out the Greatest Common Factor (GCF) from all terms. Identify the highest shared multiplier and place it outside parentheses.",
-    CANCEL_TERMS: "Cancel out equal opposite terms that add up to zero, or simplify matching terms on the numerator and denominator.",
+function getStepCopy(changeType: string) {
+  return STEP_COPY[changeType.toUpperCase()] ?? {
+    title: "Simplify the expression",
+    explanation: "Make this part of the expression simpler while keeping its value the same.",
   };
-
-  if (explanations[type]) {
-    return explanations[type];
-  }
-
-  const cleanType = formatChangeType(changeType);
-  return `Apply the operation "${cleanType}" to transition from "${oldNode || "original state"}" to "${newNode || "simplified state"}". This systematically streamlines the expression.`;
 }
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "math-field": any;
-    }
+function isWrappedInParentheses(value: string) {
+  if (!value.startsWith("(") || !value.endsWith(")")) return false;
+  let depth = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    if (value[index] === "(") depth += 1;
+    if (value[index] === ")") depth -= 1;
+    if (depth === 0 && index < value.length - 1) return false;
   }
+  return depth === 0;
+}
+
+function stripRedundantGrouping(value: string) {
+  let formatted = value.trim();
+  while (isWrappedInParentheses(formatted)) formatted = formatted.slice(1, -1).trim();
+
+  let previous = "";
+  while (formatted !== previous) {
+    previous = formatted;
+    formatted = formatted.replace(/\(\s*([^()]+?)\s*\)/g, (whole, inner: string, offset: number, full: string) => {
+      const before = full.slice(0, offset).trimEnd().at(-1);
+      const after = full.slice(offset + whole.length).trimStart().at(0);
+      const isAdditiveGroup = (!before || before === "+" || before === "-") && (!after || after === "+" || after === "-");
+      return isAdditiveGroup ? inner : whole;
+    });
+    while (isWrappedInParentheses(formatted)) formatted = formatted.slice(1, -1).trim();
+  }
+  return formatted;
+}
+
+function formatStudentMath(value: string) {
+  return stripRedundantGrouping(value)
+    .replace(/\s*\^\s*/g, "^")
+    .replace(/\+\s*-/g, "- ")
+    .replace(/-\s*-/g, "+ ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getStudentError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("parenth") || normalized.includes("token") || normalized.includes("parse") || normalized.includes("understand")) {
+    return "Check that every parenthesis is closed and each mathematical operation is complete.";
+  }
+  if (normalized.includes("expression") || normalized.includes("empty")) {
+    return "Enter a complete expression, then try solving it again.";
+  }
+  return "Try checking the expression and solving it again. You can also start with one of the examples below.";
 }
 
 type MathFieldProps = {
@@ -121,307 +184,205 @@ type MathFieldProps = {
   onEnter?: () => void;
 };
 
-function MathField({ value, onChange, disabled = false, onEnter }: MathFieldProps) {
-  const mathFieldRef = useRef<any>(null);
+type MathFieldElement = HTMLElement & {
+  value: string;
+  getValue: (format: "ascii-math") => string;
+  focus: () => void;
+};
 
-  // Update math-field value when prop changes
+function MathField({ value, onChange, disabled = false, onEnter }: MathFieldProps) {
+  const mathFieldRef = useRef<MathFieldElement | null>(null);
+
   useEffect(() => {
-    if (mathFieldRef.current && mathFieldRef.current.value !== value) {
-      mathFieldRef.current.value = value;
-    }
+    const mathField = mathFieldRef.current;
+    if (!mathField || mathField.getValue("ascii-math") === value) return;
+    mathField.value = value;
   }, [value]);
 
-  // Set up event listeners
   useEffect(() => {
-    const mf = mathFieldRef.current;
-    if (!mf) return;
-
-    const handleInput = () => {
-      onChange(mf.getValue("ascii-math"));
+    const mathField = mathFieldRef.current;
+    if (!mathField) return;
+    const handleInput = () => onChange(mathField.getValue("ascii-math"));
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      event.stopPropagation();
+      onEnter?.();
     };
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        e.stopPropagation();
-        onEnter?.();
-      }
-    };
-
-    mf.addEventListener("input", handleInput);
-    mf.addEventListener("keydown", handleKey);
-
+    mathField.addEventListener("input", handleInput);
+    mathField.addEventListener("keydown", handleKeyDown);
     return () => {
-      mf.removeEventListener("input", handleInput);
-      mf.removeEventListener("keydown", handleKey);
+      mathField.removeEventListener("input", handleInput);
+      mathField.removeEventListener("keydown", handleKeyDown);
     };
   }, [onChange, onEnter]);
 
-  // Focus management when field becomes active
   useEffect(() => {
-    if (!disabled && mathFieldRef.current) {
-      setTimeout(() => {
-        mathFieldRef.current?.focus();
-      }, 100);
-    }
+    if (disabled || !mathFieldRef.current) return;
+    const focusTimer = window.setTimeout(() => mathFieldRef.current?.focus(), 100);
+    return () => window.clearTimeout(focusTimer);
   }, [disabled]);
 
   return React.createElement("math-field", {
     ref: mathFieldRef,
+    className: "calculator-math-field",
     disabled,
     suppressHydrationWarning: true,
+    "aria-label": "Mathematical expression",
+    placeholder: "For  example, x^2 + 2x + x^2",
     "virtual-keyboard-mode": "onfocus",
     "virtual-keyboards": "all",
-    style: {
-      width: "100%",
-      minWidth: "180px",
-      minHeight: "44px",
-      padding: "8px 12px",
-      border: "1px solid #cbd5e1",
-      borderRadius: "12px",
-      background: disabled ? "#f8fafc" : "white",
-      fontSize: "1rem",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-      outline: "none",
-    },
   });
 }
 
-// ── Component ─────────────────────────────────────────────────────
+function MathDisplay({ value, className = "" }: { value: string; className?: string }) {
+  return React.createElement("math-div", {
+    className: `calculator-math-display ${className}`,
+    format: "ascii-math",
+    suppressHydrationWarning: true,
+  }, formatStudentMath(value));
+}
+
+function MathInline({ value }: { value: string }) {
+  return React.createElement("math-span", {
+    className: "calculator-math-inline",
+    format: "ascii-math",
+    suppressHydrationWarning: true,
+  }, formatStudentMath(value));
+}
 
 export default function AlgebraCalculatorPage() {
+  const { navigate } = useWorldNavigation();
   const [expression, setExpression] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [steps, setSteps] = useState<MathStep[]>([]);
-  const [solvedExpr, setSolvedExpr] = useState("");
+  const [solvedExpression, setSolvedExpression] = useState("");
+  const [hasResult, setHasResult] = useState(false);
 
-  // ── Fetch steps ────────────────────────────────────────────────
+  const finalExpression = steps.at(-1)?.newNode ?? solvedExpression;
 
-  async function handleSolve(expr?: string) {
-    const target = (expr ?? expression).trim();
-    if (!target) return;
+  async function handleSolve(nextExpression?: string) {
+    const target = (nextExpression ?? expression).trim();
+    if (!target || loading) return;
 
     setLoading(true);
     setError(null);
     setSteps([]);
-    setSolvedExpr(target);
+    setSolvedExpression(target);
+    setHasResult(false);
 
     try {
-      const res = await fetch("/api/solve", {
+      const response = await fetch("/api/solve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ expression: target }),
       });
+      const data = await response.json();
 
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        setError(data.error ?? "Something went wrong.");
+      if (!response.ok || data.error) {
+        setError(getStudentError(data.error ?? ""));
         return;
       }
 
-      if (!data.steps || data.steps.length === 0) {
-        setError("No simplification steps found.");
-        return;
-      }
-
-      // Automatically unpack and flatten any nested substeps
-      const fullyDetailedSteps = flattenMathSteps(data.steps);
-      setSteps(fullyDetailedSteps);
+      const detailedSteps = Array.isArray(data.steps) ? flattenMathSteps(data.steps) : [];
+      setSteps(detailedSteps);
+      setHasResult(true);
     } catch {
-      setError("Could not reach the solver. Make sure the server is running.");
+      setError("We couldn't reach the solver right now. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  // ── Reset ──────────────────────────────────────────────────────
-
   function handleReset() {
     setExpression("");
     setSteps([]);
     setError(null);
-    setSolvedExpr("");
+    setSolvedExpression("");
+    setHasResult(false);
   }
 
-  return (
-    <MainPage>
-      <div className=" min-h-screen text-[#1F2720] py-4 px-2 md:px-4">
-        <div className="w-full max-w-[1800px] mx-auto space-y-6">
-          {/* Premium Compact Bento Header */}
-          <header className="bg-[#223324] rounded-[32px] p-6 md:p-8 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden flex flex-col justify-between min-h-[180px]">
+  return <MainPage immersive>
+    <div className="calculator-route-page">
+      <header className="calculator-route-header">
+        <button type="button" className="calculator-route-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
+        <div className="calculator-route-kicker"><span /> THE SURI ACADEMY WORKSHOP <span /></div>
+        <h1>Algebra <em>Workshop</em></h1>
+        <p>Write an expression, then follow each small change until the answer is clear.</p>
+      </header>
 
-            <div className="flex items-center justify-between mb-4 z-10">
-              <div className="flex items-center gap-2 bg-[#1b261c] px-3 py-1.5 rounded-full border-[2px] border-[#1F2720]">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#fdd400] animate-pulse border border-[#1F2720]" />
-                <span className="font-['Manrope'] text-xs text-[#fdd400] font-black tracking-[0.2em] uppercase">ALGEBRA SOLVER ENGINE</span>
-              </div>
-              <span className="font-['Manrope'] text-[10px] text-[#1F2720] font-black bg-[#fdd400] px-3 py-1.5 rounded-md border-2 border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720] uppercase">CALC_V1</span>
-            </div>
-            <div className="z-10 mt-6">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white font-['Hanken_Grotesk'] drop-shadow-[2px_2px_0px_#1F2720]">
-                Algebra <span className="text-[#fdd400]">Calculator</span>
-              </h1>
-              <p className="font-['Manrope'] text-sm text-[#ffe170] mt-2 font-bold uppercase drop-shadow-[1px_1px_0px_#1F2720]">
-                Enter an algebraic expression to view a complete step‑by‑step resolution process.
-              </p>
-            </div>
-          </header>
-
-          {/* Input Panel (Cartoony Card) */}
-          <div className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] p-6 space-y-4">
-            <div className="flex flex-col gap-4 md:flex-row items-center">
-              <div className="flex-1 w-full">
-                <MathField
-                  value={expression}
-                  disabled={loading}
-                  onChange={(value) => setExpression(value)}
-                  onEnter={() => handleSolve()}
-                />
-              </div>
-              <button
-                className="bg-[#fdd400] hover:bg-[#ffe170] text-[#1F2720] border-[3px] border-[#1F2720] shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] px-4 py-2 text-[12px] font-['Manrope'] font-black uppercase rounded-xl transition-all flex items-center gap-2 cursor-pointer disabled:opacity-40"
-                onClick={() => handleSolve()}
-                disabled={loading || !expression.trim()}
-              >
-                {loading ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <ChevronRight size={14} />
-                )}
-                {loading ? "Solving..." : "Solve"}
-              </button>
-            </div>
-
-            {/* Sample Problems */}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-[#1F2720]">
-              {SAMPLE_PROBLEMS.map((p) => (
-                <button
-                  key={p.expression}
-                  className="bg-white border border-[#1F2720] text-[#1F2720] hover:bg-[#f0f0f0] px-3 py-1 font-mono text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
-                  onClick={() => {
-                    setExpression(p.expression);
-                    handleSolve(p.expression);
-                  }}
-                >
-                  {p.expression}
-                </button>
-              ))}
-            </div>
-
-            {error && (
-              <div className="bg-red-100 border-[3px] border-[#1F2720] rounded-[24px] p-5 shadow-[4px_4px_0px_0px_#1F2720] flex items-start gap-4 mt-4">
-                <img src="/suri-snake-sad.png" alt="Sad Suri" className="w-10 h-10 object-contain shrink-0" />
-                <div>
-                  <span className="font-['Manrope'] text-xs text-red-800 font-black uppercase tracking-widest block mb-1">[CALCULATION ERROR]</span>
-                  <p className="font-['Manrope'] text-sm text-red-900 font-bold">{error}</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Steps Display Panel */}
-          {steps.length > 0 && (
-            <div className="bg-white rounded-[32px] border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] p-6 space-y-6">
-              <div className="pb-3 border-b border-[#1F2720] flex items-center justify-between">
-                <p className="font-mono text-xs text-[#1F2720] uppercase tracking-widest">
-                  Solving: <strong className="text-[#1F2720] font-black">{solvedExpr}</strong>
-                </p>
-                <span className="font-['Manrope'] text-[10px] text-[#1F2720] bg-[#fdd400]/20 border border-[#fdd400]/40 px-2 py-0.5 rounded uppercase font-bold">
-                  RESOLUTION STREAM
-                </span>
-              </div>
-
-              {/* Optional faint mascot watermark behind steps */}
-              <div className="relative">
-                <img src="/suri-snake-right.png" alt="Mascot" className="absolute top-0 right-0 opacity-10 w-48 h-auto pointer-events-none" />
-                <div className="space-y-4">
-                  {steps.map((step, i) => {
-                    const isLast = i === steps.length - 1;
-                    return (
-                      <div
-                        key={i}
-                        className={`border-[3px] rounded-[24px] p-4 transition-all duration-300 relative overflow-hidden flex gap-3 ${
-                          isLast ? "border-green-200 bg-green-50/10" : "border-[#1F2720] bg-[#faf8f5]"
-                        }`}
-                      >
-                        {/* Vertical indicator */}
-                        <div
-                          className={`w-1 h-12 rounded-full self-center shrink-0 ${
-                            isLast ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.4)]" : "bg-[#fdd400] shadow-[0_0_6px_rgba(253,212,0,0.4)]"
-                          }`}
-                        />
-
-                        <div className="flex-1 space-y-2">
-                          <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-[#1F2720]">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-xs font-bold text-[#1F2720]">Step {i + 1}</span>
-                              <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded-md border border-[#1F2720] bg-[#e6e8ea] font-black tracking-wider">
-                                {formatChangeType(step.changeType)}
-                              </span>
-                            </div>
-                            {isLast && (
-                              <span className="font-mono text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
-                                <CheckCircle2 size={10} /> Fully Simplified
-                              </span>
-                            )}
-                          </div>
-
-                          {step.oldNode && (
-                            <p className="font-mono text-[10px] text-[#1F2720]">
-                              Identified Terms: <span className="line-through text-[#1F2720]">{step.oldNode}</span>
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-base font-bold text-[#1F2720]">=</span>
-                            <div className="font-mono text-sm font-bold text-[#1F2720] bg-white border border-[#1F2720] rounded-xl px-4 py-2 flex-1 shadow-sm">
-                              {step.newNode}
-                            </div>
-                          </div>
-
-                          {/* Tutor Insight */}
-                          <div className="bg-[#001a54]/5 rounded-xl p-4 border border-[#1F2720]/40 text-[#1F2720] mt-3 flex items-start gap-3.5">
-                            {/* Tutor Mascot Container */}
-                            <div className="shrink-0 w-12 h-12 bg-white rounded-full border border-[#1F2720]/20 flex items-center justify-center p-1 shadow-sm">
-                              <img 
-                                src="/suri-snake-happy.png" 
-                                alt="Suri Tutor" 
-                                className="w-10 h-10 object-contain" 
-                              />
-                            </div>
-                            
-                            {/* Tutor Content */}
-                            <div className="flex-1">
-                              <p className="text-[9px] font-mono uppercase tracking-widest font-extrabold text-[#001a54] mb-1">
-                                Tutor Insight
-                              </p>
-                              <p className="text-xs font-medium leading-relaxed font-sans">
-                                {getDetailedExplanation(step.changeType, step.oldNode, step.newNode)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Reset Control */}
-          <div className="flex justify-end mt-4 pt-4 border-t border-[#1F2720]">
-            <button
-              className="bg-[#1F2720] text-white hover:bg-[#162017] py-3 px-5 text-xs font-mono uppercase font-bold tracking-wider rounded-xl transition-all cursor-pointer shadow-[0_4px_12px_rgba(0,26,84,0.1)] flex items-center gap-2"
-              onClick={handleReset}
-            >
-              <RefreshCw size={12} />
-              Reset Solver
-            </button>
+      <section className="calculator-route-collection calculator-input-card" aria-labelledby="calculator-input-heading">
+        <div className="calculator-section-heading">
+          <span className="calculator-section-icon"><Calculator size={20} aria-hidden="true" /></span>
+          <div><small>START HERE</small><h2 id="calculator-input-heading">What would you like to simplify?</h2></div>
+        </div>
+        <div className="calculator-input-row">
+          <MathField value={expression} disabled={loading} onChange={setExpression} onEnter={() => handleSolve()} />
+          <button type="button" className="calculator-solve-button" onClick={() => handleSolve()} disabled={loading || !expression.trim()}>
+            {loading ? <Loader2 size={17} className="animate-spin" /> : <ChevronRight size={18} />}
+            {loading ? "Solving…" : "Show steps"}
+          </button>
+        </div>
+        <div className="calculator-input-footer">
+          <p>Use the math keyboard for powers, roots, fractions, and parentheses. Press Enter to solve.</p>
+          <div className="calculator-samples" aria-label="Example expressions">
+            {SAMPLE_PROBLEMS.map(problem => <button key={problem.expression} type="button" disabled={loading} onClick={() => { setExpression(problem.expression); void handleSolve(problem.expression); }}>
+              <span>{problem.label}</span><MathInline value={problem.expression} />
+            </button>)}
           </div>
         </div>
+      </section>
+
+      {error && <section className="calculator-route-error" role="alert">
+        <Image src="/suri-snake-sad.png" alt="Sad Suri" width={45} height={45} />
+        <div><strong>We couldn&apos;t understand that expression.</strong><p>{error}</p></div>
+      </section>}
+
+      {!hasResult && !error && !loading && <section className="calculator-route-collection calculator-empty-state" aria-live="polite">
+        <span className="calculator-empty-icon"><Sparkles size={22} aria-hidden="true" /></span>
+        <div><b>Your working will appear here.</b><p>Enter an expression above to see the solution and a step-by-step explanation.</p></div>
+      </section>}
+
+      {hasResult && <div className="calculator-results" aria-live="polite">
+        <section className="calculator-route-collection calculator-result-overview" aria-labelledby="calculator-result-heading">
+          <div className="calculator-result-copy"><small>YOUR EXPRESSION</small><h2 id="calculator-result-heading">Here is the path through your problem.</h2><p>{steps.length > 0 ? `${steps.length} clear ${steps.length === 1 ? "step" : "steps"} will take you to the simplified expression.` : "This expression is already in its simplest form."}</p></div>
+          <div className="calculator-problem-math"><span>Start with</span><MathDisplay value={solvedExpression} /></div>
+        </section>
+
+        {steps.length > 0 && <section className="calculator-route-collection calculator-solution-section" aria-labelledby="calculator-steps-heading">
+          <div className="calculator-collection-title"><span>✦</span><div><small>FOLLOW THE CHANGE</small><h2 id="calculator-steps-heading">Step-by-step solution</h2></div><span>✦</span></div>
+          <ol className="calculator-solution-list">
+            {steps.map((step, index) => {
+              const copy = getStepCopy(step.changeType);
+              const before = step.oldNode ?? (index === 0 ? solvedExpression : steps[index - 1].newNode ?? solvedExpression);
+              const after = step.newNode ?? before;
+              return <li key={`${step.changeType}-${index}`} className="calculator-solution-step" style={{ "--step-delay": `${Math.min(index * 70, 350)}ms` } as React.CSSProperties}>
+                <span className="calculator-step-marker" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                <article className="calculator-step-card">
+                  <header><small>STEP {String(index + 1).padStart(2, "0")}</small><h3>{copy.title}</h3></header>
+                  <div className="calculator-transformation">
+                    <div className="calculator-expression-panel"><span>Before</span><MathDisplay value={before} /></div>
+                    <ArrowDown className="calculator-arrow" size={24} aria-hidden="true" />
+                    <div className="calculator-expression-panel calculator-expression-after"><span>Now</span><MathDisplay value={after} /></div>
+                  </div>
+                  <div className="calculator-step-explanation"><Image src="/suri-snake-happy.png" alt="" width={36} height={36} /><div><b>Why this works</b><p>{copy.explanation}</p></div></div>
+                </article>
+              </li>;
+            })}
+          </ol>
+        </section>}
+
+        <section className="calculator-final-answer" aria-labelledby="calculator-final-answer-heading">
+          <div className="calculator-final-badge"><CheckCircle2 size={19} aria-hidden="true" /><span>COMPLETE</span></div>
+          <div className="calculator-final-answer-copy"><small id="calculator-final-answer-heading">FINAL ANSWER</small><MathDisplay value={finalExpression} className="calculator-final-math" /></div>
+        </section>
+      </div>}
+
+      {(expression || hasResult || error) && <div className="calculator-reset-row"><button type="button" onClick={handleReset}><RefreshCw size={15} /> Start a new expression</button></div>}
+      <div className="calculator-route-top">
+        <BackToTopButton className="calculator-route-back" />
       </div>
-    </MainPage>
-  );
+    </div>
+  </MainPage>;
 }
