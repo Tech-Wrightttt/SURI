@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { HelpCircle, LogOut, UserRound } from "lucide-react";
 import { logout } from "@/lib/api";
@@ -47,19 +48,21 @@ export default function MainPage({
     <div className={immersive ? "min-h-screen bg-transparent text-white" : "min-h-screen bg-[#DBD4C7] text-[#191c1e]"}>
       {/* TopAppBar */}
       <nav className="fixed top-0 left-0 right-0 z-50">
-        {/* The immersive world stays unobstructed: its landmark detail cards must
-            remain readable even when they travel through the header area. */}
+        {/* One fixed app bar is shared by every learning route so its controls
+            stay available while route-specific worlds and content change. */}
         {!immersive && <div className="absolute inset-0" style={{ background: "rgba(219,212,199,0.85)", backdropFilter: "blur(12px)", maskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 60%, transparent 100%)" }} />}
         <div className="relative flex items-center h-24 px-4 md:px-8">
-          
+          <div className="flex h-14 items-center rounded-full border border-[#c3c5d9]/30 bg-white px-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+            <Image alt="SURI" src="/SURI1.png" width={300} height={100} className="h-5 w-auto object-contain" />
+          </div>
           <div className="flex items-center gap-3 absolute right-4 md:right-8 top-1/2 -translate-y-1/2 pointer-events-auto">
-          {immersive && <button
+          <button
             onClick={() => window.dispatchEvent(new Event("suri:open-tutorial"))}
             aria-label="How to explore SURI"
-            className="h-12 rounded-full bg-white/12 border border-white/20 px-4 backdrop-blur-md flex items-center gap-2 text-white hover:bg-[#a78bfa] hover:border-[#c4b5fd] transition-all cursor-pointer"
+            className={immersive ? "h-12 rounded-full bg-white/12 border border-white/20 px-4 backdrop-blur-md flex items-center gap-2 text-white hover:bg-[#a78bfa] hover:border-[#c4b5fd] transition-all cursor-pointer" : "h-12 rounded-full bg-white border border-[#c3c5d9]/30 px-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex items-center gap-2 text-[#434656] hover:bg-[#f2f4f6] transition-all cursor-pointer"}
           >
             <HelpCircle className="w-5 h-5" /><span className="font-['Manrope'] text-[13px] font-bold">Help</span>
-          </button>}
+          </button>
           <div ref={settingsRef} className="relative flex items-center gap-2">
             <button
               onClick={() => setSettingsOpen(open => !open)}

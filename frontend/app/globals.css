@@ -398,15 +398,11 @@ html::-webkit-scrollbar {
 .topic-route-content.topics-transition-entering .topics-library-page, .topic-route-content.topics-transition-revealing .topics-library-page, .progress-route-content.progress-transition-entering .progress-route-page, .progress-route-content.progress-transition-revealing .progress-route-page, .calculator-route-content.calculator-transition-entering .calculator-route-page, .calculator-route-content.calculator-transition-revealing .calculator-route-page { opacity: 0; transform: translateY(.8rem); }
 .topic-route-content.topics-transition-leaving .topics-library-page, .topic-route-content.topics-transition-zooming-out .topics-library-page, .progress-route-content.progress-transition-leaving .progress-route-page, .progress-route-content.progress-transition-zooming-out .progress-route-page, .calculator-route-content.calculator-transition-leaving .calculator-route-page, .calculator-route-content.calculator-transition-zooming-out .calculator-route-page { opacity: 0; transform: translateY(-.45rem); transition-duration: .36s; }
 
-/* Topics: the existing academy island sits behind a focused, layered library. */
-.topics-world-shell { position: fixed; inset: 0; z-index: 0; background: #1b261c; opacity: 1; transition: opacity .32s cubic-bezier(.2,.75,.2,1); }
+/* Topics: temporary static library backdrop. */
+.topics-world-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .32s cubic-bezier(.2,.75,.2,1); }
 .topics-world-shell.topics-transition-entering { opacity: 0; }
 .topics-world-shell.topics-transition-zooming-out { opacity: 0; }
-.topics-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; }
-.topics-world-backdrop { position: absolute; inset: 0; pointer-events: none; }
-.topics-world-backdrop { filter: blur(.6px) saturate(.83) brightness(.68); transform: scale(1.02); }
-.topics-world-backdrop::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, transparent 8%, rgba(27, 57, 33, .15) 52%, rgba(9, 22, 13, .62) 100%), linear-gradient(180deg, rgba(44, 82, 43, .17), rgba(9, 22, 13, .45)); }
-.topics-world canvas { display: block; width: 100% !important; height: 100% !important; }
+.topics-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(2px); transform: scale(1.03); will-change: filter, transform; }
 
 .topics-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 6.3rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff; }
 .topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(63rem, 100%); margin: 0 auto .75rem; }
