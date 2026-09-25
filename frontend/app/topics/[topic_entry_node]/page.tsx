@@ -1,15 +1,20 @@
-"use client";
+ "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import MainPage from "@/components/mainpage";
-import { getTopicIntro, getGraphChain, createSession, skipDiagnostic } from "../../../lib/api";
+import {
+  getTopicIntro,
+  getGraphChain,
+  createSession,
+  skipDiagnostic,
+} from "../../../lib/api";
 
 const TOPIC_DESCRIPTIONS: Record<string, string> = {
-  "QE":  "Solve quadratic equations using factoring, completing the square, and the quadratic formula. Builds on factoring and polynomial operations.",
-  "SLE": "Solve systems of two linear equations using graphing, substitution, and elimination. Builds on linear equations and algebraic expressions.",
-  "RER": "Simplify and operate on radical expressions and rational exponents. Builds on laws of exponents.",
-  "PE":  "Solve polynomial equations of degree 3 and higher using factoring and the Factor Theorem. Builds on factoring and polynomial division."
+  QE: "Solve quadratic equations using factoring, completing the square, and the quadratic formula. Builds on factoring and polynomial operations.",
+  SLE: "Solve systems of two linear equations using graphing, substitution, and elimination. Builds on linear equations and algebraic expressions.",
+  RER: "Simplify and operate on radical expressions and rational exponents. Builds on laws of exponents.",
+  PE: "Solve polynomial equations of degree 3 and higher using factoring and the Factor Theorem. Builds on factoring and polynomial division.",
 };
 
 interface ChainNode {
@@ -18,24 +23,153 @@ interface ChainNode {
   grade: number;
 }
 
+const ENTRY_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+.topic-entry {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: clamp(12px, 2vw, 26px);
+  color: #fff4d5;
+  font-family: Georgia, 'Times New Roman', serif;
+  isolation: isolate;
+
+  background-color: #1b0e12;
+  background-image: url('/login/study.png');
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.topic-entry::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20, 9, 8, .56),
+      rgba(23, 10, 9, .78)
+    ),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 205, 95, .2),
+      transparent 42%
+    );
+}
+.topic-entry-shell { position: relative; z-index: 1; width: min(1120px, 100%); margin: 0 auto; }
+.topic-entry-hud {
+  display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 18px;
+  padding: 20px clamp(16px,3vw,34px); margin-bottom: 16px;
+  border: 4px solid #3b1d13; border-radius: 0 0 24px 24px;
+  background: linear-gradient(180deg,rgba(255,240,191,.98),rgba(222,177,94,.98));
+  color: #3a2111; box-shadow: 0 10px 0 rgba(39,18,10,.8), 0 22px 38px rgba(0,0,0,.35), inset 0 0 0 5px rgba(255,198,92,.2);
+}
+.topic-entry-brand { display:flex; align-items:center; gap:16px; min-width:0; }
+.topic-entry-suri {
+  width:74px;height:74px; flex-shrink:0; display:grid;place-items:center;border-radius:50%;
+  border:3px solid #6d411c;background:linear-gradient(180deg,#2f4022,#182716);
+  box-shadow:0 4px 0 rgba(72,34,16,.6);
+}
+.topic-entry-suri img { width:58px;height:58px;object-fit:contain; }
+.topic-entry-eyebrow { display:block;font:900 11px 'Nunito',sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:#6c278e;margin-bottom:5px; }
+.topic-entry-title { margin:0;font:900 clamp(25px,4vw,42px)/1.05 'Bree Serif',Georgia,serif;color:#3a2111;text-shadow:0 2px rgba(255,255,255,.4);overflow-wrap:anywhere; }
+.topic-entry-subtitle { margin-top:7px;font:900 11px 'Nunito',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#4e3477; }
+.topic-entry-button {
+  min-height:46px;padding:0 18px;border:3px solid #6d411c;border-radius:8px;
+  background:linear-gradient(180deg,#fff6aa,#ffd35c 58%,#c7832e);color:#321008;
+  font:900 14px 'Bree Serif',Georgia,serif;box-shadow:0 5px 0 rgba(72,34,16,.72);
+  cursor:pointer;transition:transform .12s ease,filter .12s ease;white-space:nowrap;
+}
+.topic-entry-button:hover:not(:disabled) { transform:translateY(-2px);filter:brightness(1.05); }
+.topic-entry-button:disabled { opacity:.55;cursor:not-allowed; }
+.topic-entry-speech {
+  display:flex;align-items:center;gap:13px;padding:14px 18px;margin:16px 0;
+  border:3px solid #2c160d;border-radius:18px 18px 18px 6px;
+  background:linear-gradient(180deg,#fff2c8,#e5bf73);color:#341c11;
+  box-shadow:0 5px 0 rgba(43,22,10,.74),0 0 20px rgba(255,207,89,.2);
+}
+.topic-entry-speech img { width:54px;height:54px;object-fit:contain;flex-shrink:0; }
+.topic-entry-speech p { margin:0;font:900 13px/1.6 'Nunito',sans-serif; }
+.topic-entry-panel {
+  border:5px solid #5e3619;padding:14px;margin-top:16px;
+  background:linear-gradient(90deg,rgba(25,12,8,.94),rgba(83,46,24,.95),rgba(25,12,8,.94));
+  box-shadow:0 9px 0 #160b07,inset 0 0 0 3px rgba(245,199,93,.25);
+}
+.topic-entry-paper {
+  padding:clamp(18px,3vw,30px);border:3px solid #9c672b;
+  background:radial-gradient(circle at 18% 12%,rgba(255,255,255,.28),transparent 26%),linear-gradient(180deg,#fff0bf,#dec07b);
+  color:#2b170d;box-shadow:inset 0 0 0 2px rgba(89,48,18,.14);
+}
+.topic-entry-section-label { margin:0 0 12px;font:900 11px 'Nunito',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#6c278e; }
+.topic-entry-description { margin:0;font:700 clamp(16px,2vw,20px)/1.8 'Nunito',sans-serif;color:#2b170d; }
+.topic-entry-meta { display:flex;flex-wrap:wrap;gap:10px;margin-top:18px; }
+.topic-entry-chip { padding:7px 12px;border:2px solid rgba(89,48,18,.35);border-radius:999px;background:rgba(255,255,255,.38);font:900 11px 'Nunito',sans-serif;color:#4b2b13; }
+.topic-entry-chain { display:grid;gap:12px; }
+.topic-entry-node {
+  position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;
+  border:3px solid #6d411c;background:linear-gradient(180deg,#fff3cb,#e4c17a);
+  box-shadow:0 5px 0 rgba(39,18,10,.5);color:#2b170d;
+}
+.topic-entry-node-index {
+  width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;border-radius:50%;
+  border:3px solid #3e2412;background:radial-gradient(circle at 35% 25%,#fff1ad,#d69a32 58%,#7b491d);
+  font:900 13px 'Nunito',sans-serif;color:#2b170d;
+}
+.topic-entry-node-name { margin:0;font:900 16px 'Bree Serif',Georgia,serif; }
+.topic-entry-node-meta { margin:4px 0 0;font:800 10px 'Nunito',sans-serif;color:#75552c;letter-spacing:.3px; }
+.topic-entry-actions { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px; }
+.topic-entry-action {
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:18px;
+  min-height:178px;padding:22px;text-align:left;border:4px solid #6d411c;border-radius:10px;
+  cursor:pointer;transition:transform .12s ease,filter .12s ease;
+}
+.topic-entry-action:hover:not(:disabled) { transform:translateY(-3px);filter:brightness(1.05); }
+.topic-entry-action:disabled { opacity:.55;cursor:not-allowed; }
+.topic-entry-action.primary { background:linear-gradient(180deg,#9df2a7 0%,#31a85e 55%,#176235 100%);color:#071d0f;border-color:#ffe288;box-shadow:0 7px 0 #12361e,0 0 24px rgba(88,255,138,.22); }
+.topic-entry-action.secondary { background:linear-gradient(180deg,#ffe596,#b8792d);color:#2a160d;box-shadow:0 6px 0 #28150c; }
+.topic-entry-action-tag { font:900 10px 'Nunito',sans-serif;letter-spacing:1.2px;text-transform:uppercase; }
+.topic-entry-action-title { margin:10px 0 7px;font:900 23px 'Bree Serif',Georgia,serif; }
+.topic-entry-action-copy { margin:0;font:800 12px/1.6 'Nunito',sans-serif; }
+.topic-entry-action-cta { font:900 12px 'Nunito',sans-serif;letter-spacing:.6px;text-transform:uppercase; }
+.topic-entry-error { margin:16px 0;padding:15px 18px;border:3px solid #6b251d;background:#ffe0d5;color:#641b13;font:900 12px/1.6 'Nunito',sans-serif; }
+.topic-entry-loading { min-height:100vh;display:grid;place-items:center;background:#24130d;color:#ffe288; }
+.topic-entry-spinner { width:48px;height:48px;border:5px solid rgba(255,226,136,.25);border-top-color:#ffe288;border-right-color:#8749b7;border-radius:50%;animation:entry-spin .8s linear infinite; }
+@keyframes entry-spin { to { transform:rotate(360deg); } }
+@media(max-width:680px) {
+ .topic-entry-hud { grid-template-columns:1fr; }
+ .topic-entry-hud .topic-entry-button { justify-self:start; }
+ .topic-entry-suri { width:60px;height:60px; }
+ .topic-entry-suri img { width:46px;height:46px; }
+ .topic-entry-actions { grid-template-columns:1fr; }
+ .topic-entry-action { min-height:150px; }
+}
+`;
+
 export default function TopicIntroPage() {
   const router = useRouter();
   const params = useParams();
   const topicEntryNode = params.topic_entry_node as string;
 
-  const [label, setLabel] = useState<string>("");
-  const [grade, setGrade] = useState<number>(0);
+  const [label, setLabel] = useState("");
+  const [grade, setGrade] = useState(0);
   const [chain, setChain] = useState<ChainNode[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<boolean>(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
         const [intro, chainData] = await Promise.all([
           getTopicIntro(topicEntryNode),
-          getGraphChain(topicEntryNode)
+          getGraphChain(topicEntryNode),
         ]);
         setLabel(intro.label);
         setGrade(intro.grade);
@@ -49,20 +183,16 @@ export default function TopicIntroPage() {
     if (topicEntryNode) load();
   }, [topicEntryNode]);
 
-  const handleExit = () => {
-    router.push("/topics");
-  };
-
   const handleCreateSession = async (mode: "diagnostic" | "skip") => {
     setActionLoading(true);
     setError(null);
     let sessionId = "";
-    
+
     try {
       const session = await createSession({ topic_entry_node: topicEntryNode });
       sessionId = session.id;
     } catch (err: any) {
-      if (err.status === 409 && err.detail && err.detail.session_id) {
+      if (err.status === 409 && err.detail?.session_id) {
         sessionId = err.detail.session_id;
       } else {
         setError(err.detail || "Failed to create learning session.");
@@ -86,163 +216,94 @@ export default function TopicIntroPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 border-4 border-slate-200 rounded-full" />
-          <div className="absolute inset-0 border-4 border-[#001a54] border-t-[#fdd400] rounded-full animate-spin" />
-        </div>
-      </div>
+      <>
+        <style>{ENTRY_CSS}</style>
+        <div className="topic-entry-loading"><div className="topic-entry-spinner" /></div>
+      </>
     );
   }
 
   const description = TOPIC_DESCRIPTIONS[topicEntryNode] || `Learn about ${label}.`;
 
   return (
-    <MainPage>
-      <div className="bg-slate-50 min-h-screen text-slate-800 py-8 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-  
-            <button
-              onClick={handleExit}
-              className="font-['Manrope'] text-[11px] text-[#1F2720] bg-[#fdd400] hover:bg-[#ffe170] px-4 py-2 rounded-full border-[3px] border-[#1F2720] shadow-[3px_3px_0px_0px_#1F2720] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_#1F2720] active:translate-y-0.5 active:shadow-[1px_1px_0px_0px_#1F2720] transition-all cursor-pointer font-black uppercase tracking-wider inline-flex items-center gap-1.5"
-            >
-              ← Back to Trails
-            </button>
-    
-          {/* Bento Grid Header Block */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-4">
-            
-            {/* Main Branding Display Header Card */}
-            <div className="lg:col-span-3 bg-[#223324] rounded-[32px] p-6 md:p-8 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] relative overflow-hidden flex flex-col justify-between min-h-[160px]">
-              
-              <div className="absolute top-0 right-0 opacity-50 z-0">
-                <img src="/suri-snake-right.png" alt="Suri Mascot" className="w-48 h-auto object-contain translate-x-4 translate-y-4 pointer-events-none" />
+    <MainPage immersive>
+      <style>{ENTRY_CSS}</style>
+      <main className="topic-entry">
+        <div className="topic-entry-shell">
+          <header className="topic-entry-hud">
+            <div className="topic-entry-brand">
+              <div className="topic-entry-suri">
+                <img src="/suri-snake-right.png" alt="SURI mascot" />
               </div>
-              
-              <div className="flex items-center justify-between mb-4 z-10">
-                <div className="flex items-center gap-2 bg-[#1b261c] px-3 py-1.5 rounded-full border-[2px] border-[#1F2720]">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#fdd400] animate-pulse border border-[#1F2720]" />
-                  <span className="font-['Manrope'] text-xs text-[#fdd400] font-black tracking-[0.2em] uppercase">TRAIL HEAD</span>
-                </div>
-                <span className="font-['Manrope'] text-[10px] text-[#1F2720] font-black bg-[#fdd400] px-3 py-1 rounded-md border-2 border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720]">{topicEntryNode}</span>
-              </div>
-
-              <div className="z-10 mt-6">
-                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white font-['Hanken_Grotesk'] drop-shadow-[2px_2px_0px_#1F2720]">
-                  {label}
-                </h1>
-                <p className="font-['Manrope'] text-sm text-[#ffe170] mt-2 font-bold uppercase drop-shadow-[1px_1px_0px_#1F2720]">
-                  Grade {grade} • Trail Diagnostics
-                </p>
+              <div>
+                <span className="topic-entry-eyebrow">Your next adventure</span>
+                <h1 className="topic-entry-title">{label || "Topic Adventure"}</h1>
+                <p className="topic-entry-subtitle">Grade {grade} · Topic Entry</p>
               </div>
             </div>
+            <button className="topic-entry-button" onClick={() => router.push("/topics")}>← Back to Library</button>
+          </header>
 
-            {/* Side Metric Panel */}
-            <div className="bg-[#faf8f5] rounded-[32px] p-6 border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#1F2720] transition-all">
-              <div className="flex justify-between items-start">
-                <span className="font-['Manrope'] text-xs text-[#1F2720] font-black uppercase tracking-wider">TRAIL LENGTH</span>
-                <span className="text-[10px] font-black font-['Manrope'] text-[#1F2720] bg-[#e6e8ea] px-2.5 py-0.5 rounded-md border-2 border-[#1F2720]">STEPS</span>
-              </div>
-              <div className="my-3">
-                <span className="font-['Hanken_Grotesk'] text-5xl font-black text-[#1F2720] tracking-tighter drop-shadow-[2px_2px_0px_#e6e8ea] group-hover:text-[#005b21] transition-colors">
-                  {loading ? "--" : String(chain.length).padStart(2, '0')}
-                </span>
-              </div>
-              <p className="font-['Manrope'] text-xs text-slate-500 font-bold">
-                Total prerequisites to clear this pathway.
-              </p>
-            </div>
+          <div className="topic-entry-speech">
+            <img src="/suri-snake-right.png" alt="" />
+            <p>Sss-ready, Ranger? Before we enter this chapter, let’s check the skills you’ve gathered along the trail. You can take a diagnostic or head straight into the lesson!</p>
           </div>
 
-          {/* System Error Notification Banner */}
-          {error && (
-            <div className="bg-red-100 border-[3px] border-[#1F2720] rounded-[24px] p-5 shadow-[4px_4px_0px_0px_#1F2720] flex items-start gap-4 mt-6">
-              <img src="/suri-snake-sad.png" alt="Sad Suri" className="w-10 h-10 object-contain shrink-0" />
-              <div>
-                <span className="font-['Manrope'] text-xs text-red-800 font-black uppercase tracking-widest block mb-1">Oh no! A thorny problem!</span>
-                <p className="font-['Manrope'] text-sm text-red-900 font-bold">{error}</p>
+          {error && <div className="topic-entry-error" role="alert">A thorny problem! {error}</div>}
+
+          <section className="topic-entry-panel">
+            <div className="topic-entry-paper">
+              <h2 className="topic-entry-section-label">Chapter Overview</h2>
+              <p className="topic-entry-description">{description}</p>
+              <div className="topic-entry-meta">
+                <span className="topic-entry-chip">TOPIC · {topicEntryNode}</span>
+                <span className="topic-entry-chip">GRADE {grade}</span>
+                <span className="topic-entry-chip">{chain.length} PREREQUISITE {chain.length === 1 ? "STEP" : "STEPS"}</span>
               </div>
             </div>
-          )}
-
-          {/* Topic Description Card */}
-          <section className="bg-[#faf8f5] rounded-[32px] border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] p-6 md:p-8 mt-6">
-            <h2 className="text-xs font-['Manrope'] font-black text-slate-500 uppercase tracking-widest mb-3">Track Overview</h2>
-            <p className="font-['Hanken_Grotesk'] text-xl text-[#1F2720] leading-relaxed font-bold">
-              {description}
-            </p>
           </section>
 
-          {/* Prerequisite Chain Card */}
-          <section className="bg-white rounded-[32px] border-[4px] border-[#1F2720] shadow-[8px_8px_0px_0px_#1F2720] p-6 md:p-8 mt-6">
-            <h2 className="text-sm font-['Manrope'] font-black text-[#1F2720] uppercase tracking-widest mb-6 flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-[#fdd400] border-2 border-[#1F2720]" />
-              Trail Prerequisites
-            </h2>
-            
-            <div className="relative pl-6 before:absolute before:left-2 before:top-4 before:bottom-4 before:w-1.5 before:bg-[#e6e8ea] before:rounded-full">
-              <div className="space-y-4">
-                {chain.map((node, idx) => (
-                  <div key={node.node_id} className="relative flex items-start gap-4 group">
-                    {/* Flow point dot */}
-                    <div className="absolute -left-[27px] top-5 w-4 h-4 rounded-full border-[3px] border-[#1F2720] bg-white group-hover:bg-[#fdd400] transition-colors duration-200 z-10" />
-                    <div className="bg-[#faf8f5] border-[3px] border-[#1F2720] shadow-[3px_3px_0px_0px_#1F2720] group-hover:-translate-y-0.5 group-hover:-translate-x-0.5 group-hover:shadow-[5px_5px_0px_0px_#1F2720] rounded-[24px] px-5 py-4 w-full max-w-2xl transition-all duration-300">
-                      <p className="font-['Hanken_Grotesk'] text-base md:text-lg font-black text-[#1F2720]">
-                        {node.node_label}
-                      </p>
-                      <p className="font-['Manrope'] text-xs text-slate-500 font-bold mt-1">
-                        Grade {node.grade} • ID: {node.node_id}
-                      </p>
+          <section className="topic-entry-panel">
+            <div className="topic-entry-paper">
+              <h2 className="topic-entry-section-label">Prerequisite Trail</h2>
+              {chain.length ? (
+                <div className="topic-entry-chain">
+                  {chain.map((node, index) => (
+                    <div className="topic-entry-node" key={node.node_id}>
+                      <div className="topic-entry-node-index">{String(index + 1).padStart(2, "0")}</div>
+                      <div>
+                        <p className="topic-entry-node-name">{node.node_label}</p>
+                        <p className="topic-entry-node-meta">GRADE {node.grade} · NODE {node.node_id}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="topic-entry-description">No prerequisite steps are listed for this topic. You’re ready to begin!</p>
+              )}
             </div>
           </section>
 
-          {/* Action Call Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-            <button
-              onClick={() => handleCreateSession("diagnostic")}
-              disabled={actionLoading}
-              className="group flex flex-col justify-between items-start text-left bg-[#fdd400] border-[4px] border-[#1F2720] hover:-translate-y-1 hover:-translate-x-1 shadow-[8px_8px_0px_0px_#1F2720] hover:shadow-[12px_12px_0px_0px_#1F2720] active:translate-y-0.5 active:translate-x-0.5 active:shadow-[2px_2px_0px_0px_#1F2720] p-6 rounded-[32px] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[160px]"
-            >
+          <div className="topic-entry-actions">
+            <button className="topic-entry-action primary" onClick={() => handleCreateSession("diagnostic")} disabled={actionLoading}>
               <div>
-                <span className="font-['Manrope'] text-[10px] text-white bg-[#1F2720] px-3 py-1.5 rounded-md font-black uppercase tracking-wider border-2 border-[#1F2720]">RECOMMENDED</span>
-                <h3 className="font-['Hanken_Grotesk'] font-black text-[#1F2720] text-2xl mt-4 group-hover:text-[#005b21] transition-colors drop-shadow-[1px_1px_0px_rgba(31,39,32,0.1)]">
-                  Diagnostic Assessment
-                </h3>
-                <p className="font-['Manrope'] text-sm font-bold text-[#1F2720]/80 mt-2">
-                  Diagnose prerequisite knowledge blocks to adapt and skip sections you already understand.
-                </p>
+                <span className="topic-entry-action-tag">Recommended · Check your skills</span>
+                <h3 className="topic-entry-action-title">Diagnostic Assessment</h3>
+                <p className="topic-entry-action-copy">Find out which prerequisite skills you already know and let your learning path adapt to you.</p>
               </div>
-              <span className="font-['Manrope'] text-sm text-[#1F2720] font-black mt-4 flex items-center gap-2 group-hover:translate-x-1 transition-transform bg-white px-4 py-2 rounded-full border-2 border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720]">
-                START ASSESSMENT →
-              </span>
+              <span className="topic-entry-action-cta">{actionLoading ? "Preparing your quest…" : "Begin assessment →"}</span>
             </button>
-
-            <button
-              onClick={() => handleCreateSession("skip")}
-              disabled={actionLoading}
-              className="group flex flex-col justify-between items-start text-left bg-white border-[4px] border-[#1F2720] hover:-translate-y-1 hover:-translate-x-1 shadow-[8px_8px_0px_0px_#1F2720] hover:shadow-[12px_12px_0px_0px_#1F2720] active:translate-y-0.5 active:translate-x-0.5 active:shadow-[2px_2px_0px_0px_#1F2720] p-6 rounded-[32px] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[160px]"
-            >
+            <button className="topic-entry-action secondary" onClick={() => handleCreateSession("skip")} disabled={actionLoading}>
               <div>
-                <span className="font-['Manrope'] text-[10px] text-[#1F2720] bg-[#e6e8ea] px-3 py-1.5 rounded-md border-2 border-[#1F2720] font-black uppercase tracking-wider">FAST TRACK</span>
-                <h3 className="font-['Hanken_Grotesk'] font-black text-[#1F2720] text-2xl mt-4 group-hover:text-[#005b21] transition-colors">
-                  Skip to Lessons
-                </h3>
-                <p className="font-['Manrope'] text-sm font-bold text-slate-500 mt-2">
-                  Bypass the baseline diagnostic structure and jump directly to the first standard track node lessons.
-                </p>
+                <span className="topic-entry-action-tag">Fast track</span>
+                <h3 className="topic-entry-action-title">Skip to Lessons</h3>
+                <p className="topic-entry-action-copy">Already confident? Bypass the diagnostic and jump straight into the lesson.</p>
               </div>
-              <span className="font-['Manrope'] text-sm text-[#1F2720] font-black mt-4 flex items-center gap-2 group-hover:translate-x-1 transition-transform bg-[#fdd400] px-4 py-2 rounded-full border-2 border-[#1F2720] shadow-[2px_2px_0px_0px_#1F2720]">
-                GO TO LESSONS →
-              </span>
+              <span className="topic-entry-action-cta">{actionLoading ? "Preparing your quest…" : "Go to lesson →"}</span>
             </button>
           </div>
-
         </div>
-      </div>
+      </main>
     </MainPage>
   );
 }
