@@ -426,7 +426,7 @@ html::-webkit-scrollbar {
 .topics-world-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .32s cubic-bezier(.2,.75,.2,1); }
 .topics-world-shell.topics-transition-entering { opacity: 0; }
 .topics-world-shell.topics-transition-zooming-out { opacity: 0; }
-.topics-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px); transform: scale(1.03); will-change: filter, transform; }
+.topics-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/bookstand.png") center / cover no-repeat; filter: blur(0.5px); transform: scale(1.03); will-change: filter, transform; }
 
 .topics-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff; }
 .topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(63rem, 100%); margin: 0 auto .75rem; }
