@@ -551,7 +551,7 @@ html::-webkit-scrollbar {
 .progress-shelf-header { align-items: flex-start; min-height: 3.55rem; padding: .2rem .25rem .4rem; border-bottom: 0; }
 .progress-shelf-number { margin-bottom: .22rem; padding: .2rem .32rem; font-size: .44rem; }
 .progress-shelf-header small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .49rem; }
-.progress-shelf-header h3 { display: -webkit-box; margin-top: .18rem; overflow: hidden; font-size: .85rem; line-height: 1.05; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.progress-shelf-header h3 { display: -webkit-box; margin-top: .18rem; overflow: hidden; font-size: .85rem; line-height: 1.05; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .progress-shelf-header p { margin-top: .18rem; overflow: hidden; font-size: .52rem; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
 .progress-shelf-volume { position: relative; z-index: 1; display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); gap: .25rem .38rem; align-items: center; padding: .38rem .42rem; border: 2px solid #163a31; border-radius: .55rem; background: rgba(255,253,246,.88); box-shadow: 3px 3px 0 #356b4e; }
 .progress-chapter-shelf.mastered .progress-shelf-volume { border-color: #23734c; box-shadow: 3px 3px 0 #5fbd7a; }
