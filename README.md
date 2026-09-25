@@ -67,11 +67,18 @@ Choose either workflow below. Both run the FastAPI backend on `http://localhost:
 
 #### Option A: Start manually in two terminals
 
-In the first terminal, from the project root, activate the backend virtual environment and start FastAPI:
+In the first terminal, from the project root, start FastAPI with the Python installation where you installed the backend dependencies.
+
+If you use a virtual environment, activate it first (optional):
 
 ```bat
 backend\venv\Scripts\activate.bat
-uvicorn backend.main:app --reload
+```
+
+Then start FastAPI:
+
+```bat
+python -m uvicorn backend.main:app --reload
 ```
 
 In a second terminal, start the frontend:
