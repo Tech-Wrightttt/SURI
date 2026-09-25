@@ -15,15 +15,17 @@ import styles from "./landmarks.module.css";
 import { Ocean } from "@/components/ReferenceVoxel/Ocean";
 import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
+import { configureWorldRenderer } from "@/lib/three/renderer";
 
 type Point3 = [number, number, number];
 const COLORS = { gold: "#dfc188", purple: "#a99bd1" };
 const noRaycast: THREE.Mesh["raycast"] = () => {};
-function Landmark({ title, detail, position, kind, onClick, accent, selected=false }: { title: string; detail: string; position: Point3; kind: LandmarkKind; onClick?: () => void; accent?: string; selected?: boolean }) {
+function Landmark({ title, detail, position, kind, onClick, onIntent, accent, selected=false, hideLabel=false }: { title: string; detail: string; position: Point3; kind: LandmarkKind; onClick?: () => void; onIntent?: () => void; accent?: string; selected?: boolean; hideLabel?: boolean }) {
   const [hovered, setHovered] = useState(false);
 
   const highlighted = hovered || selected;
   const enter = () => { onClick?.(); };
+  const prepareDestination = () => { onIntent?.(); };
   const setLandmarkHover = (next: boolean) => {
     setHovered(next);
     document.body.style.cursor = next && onClick ? "pointer" : "default";
@@ -37,7 +39,7 @@ function Landmark({ title, detail, position, kind, onClick, accent, selected=fal
     <LandmarkArchitecture kind={kind} />
     {/* Only this single, unchanging mesh receives pointer intersections. */}
     <mesh name={`landmark-hitbox-${kind}`} position={[0, bounds[1] / 2, 0]}
-      onPointerOver={(event) => { event.stopPropagation(); setLandmarkHover(true); }}
+      onPointerOver={(event) => { event.stopPropagation(); prepareDestination(); setLandmarkHover(true); }}
       onPointerOut={() => { setLandmarkHover(false); }}
       onClick={(event) => { event.stopPropagation(); if (event.delta < 5) enter(); }}>
       <boxGeometry args={bounds} />
@@ -49,18 +51,24 @@ function Landmark({ title, detail, position, kind, onClick, accent, selected=fal
     </>}
     <Html position={[0, bounds[1] + LANDMARK_LABEL_LIFT, 0]} zIndexRange={[30, 10]} style={{ pointerEvents: "none" }}>
       <div className={styles.anchor} data-landmark={kind}>
-        {onClick ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${detail}`} onClick={enter} onPointerEnter={() => setLandmarkHover(true)} onPointerLeave={() => setLandmarkHover(false)}><span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span><span className={styles.markerDetail}>{detail}</span></button>
-          : <span className={`${styles.marker} ${styles.scenic} ${hovered ? styles.markerExpanded : ""}`} onPointerEnter={() => setLandmarkHover(true)} onPointerLeave={() => setLandmarkHover(false)}><span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span><span className={styles.markerDetail}>{detail}</span></span>}
+        {onClick ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""} ${hideLabel ? styles.hiddenWorldLabel : ""}`} aria-label={`${title}: ${detail}`} onClick={enter} onPointerEnter={() => { prepareDestination(); setLandmarkHover(true); }} onFocus={prepareDestination} onPointerLeave={() => setLandmarkHover(false)}><span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span><span className={styles.markerDetail}>{detail}</span></button>
+          : <div role="note" className={`${styles.marker} ${styles.scenic} ${hovered ? styles.markerExpanded : ""} ${hideLabel ? styles.hiddenWorldLabel : ""}`} aria-label={`${title}: ${detail}`} onPointerEnter={() => setLandmarkHover(true)} onPointerLeave={() => setLandmarkHover(false)}><span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span><span className={styles.markerDetail}>{detail}</span></div>}
       </div>
     </Html>
   </group>;
+}
+
+function SuriKeepLabel() {
+  return <div role="note" className={`${styles.marker} ${styles.scenic} ${styles.keepLabel}`} aria-label="SURI Keep Castle: The central welcome hall for your learning kingdom">
+    <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>SURI Keep Castle</span></span>
+  </div>;
 }
 
 const EMPTY_ERRORS: MisconceptionHistoryItem[] = [];
 type WorldProps = {
   active?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
-  command: CameraCommand | null; visible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void;
+  command: CameraCommand | null; visible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void; preloadRoute?: (href: string) => void;
 };
 
 function FrameGate({ active }: { active: boolean }) {
@@ -69,7 +77,7 @@ function FrameGate({ active }: { active: boolean }) {
   return null;
 }
 
-function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, visible, preserveCameraOnActivate }: WorldProps) {
+function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, preloadRoute, busy, visible, preserveCameraOnActivate }: WorldProps) {
   const size = useThree(state => state.size);
   const frame = worldFrame(size.width, size.height, playableProjectionBounds());
   const visit = (_site: keyof typeof SITES, href: string) => { if(!busy)navigate(href); };
@@ -85,11 +93,11 @@ function CoastalWorld({ errors=EMPTY_ERRORS, progress, command, navigate, busy, 
         <Ocean />
         <Landscape />
 
-        <Landmark title="SURI Keep" detail="The central welcome hall for your learning kingdom" position={sitePosition("keep")} accent={COLORS.gold} kind="keep" />
-        <Landmark title="Topics · Learning Grove" detail="Browse topics and choose your next learning trail" position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} kind="topics" selected={selectedSite === "topics"} />
-        <Landmark title="Error History · Hall of Records" detail={`${errors.length} misconception records · inspect the error history`} position={sitePosition("records")} onClick={() => visit("records", "/error-history")} kind="records" selected={selectedSite === "records"} />
-        <Landmark title="Progress · Hall of Champions" detail={`${progress.mastered}/${progress.total || 0} skills mastered · view progress`} position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} kind="champions" selected={selectedSite === "champions"} />
-        <Landmark title="Calculator · Arcane Tower" detail="Solve and explore equations" position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} kind="calculator" selected={selectedSite === "calculator"} />
+        <Landmark title="SURI Keep Castle" detail="The central welcome hall for your learning kingdom" position={sitePosition("keep")} accent={COLORS.gold} kind="keep" hideLabel />
+        <Landmark title="Topics · Learning Grove" detail="Browse topics and choose your next learning trail" position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} onIntent={() => preloadRoute?.("/topics")} kind="topics" selected={selectedSite === "topics"} />
+        <Landmark title="Error History · Hall of Records" detail={`${errors.length} misconception records · inspect the error history`} position={sitePosition("records")} onClick={() => visit("records", "/error-history")} onIntent={() => preloadRoute?.("/error-history")} kind="records" selected={selectedSite === "records"} />
+        <Landmark title="Progress · Hall of Champions" detail={`${progress.mastered}/${progress.total || 0} skills mastered · view progress`} position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} onIntent={() => preloadRoute?.("/progress")} kind="champions" selected={selectedSite === "champions"} />
+        <Landmark title="Calculator · Arcane Tower" detail="Solve and explore equations" position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} onIntent={() => preloadRoute?.("/calculator")} kind="calculator" selected={selectedSite === "calculator"} />
       </group>
     </>
   );
@@ -137,14 +145,13 @@ function DashboardWorld(props: WorldProps) {
         dpr={[1, 1.25]}
         camera={{ position: [...CAMERA_POSITION], near: 0.5, far: 650 }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
-        onCreated={({ gl }) => {
-          gl.shadowMap.enabled = true;
-          gl.shadowMap.type = THREE.PCFSoftShadowMap;
-        }}
+        onCreated={({ gl }) => configureWorldRenderer(gl)}
       >
         <FrameGate active={props.visible} />
         <Suspense fallback={null}><CoastalWorld {...props} /></Suspense>
-      </Canvas></div>
+      </Canvas>
+        <SuriKeepLabel />
+      </div>
       {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}
     </div>
   );

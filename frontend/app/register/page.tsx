@@ -479,7 +479,7 @@ export default function RegisterPage() {
 
             <p className="quest-login-link">
               Already have an account?
-              <Link href="/login">Log In</Link>
+              <Link href="/login" prefetch>Log In</Link>
             </p>
           </div>
         </div>

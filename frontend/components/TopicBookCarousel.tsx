@@ -2,8 +2,9 @@
 
 import { ContactShadows, RoundedBox, Text } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { configureWorldRenderer } from "@/lib/three/renderer";
 
 export type CarouselBook = {
   nodeId: string;
@@ -20,6 +21,7 @@ type TopicBookCarouselProps = {
   books: CarouselBook[];
   activeIndex: number;
   onBookClick: (index: number) => void;
+  onBookIntent?: (index: number) => void;
 };
 
 type BookPalette = {
@@ -53,6 +55,7 @@ function Book({
   hovered,
   carouselRotation,
   onClick,
+  onIntent,
   onHoverChange,
 }: {
   book: CarouselBook;
@@ -63,6 +66,7 @@ function Book({
   hovered: boolean;
   carouselRotation: React.MutableRefObject<number>;
   onClick: () => void;
+  onIntent?: () => void;
   onHoverChange: (hovering: boolean) => void;
 }) {
   const body = useRef<THREE.Group>(null);
@@ -80,7 +84,8 @@ function Book({
     const focus = emphasis.current;
     const hover = hoverLift.current;
     const worldAngle = angle + carouselRotation.current;
-    const bob = Math.sin(state.clock.elapsedTime * 1.1 + phase) * (0.12 + index * 0.008);
+    const elapsed = state.clock.getElapsed();
+    const bob = Math.sin(elapsed * 1.1 + phase) * (0.12 + index * 0.008);
     // The book at the far side rises above the foreground volume instead of
     // disappearing directly behind it, so all four positions stay legible.
     const rearLift = Math.pow(Math.max(0, -Math.cos(worldAngle)), 2) * 1.18;
@@ -89,11 +94,11 @@ function Book({
     group.scale.setScalar(scale);
     // Cancelling the parent yaw keeps covers readable while a small angle-dependent
     // tilt makes the surrounding volumes feel placed around the ring rather than flat.
-    group.rotation.set(0.04 + Math.sin(worldAngle) * 0.09, -carouselRotation.current + Math.sin(worldAngle) * 0.32, Math.sin(state.clock.elapsedTime * 0.55 + phase) * 0.018);
+    group.rotation.set(0.04 + Math.sin(worldAngle) * 0.09, -carouselRotation.current + Math.sin(worldAngle) * 0.32, Math.sin(elapsed * 0.55 + phase) * 0.018);
   });
 
   return <group position={[Math.sin(angle) * radius, 0, Math.cos(angle) * radius]}>
-    <group ref={body} onPointerOver={() => onHoverChange(true)} onPointerOut={() => onHoverChange(false)} onClick={(event) => { event.stopPropagation(); onClick(); }}>
+    <group ref={body} onPointerOver={() => { onIntent?.(); onHoverChange(true); }} onPointerOut={() => onHoverChange(false)} onClick={(event) => { event.stopPropagation(); onClick(); }}>
       <mesh castShadow receiveShadow position={[0, 0, -0.08]}>
         <boxGeometry args={[2.25, 3.18, 0.52]} />
         <meshStandardMaterial color="#efe5c8" roughness={0.86} />
@@ -151,7 +156,7 @@ function Book({
   </group>;
 }
 
-function CarouselScene({ books, activeIndex, onBookClick }: TopicBookCarouselProps) {
+function CarouselScene({ books, activeIndex, onBookClick, onBookIntent }: TopicBookCarouselProps) {
   const carousel = useRef<THREE.Group>(null);
   const rotation = useRef(0);
   const targetRotation = useRef(0);
@@ -171,7 +176,7 @@ function CarouselScene({ books, activeIndex, onBookClick }: TopicBookCarouselPro
     const group = carousel.current;
     if (!group) return;
     rotation.current = THREE.MathUtils.damp(rotation.current, targetRotation.current, 4.6, delta);
-    const idleOrbit = Math.sin(state.clock.elapsedTime * 0.21) * 0.055;
+    const idleOrbit = Math.sin(state.clock.getElapsed() * 0.21) * 0.055;
     group.rotation.y = rotation.current + idleOrbit;
   });
 
@@ -181,14 +186,14 @@ function CarouselScene({ books, activeIndex, onBookClick }: TopicBookCarouselPro
     <directionalLight castShadow position={[-5, 7, 8]} intensity={2.25} color="#fff0c6" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />
     <pointLight position={[0, 2.5, 5]} intensity={1.2} color="#f4cd57" distance={13} />
     <group ref={carousel} position={[0, 0.1, 0]} scale={1.0625}>
-      {books.map((book, index) => <Book key={book.nodeId} book={book} index={index} angle={index * angleStep} radius={radius} selected={index === activeIndex} hovered={index === hoveredIndex} carouselRotation={rotation} onHoverChange={(hovering) => setHoveredIndex(current => hovering ? index : current === index ? null : current)} onClick={() => onBookClick(index)} />)}
+      {books.map((book, index) => <Book key={book.nodeId} book={book} index={index} angle={index * angleStep} radius={radius} selected={index === activeIndex} hovered={index === hoveredIndex} carouselRotation={rotation} onHoverChange={(hovering) => setHoveredIndex(current => hovering ? index : current === index ? null : current)} onClick={() => onBookClick(index)} onIntent={() => onBookIntent?.(index)} />)}
     </group>
     <ContactShadows position={[0, -2.28, 0]} opacity={0.32} scale={12.75} blur={2.7} far={6.5} color="#160b07" />
   </>;
 }
 
 /** A transparent, WebGL-based ring of real topic books; the island behind it stays untouched. */
-export default function TopicBookCarousel(props: TopicBookCarouselProps) {
+function TopicBookCarousel(props: TopicBookCarouselProps) {
   // The slightly wider camera frame provides a safe visual margin for the
   // selected book's lift, glow, and hover motion at every carousel position.
   const camera = useMemo(() => ({ position: [0, 1.15, 12.9] as [number, number, number], fov: 40, near: 0.1, far: 100 }), []);
@@ -202,10 +207,11 @@ export default function TopicBookCarousel(props: TopicBookCarouselProps) {
     gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
     onCreated={({ gl }) => {
       gl.setClearColor(0x000000, 0);
-      gl.shadowMap.enabled = true;
-      gl.shadowMap.type = THREE.PCFSoftShadowMap;
+      configureWorldRenderer(gl);
     }}
   >
     <CarouselScene {...props} />
   </Canvas>;
 }
+
+export default memo(TopicBookCarousel);

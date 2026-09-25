@@ -9,8 +9,10 @@ import { Ocean } from "@/components/ReferenceVoxel/Ocean";
 import type { LandmarkKind } from "@/lib/worldMap/architecture";
 import { LANDMARK_SCALE, WORLD_ROTATION } from "@/lib/worldMap/framing";
 import { sitePosition, SITES } from "@/lib/worldMap/landscape";
+import { configureWorldRenderer } from "@/lib/three/renderer";
 
 const CAMERA_HALF_HEIGHT = 17.5;
+const FOCUSED_ARRIVAL_DURATION = 1.15;
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
 type FocusedIslandSceneProps = {
@@ -46,15 +48,15 @@ function FocusedIslandCamera({ site, arrive = true }: Pick<FocusedIslandScenePro
     }
     camera.position.copy(arrive ? distant : close);
     camera.lookAt(focal);
-    elapsed.current = arrive ? 0 : 0.9;
+    elapsed.current = arrive ? 0 : FOCUSED_ARRIVAL_DURATION;
     camera.updateProjectionMatrix();
     invalidate();
   }, [arrive, close, distant, focal, getThree, size, invalidate]);
 
   useFrame((_, delta) => {
-    if (elapsed.current >= 0.9) return;
-    elapsed.current = Math.min(elapsed.current + delta, 0.9);
-    const t = THREE.MathUtils.smootherstep(elapsed.current / 0.9, 0, 1);
+    if (elapsed.current >= FOCUSED_ARRIVAL_DURATION) return;
+    elapsed.current = Math.min(elapsed.current + delta, FOCUSED_ARRIVAL_DURATION);
+    const t = THREE.MathUtils.smootherstep(elapsed.current / FOCUSED_ARRIVAL_DURATION, 0, 1);
     const { camera } = getThree();
     camera.position.lerpVectors(distant, close, t);
     camera.lookAt(focal);
@@ -62,7 +64,7 @@ function FocusedIslandCamera({ site, arrive = true }: Pick<FocusedIslandScenePro
       camera.zoom = THREE.MathUtils.lerp(0.84, 1.08, t);
       camera.updateProjectionMatrix();
     }
-    if (elapsed.current < 0.9) invalidate();
+    if (elapsed.current < FOCUSED_ARRIVAL_DURATION) invalidate();
   });
 
   return null;
@@ -107,10 +109,7 @@ type FocusedIslandWorldProps = FocusedIslandSceneProps & {
 export default function FocusedIslandWorld({ active = true, arrive = true, className, focus, landmark, site, onReady }: FocusedIslandWorldProps) {
   return <div className={className} aria-hidden="true">
     <div className={`${className}-backdrop`}>
-      <Canvas frameloop={active ? "demand" : "never"} orthographic shadows="percentage" dpr={[1, 1.25]} camera={{ position: [82, 82, 82], near: 0.5, far: 420 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => {
-        gl.shadowMap.enabled = true;
-        gl.shadowMap.type = THREE.PCFSoftShadowMap;
-      }}>
+      <Canvas frameloop={active ? "demand" : "never"} orthographic shadows="percentage" dpr={[1, 1.25]} camera={{ position: [82, 82, 82], near: 0.5, far: 420 }} gl={{ antialias: true, powerPreference: "high-performance" }} onCreated={({ gl }) => configureWorldRenderer(gl)}>
         <FrameGate active={active} onReady={onReady} />
         <FocusedIslandScene focus={focus} landmark={landmark} site={site} arrive={arrive} />
       </Canvas>

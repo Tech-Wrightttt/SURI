@@ -10,6 +10,7 @@ const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
 const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
 const loadProgressWorld = () => import("@/components/WorldMap/ProgressTrailWorld");
 const loadCalculatorWorld = () => import("@/components/WorldMap/CalculatorTowerWorld");
+const loadTopicCarousel = () => import("@/components/TopicBookCarousel");
 const DashboardWorld = dynamic(loadWorld, { ssr: false });
 const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
 const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
@@ -32,11 +33,40 @@ const FOCUSED_ROUTES = {
   "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
 } as const;
 
-const TOPICS_WORLD_CROSSFADE_MS = 260;
-const TOPICS_CONTENT_EXIT_MS = 360;
+// Route canvases and foreground pages deliberately overlap for a little
+// longer so the handoff reads as a single gentle transition.
+const TOPICS_WORLD_CROSSFADE_MS = 600;
+const TOPICS_CONTENT_EXIT_MS = 660;
+const routeModulePreloads = new Map<string, Promise<unknown>>();
+const routeModuleLoaders: Partial<Record<string, () => Promise<unknown>>> = {
+  "/dashboard": loadWorld,
+  "/topics": () => Promise.all([loadTopicsWorld(), loadTopicCarousel()]),
+  "/progress": loadProgressWorld,
+  "/calculator": loadCalculatorWorld,
+};
+
+function warmRouteModule(href: string) {
+  const loader = routeModuleLoaders[href];
+  if (!loader) return Promise.resolve();
+  const existing = routeModulePreloads.get(href);
+  if (existing) return existing;
+  const preload = loader().catch((cause: unknown) => {
+    routeModulePreloads.delete(href);
+    throw cause;
+  });
+  routeModulePreloads.set(href, preload);
+  return preload;
+}
+
+function canPreloadHeavySceneWork() {
+  if (typeof navigator === "undefined") return false;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+  return !connection?.saveData && !connection?.effectiveType?.includes("2g");
+}
+
 const NavigationContext = createContext<{
-  navigate: (href: string) => void; busy: boolean; error: string | null; clearSession: () => void;
-}>({ navigate: () => {}, busy: false, error: null, clearSession: () => {} });
+  navigate: (href: string) => void; preloadRoute: (href: string) => void; busy: boolean; error: string | null; clearSession: () => void;
+}>({ navigate: () => {}, preloadRoute: () => {}, busy: false, error: null, clearSession: () => {} });
 
 export const useWorldNavigation = () => useContext(NavigationContext);
 export function useLearningData() {
@@ -85,6 +115,11 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   const focusedTransitionsRef = useRef(focusedTransitions);
   const revealTimers = useRef<Partial<Record<FocusedRouteKey, number>>>({});
 
+  const preloadRoute = useCallback((href: string, includeScene = false) => {
+    router.prefetch(href);
+    if (includeScene) void warmRouteModule(href).catch(() => {});
+  }, [router]);
+
   const setFocusedStage = useCallback((key: FocusedRouteKey, stage: FocusedTransition) => {
     focusedTransitionsRef.current = { ...focusedTransitionsRef.current, [key]: stage };
     setFocusedTransitions(current => ({ ...current, [key]: stage }));
@@ -129,9 +164,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!managed) return;
-    managedRoutes.forEach(href => router.prefetch(href));
+    managedRoutes.forEach((href) => preloadRoute(href));
     void ensureLearningData().catch(() => {});
-  }, [managed, pathname, router]);
+  }, [managed, pathname, preloadRoute]);
 
   useEffect(() => {
     const focusedRoute = getFocusedRoute(pathname);
@@ -150,7 +185,8 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     if (!managed) return;
     // Route prefetching fetches code in most cases. This idle preload is a
     // fallback that keeps Three.js from competing with the first paint.
-    const preload = () => { void loadWorld(); void loadTopicsWorld(); void loadProgressWorld(); void loadCalculatorWorld(); };
+    if (!canPreloadHeavySceneWork()) return;
+    const preload = () => { ["/dashboard", "/topics", "/progress", "/calculator"].forEach(href => void warmRouteModule(href).catch(() => {})); };
     const idle = window.requestIdleCallback?.(preload, { timeout: 2500 });
     const timeout = idle === undefined ? window.setTimeout(preload, 1200) : undefined;
     return () => {
@@ -207,7 +243,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     locked.current = true; setBusy(true); setError(null);
     const token = ++transaction.current;
     pendingRoute.current = href;
-    router.prefetch(href);
+    preloadRoute(href, true);
 
     const currentFocusedRoute = getFocusedRoute(pathname);
     if (href === "/dashboard" && currentFocusedRoute) {
@@ -268,7 +304,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       if (overview) setCommand({ id: ++serial.current, kind: "overview", onComplete: unlock });
       else unlock();
     });
-  }, [pathname, overview, router, setFocusedStage, unlock, waitForMotion]);
+  }, [pathname, overview, preloadRoute, router, setFocusedStage, unlock, waitForMotion]);
 
   const progress = useMemo(() => {
     const active = data?.progress.active_sessions ?? [], completed = data?.progress.completed_sessions ?? [];
@@ -278,7 +314,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     const rank = dewdrops >= 1000 ? "Elder Canopy Sage" : dewdrops >= 600 ? "Wildwood Ranger" : dewdrops >= 300 ? "Dewdrop Pathfinder" : dewdrops >= 100 ? "Fern Scout" : "Sprout Explorer";
     return { mastered, total, pct, dewdrops, rank };
   }, [data]);
-  const context = useMemo(() => ({ navigate, busy, error: error ?? dataError?.message ?? null, clearSession }), [navigate, busy, error, dataError, clearSession]);
+  const context = useMemo(() => ({ navigate, preloadRoute, busy, error: error ?? dataError?.message ?? null, clearSession }), [navigate, preloadRoute, busy, error, dataError, clearSession]);
   const focusedTransition = FOCUSED_ROUTE_KEYS.map(key => focusedTransitions[key]).find(stage => stage !== "idle") ?? "idle";
   const dashboardLayerVisible = overview || ["entering", "revealing", "leaving", "zooming-out"].includes(focusedTransition);
   const dashboardActive = overview || ["entering", "leaving", "zooming-out"].includes(focusedTransition);
@@ -298,7 +334,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   return <NavigationContext.Provider value={context}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
-      <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} busy={busy}
+      <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={(href) => preloadRoute(href, true)} busy={busy}
         active={data?.progress.active_sessions} errors={data?.progress.misconception_history} progress={progress} />
     </div>}
     {(focusedWorldMounted.topics || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${focusedTransitions.topics}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>

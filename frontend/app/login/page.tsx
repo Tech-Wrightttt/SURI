@@ -461,7 +461,7 @@ export default function LoginPage() {
 
             <p className="quest-signup">
               Don&apos;t have an account?
-              <Link href="/register">Sign Up</Link>
+              <Link href="/register" prefetch>Sign Up</Link>
             </p>
           </div>
         </div>

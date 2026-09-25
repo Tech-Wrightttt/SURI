@@ -1,128 +1,114 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import MainPage from "@/components/mainpage";
 import BackToTopButton from "@/components/navigation/BackToTopButton";
-import { useWorldNavigation } from "@/components/navigation/LearningShell";
-import { ensureLearningData } from "@/lib/learningData";
+import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
 import { createSession, skipDiagnostic } from "@/lib/api";
 import { BookOpen, Loader2, Lock } from "lucide-react";
 
-interface ChainNode {
-  node_id: string;
-  node_label: string;
-  grade: number;
-}
-
-interface Topic {
-  node_id: string;
-  label: string;
-  grade: number;
-}
-
-interface LearningSession {
-  id: string;
-  topic_entry_node: string;
-}
-
 type NodeStatus = "mastered" | "in_progress" | "unresolved" | "not_attempted";
+type ChainNode = { node_id: string; node_label: string; grade: number };
+type Topic = { node_id: string; label: string; grade: number };
+type LearningSession = { id: string; topic_entry_node: string };
+
+const EMPTY_TOPICS: Topic[] = [];
+const EMPTY_SESSIONS: LearningSession[] = [];
+const EMPTY_CHAINS: Record<string, ChainNode[]> = {};
+const EMPTY_NODE_STATUSES: Record<string, NodeStatus> = {};
 
 function isSessionConflict(error: unknown): error is { status: number; detail?: { session_id?: string } } {
   return typeof error === "object" && error !== null && "status" in error && (error as { status?: unknown }).status === 409;
 }
 
-export default function ProgressPage() {
-  return <ProgressContent />;
+function getStatusBadge(status: NodeStatus | undefined) {
+  switch (status) {
+    case "mastered": return { text: "Mastered", tone: "mastered", symbol: "✦" };
+    case "unresolved": return { text: "Needs work", tone: "needs-work", symbol: "!" };
+    case "in_progress": return { text: "In progress", tone: "in-progress", symbol: "●" };
+    default: return { text: "Not attempted", tone: "not-attempted", symbol: "○" };
+  }
 }
 
-function ProgressContent() {
+function getGradeSubtitle(grade: number) {
+  switch (grade) {
+    case 6:
+    case 7: return "Foundations & prerequisites";
+    case 8: return "Building algebraic fluency";
+    case 9: return "Expanding algebraic thinking";
+    default: return "Advanced problem solving";
+  }
+}
+
+export default function ProgressPage() {
   const router = useRouter();
   const { navigate } = useWorldNavigation();
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [activeSessions, setActiveSessions] = useState<LearningSession[]>([]);
-  const [nodeStatuses, setNodeStatuses] = useState<Record<string, NodeStatus>>({});
-  const [topicChains, setTopicChains] = useState<Record<string, ChainNode[]>>({});
+  const { data, error: loadError } = useLearningData();
   const [launchingNodeId, setLaunchingNodeId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        // Reuse the root-shell prefetch so data and the island arrival begin together.
-        const data = await ensureLearningData();
-        setActiveSessions(data.progress.active_sessions || []);
-        setNodeStatuses(data.statuses);
-        setTopics(data.topics);
-        setTopicChains(data.chains);
-      } catch (error: unknown) {
-        setErrorMsg(error instanceof Error ? error.message : "Failed to load progress metrics.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void loadData();
-  }, []);
+  const topics = data?.topics ?? EMPTY_TOPICS;
+  const activeSessions = data?.progress.active_sessions ?? EMPTY_SESSIONS;
+  const topicChains = data?.chains ?? EMPTY_CHAINS;
+  const nodeStatuses = data?.statuses ?? EMPTY_NODE_STATUSES;
+  const loading = !data && !loadError;
+  const error = actionError ?? loadError?.message ?? null;
 
   const summary = useMemo(() => {
     const nodeIds = new Set(Object.values(topicChains).flatMap((chain) => chain.map((node) => node.node_id)));
     let mastered = 0;
-    let inProgress = 0;
     let needsReview = 0;
 
     nodeIds.forEach((nodeId) => {
       if (nodeStatuses[nodeId] === "mastered") mastered += 1;
-      if (nodeStatuses[nodeId] === "in_progress") inProgress += 1;
       if (nodeStatuses[nodeId] === "unresolved") needsReview += 1;
     });
 
-    return { mastered, inProgress, needsReview };
+    return { mastered, needsReview };
   }, [nodeStatuses, topicChains]);
 
-  // A chapter is a mapped node, not the whole prerequisite chain. Rendering
-  // these independently prevents one long chain from collapsing into a single,
-  // cramped shelf when a topic has several prerequisite chapters.
-  const chapterShelves = useMemo(() => {
-    const renderedNodes = new Set<string>();
+  // A competency can belong to more than one topic trail. It is deliberately
+  // rendered once here so the student sees one complete mastery route by grade.
+  const conceptTrail = useMemo(() => {
+    const renderedNodeIds = new Set<string>();
 
     return topics.flatMap((topic) => {
-      const orderedChain = [...(topicChains[topic.node_id] || [])].reverse();
-      const total = orderedChain.length;
+      const orderedChain = [...(topicChains[topic.node_id] ?? [])].reverse();
       const mastered = orderedChain.filter((node) => nodeStatuses[node.node_id] === "mastered").length;
-      const trackPct = total > 0 ? Math.round((mastered / total) * 100) : 0;
+      const topicMastery = orderedChain.length ? Math.round((mastered / orderedChain.length) * 100) : 0;
 
-      return orderedChain.flatMap((node, stage) => {
-        if (renderedNodes.has(node.node_id)) return [];
-        renderedNodes.add(node.node_id);
+      return orderedChain.flatMap((node, pathIndex) => {
+        if (renderedNodeIds.has(node.node_id)) return [];
+        renderedNodeIds.add(node.node_id);
+
         return [{
           node,
           topic,
-          trackPct,
-          priorNodeIds: orderedChain.slice(0, stage).map((previousNode) => previousNode.node_id),
-          previousNodeId: stage > 0 ? orderedChain[stage - 1].node_id : null,
+          topicMastery,
+          priorNodeIds: orderedChain.slice(0, pathIndex).map((priorNode) => priorNode.node_id),
+          previousNodeId: pathIndex ? orderedChain[pathIndex - 1].node_id : null,
         }];
       });
     });
   }, [nodeStatuses, topicChains, topics]);
 
   const gradeGroups = useMemo(() => {
-    const groups = new Map<number, typeof chapterShelves>();
-    chapterShelves.forEach((chapter) => {
-      const chapters = groups.get(chapter.node.grade) || [];
-      chapters.push(chapter);
-      groups.set(chapter.node.grade, chapters);
+    const groups = new Map<number, typeof conceptTrail>();
+    conceptTrail.forEach((concept) => {
+      const gradeConcepts = groups.get(concept.node.grade) ?? [];
+      gradeConcepts.push(concept);
+      groups.set(concept.node.grade, gradeConcepts);
     });
     return [...groups.entries()].sort(([firstGrade], [secondGrade]) => firstGrade - secondGrade);
-  }, [chapterShelves]);
+  }, [conceptTrail]);
 
-  const chapterLabels = useMemo(() => new Map(chapterShelves.map((chapter) => [chapter.node.node_id, chapter.node.node_label])), [chapterShelves]);
+  const conceptLabels = useMemo(() => new Map(conceptTrail.map((concept) => [concept.node.node_id, concept.node.node_label])), [conceptTrail]);
 
   const handleStudyNode = async (nodeId: string) => {
     setLaunchingNodeId(nodeId);
-    setErrorMsg(null);
+    setActionError(null);
 
     try {
       const existingSession = activeSessions.find((session) => session.topic_entry_node === nodeId);
@@ -134,82 +120,72 @@ function ProgressContent() {
       const newSession = await createSession({ topic_entry_node: nodeId });
       await skipDiagnostic(newSession.id);
       router.push(`/session/${newSession.id}/lesson`);
-    } catch (error: unknown) {
-      if (isSessionConflict(error) && error.detail?.session_id) {
-        router.push(`/session/${error.detail.session_id}/lesson`);
+    } catch (cause: unknown) {
+      if (isSessionConflict(cause) && cause.detail?.session_id) {
+        router.push(`/session/${cause.detail.session_id}/lesson`);
       } else {
-        setErrorMsg("Failed to launch lesson path. Please try again.");
+        setActionError("Failed to launch lesson path. Please try again.");
       }
     } finally {
       setLaunchingNodeId(null);
     }
   };
 
-  const getStatusBadge = (status: NodeStatus | undefined) => {
-    switch (status) {
-      case "mastered": return { text: "Mastered", tone: "mastered" };
-      case "unresolved": return { text: "Needs Work", tone: "needs-work" };
-      case "in_progress": return { text: "In Progress", tone: "in-progress" };
-      default: return { text: "Not Attempted", tone: "not-attempted" };
-    }
-  };
-
-  const getGradeShelfSubtitle = (grade: number) => {
-    switch (grade) {
-      case 6: return "Foundations & prerequisites";
-      case 7: return "Foundations & prerequisites";
-      case 8: return "Building algebraic fluency";
-      case 9: return "Expanding algebraic thinking";
-      default: return "Advanced problem solving";
-    }
-  };
-
   const displayCount = (value: number) => loading ? "--" : String(value).padStart(2, "0");
 
   return <MainPage immersive>
-    <div className="progress-route-page">
-      <header className="progress-route-header">
-        <button type="button" className="progress-route-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
-        <div className="progress-route-kicker"><span /> THE SURI ACADEMY PATHFINDER <span /></div>
-        <h1>Mastery <em>Trail</em></h1>
-        <p>Follow each grade-level path in order, completing every prerequisite before the next chapter unlocks.</p>
-        <div className="progress-route-stats" aria-label="Progress overview">
+    <div className="progress-library-page">
+      <div className="progress-library-back-row">
+        <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
+      </div>
+
+      <header className="progress-library-header">
+        <div className="progress-library-kicker"><span /> SURI&apos;S MASTERY ARCHIVE <span /></div>
+        <h1>Your <em>Mastery Trail</em></h1>
+        <p>See the concepts you&apos;ve mastered from Grade 6 through Grade 10, and continue from the next skill on your path.</p>
+        <div className="progress-library-stats" aria-label="Progress overview">
           <div><b>{displayCount(summary.mastered)}</b><span>Skills mastered</span></div>
-          <div><b>{displayCount(activeSessions.length)}</b><span>Journeys active</span></div>
+          <div><b>{displayCount(activeSessions.length)}</b><span>Quests active</span></div>
           <div><b>{displayCount(summary.needsReview)}</b><span>Skills to revisit</span></div>
         </div>
       </header>
 
-      {errorMsg && <div className="progress-route-error" role="alert"><img src="/suri-snake-sad.png" alt="Sad Suri" /><div><strong>The trail lantern has dimmed.</strong><p>{errorMsg}</p></div></div>}
+      {error && <div className="topics-library-error progress-library-error" role="alert"><Image src="/suri-snake-sad.png" alt="Sad Suri" width={42} height={42} /><div><strong>The trail lantern has dimmed.</strong><p>{error}</p></div></div>}
 
-      <section className="progress-route-collections" aria-label="Learning progress">
-        {loading ? <div className="progress-route-collection"><div className="progress-route-loading" role="status"><i /><p>Reading the academy trail markers…</p></div></div> : chapterShelves.length === 0 ? <div className="progress-route-collection"><div className="progress-route-empty"><b>No trail markers are ready yet.</b><p>Return after your next lesson to see your learning path here.</p></div></div> : <div className="progress-grade-containers">
-          {gradeGroups.map(([grade, chapters]) => {
-            const gradeMastery = chapters.length === 0 ? 0 : Math.round((chapters.filter((chapter) => nodeStatuses[chapter.node.node_id] === "mastered").length / chapters.length) * 100);
+      <section className="progress-grade-collections" aria-label="Mastery by grade">
+        {loading ? <div className="progress-library-loading"><i /><p>Reading the academy trail markers…</p></div> : conceptTrail.length === 0 ? <div className="progress-library-empty"><b>No trail markers are ready yet.</b><p>Return after your next lesson to see your learning path here.</p></div> : gradeGroups.map(([grade, concepts]) => {
+          const gradeMastery = concepts.length ? Math.round((concepts.filter((concept) => nodeStatuses[concept.node.node_id] === "mastered").length / concepts.length) * 100) : 0;
 
-            return <section key={grade} className="progress-route-collection progress-grade-shelf" aria-labelledby={`grade-path-${grade}`} style={{ "--grade-path-mastery": `${gradeMastery}%` } as CSSProperties}>
-            <header className="progress-route-collection-title"><span>✦</span><div className="progress-grade-shelf-heading"><h2 id={`grade-path-${grade}`}>Grade {grade}</h2><p>{getGradeShelfSubtitle(grade)}</p></div><span>✦</span></header>
-            <div className="progress-grade-progress" role="progressbar" aria-label={`Grade ${grade} path mastery`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={gradeMastery} />
+          return <section key={grade} className="progress-grade-collection" aria-labelledby={`grade-path-${grade}`} style={{ "--grade-path-mastery": `${gradeMastery}%` } as CSSProperties}>
+            <header className="progress-grade-collection-title">
+              <div>
+                <span>GRADE {grade} CONCEPTS</span>
+                <h2 id={`grade-path-${grade}`}>Grade {grade} mastery</h2>
+                <p>{getGradeSubtitle(grade)}</p>
+              </div>
+              <div className="progress-grade-collection-mastery"><b>{String(gradeMastery).padStart(2, "0")}%</b><span>MASTERED</span></div>
+            </header>
+            <div className="progress-grade-progress" role="progressbar" aria-label={`Grade ${grade} path mastery`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={gradeMastery}><i><em /></i></div>
             <ol className="progress-grade-path">
-              {chapters.map((chapter, pathIndex) => {
-                const { node, topic, trackPct, priorNodeIds, previousNodeId } = chapter;
+              {concepts.map((concept, pathIndex) => {
+                const { node, topic, topicMastery, priorNodeIds, previousNodeId } = concept;
                 const status = nodeStatuses[node.node_id];
                 const badge = getStatusBadge(status);
                 const isNodeLoading = launchingNodeId === node.node_id;
                 const isAccessible = priorNodeIds.every((nodeId) => nodeStatuses[nodeId] === "mastered");
                 const canOpen = status === "mastered" || isAccessible;
-                const previousLabel = previousNodeId ? chapterLabels.get(previousNodeId) : null;
+                const previousLabel = previousNodeId ? conceptLabels.get(previousNodeId) : null;
                 const stepNumber = String(pathIndex + 1).padStart(2, "0");
-                const stepTotal = String(chapters.length).padStart(2, "0");
+                const stepTotal = String(concepts.length).padStart(2, "0");
 
                 return <li key={node.node_id} className={`progress-grade-step ${badge.tone} ${!canOpen ? "is-locked" : ""}`}>
                   <span className="progress-grade-marker" aria-hidden="true">{stepNumber}</span>
                   <article className="progress-grade-chapter">
-                    <div className="progress-grade-chapter-copy"><small>STEP {stepNumber} OF {stepTotal} · {topic.label}</small><h4>{node.node_label}</h4><p>Grade {node.grade} prerequisite · {node.node_id}</p></div>
-                    <div className="progress-grade-chapter-meta"><span className={`progress-grade-status ${badge.tone}`}>{status === "mastered" ? "✦" : status === "in_progress" ? "●" : status === "unresolved" ? "!" : "○"} {badge.text}</span></div>
-                    {previousLabel && <p className={`progress-grade-prerequisite ${canOpen ? "is-cleared" : ""}`}>{canOpen ? `Path opened after ${previousLabel}.` : `Pass ${previousLabel} first.`}</p>}
+                    <div className="progress-grade-chapter-copy"><small>STEP {stepNumber} OF {stepTotal} · {topic.label}</small><h3>{node.node_label}</h3><p>Grade {node.grade} competency · {node.node_id}</p></div>
+                    <div className="progress-grade-chapter-meta"><span className={`progress-grade-status ${badge.tone}`}>{badge.symbol} {badge.text}</span></div>
+                    {previousLabel && <p className={`progress-grade-prerequisite ${canOpen ? "is-cleared" : ""}`}>{canOpen ? `Trail opened after ${previousLabel}.` : `Master ${previousLabel} first.`}</p>}
                     <div className="progress-grade-chapter-footer">
-                      <div className="progress-grade-mastery" aria-label={`${trackPct}% mastery for ${topic.label}`}><span>Path mastery <b>{String(trackPct).padStart(2, "0")}%</b></span><i><em style={{ width: `${trackPct}%` }} /></i></div>
+                      <div className="progress-grade-mastery" aria-label={`${topicMastery}% mastery for ${topic.label}`}><span>Topic mastery <b>{String(topicMastery).padStart(2, "0")}%</b></span><i><em style={{ width: `${topicMastery}%` }} /></i></div>
                       <button type="button" onClick={() => canOpen && handleStudyNode(node.node_id)} disabled={!canOpen || launchingNodeId !== null} className={`progress-grade-action ${status === "mastered" ? "is-review" : ""} ${!canOpen ? "is-locked" : ""}`}>
                         {isNodeLoading ? <Loader2 size={13} className="animate-spin" /> : !canOpen ? <Lock size={13} /> : <BookOpen size={15} />}
                         {status === "mastered" ? "Review" : canOpen ? "Study" : "Locked"}
@@ -220,11 +196,11 @@ function ProgressContent() {
               })}
             </ol>
           </section>;
-          })}
-        </div>}
+        })}
       </section>
-      <div className="progress-route-top">
-        <BackToTopButton className="progress-route-back" />
+
+      <div className="progress-library-top">
+        <BackToTopButton className="topics-library-back" />
       </div>
     </div>
   </MainPage>;

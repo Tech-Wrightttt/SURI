@@ -5,9 +5,14 @@ export const ISLAND_ROUTES = {
   "/progress": "champions", "/topics": "topics", "/error-history": "records", "/calculator": "calculator",
 } as const;
 export type IslandRoute = keyof typeof ISLAND_ROUTES;
-export const ZOOM_DURATION = 0.22;
-export const RETURN_DURATION = 0.28;
-export const TOPICS_APPROACH_DURATION = 1.05;
+// Give the camera enough time to establish its destination without making a
+// map selection feel like a loading screen.  The smoother easing below keeps
+// both ends of this slightly longer motion calm rather than abrupt.
+export const ZOOM_DURATION = 0.62;
+export const RETURN_DURATION = 0.76;
+// The destination has already been prefetched by intent, so this motion only
+// hides the final handoff rather than becoming a visible loading delay.
+export const TOPICS_APPROACH_DURATION = 0.78;
 
 // The route close-up uses an orthographic half-height of 17.5 at zoom 1.08.
 // Keeping these values here lets the dashboard finish at the same apparent
@@ -45,4 +50,4 @@ export function islandCameraPose(point: THREE.Vector3, options?: { close?: boole
   closeCamera.lookAt(point);
   return { position, zoom, quaternion: closeCamera.quaternion.clone() };
 }
-export function cameraEase(t: number) { const p=THREE.MathUtils.clamp(t,0,1); return p*p*(3-2*p); }
+export function cameraEase(t: number) { return THREE.MathUtils.smootherstep(THREE.MathUtils.clamp(t, 0, 1), 0, 1); }

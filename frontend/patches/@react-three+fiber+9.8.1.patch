@@ -1,0 +1,279 @@
+diff --git a/node_modules/@react-three/fiber/dist/declarations/src/core/store.d.ts b/node_modules/@react-three/fiber/dist/declarations/src/core/store.d.ts
+index 0e69589..4030e91 100644
+--- a/node_modules/@react-three/fiber/dist/declarations/src/core/store.d.ts
++++ b/node_modules/@react-three/fiber/dist/declarations/src/core/store.d.ts
+@@ -80,8 +80,8 @@ export interface RootState {
+     scene: THREE.Scene;
+     /** Default raycaster */
+     raycaster: THREE.Raycaster;
+-    /** Default clock */
+-    clock: THREE.Clock;
++    /** Shared render timer */
++    clock: THREE.Timer;
+     /** Event layer interface, contains the event handler and the node they're connected to */
+     events: EventManager<any>;
+     /** XR interface */
+diff --git a/node_modules/@react-three/fiber/dist/events-21d8cd92.cjs.dev.js b/node_modules/@react-three/fiber/dist/events-21d8cd92.cjs.dev.js
+index 9b43bdf..9ed1928 100644
+--- a/node_modules/@react-three/fiber/dist/events-21d8cd92.cjs.dev.js
++++ b/node_modules/@react-three/fiber/dist/events-21d8cd92.cjs.dev.js
+@@ -1055,7 +1055,9 @@ const createStore = (invalidate, advance) => {
+         current
+       }
+     }));
+-    const pointer = new THREE__namespace.Vector2();
++  const pointer = new THREE__namespace.Vector2();
++  const clock = new THREE__namespace.Timer();
++  if (typeof document !== 'undefined') clock.connect(document);
+     const rootState = {
+       set,
+       get,
+@@ -1076,7 +1078,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE__namespace.Clock(),
++      clock,
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+@@ -1150,13 +1152,9 @@ const createStore = (invalidate, advance) => {
+       setFrameloop: (frameloop = 'always') => {
+         const clock = get().clock;
+ 
+-        // if frameloop === "never" clock.elapsedTime is updated using advance(timestamp)
+-        clock.stop();
+-        clock.elapsedTime = 0;
+-        if (frameloop !== 'never') {
+-          clock.start();
+-          clock.elapsedTime = 0;
+-        }
++        // Timer is updated explicitly by the shared render loop. Resetting it
++        // here avoids a catch-up delta after a paused canvas becomes active.
++        clock.reset();
+         set(() => ({
+           frameloop
+         }));
+@@ -1604,16 +1602,16 @@ function applyRootConfiguration({
+     const oldType = gl.shadowMap.type;
+     gl.shadowMap.enabled = !!shadows;
+     if (is.boo(shadows)) {
+-      gl.shadowMap.type = THREE__namespace.PCFSoftShadowMap;
++      gl.shadowMap.type = THREE__namespace.PCFShadowMap;
+     } else if (is.str(shadows)) {
+       var _types$shadows;
+       const types = {
+         basic: THREE__namespace.BasicShadowMap,
+         percentage: THREE__namespace.PCFShadowMap,
+-        soft: THREE__namespace.PCFSoftShadowMap,
++        soft: THREE__namespace.PCFShadowMap,
+         variance: THREE__namespace.VSMShadowMap
+       };
+-      gl.shadowMap.type = (_types$shadows = types[shadows]) != null ? _types$shadows : THREE__namespace.PCFSoftShadowMap;
++      gl.shadowMap.type = (_types$shadows = types[shadows]) != null ? _types$shadows : THREE__namespace.PCFShadowMap;
+     } else if (is.obj(shadows)) {
+       Object.assign(gl.shadowMap, shadows);
+     }
+@@ -17347,6 +17345,7 @@ function unmountComponentAtNode(canvas, callback) {
+     _roots.delete(canvas);
+     const state = root.store.getState();
+     state.internal.active = false;
++    state.clock.dispose();
+ 
+     // Release what uses the renderer before the renderer itself
+     attempt(() => state.events.disconnect == null ? void 0 : state.events.disconnect());
+@@ -17423,15 +17422,9 @@ function flushGlobalEffects(type, timestamp) {
+ let subscribers;
+ let subscription;
+ function update(timestamp, state, frame) {
+-  // Run local effects
+-  let delta = state.clock.getDelta();
+-
+-  // In frameloop='never' mode, clock times are updated using the provided timestamp
+-  if (state.frameloop === 'never' && typeof timestamp === 'number') {
+-    delta = timestamp - state.clock.elapsedTime;
+-    state.clock.oldTime = state.clock.elapsedTime;
+-    state.clock.elapsedTime = timestamp;
+-  }
++  // Timer has stable delta/elapsed values for every subscriber in this frame.
++  state.clock.update(timestamp);
++  const delta = state.clock.getDelta();
+ 
+   // Call subscribers (useFrame)
+   subscribers = state.internal.subscribers;
+diff --git a/node_modules/@react-three/fiber/dist/events-9ce18a08.esm.js b/node_modules/@react-three/fiber/dist/events-9ce18a08.esm.js
+index ea6b4c9..2ade23f 100644
+--- a/node_modules/@react-three/fiber/dist/events-9ce18a08.esm.js
++++ b/node_modules/@react-three/fiber/dist/events-9ce18a08.esm.js
+@@ -1030,7 +1030,9 @@ const createStore = (invalidate, advance) => {
+         current
+       }
+     }));
+-    const pointer = new THREE.Vector2();
++  const pointer = new THREE.Vector2();
++  const clock = new THREE.Timer();
++  if (typeof document !== 'undefined') clock.connect(document);
+     const rootState = {
+       set,
+       get,
+@@ -1051,7 +1053,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE.Clock(),
++      clock,
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+@@ -1125,13 +1127,9 @@ const createStore = (invalidate, advance) => {
+       setFrameloop: (frameloop = 'always') => {
+         const clock = get().clock;
+ 
+-        // if frameloop === "never" clock.elapsedTime is updated using advance(timestamp)
+-        clock.stop();
+-        clock.elapsedTime = 0;
+-        if (frameloop !== 'never') {
+-          clock.start();
+-          clock.elapsedTime = 0;
+-        }
++        // Timer is updated explicitly by the shared render loop. Resetting it
++        // here avoids a catch-up delta after a paused canvas becomes active.
++        clock.reset();
+         set(() => ({
+           frameloop
+         }));
+@@ -1579,16 +1577,16 @@ function applyRootConfiguration({
+     const oldType = gl.shadowMap.type;
+     gl.shadowMap.enabled = !!shadows;
+     if (is.boo(shadows)) {
+-      gl.shadowMap.type = THREE.PCFSoftShadowMap;
++      gl.shadowMap.type = THREE.PCFShadowMap;
+     } else if (is.str(shadows)) {
+       var _types$shadows;
+       const types = {
+         basic: THREE.BasicShadowMap,
+         percentage: THREE.PCFShadowMap,
+-        soft: THREE.PCFSoftShadowMap,
++        soft: THREE.PCFShadowMap,
+         variance: THREE.VSMShadowMap
+       };
+-      gl.shadowMap.type = (_types$shadows = types[shadows]) != null ? _types$shadows : THREE.PCFSoftShadowMap;
++      gl.shadowMap.type = (_types$shadows = types[shadows]) != null ? _types$shadows : THREE.PCFShadowMap;
+     } else if (is.obj(shadows)) {
+       Object.assign(gl.shadowMap, shadows);
+     }
+@@ -17322,6 +17320,7 @@ function unmountComponentAtNode(canvas, callback) {
+     _roots.delete(canvas);
+     const state = root.store.getState();
+     state.internal.active = false;
++    state.clock.dispose();
+ 
+     // Release what uses the renderer before the renderer itself
+     attempt(() => state.events.disconnect == null ? void 0 : state.events.disconnect());
+@@ -17398,15 +17397,9 @@ function flushGlobalEffects(type, timestamp) {
+ let subscribers;
+ let subscription;
+ function update(timestamp, state, frame) {
+-  // Run local effects
+-  let delta = state.clock.getDelta();
+-
+-  // In frameloop='never' mode, clock times are updated using the provided timestamp
+-  if (state.frameloop === 'never' && typeof timestamp === 'number') {
+-    delta = timestamp - state.clock.elapsedTime;
+-    state.clock.oldTime = state.clock.elapsedTime;
+-    state.clock.elapsedTime = timestamp;
+-  }
++  // Timer has stable delta/elapsed values for every subscriber in this frame.
++  state.clock.update(timestamp);
++  const delta = state.clock.getDelta();
+ 
+   // Call subscribers (useFrame)
+   subscribers = state.internal.subscribers;
+diff --git a/node_modules/@react-three/fiber/dist/events-a816cbab.cjs.prod.js b/node_modules/@react-three/fiber/dist/events-a816cbab.cjs.prod.js
+index c26a227..f563bc8 100644
+--- a/node_modules/@react-three/fiber/dist/events-a816cbab.cjs.prod.js
++++ b/node_modules/@react-three/fiber/dist/events-a816cbab.cjs.prod.js
+@@ -1055,7 +1055,9 @@ const createStore = (invalidate, advance) => {
+         current
+       }
+     }));
+-    const pointer = new THREE__namespace.Vector2();
++  const pointer = new THREE__namespace.Vector2();
++  const clock = new THREE__namespace.Timer();
++  if (typeof document !== 'undefined') clock.connect(document);
+     const rootState = {
+       set,
+       get,
+@@ -1076,7 +1078,7 @@ const createStore = (invalidate, advance) => {
+       linear: false,
+       flat: false,
+       controls: null,
+-      clock: new THREE__namespace.Clock(),
++      clock,
+       pointer,
+       mouse: pointer,
+       frameloop: 'always',
+@@ -1150,13 +1152,9 @@ const createStore = (invalidate, advance) => {
+       setFrameloop: (frameloop = 'always') => {
+         const clock = get().clock;
+ 
+-        // if frameloop === "never" clock.elapsedTime is updated using advance(timestamp)
+-        clock.stop();
+-        clock.elapsedTime = 0;
+-        if (frameloop !== 'never') {
+-          clock.start();
+-          clock.elapsedTime = 0;
+-        }
++        // Timer is updated explicitly by the shared render loop. Resetting it
++        // here avoids a catch-up delta after a paused canvas becomes active.
++        clock.reset();
+         set(() => ({
+           frameloop
+         }));
+@@ -1604,16 +1602,16 @@ function applyRootConfiguration({
+     const oldType = gl.shadowMap.type;
+     gl.shadowMap.enabled = !!shadows;
+     if (is.boo(shadows)) {
+-      gl.shadowMap.type = THREE__namespace.PCFSoftShadowMap;
++      gl.shadowMap.type = THREE__namespace.PCFShadowMap;
+     } else if (is.str(shadows)) {
+       var _types$shadows;
+       const types = {
+         basic: THREE__namespace.BasicShadowMap,
+         percentage: THREE__namespace.PCFShadowMap,
+-        soft: THREE__namespace.PCFSoftShadowMap,
++        soft: THREE__namespace.PCFShadowMap,
+         variance: THREE__namespace.VSMShadowMap
+       };
+-      gl.shadowMap.type = (_types$shadows = types[shadows]) != null ? _types$shadows : THREE__namespace.PCFSoftShadowMap;
++      gl.shadowMap.type = (_types$shadows = types[shadows]) != null ? _types$shadows : THREE__namespace.PCFShadowMap;
+     } else if (is.obj(shadows)) {
+       Object.assign(gl.shadowMap, shadows);
+     }
+@@ -8568,6 +8566,7 @@ function unmountComponentAtNode(canvas, callback) {
+     _roots.delete(canvas);
+     const state = root.store.getState();
+     state.internal.active = false;
++    state.clock.dispose();
+ 
+     // Release what uses the renderer before the renderer itself
+     attempt(() => state.events.disconnect == null ? void 0 : state.events.disconnect());
+@@ -8644,15 +8643,9 @@ function flushGlobalEffects(type, timestamp) {
+ let subscribers;
+ let subscription;
+ function update(timestamp, state, frame) {
+-  // Run local effects
+-  let delta = state.clock.getDelta();
+-
+-  // In frameloop='never' mode, clock times are updated using the provided timestamp
+-  if (state.frameloop === 'never' && typeof timestamp === 'number') {
+-    delta = timestamp - state.clock.elapsedTime;
+-    state.clock.oldTime = state.clock.elapsedTime;
+-    state.clock.elapsedTime = timestamp;
+-  }
++  // Timer has stable delta/elapsed values for every subscriber in this frame.
++  state.clock.update(timestamp);
++  const delta = state.clock.getDelta();
+ 
+   // Call subscribers (useFrame)
+   subscribers = state.internal.subscribers;

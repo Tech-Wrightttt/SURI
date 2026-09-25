@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import MainPage from "@/components/mainpage";
 import TopicBookCarousel, { type CarouselBook } from "@/components/TopicBookCarousel";
 import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
@@ -10,18 +10,18 @@ export default function TopicsPage() {
   const router = useRouter();
   const { navigate } = useWorldNavigation();
   const { data, error: loadError } = useLearningData();
-  const topics = data?.topics ?? [];
-  const activeTopics = Object.fromEntries((data?.progress.active_sessions ?? []).map(session => [session.topic_entry_node, session.id]));
-  const completedTopics = new Set((data?.progress.completed_sessions ?? []).map(session => session.topic_entry_node));
-  const nodeStatuses = data?.statuses ?? {};
-  const topicChains = data?.chains ?? {};
+  const topics = useMemo(() => data?.topics ?? [], [data]);
+  const activeTopics = useMemo(() => Object.fromEntries((data?.progress.active_sessions ?? []).map(session => [session.topic_entry_node, session.id])), [data]);
+  const completedTopics = useMemo(() => new Set((data?.progress.completed_sessions ?? []).map(session => session.topic_entry_node)), [data]);
+  const nodeStatuses = useMemo(() => data?.statuses ?? {}, [data]);
+  const topicChains = useMemo(() => data?.chains ?? {}, [data]);
   const loading = !data && !loadError;
   const error = loadError?.message ?? null;
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  const openTopic = (nodeId: string) => router.push(`/topics/${nodeId}`);
-  const resumeTopic = (sessionId: string) => router.push(`/session/${sessionId}/lesson`);
-  const carouselBooks = topics.map((topic, index) => {
+  const openTopic = useCallback((nodeId: string) => router.push(`/topics/${nodeId}`), [router]);
+  const resumeTopic = useCallback((sessionId: string) => router.push(`/session/${sessionId}/lesson`), [router]);
+  const carouselBooks = useMemo(() => topics.map((topic, index) => {
     const isActive = topic.node_id in activeTopics;
     const isCompleted = completedTopics.has(topic.node_id);
     const chain = topicChains[topic.node_id] || [];
@@ -40,7 +40,7 @@ export default function TopicsPage() {
       hasProgress,
       completed: isCompleted,
     } satisfies CarouselBook;
-  });
+  }), [activeTopics, completedTopics, nodeStatuses, topicChains, topics]);
   const defaultSelectedNodeId = carouselBooks.find(book => book.nodeId in activeTopics)?.nodeId ?? carouselBooks[0]?.nodeId ?? null;
   const resolvedSelectedNodeId = selectedNodeId && carouselBooks.some(book => book.nodeId === selectedNodeId)
     ? selectedNodeId
@@ -52,17 +52,23 @@ export default function TopicsPage() {
     const nextIndex = (selectedIndex + direction + carouselBooks.length) % carouselBooks.length;
     setSelectedNodeId(carouselBooks[nextIndex].nodeId);
   };
-  const enterTopic = (nodeId: string) => {
+  const preloadTopic = useCallback((nodeId?: string) => {
+    if (!nodeId) return;
+    const sessionId = activeTopics[nodeId];
+    router.prefetch(sessionId ? `/session/${sessionId}/lesson` : `/topics/${nodeId}`);
+  }, [activeTopics, router]);
+  const enterTopic = useCallback((nodeId: string) => {
     const sessionId = activeTopics[nodeId];
     if (sessionId) resumeTopic(sessionId);
     else openTopic(nodeId);
-  };
-  const handleBookClick = (index: number) => {
+  }, [activeTopics, openTopic, resumeTopic]);
+  const handleBookClick = useCallback((index: number) => {
     const book = carouselBooks[index];
     if (!book) return;
     if (book.nodeId === resolvedSelectedNodeId) enterTopic(book.nodeId);
     else setSelectedNodeId(book.nodeId);
-  };
+  }, [carouselBooks, enterTopic, resolvedSelectedNodeId]);
+  const handleBookIntent = useCallback((index: number) => preloadTopic(carouselBooks[index]?.nodeId), [carouselBooks, preloadTopic]);
   return <MainPage immersive>
     <div className="topics-library-page">
       <div className="topics-library-back-row">
@@ -87,13 +93,14 @@ export default function TopicsPage() {
               books={carouselBooks}
               activeIndex={selectedIndex}
               onBookClick={handleBookClick}
+              onBookIntent={handleBookIntent}
             />
           </div>
 
           <nav className="topics-carousel-controls" aria-label="Choose a topic volume">
-            <button type="button" className="topics-carousel-arrow" onClick={() => moveSelection(-1)} aria-label="Focus previous topic">←</button>
-            <div className="topics-carousel-dots">{carouselBooks.map((book, index) => <button key={book.nodeId} type="button" className={index === selectedIndex ? "is-selected" : ""} onClick={() => setSelectedNodeId(book.nodeId)} aria-label={`Focus topic ${book.ordinal}: ${book.label}`} aria-current={index === selectedIndex ? "true" : undefined}>{String(book.ordinal).padStart(2, "0")}</button>)}</div>
-            <button type="button" className="topics-carousel-arrow" onClick={() => moveSelection(1)} aria-label="Focus next topic">→</button>
+            <button type="button" className="topics-carousel-arrow" onClick={() => moveSelection(-1)} onPointerEnter={() => preloadTopic(carouselBooks[(selectedIndex - 1 + carouselBooks.length) % carouselBooks.length]?.nodeId)} onFocus={() => preloadTopic(carouselBooks[(selectedIndex - 1 + carouselBooks.length) % carouselBooks.length]?.nodeId)} aria-label="Focus previous topic">←</button>
+            <div className="topics-carousel-dots">{carouselBooks.map((book, index) => <button key={book.nodeId} type="button" className={index === selectedIndex ? "is-selected" : ""} onClick={() => setSelectedNodeId(book.nodeId)} onPointerEnter={() => preloadTopic(book.nodeId)} onFocus={() => preloadTopic(book.nodeId)} aria-label={`Focus topic ${book.ordinal}: ${book.label}`} aria-current={index === selectedIndex ? "true" : undefined}>{String(book.ordinal).padStart(2, "0")}</button>)}</div>
+            <button type="button" className="topics-carousel-arrow" onClick={() => moveSelection(1)} onPointerEnter={() => preloadTopic(carouselBooks[(selectedIndex + 1) % carouselBooks.length]?.nodeId)} onFocus={() => preloadTopic(carouselBooks[(selectedIndex + 1) % carouselBooks.length]?.nodeId)} aria-label="Focus next topic">→</button>
           </nav>
 
           <article className="topics-carousel-focus" aria-live="polite">
@@ -106,7 +113,7 @@ export default function TopicsPage() {
               <div className={`topics-carousel-status ${selectedBook.completed ? "is-complete" : selectedBook.hasProgress ? "is-progress" : ""}`}><span>{selectedBook.completed ? "✦" : selectedBook.hasProgress ? "●" : "○"}</span>{selectedBook.status}</div>
               <div className="topics-carousel-mastery"><div><span>Mastery</span><b>{String(selectedBook.mastery).padStart(2, "0")}%</b></div><i><em style={{ width: `${selectedBook.mastery}%` }} /></i></div>
               <p className="topics-carousel-path">Learning path: {topicChains[selectedBook.nodeId]?.length ?? 0} skills</p>
-              <button type="button" className="topics-carousel-action" onClick={() => enterTopic(selectedBook.nodeId)}>{selectedBook.nodeId in activeTopics ? "Resume quest" : selectedBook.completed ? "Review again" : "Open volume"}<span aria-hidden="true">→</span></button>
+              <button type="button" className="topics-carousel-action" onClick={() => enterTopic(selectedBook.nodeId)} onPointerEnter={() => preloadTopic(selectedBook.nodeId)} onFocus={() => preloadTopic(selectedBook.nodeId)}>{selectedBook.nodeId in activeTopics ? "Resume quest" : selectedBook.completed ? "Review again" : "Open volume"}<span aria-hidden="true">→</span></button>
             </div>
           </article>
         </>}

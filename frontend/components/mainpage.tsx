@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HelpCircle, LogOut, UserRound } from "lucide-react";
 import { logout } from "@/lib/api";
 import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
@@ -15,9 +15,31 @@ export default function MainPage({
   immersive?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const {clearSession} = useWorldNavigation();
   const {data} = useLearningData();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  useEffect(() => {
+    const sessionId = pathname.match(/^\/session\/([^/]+)/)?.[1];
+    const routes = sessionId
+      ? [
+          `/session/${sessionId}/lesson`,
+          `/session/${sessionId}/practice`,
+          `/session/${sessionId}/quiz`,
+          `/session/${sessionId}/results`,
+          "/topics",
+          "/dashboard",
+        ]
+      : ["/dashboard", "/topics", "/progress", "/calculator", "/error-history"];
+    const warm = () => routes.filter((route) => route !== pathname).forEach((route) => router.prefetch(route));
+    const idle = window.requestIdleCallback?.(warm, { timeout: 1800 });
+    const timeout = idle === undefined ? window.setTimeout(warm, 700) : undefined;
+    return () => {
+      if (idle !== undefined) window.cancelIdleCallback?.(idle);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
+  }, [pathname, router]);
 
   const handleLogout = async () => {
     try {
