@@ -61,22 +61,37 @@ Create a `.env` file in the project root or export these variables:
 | `JWT_SECRET`    | Secret key for signing JWT tokens    | `dev-secret-change-in-production` |
 | `DATABASE_URL`  | SQLite database file path            | `suri.db`                |
 
-### 6. Start the FastAPI backend
+### 6. Start the application
 
-```bash
+Choose either workflow below. Both run the FastAPI backend on `http://localhost:8000` and the Next.js frontend on `http://localhost:3000`.
+
+#### Option A: Start manually in two terminals
+
+In the first terminal, from the project root, activate the backend virtual environment and start FastAPI:
+
+```bat
+backend\venv\Scripts\activate.bat
 uvicorn backend.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`.
-
-### 7. Start the Next.js frontend
+In a second terminal, start the frontend:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:3000`.
+#### Option B: Start from Cursor
+
+Use the workspace task in `.vscode/tasks.json` to launch both services in separate integrated-terminal panels:
+
+1. Press `Ctrl+Shift+P`.
+2. Select **Tasks: Run Task**.
+3. Choose **SURI: Start Full Stack**.
+
+The **SURI: Backend** task activates `backend\venv\Scripts\activate.bat` before running `uvicorn backend.main:app --reload`. The **SURI: Frontend** task runs `npm run dev` from the `frontend` folder.
+
+> **Compatibility note:** This task has been verified in Cursor. It has not yet been tested in Visual Studio Code, so use it there at your own risk. Other code editors are not supported; use Option A to start the services manually in those editors.
 
 ## API Endpoints
 
