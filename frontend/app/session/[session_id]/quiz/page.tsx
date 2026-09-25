@@ -25,7 +25,6 @@ import {
   CheckCircle2,
   XCircle,
   Flame,
-  ShieldAlert,
   Sparkles,
   BookOpen,
   Snowflake,
@@ -531,25 +530,20 @@ const QUIZ_CSS = `
     min-height: 74px;
     padding: 14px;
 
+    border: 3px solid #8e5b20;
+    border-radius: 0;
+    background: linear-gradient(180deg, #57321d, #24130d);
+    box-shadow: inset 0 0 0 3px rgba(20,9,5,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
     border: 3px solid #6d411c;
     border-radius: 8px;
 
-    background:
-      linear-gradient(
-        180deg,
-        #fff4ca,
-        #e7c67d
-      );
 
-    color: #28150c;
+    color: #ffffff;
 
     font-family: Georgia, 'Times New Roman', serif;
     font-size: clamp(18px, 2vw, 25px);
     font-weight: 900;
 
-    box-shadow:
-      0 6px 0 #28150c,
-      inset 0 0 0 2px rgba(255,255,255,.24);
 
     transition:
       transform .12s ease,
@@ -574,9 +568,9 @@ const QUIZ_CSS = `
     background:
       linear-gradient(
         180deg,
-        #fff6aa,
-        #ffd35c 58%,
-        #c7832e
+      #9df2a7 0%,
+        #31a85e 55%,
+        #176235 100%
       );
   }
 
@@ -619,6 +613,21 @@ const QUIZ_CSS = `
     filter: grayscale(.65);
     opacity: .45;
     cursor: not-allowed;
+  }
+
+  /* =========================
+     SUBMIT ROW
+  ========================= */
+
+  .quiz-submit-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .quiz-action.submit-rune {
+    min-width: 220px;
+    font-size: 17px;
   }
 
   /* =========================
@@ -1210,7 +1219,6 @@ export default function QuizPage() {
   const sessionId = params.session_id as string;
 
   const [state, setState] = useState<QuizState>("LOADING");
-  const [nodeId, setNodeId] = useState<string>("");
   const [quizSessionId, setQuizSessionId] = useState<string>("");
   const [problems, setProblems] = useState<QuizProblem[]>([]);
 
@@ -1224,9 +1232,8 @@ export default function QuizPage() {
   const [timeRemainingMs, setTimeRemainingMs] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [hintText, setHintText] = useState<string | null>(null);
-  const [equationRevealed, setEquationRevealed] = useState(false);
-  const [isWrongAttempt, setIsWrongAttempt] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
 
   const [stepAnswers, setStepAnswers] = useState<
     Record<number, { user: string; correct: string }>
@@ -1243,7 +1250,9 @@ export default function QuizPage() {
   const lastTickRef = useRef<number>(0);
   const timerFrozenRef = useRef(false);
   const advanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const freezeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const [isTimerFrozen, setIsTimerFrozen] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [streakMultiplier, setStreakMultiplier] = useState(1.0);
   const [streakAtRisk, setStreakAtRisk] = useState(0);
@@ -1257,7 +1266,6 @@ export default function QuizPage() {
 
       try {
         const session = await getSession(sessionId);
-        setNodeId(session.current_node);
 
         const data = await startQuiz({
           session_id: sessionId,
@@ -1276,52 +1284,149 @@ export default function QuizPage() {
     load();
   }, [sessionId]);
 
+  // Clean up any pending timers on unmount so callbacks don't fire
+  // (or throw) after the component is gone.
   useEffect(() => {
-    if (state === "STEP") {
-      lastTickRef.current = Date.now();
-
-      timerRef.current = setInterval(() => {
-        const now = Date.now();
-        const delta = now - lastTickRef.current;
-        lastTickRef.current = now;
-
-        setTimeRemainingMs((prev) => {
-          if (timerFrozenRef.current) return prev;
-
-          const next = prev - delta;
-
-          if (next <= 0) return 0;
-
-          return next;
-        });
-      }, 100);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+      if (freezeTimeoutRef.current) clearTimeout(freezeTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (state !== "STEP") {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    lastTickRef.current = Date.now();
+
+    timerRef.current = setInterval(() => {
+      if (timerFrozenRef.current) {
+        lastTickRef.current = Date.now();
+        return;
+      }
+
+      const now = Date.now();
+      const delta = now - lastTickRef.current;
+      lastTickRef.current = now;
+
+      setTimeRemainingMs((prev) => {
+        if (prev <= 0) {
+          return 0;
+        }
+
+        return Math.max(0, prev - delta);
+      });
+    }, 100);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, [state]);
+
+  useEffect(() => {
+    if (
+      state === "STEP" &&
+      timeRemainingMs <= 0 &&
+      !isSubmitting &&
+      !timedOut
+    ) {
+      handleTimeout();
+    }
+  }, [state, timeRemainingMs, isSubmitting, timedOut]);
 
   const currentProblem = problems[currentProblemIndex];
   const currentStep = currentProblem?.steps[currentStepIndex];
 
   const handleStartProblem = () => {
     setHintText(null);
-    setEquationRevealed(false);
-    setIsWrongAttempt(false);
+
     setSelectedChoice(null);
+    setTimedOut(false);
+
+    setStepCorrect(null);
+    setCorrectValue(null);
+    setPointsEarned(0);
+
     setTimeRemainingMs(currentProblem.steps[0].timer_ms);
+
     setStepAnswers({});
-    setState("STEP");
+
     timerFrozenRef.current = false;
+    setIsTimerFrozen(false);
+
+    setState("STEP");
+  };
+
+  const handleTimeout = async () => {
+    if (state !== "STEP") return;
+    if (isSubmitting) return;
+
+    // Stop the timer immediately
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Prevent another timeout from firing
+    setTimeRemainingMs(0);
+    setTimedOut(true);
+    setIsSubmitting(true);
+
+    try {
+      const res = await submitQuizStep({
+        quiz_session_id: quizSessionId,
+        problem_id: currentProblem.id,
+        step_index: currentStep.step_index,
+        submitted_value: null,
+        time_remaining_ms: 0,
+      });
+
+      setStepCorrect(false);
+      setCorrectValue(res.correct_value);
+      setPointsEarned(0);
+
+      setTotalPoints(res.total_points);
+      setCurrentStreak(0);
+      setStreakMultiplier(1.0);
+
+      setSelectedChoice(null);
+
+      setState("STEP_RESULT");
+
+      // Automatically move to the next rune
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => {
+        advanceToNext();
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to submit timeout:", err);
+
+      // If the timeout request fails, let the user retry/skip
+      setTimedOut(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSubmit = async (choice: string | null) => {
     if (state !== "STEP") return;
+    if (isSubmitting) return;
+    if (timeRemainingMs <= 0) return;
 
-    if (timerRef.current) clearInterval(timerRef.current);
+    // Stop timer while submitting
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
     setIsSubmitting(true);
 
@@ -1331,9 +1436,10 @@ export default function QuizPage() {
         problem_id: currentProblem.id,
         step_index: currentStep.step_index,
         submitted_value: choice,
-        time_remaining_ms: timeRemainingMs,
+        time_remaining_ms: Math.max(0, timeRemainingMs),
       });
 
+      // Save user's answer for Previous Steps
       if (choice !== null) {
         setStepAnswers((prev) => ({
           ...prev,
@@ -1350,34 +1456,50 @@ export default function QuizPage() {
       setCurrentStreak(res.current_streak);
       setStreakMultiplier(res.streak_multiplier);
 
+      // Wrong answer
       if (!res.correct && choice !== null) {
         setStreakAtRisk(preWrongStreak);
+
         setStepCorrect(false);
         setCorrectValue(res.correct_value);
         setPointsEarned(0);
+
         setCurrentStreak(0);
         setStreakMultiplier(1.0);
+
         setState("STEP_RESULT");
 
-        advanceTimerRef.current = setTimeout(
-          () => advanceToNext(),
-          2500
-        );
+        if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+        advanceTimerRef.current = setTimeout(() => {
+          advanceToNext();
+        }, 2500);
 
         return;
       }
 
+      // Correct answer
       setStepCorrect(res.correct);
       setCorrectValue(res.correct_value);
       setPointsEarned(res.points_earned);
+
       setCurrentStreak(res.current_streak);
       setStreakMultiplier(res.streak_multiplier);
+
       setState("STEP_RESULT");
 
-      setTimeout(() => advanceToNext(), 1500);
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => {
+        advanceToNext();
+      }, 1500);
     } catch (err) {
-      console.error(err);
-      alert("Error submitting step.");
+      console.error("Error submitting step:", err);
+
+      // Restart timer if submission failed
+      if (state === "STEP" && timeRemainingMs > 0) {
+        lastTickRef.current = Date.now();
+      }
+
+      alert("Error submitting step. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1385,8 +1507,14 @@ export default function QuizPage() {
 
   const handleSkip = async () => {
     if (state !== "STEP") return;
+    if (isSubmitting) return;
 
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const res = await skipQuizStep({
@@ -1402,7 +1530,8 @@ export default function QuizPage() {
       setStreakMultiplier(1.0);
       setState("STEP_RESULT");
 
-      setTimeout(() => advanceToNext(), 1500);
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
     } catch (err) {
       console.error(err);
     } finally {
@@ -1422,8 +1551,8 @@ export default function QuizPage() {
       setCurrentStepIndex(stepIdx + 1);
 
       setHintText(null);
-      setIsWrongAttempt(false);
       setSelectedChoice(null);
+      setTimedOut(false);
       setTimeRemainingMs(nextStep.timer_ms);
       setState("STEP");
     } else if (probIdx < problems.length - 1) {
@@ -1471,6 +1600,38 @@ export default function QuizPage() {
       } else {
         console.error(err);
       }
+    }
+  };
+
+  const handleFreeze = async () => {
+    if (isTimerFrozen || state === "STEP_RESULT" || isSubmitting) return;
+
+    if (totalPoints < 750) {
+      alert("Not enough points!");
+      return;
+    }
+
+    try {
+      const res = await useQuizHint({
+        quiz_session_id: quizSessionId,
+        problem_id: currentProblem.id,
+        step_index: currentStep.step_index,
+        hint_type: "freeze",
+      });
+
+      setTotalPoints(res.total_points);
+
+      // Only freeze once the server confirms the purchase.
+      timerFrozenRef.current = true;
+      setIsTimerFrozen(true);
+
+      if (freezeTimeoutRef.current) clearTimeout(freezeTimeoutRef.current);
+      freezeTimeoutRef.current = setTimeout(() => {
+        timerFrozenRef.current = false;
+        setIsTimerFrozen(false);
+      }, 10_000);
+    } catch (err: any) {
+      alert("Not enough points!");
     }
   };
 
@@ -1725,21 +1886,6 @@ export default function QuizPage() {
 
           <main className="quiz-main">
 
-            {/* Optional equation */}
-
-            {equationRevealed && (
-              <section className="quiz-panel">
-                <div className="quiz-panel-title">
-                  <Sparkles className="w-4 h-4" />
-                  Problem Equation
-                </div>
-
-                <div className="quiz-scroll quiz-expression markdown-content">
-                  {renderMath(currentProblem.problem_expr)}
-                </div>
-              </section>
-            )}
-
             {/* Quest Context */}
 
             <section className="quiz-panel">
@@ -1782,8 +1928,6 @@ export default function QuizPage() {
                 </span>
               </div>
 
-            
-
               {/* Expression */}
 
               <div className="quiz-scroll quiz-expression markdown-content mt-3">
@@ -1802,32 +1946,33 @@ export default function QuizPage() {
                 {currentStep.choices.map((choice, idx) => {
                   const isSelected = selectedChoice === choice;
 
-                  let className =
-                    "quiz-answer";
+                  // The correct choice is highlighted whenever a result is
+                  // showing — whether the user picked it, picked something
+                  // else, or the timer ran out before they picked at all.
+                  const isCorrectChoice =
+                    state === "STEP_RESULT" &&
+                    correctValue != null &&
+                    choice.trim().toLowerCase() ===
+                      correctValue.trim().toLowerCase();
+
+                  let className = "quiz-answer";
 
                   if (isSelected) {
                     className += " selected";
                   }
 
-                  if (
-                    isSelected &&
-                    state === "STEP_RESULT" &&
-                    stepCorrect
-                  ) {
-                    className += " correct";
-                  }
-
-                  if (
-                    isSelected &&
-                    state === "STEP_RESULT" &&
-                    !stepCorrect
-                  ) {
-                    className += " wrong";
+                  if (state === "STEP_RESULT") {
+                    if (isCorrectChoice) {
+                      className += " correct";
+                    } else if (isSelected && stepCorrect === false) {
+                      className += " wrong";
+                    }
                   }
 
                   if (
                     state === "STEP_RESULT" ||
-                    isSubmitting
+                    isSubmitting ||
+                    timedOut
                   ) {
                     className += " disabled";
                   }
@@ -1835,13 +1980,20 @@ export default function QuizPage() {
                   return (
                     <button
                       key={idx}
+                      type="button"
                       disabled={
-                        state === "STEP_RESULT" ||
-                        isSubmitting
+                        state !== "STEP" ||
+                        isSubmitting ||
+                        timedOut ||
+                        timeRemainingMs <= 0
                       }
                       onClick={() => {
+                        if (state !== "STEP") return;
+                        if (isSubmitting) return;
+                        if (timedOut) return;
+                        if (timeRemainingMs <= 0) return;
+
                         setSelectedChoice(choice);
-                        handleSubmit(choice);
                       }}
                       className={className}
                     >
@@ -1851,6 +2003,27 @@ export default function QuizPage() {
                     </button>
                   );
                 })}
+              </div>
+
+              <div className="quiz-submit-row">
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(selectedChoice)}
+                  disabled={
+                    selectedChoice === null ||
+                    state !== "STEP" ||
+                    isSubmitting ||
+                    timedOut ||
+                    timeRemainingMs <= 0
+                  }
+                  className="quiz-action submit-rune"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+
+                  {isSubmitting
+                    ? "Forging..."
+                    : "Submit Rune"}
+                </button>
               </div>
             </section>
 
@@ -1871,56 +2044,32 @@ export default function QuizPage() {
               </button>
 
               <button
-                onClick={async () => {
-                  if (totalPoints < 750) {
-                    alert("Not enough points!");
-                    return;
-                  }
-
-                  timerFrozenRef.current = true;
-
-                  setTimeout(() => {
-                    timerFrozenRef.current = false;
-                  }, 10_000);
-
-                  try {
-                    const res = await useQuizHint({
-                      quiz_session_id: quizSessionId,
-                      problem_id: currentProblem.id,
-                      step_index: currentStep.step_index,
-                      hint_type: "freeze",
-                    });
-
-                    setTotalPoints(res.total_points);
-                  } catch (err: any) {
-                    timerFrozenRef.current = false;
-                    alert("Not enough points!");
-                  }
-                }}
+                onClick={handleFreeze}
                 disabled={
-                  timerFrozenRef.current ||
+                  isTimerFrozen ||
                   state === "STEP_RESULT" ||
                   isSubmitting
                 }
                 className="quiz-action freeze"
               >
                 <Snowflake className="w-4 h-4" />
-                Freeze Timer · 750 pts
+                {isTimerFrozen
+                  ? "Timer Frozen"
+                  : "Freeze Timer · 750 pts"}
               </button>
 
-              {timeRemainingMs === 0 && (
-                <button
-                  onClick={handleSkip}
-                  disabled={
-                    state === "STEP_RESULT" ||
-                    isSubmitting
-                  }
-                  className="quiz-action skip"
-                >
-                  <SkipForward className="w-4 h-4" />
-                  Skip Rune
-                </button>
-              )}
+              <button
+                onClick={handleSkip}
+                disabled={
+                  state !== "STEP" ||
+                  isSubmitting ||
+                  timedOut
+                }
+                className="quiz-action skip"
+              >
+                <SkipForward className="w-4 h-4" />
+                Skip Rune
+              </button>
             </div>
 
             {/* Hint */}
@@ -1999,7 +2148,7 @@ export default function QuizPage() {
                           {userAnswer !== undefined && (
                             <div className="quiz-history-answer">
                               <span className="text-[9px] uppercase">
-                                Your Answer:
+                               Answer:
                               </span>
 
                               <span
@@ -2048,7 +2197,7 @@ export default function QuizPage() {
                 {stepCorrect ? (
                   <>
                     <h2 className="quiz-result-title">
-                      Rune Stabilized!
+                      Correct!
                     </h2>
 
                     <p className="quiz-result-subtitle">
@@ -2080,7 +2229,7 @@ export default function QuizPage() {
                 ) : (
                   <>
                     <h2 className="quiz-result-title">
-                      Rune Unstable
+                      Wrong!
                     </h2>
 
                     <p className="quiz-result-subtitle">
