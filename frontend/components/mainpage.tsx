@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { HelpCircle, LogOut, UserRound } from "lucide-react";
@@ -18,21 +18,6 @@ export default function MainPage({
   const {clearSession} = useWorldNavigation();
   const {data} = useLearningData();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const settingsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const closeOnOutsideClick = (event: MouseEvent) => {
-      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) setSettingsOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSettingsOpen(false); };
-    document.addEventListener("mousedown", closeOnOutsideClick);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("mousedown", closeOnOutsideClick);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -60,26 +45,25 @@ export default function MainPage({
             >
               <HelpCircle className="h-5 w-5" /><span className="suri-app-control-label">Help</span>
             </button>
-            <div ref={settingsRef} className="relative">
-              <button
-                onClick={() => setSettingsOpen(open => !open)}
-                aria-label="Open account menu"
-                aria-expanded={settingsOpen}
-                aria-haspopup="menu"
-                className="suri-app-control suri-app-account-control"
-              >
-                <UserRound className="h-5 w-5 shrink-0" /><span className="truncate">{data?.me.name || "Student"}</span>
-              </button>
-              {settingsOpen && <div role="menu" className="suri-account-menu">
-                <button role="menuitem" disabled className="suri-account-menu-item is-disabled">
-                  <span>Account settings</span><small>Soon</small>
-                </button>
-                <div className="suri-account-menu-divider" />
-                <button role="menuitem" onClick={() => { setSettingsOpen(false); setShowLogoutConfirm(true); }} className="suri-account-menu-item is-logout">
-                  <LogOut className="h-4 w-4" /> Log out
-                </button>
-              </div>}
+            <div className="suri-app-control suri-app-account-control" aria-label={`Signed in as ${data?.me.name || "Student"}`}>
+              <UserRound className="h-5 w-5 shrink-0" /><span className="truncate">{data?.me.name || "Student"}</span>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowLogoutConfirm(true)}
+              aria-label="Log out"
+              className="suri-app-control suri-app-logout-control"
+              style={{
+                background: "linear-gradient(180deg, #d74b42, #a8211c)",
+                color: "#fff4d5",
+                boxShadow: "0 6px 0 #59100e, 0 13px 23px rgba(0,0,0,.26), inset 0 0 0 3px rgba(255,237,218,.16)",
+                inlineSize: "4.1rem",
+                blockSize: "4.1rem",
+                padding: 0,
+              }}
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </nav>

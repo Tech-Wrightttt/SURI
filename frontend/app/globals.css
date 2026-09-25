@@ -92,7 +92,7 @@ body {
   color: #191c1e;
 }
 
-/* The logo, help, and account controls are three individual archive cards,
+/* The logo, help, account name, and logout control are individual archive cards,
    following the Topics heading's parchment, double border, and hard corners. */
 .suri-app-bar { padding: .75rem clamp(.7rem, 2.5vw, 2rem); }
 .suri-app-bar-frame { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; margin: 0 auto; pointer-events: auto; }
@@ -105,16 +105,12 @@ body {
 .suri-app-bar-actions { display: flex; align-items: center; gap: .55rem; }
 .suri-app-control { gap: .44rem; padding: .62rem 1rem; font: 900 .78rem/1 "Nunito", sans-serif; letter-spacing: .06em; cursor: pointer; transition: transform .16s ease, filter .16s ease, box-shadow .16s ease; }
 .suri-app-control:hover { filter: brightness(1.06); box-shadow: 0 8px 0 #160b07, 0 15px 24px rgba(0,0,0,.26), inset 0 0 0 3px rgba(111,61,28,.16); transform: translateY(-2px); }
-.suri-app-control:focus-visible, .suri-account-menu-item:focus-visible { outline: 3px solid #fff3a3; outline-offset: 3px; }
-.suri-app-account-control { max-width: 14rem; padding-inline: 1rem; }
-.suri-account-menu { position: absolute; top: calc(100% + .7rem); right: 0; width: 13rem; padding: .35rem; border: 3px solid #5e3619; color: #321008; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.4), transparent 52%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 6px 0 #160b07, 0 17px 28px rgba(0,0,0,.35), inset 0 0 0 2px rgba(89,48,18,.14); }
-.suri-account-menu-item { display: flex; align-items: center; justify-content: space-between; gap: .55rem; width: 100%; padding: .72rem .76rem; border: 0; border-radius: 4px; color: #3a2111; background: transparent; font: 900 .76rem/1 "Nunito", sans-serif; letter-spacing: .035em; text-align: left; }
-.suri-account-menu-item.is-disabled { color: rgba(58,33,17,.55); cursor: not-allowed; }
-.suri-account-menu-item.is-disabled small { color: #6c278e; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; }
-.suri-account-menu-divider { margin: .12rem .25rem; border-top: 2px solid rgba(109,65,28,.35); }
-.suri-account-menu-item.is-logout { color: #8f1e19; cursor: pointer; }
-.suri-account-menu-item.is-logout:hover { color: #fff4d5; background: linear-gradient(180deg, #b9382e, #7c1716); }
-@media (max-width: 540px) { .suri-app-bar { padding: .48rem; }.suri-app-bar-frame { gap: .45rem; }.suri-app-brand, .suri-app-control { min-height: 3.35rem; border-width: 3px; box-shadow: 0 4px 0 #160b07, 0 9px 16px rgba(0,0,0,.23), inset 0 0 0 2px rgba(111,61,28,.16); }.suri-app-brand::after, .suri-app-control::after { inset: .26rem; border-width: 1px; }.suri-app-brand { min-width: 0; padding: .34rem .52rem; }.suri-app-brand-logo { height: 1.55rem; }.suri-app-bar-actions { gap: .34rem; }.suri-app-control { padding: .42rem .58rem; }.suri-app-control-label { display: none; }.suri-app-account-control { max-width: 9rem; }.suri-account-menu { right: -.1rem; } }
+.suri-app-control:focus-visible { outline: 3px solid #fff3a3; outline-offset: 3px; }
+.suri-app-account-control { max-width: 14rem; cursor: default; }
+.suri-app-account-control:hover { filter: none; box-shadow: 0 6px 0 #160b07, 0 13px 23px rgba(0,0,0,.26), inset 0 0 0 3px rgba(111,61,28,.16); transform: none; }
+.suri-app-logout-control { inline-size: 4.1rem; block-size: 4.1rem; min-width: 0; min-height: 0; padding: 0; color: #fff4d5; background: linear-gradient(180deg, #d74b42, #a8211c); box-shadow: 0 6px 0 #59100e, 0 13px 23px rgba(0,0,0,.26), inset 0 0 0 3px rgba(255,237,218,.16); }
+.suri-app-logout-control:hover { box-shadow: 0 8px 0 #59100e, 0 15px 24px rgba(0,0,0,.26), inset 0 0 0 3px rgba(255,237,218,.16); }
+@media (max-width: 540px) { .suri-app-bar { padding: .48rem; }.suri-app-bar-frame { gap: .45rem; }.suri-app-brand, .suri-app-control { min-height: 3.35rem; border-width: 3px; box-shadow: 0 4px 0 #160b07, 0 9px 16px rgba(0,0,0,.23), inset 0 0 0 2px rgba(111,61,28,.16); }.suri-app-brand::after, .suri-app-control::after { inset: .26rem; border-width: 1px; }.suri-app-brand { min-width: 0; padding: .34rem .52rem; }.suri-app-brand-logo { height: 1.55rem; }.suri-app-bar-actions { gap: .34rem; }.suri-app-control { padding: .42rem .58rem; }.suri-app-control-label { display: none; }.suri-app-account-control { max-width: 9rem; }.suri-app-logout-control { inline-size: 3.35rem !important; block-size: 3.35rem !important; } }
 
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
@@ -429,7 +425,7 @@ html::-webkit-scrollbar {
 .topics-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px); transform: scale(1.03); will-change: filter, transform; }
 
 .topics-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff; }
-.topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(63rem, 100%); margin: 0 auto .75rem; }
+.topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(63rem, 100%); margin: 1rem auto .75rem; }
 .topics-library-header { position: relative; z-index: 2; width: min(63rem, 100%); margin: 0 auto 1.2rem; padding: clamp(1rem, 2vw, 1.3rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .topics-library-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
 .topics-library-back { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.75rem; padding: .58rem .9rem; border: 3px solid #6d411c; border-radius: 8px; color: #321008; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 5px 0 #4b2411, inset 0 1px 0 rgba(255,255,255,.55); font: 900 .76rem/1 "Bree Serif", Georgia, serif; letter-spacing: .055em; cursor: pointer; transition: transform .2s, filter .2s, box-shadow .2s; }.topics-library-back:hover { filter: brightness(1.08); box-shadow: 0 7px 0 #4b2411; transform: translateY(-2px); }.topics-library-back span { color: inherit; font-size: 1rem; }
@@ -462,7 +458,7 @@ html::-webkit-scrollbar {
 .progress-world-backdrop::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, transparent 8%, rgba(43, 68, 33, .16) 52%, rgba(9, 22, 13, .62) 100%), linear-gradient(180deg, rgba(67, 86, 43, .15), rgba(9, 22, 13, .45)); }
 .progress-world canvas { display: block; width: 100% !important; height: 100% !important; }
 
-.progress-route-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.8rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; }
+.progress-route-page { position: relative; z-index: 3; min-height: 100vh; padding: 2.8rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; }
 .progress-route-header { width: min(52rem, 100%); margin: 0 auto 2.4rem; text-align: center; text-shadow: 2px 2px 0 rgba(19, 51, 42, .68); }
 .progress-route-back { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; inline-size: 8.25rem; margin-bottom: 2.6rem; padding: .68rem .9rem; border: 3px solid #163a31; border-radius: 999px; color: #163a31; background: #f4cd57; box-shadow: 3px 3px 0 #060b09; font: 800 .72rem/1 "Manrope", sans-serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
 .progress-route-back:hover { background: #ffe28a; transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #060b09; }
@@ -599,7 +595,7 @@ html::-webkit-scrollbar {
   .progress-shelves { grid-template-columns: repeat(auto-fit, minmax(16.5rem, 1fr)); }
 }
 @media (max-width: 640px) {
-  .progress-route-page { padding: 1.2rem .8rem 2.5rem; }
+  .progress-route-page { padding: 2.2rem .8rem 2.5rem; }
   .progress-route-header { margin-bottom: 1.5rem; }
   .progress-route-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
   .progress-route-stats div { padding: .7rem .3rem; }
@@ -686,7 +682,7 @@ html::-webkit-scrollbar {
 .calculator-world-backdrop::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, transparent 8%, rgba(54, 73, 40, .14) 52%, rgba(9, 22, 13, .62) 100%), linear-gradient(180deg, rgba(69, 92, 48, .14), rgba(9, 22, 13, .45)); }
 .calculator-world canvas { display: block; width: 100% !important; height: 100% !important; }
 
-.calculator-route-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.8rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; }
+.calculator-route-page { position: relative; z-index: 3; min-height: 100vh; padding: 2.8rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; }
 .calculator-route-header { width: min(52rem, 100%); margin: 0 auto 2.4rem; text-align: center; text-shadow: 2px 2px 0 rgba(19, 51, 42, .68); }
 .calculator-route-back { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; inline-size: 8.25rem; margin-bottom: 2.6rem; padding: .68rem .9rem; border: 3px solid #163a31; border-radius: 999px; color: #163a31; background: #f4cd57; box-shadow: 3px 3px 0 #060b09; font: 800 .72rem/1 "Manrope", sans-serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
 .calculator-route-back:hover { background: #ffe28a; transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #060b09; }
@@ -778,7 +774,7 @@ html::-webkit-scrollbar {
   .calculator-solution-step { opacity: 1; }
 }
 @media (max-width: 640px) {
-  .calculator-route-page { padding: 1.2rem .8rem 2.5rem; }
+  .calculator-route-page { padding: 2.2rem .8rem 2.5rem; }
   .calculator-route-header { margin-bottom: 1.5rem; }
   .calculator-route-collection { padding: 1rem .75rem; border-radius: 1.35rem; }
   .calculator-input-row, .calculator-result-overview { grid-template-columns: 1fr; }
