@@ -52,11 +52,8 @@
 .labelLayer { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .labelLayer .anchor { position: absolute; pointer-events: none; }
 .labelLayer .marker { pointer-events: auto; }
-.keepLabel { position: absolute; z-index: 3; top: 38%; left: 50%; pointer-events: none; transform: translate(-50%, -100%); }
-.hiddenWorldLabel { display: none; }
 @media (max-width: 600px) {
   .marker { padding: .5rem .75rem; font-size: 8px; }
-  .keepLabel { top: 41%; }
 }
 
 /* Separate the dense hub labels when the full archipelago fits a phone width. */

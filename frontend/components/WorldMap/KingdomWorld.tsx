@@ -19,9 +19,10 @@ import { configureWorldRenderer } from "@/lib/three/renderer";
 type Point3 = [number, number, number];
 const COLORS = { gold: "#dfc188", purple: "#a99bd1" };
 const noRaycast: THREE.Mesh["raycast"] = () => {};
-type DashboardLandmark = "topics" | "records" | "champions" | "calculator";
+type DashboardLandmark = "keep" | "topics" | "records" | "champions" | "calculator";
 
-const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href: string }> = [
+const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; detail?: string }> = [
+  { kind: "keep", title: "SURI Keep Castle", detail: "The central welcome hall for your learning kingdom" },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics" },
   { kind: "records", title: "Error History · Hall of Records", href: "/error-history" },
   { kind: "champions", title: "Progress · Hall of Champions", href: "/progress" },
@@ -55,12 +56,6 @@ function Landmark({ position, kind, onClick, onIntent, accent, selected=false, h
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.12, 0]} raycast={noRaycast}><ringGeometry args={[glowInnerRadius, glowOuterRadius, 64]} /><meshBasicMaterial color={accent || COLORS.gold} transparent opacity={0.95} blending={THREE.AdditiveBlending} toneMapped={false} depthWrite={false} /></mesh>
     </>}
   </group>;
-}
-
-function SuriKeepLabel() {
-  return <div role="note" className={`${styles.marker} ${styles.scenic} ${styles.keepLabel}`} aria-label="SURI Keep Castle: The central welcome hall for your learning kingdom">
-    <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>SURI Keep Castle</span></span>
-  </div>;
 }
 
 type WorldProps = {
@@ -187,18 +182,18 @@ function DashboardWorld(props: WorldProps) {
         <Suspense fallback={null}><CoastalWorld {...props} labelLayerRef={labelLayerRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} /></Suspense>
       </Canvas>
         <div className={styles.labelLayer} ref={labelLayerRef}>
-          {DASHBOARD_LANDMARKS.map(({ kind, title, href }) => {
-            const detail = kind === "records"
+          {DASHBOARD_LANDMARKS.map(({ kind, title, href, detail: configuredDetail }) => {
+            const detail = configuredDetail ?? (kind === "records"
               ? `${props.errors?.length ?? 0} misconception records · inspect the error history`
               : kind === "champions"
                 ? `${props.progress.mastered}/${props.progress.total || 0} skills mastered · view progress`
                 : kind === "topics"
                   ? "Browse topics and choose your next learning trail"
-                  : "Solve and explore equations";
+                  : "Solve and explore equations");
             const label = title.split(" · ")[0];
             const hovered = hoveredLandmark === kind;
             return <div key={kind} className={styles.anchor} data-landmark={kind} style={{ visibility: "hidden" }}>
-              <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${detail}`}
+              {href ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${detail}`}
                 onClick={() => { if (!props.busy) props.navigate(href); }}
                 onMouseEnter={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}
@@ -206,11 +201,12 @@ function DashboardWorld(props: WorldProps) {
                 onBlur={() => setHoveredLandmark(null)}>
                 <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span>
                 <span className={styles.markerDetail}>{detail}</span>
-              </button>
+              </button> : <div role="note" className={`${styles.marker} ${styles.scenic}`} aria-label={`${title}: ${detail}`}>
+                <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span>
+              </div>}
             </div>;
           })}
         </div>
-        <SuriKeepLabel />
       </div>
       {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}
     </div>

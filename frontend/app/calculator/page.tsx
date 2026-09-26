@@ -9,11 +9,6 @@ import MainPage from "@/components/mainpage";
 import BackToTopButton from "@/components/navigation/BackToTopButton";
 import { useWorldNavigation } from "@/components/navigation/LearningShell";
 
-if (typeof customElements !== "undefined") {
-  const MFE = customElements.get("math-field");
-  if (MFE) (MFE as { fontsDirectory?: string }).fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0.109.2/fonts";
-}
-
 interface MathStep {
   changeType: string;
   oldNode: string | null;
@@ -305,8 +300,10 @@ export default function AlgebraCalculatorPage() {
 
   return <MainPage immersive>
     <div className="calculator-route-page">
+      <div className="calculator-route-back-row">
+        <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
+      </div>
       <header className="calculator-route-header">
-        <button type="button" className="calculator-route-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
         <div className="calculator-route-kicker"><span /> THE SURI ACADEMY WORKSHOP <span /></div>
         <h1>Algebra <em>Workshop</em></h1>
         <p>Write an expression, then follow each small change until the answer is clear.</p>
@@ -383,7 +380,7 @@ export default function AlgebraCalculatorPage() {
         </section>
       </div>}
       <div className="calculator-route-top">
-        <BackToTopButton className="calculator-route-back" />
+        <BackToTopButton className="topics-library-back" />
       </div>
     </div>
   </MainPage>;
