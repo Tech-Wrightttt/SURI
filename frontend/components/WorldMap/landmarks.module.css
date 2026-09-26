@@ -49,6 +49,9 @@
 .world { background: #126f8d; }
 .world::before, .world::after { display: none; }
 .viewport { z-index: 2; }
+.labelLayer { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.labelLayer .anchor { position: absolute; pointer-events: none; }
+.labelLayer .marker { pointer-events: auto; }
 .keepLabel { position: absolute; z-index: 3; top: 38%; left: 50%; pointer-events: none; transform: translate(-50%, -100%); }
 .hiddenWorldLabel { display: none; }
 @media (max-width: 600px) {
