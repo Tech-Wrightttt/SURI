@@ -17,7 +17,7 @@ const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
 
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
-const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator"] as const;
+const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "errors"] as const;
 type FocusedRouteKey = typeof FOCUSED_ROUTE_KEYS[number];
 type FocusedTransition = "idle" | "entering" | "revealing" | "visible" | "leaving" | "zooming-out";
 type FocusedTransitionMap = Record<FocusedRouteKey, FocusedTransition>;
@@ -31,6 +31,7 @@ const FOCUSED_ROUTES = {
   "/topics": { key: "topics", site: "topics", load: loadTopicsWorld, contentClass: "topic-route-content" },
   "/progress": { key: "progress", site: "champions", load: loadProgressWorld, contentClass: "progress-route-content" },
   "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
+  "/error-history": { key: "errors", site: "records", load: loadProgressWorld, contentClass: "error-history-route-content" },
 } as const;
 
 // Route canvases and foreground pages deliberately overlap for a little
@@ -43,6 +44,7 @@ const routeModuleLoaders: Partial<Record<string, () => Promise<unknown>>> = {
   "/topics": () => Promise.all([loadTopicsWorld(), loadTopicCarousel()]),
   "/progress": loadProgressWorld,
   "/calculator": loadCalculatorWorld,
+  "/error-history": loadProgressWorld,
 };
 
 function warmRouteModule(href: string) {
@@ -83,6 +85,7 @@ function createTransitionMap(pathname: string): FocusedTransitionMap {
     topics: route?.key === "topics" ? "visible" : "idle",
     progress: route?.key === "progress" ? "visible" : "idle",
     calculator: route?.key === "calculator" ? "visible" : "idle",
+    errors: route?.key === "errors" ? "visible" : "idle",
   };
 }
 
@@ -92,6 +95,7 @@ function createWorldMap(pathname: string): FocusedWorldMap {
     topics: route?.key === "topics",
     progress: route?.key === "progress",
     calculator: route?.key === "calculator",
+    errors: route?.key === "errors",
   };
 }
 
@@ -125,7 +129,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     setFocusedTransitions(current => ({ ...current, [key]: stage }));
   }, []);
   const resetFocusedStages = useCallback(() => {
-    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle" };
+    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", errors: "idle" };
     focusedTransitionsRef.current = idle;
     setFocusedTransitions(idle);
   }, []);
@@ -186,7 +190,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     // Route prefetching fetches code in most cases. This idle preload is a
     // fallback that keeps Three.js from competing with the first paint.
     if (!canPreloadHeavySceneWork()) return;
-    const preload = () => { ["/dashboard", "/topics", "/progress", "/calculator"].forEach(href => void warmRouteModule(href).catch(() => {})); };
+    const preload = () => { ["/dashboard", "/topics", "/progress", "/calculator", "/error-history"].forEach(href => void warmRouteModule(href).catch(() => {})); };
     const idle = window.requestIdleCallback?.(preload, { timeout: 2500 });
     const timeout = idle === undefined ? window.setTimeout(preload, 1200) : undefined;
     return () => {
@@ -345,6 +349,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     </div>}
     {(focusedWorldMounted.calculator || pathname === "/calculator") && <div className={`calculator-world-shell calculator-transition-${focusedTransitions.calculator}`} aria-hidden={pathname !== "/calculator"} style={{ visibility: pathname === "/calculator" ? "visible" : "hidden" }}>
       <CalculatorTowerWorld active={pathname === "/calculator"} onReady={() => revealFocusedContent("calculator")} />
+    </div>}
+    {(focusedWorldMounted.errors || pathname === "/error-history") && <div className={`error-history-world-shell errors-transition-${focusedTransitions.errors}`} aria-hidden={pathname !== "/error-history"} style={{ visibility: pathname === "/error-history" ? "visible" : "hidden" }}>
+      <ProgressTrailWorld active={pathname === "/error-history"} onReady={() => revealFocusedContent("errors")} />
     </div>}
     <div className={contentClass}>{children}</div>
   </NavigationContext.Provider>;

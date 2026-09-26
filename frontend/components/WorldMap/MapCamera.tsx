@@ -8,6 +8,10 @@ import { SITES, sitePosition } from "@/lib/worldMap/landscape";
 import { cameraEase, islandCameraPose, RETURN_DURATION, TOPICS_APPROACH_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
 export { CAMERA_POSITION } from "@/lib/worldMap/framing";
 
+function isFocusedIsland(site?: string) {
+  return site === "topics" || site === "records" || site === "champions" || site === "calculator";
+}
+
 export function MapCamera({ command, active = true, preserveCameraOnActivate = false }: { command: CameraCommand | null; active?: boolean; preserveCameraOnActivate?: boolean }) {
   const getThree=useThree(state=>state.get),size=useThree(state=>state.size),invalidate=useThree(state=>state.invalidate);
   const initialized=useRef(false);
@@ -52,17 +56,17 @@ export function MapCamera({ command, active = true, preserveCameraOnActivate = f
       const frame=worldFrame(size.width,size.height,playableProjectionBounds());
       const point=new THREE.Vector3(...sitePosition(command.site as keyof typeof SITES))
         .applyAxisAngle(new THREE.Vector3(0,1,0),frame.rotation).multiplyScalar(frame.scale).add(new THREE.Vector3(...frame.position));
-      // A focused route must finish at the exact pose its retained close-up
-      // canvas uses. Calculator is an Arcane Tower close-up just like Topics
-      // and Progress, so treating it as an ordinary island causes a visible
-      // jump when the route canvas takes over.
-      const close = command.site === "topics" || command.site === "champions" || command.site === "calculator";
+      // Every focused route must finish at the exact pose its retained
+      // close-up canvas uses. Treating one as an ordinary island makes its
+      // handoff feel slower and causes a visible jump when that canvas takes
+      // over.
+      const close = isFocusedIsland(command.site);
       if (close) point.y += 3.2 * frame.scale;
       const pose=islandCameraPose(point, close ? { close: true, worldScale: frame.scale } : undefined);
       to=pose.position;toZoom=pose.zoom;toQuaternion=pose.quaternion;
     }
     const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const focusedIsland = command.site === "topics" || command.site === "champions" || command.site === "calculator";
+    const focusedIsland = isFocusedIsland(command.site);
     animation.current={elapsed:0,duration:reduced||command.instant?0:command.duration ?? (command.kind==="overview"?RETURN_DURATION:focusedIsland ?TOPICS_APPROACH_DURATION:ZOOM_DURATION),
       from:camera.position.clone(),to,fromZoom:camera.zoom,toZoom,fromQuaternion:camera.quaternion.clone(),toQuaternion,done:command.onComplete};
     invalidate();
