@@ -193,6 +193,8 @@ export interface MeResponse {
   student_id: string;
   name: string;
   email: string | null;
+  grade_level?: number;
+  created_at?: string;
 }
 
 export interface CompetencyNodeSummary {

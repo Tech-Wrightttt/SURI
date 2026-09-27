@@ -120,4 +120,6 @@ async def get_me(student=Depends(get_current_student)):
         "student_id": student["id"],
         "name": student["name"],
         "email": student["email"],
+        "grade_level": student["grade_level"],
+        "created_at": student["created_at"],
     }

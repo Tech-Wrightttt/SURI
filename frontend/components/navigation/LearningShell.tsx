@@ -312,8 +312,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   const progress = useMemo(() => {
     const active = data?.progress.active_sessions ?? [], completed = data?.progress.completed_sessions ?? [];
-    const mastered = active.reduce((sum, s) => sum + s.mastered_count, 0), total = active.reduce((sum, s) => sum + s.total_in_chain, 0);
-    const pct = active.length ? Math.round(active.reduce((sum, s) => sum + (Number(s.completion_percentage) || 0), 0) / active.length) : 0;
+    const sessions = [...active, ...completed];
+    const mastered = sessions.reduce((sum, s) => sum + s.mastered_count, 0), total = sessions.reduce((sum, s) => sum + s.total_in_chain, 0);
+    const pct = total ? Math.round((mastered / total) * 100) : 0;
     const dewdrops = mastered * 10 + completed.length * 50;
     const rank = dewdrops >= 1000 ? "Elder Canopy Sage" : dewdrops >= 600 ? "Wildwood Ranger" : dewdrops >= 300 ? "Dewdrop Pathfinder" : dewdrops >= 100 ? "Fern Scout" : "Sprout Explorer";
     return { mastered, total, pct, dewdrops, rank };
@@ -339,7 +340,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   return <NavigationContext.Provider value={context}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={(href) => preloadRoute(href, true)} busy={busy}
-        active={data?.progress.active_sessions} errors={data?.progress.misconception_history} progress={progress} />
+        me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} />
     </div>}
     {(focusedWorldMounted.topics || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${focusedTransitions.topics}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
       <TopicsLibraryWorld active={pathname === "/topics"} onReady={() => revealFocusedContent("topics")} />

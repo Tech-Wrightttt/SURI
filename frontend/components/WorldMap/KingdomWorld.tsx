@@ -4,7 +4,7 @@ import { memo, Suspense, useEffect, useRef, useState, type RefObject } from "rea
 import type { CameraCommand } from "@/lib/worldMap/navigation";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import type { ActiveSessionProgress, MisconceptionHistoryItem } from "@/lib/api";
+import type { ActiveSessionProgress, MeResponse, MisconceptionHistoryItem } from "@/lib/api";
 import { Landscape } from "./Landscape";
 import { MapCamera, CAMERA_POSITION } from "./MapCamera";
 import { LandmarkArchitecture } from "./Architecture";
@@ -15,6 +15,7 @@ import { Ocean } from "@/components/ReferenceVoxel/Ocean";
 import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
 import { configureWorldRenderer } from "@/lib/three/renderer";
+import StudentOverviewModal from "./StudentOverviewModal";
 
 type Point3 = [number, number, number];
 const COLORS = { gold: "#dfc188", purple: "#a99bd1" };
@@ -22,7 +23,7 @@ const noRaycast: THREE.Mesh["raycast"] = () => {};
 type DashboardLandmark = "keep" | "topics" | "records" | "champions" | "calculator";
 
 const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; detail?: string }> = [
-  { kind: "keep", title: "SURI Keep Castle", detail: "The central welcome hall for your learning kingdom" },
+  { kind: "keep", title: "Castle Keep", detail: "The central welcome hall for your learning kingdom" },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics" },
   { kind: "records", title: "Error History · Hall of Records", href: "/error-history" },
   { kind: "champions", title: "Progress · Hall of Champions", href: "/progress" },
@@ -59,13 +60,13 @@ function Landmark({ position, kind, onClick, onIntent, accent, selected=false, h
 }
 
 type WorldProps = {
-  active?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
+  me?: MeResponse; active?: ActiveSessionProgress[]; completed?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
   command: CameraCommand | null; visible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void; preloadRoute?: (href: string) => void;
 };
 
 type CoastalWorldProps = WorldProps & {
-  labelLayerRef: RefObject<HTMLDivElement | null>; hoveredLandmark: LandmarkKind | null; setHoveredLandmark: (kind: LandmarkKind | null) => void;
+  openOverview: () => void; labelLayerRef: RefObject<HTMLDivElement | null>; hoveredLandmark: LandmarkKind | null; setHoveredLandmark: (kind: LandmarkKind | null) => void;
 };
 
 function FrameGate({ active }: { active: boolean }) {
@@ -105,7 +106,7 @@ function LandmarkLabelProjector({ layerRef }: { layerRef: RefObject<HTMLDivEleme
   return null;
 }
 
-function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserveCameraOnActivate, labelLayerRef, hoveredLandmark, setHoveredLandmark }: CoastalWorldProps) {
+function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserveCameraOnActivate, openOverview, labelLayerRef, hoveredLandmark, setHoveredLandmark }: CoastalWorldProps) {
   const size = useThree(state => state.size);
   const frame = worldFrame(size.width, size.height, playableProjectionBounds());
   const visit = (_site: keyof typeof SITES, href: string) => { if(!busy)navigate(href); };
@@ -122,7 +123,7 @@ function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserve
         <Ocean />
         <Landscape />
 
-        <Landmark position={sitePosition("keep")} accent={COLORS.gold} kind="keep" hovered={hoveredLandmark === "keep"} onHoverChange={setHoveredLandmark} />
+        <Landmark position={sitePosition("keep")} accent={COLORS.gold} kind="keep" onClick={openOverview} hovered={hoveredLandmark === "keep"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} onIntent={() => preloadRoute?.("/topics")} kind="topics" selected={selectedSite === "topics"} hovered={hoveredLandmark === "topics"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("records")} onClick={() => visit("records", "/error-history")} onIntent={() => preloadRoute?.("/error-history")} kind="records" selected={selectedSite === "records"} hovered={hoveredLandmark === "records"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} onIntent={() => preloadRoute?.("/progress")} kind="champions" selected={selectedSite === "champions"} hovered={hoveredLandmark === "champions"} onHoverChange={setHoveredLandmark} />
@@ -151,8 +152,10 @@ function TutorialModal({ onClose }: { onClose: () => void }) {
 
 function DashboardWorld(props: WorldProps) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [overviewOpen, setOverviewOpen] = useState(false);
   const [hoveredLandmark, setHoveredLandmark] = useState<LandmarkKind | null>(null);
   const labelLayerRef = useRef<HTMLDivElement | null>(null);
+  const keepTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [showSaved, setShowSaved] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("saved") === "true");
   useEffect(() => {
     if (!showSaved) return;
@@ -179,7 +182,7 @@ function DashboardWorld(props: WorldProps) {
         onCreated={({ gl }) => configureWorldRenderer(gl)}
       >
         <FrameGate active={props.visible} />
-        <Suspense fallback={null}><CoastalWorld {...props} labelLayerRef={labelLayerRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} /></Suspense>
+        <Suspense fallback={null}><CoastalWorld {...props} openOverview={() => setOverviewOpen(true)} labelLayerRef={labelLayerRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} /></Suspense>
       </Canvas>
         <div className={styles.labelLayer} ref={labelLayerRef}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, detail: configuredDetail }) => {
@@ -201,14 +204,21 @@ function DashboardWorld(props: WorldProps) {
                 onBlur={() => setHoveredLandmark(null)}>
                 <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span>
                 <span className={styles.markerDetail}>{detail}</span>
-              </button> : <div role="note" className={`${styles.marker} ${styles.scenic}`} aria-label={`${title}: ${detail}`}>
+              </button> : <button ref={keepTriggerRef} type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: Open your student progress and account overview`}
+                onClick={() => setOverviewOpen(true)}
+                onMouseEnter={() => setHoveredLandmark(kind)}
+                onMouseLeave={() => setHoveredLandmark(null)}
+                onFocus={() => setHoveredLandmark(kind)}
+                onBlur={() => setHoveredLandmark(null)}>
                 <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span>
-              </div>}
+                <span className={styles.markerDetail}>{detail}</span>
+              </button>}
             </div>;
           })}
         </div>
       </div>
       {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}
+      {overviewOpen && <StudentOverviewModal me={props.me} active={props.active} completed={props.completed} errors={props.errors} progress={props.progress} opener={keepTriggerRef.current} onClose={() => setOverviewOpen(false)} />}
     </div>
   );
 }

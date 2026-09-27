@@ -401,6 +401,171 @@ html::-webkit-scrollbar {
 .voxel-tutorial-actions span { padding: 0.36rem 0.5rem; border: 1px solid rgba(196, 181, 253, 0.26); border-radius: 0.4rem; color: #c4b5fd; font: 800 0.55rem/1 "Manrope", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
 .voxel-close { align-self: end; padding: 0.62rem 0.78rem; border: 0; border-radius: 0.55rem; color: #18102f; background: #ffd76a; font: 800 0.62rem/1 "Manrope", sans-serif; cursor: pointer; white-space: nowrap; }
 
+/* SURI Keep: compact student progress and account overview. */
+.suri-overview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: rgba(7, 24, 43, .46);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: suri-overview-overlay-in .2s ease-out both;
+}
+.suri-overview-modal {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(960px, 90vw);
+  height: min(760px, 85vh);
+  max-height: 85vh;
+  overflow: hidden;
+  border: 1px solid #cbdbea;
+  border-radius: 22px;
+  color: #183047;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(5, 29, 51, .35), 0 8px 24px rgba(5, 29, 51, .18);
+  font-family: "Manrope", sans-serif;
+  animation: suri-overview-modal-in .24s cubic-bezier(.2, .8, .2, 1) both;
+}
+.suri-overview-overlay.is-closing { animation: suri-overview-overlay-out .18s ease-in both; }
+.suri-overview-overlay.is-closing .suri-overview-modal { animation: suri-overview-modal-out .18s ease-in both; }
+.suri-overview-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.65rem 1.25rem;
+  border-bottom: 1px solid #dce7f0;
+  background: #fff;
+}
+.suri-overview-heading { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+.suri-overview-castle {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 2px solid #154f83;
+  border-radius: .9rem;
+  color: #fff;
+  background: linear-gradient(145deg, #3a91d3, #1764a5);
+  box-shadow: 0 4px 0 #0e4778, inset 0 0 0 2px rgba(255, 255, 255, .16);
+}
+.suri-overview-heading h2 { margin: 0; color: #153e68; font: 900 1.45rem/1.1 "Hanken Grotesk", sans-serif; letter-spacing: -.025em; }
+.suri-overview-heading p { margin: .28rem 0 0; color: #61778b; font: 600 .76rem/1.35 "Manrope", sans-serif; }
+.suri-overview-close {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  padding: 0;
+  border: 1px solid #b9cddd;
+  border-radius: 50%;
+  color: #174d7d;
+  background: #f4f9fd;
+  cursor: pointer;
+  transition: color .15s ease, background .15s ease, border-color .15s ease, transform .15s ease;
+}
+.suri-overview-close:hover { color: #fff; border-color: #185c99; background: #2479bd; transform: translateY(-1px); }
+.suri-overview-close:focus-visible { outline: 3px solid #f2bd36; outline-offset: 3px; }
+.suri-overview-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: #9dbbd2 #edf4f8; scrollbar-width: thin; }
+.suri-overview-columns { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(250px, 1fr); gap: 1.35rem; padding: 1.45rem 1.65rem 1.7rem; }
+.suri-overview-learning, .suri-overview-account { min-width: 0; }
+.suri-overview-account { padding-left: 1.35rem; border-left: 1px solid #dce7f0; }
+.suri-overview-section-title { display: flex; align-items: center; gap: .45rem; margin: 0 0 .8rem; color: #174d7d; font: 900 .7rem/1 "Manrope", sans-serif; letter-spacing: .09em; text-transform: uppercase; }
+.suri-progress-summary { padding: 1.05rem; border: 1px solid #bad5e8; border-radius: 16px; background: linear-gradient(145deg, #f8fcff, #edf7fd); box-shadow: inset 4px 0 #2f86c5, 0 7px 18px rgba(26, 84, 126, .08); }
+.suri-progress-summary-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.suri-progress-summary-top > div { display: flex; align-items: baseline; gap: .55rem; }
+.suri-progress-summary-top > div span { color: #567086; font: 800 .65rem/1 "Manrope", sans-serif; text-transform: uppercase; letter-spacing: .055em; }
+.suri-progress-summary-top strong { color: #155b96; font: 900 1.65rem/1 "Hanken Grotesk", sans-serif; }
+.suri-progress-mastered { display: inline-flex; align-items: center; gap: .3rem; color: #745213; font: 800 .64rem/1.2 "Manrope", sans-serif; }
+.suri-progress-mastered svg { color: #e6a912; fill: #ffd45b; }
+.suri-progress-track { height: .65rem; margin-top: .8rem; overflow: hidden; border-radius: 999px; background: #d6e4ed; box-shadow: inset 0 1px 2px rgba(17, 55, 84, .13); }
+.suri-progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #237cbd, #4ca8e2 70%, #f2c33f); box-shadow: 0 0 8px rgba(47, 134, 197, .35); }
+.suri-progress-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin: .9rem 0 0; }
+.suri-progress-summary-grid div { min-width: 0; padding-top: .65rem; border-top: 1px solid #d5e5ef; }
+.suri-progress-summary-grid dt, .suri-status-grid dt { color: #708497; font: 800 .56rem/1.2 "Manrope", sans-serif; letter-spacing: .055em; text-transform: uppercase; }
+.suri-progress-summary-grid dd { margin: .3rem 0 0; overflow: hidden; color: #1c3e5d; font: 800 .69rem/1.35 "Manrope", sans-serif; text-overflow: ellipsis; }
+.suri-current-status, .suri-recent-errors, .suri-account-details, .suri-learning-stats { margin-top: 1.2rem; }
+.suri-overview-subheading { display: flex; align-items: end; justify-content: space-between; gap: .75rem; margin-bottom: .65rem; }
+.suri-overview-subheading > div > span { display: block; color: #497392; font: 900 .56rem/1 "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+.suri-overview-subheading h4, .suri-account-details h4, .suri-learning-stats h4 { margin: .25rem 0 0; color: #173c5c; font: 900 .94rem/1.15 "Hanken Grotesk", sans-serif; }
+.suri-overview-subheading small { color: #718395; font: 800 .6rem/1 "Manrope", sans-serif; white-space: nowrap; }
+.suri-learning-status, .suri-error-status { display: inline-flex; align-items: center; min-height: 1.55rem; padding: .3rem .55rem; border: 1px solid currentColor; border-radius: 999px; font: 900 .53rem/1 "Manrope", sans-serif; letter-spacing: .045em; text-transform: uppercase; white-space: nowrap; }
+.suri-learning-status.is-in-progress, .suri-error-status.is-improving { color: #1766a2; background: #e3f3ff; }
+.suri-learning-status.is-remediation, .suri-error-status.is-needs-review { color: #9b3e35; background: #fff0ec; }
+.suri-learning-status.is-advance, .suri-error-status.is-resolved { color: #277448; background: #e9f7ee; }
+.suri-learning-status.is-ready-to-begin { color: #6d5a24; background: #fff7d9; }
+.suri-status-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; margin: 0; }
+.suri-status-grid > div { padding: .72rem; border: 1px solid #dbe6ee; border-radius: 11px; background: #fff; }
+.suri-status-grid dd { margin: .3rem 0 0; color: #1d405f; font: 800 .68rem/1.35 "Manrope", sans-serif; }
+.suri-status-grid .suri-status-next { grid-column: 1 / -1; border-color: #efd480; background: #fffbeb; }
+.suri-status-next dd { display: flex; align-items: center; gap: .38rem; color: #684d14; }
+.suri-error-list { display: grid; gap: .55rem; max-height: 17.5rem; margin: 0; padding: 0 .25rem 0 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; scrollbar-color: #9dbbd2 transparent; scrollbar-width: thin; }
+.suri-error-item { padding: .78rem .85rem; border: 1px solid #dbe5ec; border-left: 3px solid #efb72e; border-radius: 11px; background: #fff; }
+.suri-error-item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .65rem; }
+.suri-error-item-head > div { min-width: 0; }
+.suri-error-item-head > div > span { display: block; color: #3479aa; font: 900 .52rem/1 "Manrope", sans-serif; letter-spacing: .08em; }
+.suri-error-item h5 { margin: .18rem 0 0; color: #1d3d59; font: 900 .78rem/1.25 "Hanken Grotesk", sans-serif; }
+.suri-error-item > p { margin: .48rem 0 0; color: #526a7e; font: 600 .65rem/1.45 "Manrope", sans-serif; }
+.suri-error-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .32rem .75rem; margin-top: .55rem; color: #758797; font: 700 .55rem/1.35 "Manrope", sans-serif; }
+.suri-error-meta span { display: inline-flex; align-items: center; gap: .25rem; }
+.suri-overview-empty { display: flex; align-items: center; gap: .65rem; padding: .9rem; border: 1px solid #cce5d5; border-radius: 12px; color: #256947; background: #f0faf4; }
+.suri-overview-empty strong { font: 900 .72rem/1.2 "Hanken Grotesk", sans-serif; }
+.suri-overview-empty p { margin: .2rem 0 0; color: #587969; font: 600 .61rem/1.35 "Manrope", sans-serif; }
+.suri-profile-card { display: flex; align-items: center; gap: .75rem; padding: .95rem; border: 1px solid #bfd8ea; border-radius: 15px; background: linear-gradient(145deg, #edf8ff, #fff); }
+.suri-profile-avatar { display: grid; flex: 0 0 auto; place-items: center; width: 3rem; height: 3rem; border: 2px solid #f2c64e; border-radius: 50%; color: #fff; background: linear-gradient(145deg, #398fcc, #155b97); box-shadow: 0 3px 0 #0e4675; font: 900 .88rem/1 "Hanken Grotesk", sans-serif; }
+.suri-profile-card div { display: grid; gap: .22rem; min-width: 0; }
+.suri-profile-card strong { overflow: hidden; color: #173d60; font: 900 .9rem/1.2 "Hanken Grotesk", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.suri-profile-card div span { color: #637b8f; font: 700 .63rem/1.3 "Manrope", sans-serif; }
+.suri-account-details dl { margin: .55rem 0 0; padding: .25rem .75rem; border: 1px solid #dce6ed; border-radius: 12px; background: #fbfdfe; }
+.suri-account-details dl div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .55rem; padding: .62rem 0; border-bottom: 1px solid #e4ebf0; }
+.suri-account-details dl div:last-child { border-bottom: 0; }
+.suri-account-details dt { color: #748697; font: 700 .59rem/1.35 "Manrope", sans-serif; }
+.suri-account-details dd { margin: 0; overflow-wrap: anywhere; color: #274761; font: 800 .6rem/1.35 "Manrope", sans-serif; text-align: right; }
+.suri-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-top: .55rem; }
+.suri-stat-grid div { display: grid; align-content: center; min-height: 4.3rem; padding: .65rem; border: 1px solid #dbe6ee; border-radius: 11px; background: #f8fbfd; }
+.suri-stat-grid strong { color: #1c6da8; font: 900 1.15rem/1 "Hanken Grotesk", sans-serif; }
+.suri-stat-grid span { margin-top: .3rem; color: #687f91; font: 700 .55rem/1.3 "Manrope", sans-serif; }
+
+@keyframes suri-overview-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes suri-overview-overlay-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes suri-overview-modal-in { from { opacity: 0; transform: scale(.965) translateY(.4rem); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes suri-overview-modal-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(.975); } }
+
+@media (max-width: 760px) {
+  .suri-overview-overlay { padding: 1rem; }
+  .suri-overview-modal { width: 94vw; height: 90vh; max-height: 90vh; border-radius: 20px; }
+  .suri-overview-header { padding: 1rem 1.05rem; }
+  .suri-overview-heading h2 { font-size: 1.18rem; }
+  .suri-overview-heading p { font-size: .68rem; }
+  .suri-overview-castle { width: 2.65rem; height: 2.65rem; }
+  .suri-overview-columns { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; padding: 1.05rem; }
+  .suri-overview-account { padding: 1.35rem 0 0; border-top: 1px solid #dce7f0; border-left: 0; }
+}
+
+@media (max-width: 480px) {
+  .suri-overview-overlay { padding: .5rem; }
+  .suri-overview-modal { width: 95vw; border-radius: 18px; }
+  .suri-overview-header { gap: .6rem; }
+  .suri-overview-heading { gap: .62rem; }
+  .suri-overview-heading p { max-width: 13rem; }
+  .suri-progress-summary-top { align-items: flex-start; flex-direction: column; gap: .45rem; }
+  .suri-progress-summary-grid { grid-template-columns: 1fr; }
+  .suri-status-grid { grid-template-columns: 1fr; }
+  .suri-status-grid .suri-status-next { grid-column: auto; }
+  .suri-error-item-head { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suri-overview-overlay, .suri-overview-modal, .suri-overview-close { animation: none; transition: none; }
+}
+
 @media (max-width: 640px) {
   .dashboard-world-title { top: 6.3rem; }
   .dashboard-world-title p { max-width: 13rem; }
