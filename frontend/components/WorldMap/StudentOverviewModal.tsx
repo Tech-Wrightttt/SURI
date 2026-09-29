@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { BookOpenCheck, Castle, CircleUserRound, Clock3, Sparkles, Target, X } from "lucide-react";
+import { Activity, BookOpenCheck, CalendarDays, Castle, CheckCircle2, CircleUserRound, Clock3, GraduationCap, Sparkles, Target, X } from "lucide-react";
 import type { ActiveSessionProgress, MeResponse, MisconceptionHistoryItem } from "@/lib/api";
 
 type ProgressSummary = { mastered: number; total: number; pct: number };
@@ -43,6 +44,7 @@ function groupRecentErrors(errors: MisconceptionHistoryItem[]): GroupedError[] {
 
 export default function StudentOverviewModal({ me, active = [], completed = [], errors = [], progress, opener, onClose }: StudentOverviewModalProps) {
   const [closing, setClosing] = useState(false);
+  const [mobilePane, setMobilePane] = useState<"learning" | "account">("learning");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
@@ -56,11 +58,13 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.classList.add("suri-overview-open");
     const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus());
     return () => {
       window.cancelAnimationFrame(focusFrame);
       if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
       document.body.style.overflow = previousOverflow;
+      document.body.classList.remove("suri-overview-open");
       opener?.focus();
     };
   }, [opener]);
@@ -111,6 +115,7 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
   const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "S";
   const sessionCount = active.length + completed.length;
   const practiceMilestones = [...active, ...completed].reduce((sum, session) => sum + session.practice_count, 0);
+  const reviewCount = active.reduce((sum, session) => sum + session.unresolved_nodes.length, 0);
 
   return createPortal(
     <div className={`suri-overview-overlay ${closing ? "is-closing" : ""}`} onMouseDown={(event) => {
@@ -121,83 +126,91 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
           <div className="suri-overview-heading">
             <span className="suri-overview-castle" aria-hidden="true"><Castle size={25} strokeWidth={2.5} /></span>
             <div>
-              <h2 id="suri-overview-title">Your SURI Progress</h2>
-              <p id="suri-overview-subtitle">A quick overview of your learning journey</p>
+              <span className="suri-overview-eyebrow">SURI Keep · Student overview</span>
+              <h2 id="suri-overview-title">Your learning journey</h2>
+              <p id="suri-overview-subtitle">Progress, priorities, and account details in one place.</p>
             </div>
+          </div>
+          <div className="suri-overview-header-status" aria-label={`Learning status: ${learningStatus}`}>
+            <span className="suri-status-pulse" aria-hidden="true" />
+            <div><small>Learning status</small><strong>{learningStatus}</strong></div>
           </div>
           <button ref={closeButtonRef} type="button" className="suri-overview-close" onClick={requestClose} aria-label="Close progress overview"><X size={21} strokeWidth={2.5} /></button>
         </header>
 
         <div className="suri-overview-scroll">
+          <div className="suri-overview-mobile-tabs" role="tablist" aria-label="Progress overview sections">
+            <button id="suri-overview-learning-tab" type="button" role="tab" aria-selected={mobilePane === "learning"} aria-controls="suri-overview-learning-panel" className={mobilePane === "learning" ? "is-active" : ""} onClick={() => setMobilePane("learning")}><Target size={15} /> Learning</button>
+            <button id="suri-overview-account-tab" type="button" role="tab" aria-selected={mobilePane === "account"} aria-controls="suri-overview-account-panel" className={mobilePane === "account" ? "is-active" : ""} onClick={() => setMobilePane("account")}><CircleUserRound size={15} /> Account</button>
+          </div>
           <div className="suri-overview-columns">
-            <section className="suri-overview-learning" aria-labelledby="suri-learning-heading">
-              <h3 id="suri-learning-heading" className="suri-overview-section-title"><Target size={17} /> Learning Progress</h3>
-
+            <section id="suri-overview-learning-panel" className={`suri-overview-learning ${mobilePane === "learning" ? "is-mobile-active" : ""}`} role="tabpanel" aria-labelledby="suri-overview-learning-tab">
               <article className="suri-progress-summary">
                 <div className="suri-progress-summary-top">
-                  <div><span>Overall completion</span><strong>{progress.pct}%</strong></div>
-                  <span className="suri-progress-mastered"><Sparkles size={14} /> {progress.mastered} of {progress.total || 0} mastered</span>
+                  <div className="suri-progress-copy">
+                    <span className="suri-card-kicker"><Target size={14} /> Overall progress</span>
+                    <div><strong>{progress.pct}%</strong><span>complete</span></div>
+                    <p>{progress.mastered} of {progress.total || 0} competencies mastered across {sessionCount} {sessionCount === 1 ? "topic" : "topics"}.</p>
+                  </div>
+                  <div className="suri-progress-orbit" style={{ "--suri-progress": `${Math.min(100, Math.max(0, progress.pct)) * 3.6}deg` } as CSSProperties} aria-hidden="true">
+                    <span><Sparkles size={18} /><strong>{progress.mastered}</strong><small>mastered</small></span>
+                  </div>
                 </div>
                 <div className="suri-progress-track" role="progressbar" aria-label="Overall learning completion" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.pct}>
                   <span style={{ width: `${Math.min(100, Math.max(0, progress.pct))}%` }} />
                 </div>
-                <dl className="suri-progress-summary-grid">
-                  <div><dt>Current topic</dt><dd>{current?.topic_label || "No active topic"}</dd></div>
-                  <div><dt>Current competency</dt><dd>{current?.current_node_label || "Choose your next lesson"}</dd></div>
-                  <div><dt>Latest mastery score</dt><dd>{latestSession ? `${Math.round(Number(latestSession.completion_percentage) || 0)}%` : "Not available"}</dd></div>
-                </dl>
               </article>
 
+              <dl className="suri-progress-summary-grid" aria-label="Learning summary">
+                <div><dt><Activity size={13} /> Active topic</dt><dd>{current?.topic_label || "No active topic"}</dd></div>
+                <div><dt><GraduationCap size={13} /> Current competency</dt><dd>{current?.current_node_label || "Choose your next lesson"}</dd></div>
+                <div><dt><CheckCircle2 size={13} /> Latest score</dt><dd>{latestSession ? `${Math.round(Number(latestSession.completion_percentage) || 0)}% mastery` : "Not available"}</dd></div>
+              </dl>
+
               <section className="suri-current-status" aria-labelledby="suri-current-status-heading">
-                <div className="suri-overview-subheading"><div><span>Current Learning Status</span><h4 id="suri-current-status-heading">Where you are now</h4></div><span className={`suri-learning-status is-${learningStatus.toLowerCase().replaceAll(" ", "-")}`}>{learningStatus}</span></div>
-                <dl className="suri-status-grid">
-                  <div><dt>Topic</dt><dd>{current?.topic_label || "Not started"}</dd></div>
-                  <div><dt>Competency node</dt><dd>{current?.current_node_label || "None selected"}</dd></div>
-                  <div className="suri-status-next"><dt>Recommended next action</dt><dd><BookOpenCheck size={16} /> {nextAction}</dd></div>
-                </dl>
+                <div className="suri-overview-subheading"><div><span>Next best step</span><h3 id="suri-current-status-heading">Keep your momentum</h3></div></div>
+                <div className="suri-status-next"><span aria-hidden="true"><BookOpenCheck size={19} /></span><div><small>Recommended action</small><strong>{nextAction}</strong></div><span className={`suri-learning-status is-${learningStatus.toLowerCase().replaceAll(" ", "-")}`}>{learningStatus}</span></div>
               </section>
 
               <section className="suri-recent-errors" aria-labelledby="suri-recent-errors-heading">
-                <div className="suri-overview-subheading"><div><span>Recent Errors &amp; Misconception History</span><h4 id="suri-recent-errors-heading">Review queue</h4></div><small>{groupedErrors.length} recent</small></div>
+                <div className="suri-overview-subheading"><div><span>Learning insights</span><h3 id="suri-recent-errors-heading">Review queue</h3></div><small>{groupedErrors.length} recent</small></div>
                 {groupedErrors.length ? <ol className="suri-error-list">
                   {groupedErrors.map((item) => {
                     const status = masteredNodeIds.has(item.node_id) ? "Resolved" : unresolvedNodeIds.has(item.node_id) ? "Needs Review" : "Improving";
                     return <li key={`${item.node_id}:${item.step_description}`} className="suri-error-item">
                       <div className="suri-error-item-head"><div><span>{item.node_id}</span><h5>{item.node_label}</h5></div><span className={`suri-error-status is-${status.toLowerCase().replace(" ", "-")}`}>{status}</span></div>
                       <p>{item.step_description}</p>
-                      <div className="suri-error-meta"><span>Step: {item.step_description}</span>{item.count > 1 && <span>{item.count} occurrences</span>}<span><Clock3 size={13} /> {formatDate(item.logged_at, true)}</span></div>
+                      <div className="suri-error-meta">{item.count > 1 && <span>{item.count} occurrences</span>}<span><Clock3 size={13} /> {formatDate(item.logged_at, true)}</span></div>
                     </li>;
                   })}
                 </ol> : <div className="suri-overview-empty"><Sparkles size={20} /><div><strong>No recent misconceptions</strong><p>Your review queue is clear. Keep following your learning trail.</p></div></div>}
               </section>
             </section>
 
-            <aside className="suri-overview-account" aria-labelledby="suri-account-heading">
-              <h3 id="suri-account-heading" className="suri-overview-section-title"><CircleUserRound size={17} /> Student Account</h3>
+            <aside id="suri-overview-account-panel" className={`suri-overview-account ${mobilePane === "account" ? "is-mobile-active" : ""}`} role="tabpanel" aria-labelledby="suri-overview-account-tab">
               <div className="suri-profile-card">
                 <span className="suri-profile-avatar" aria-hidden="true">{initials}</span>
-                <div><strong>{displayName}</strong><span>{me?.grade_level ? `Grade ${me.grade_level}` : "Grade level not available"}</span></div>
+                <div><span className="suri-card-kicker"><CircleUserRound size={13} /> Student profile</span><strong id="suri-account-heading">{displayName}</strong><span>{me?.grade_level ? `Grade ${me.grade_level}` : "Grade level not available"}</span></div>
               </div>
 
-              <section className="suri-account-details" aria-labelledby="suri-account-details-heading">
-                <h4 id="suri-account-details-heading">Account Details</h4>
-                <dl>
-                  <div><dt>Name</dt><dd>{displayName}</dd></div>
-                  <div><dt>Grade level</dt><dd>{me?.grade_level ? `Grade ${me.grade_level}` : "Not available"}</dd></div>
-                  <div><dt>Account created</dt><dd>{formatDate(me?.created_at)}</dd></div>
-                  <div><dt>Last learning session</dt><dd>{formatDate(latestSession?.last_active_at, true)}</dd></div>
-                  <div><dt>Active topic</dt><dd>{current?.topic_label || "None right now"}</dd></div>
-                </dl>
-              </section>
-
               <section className="suri-learning-stats" aria-labelledby="suri-learning-stats-heading">
-                <h4 id="suri-learning-stats-heading">Learning Statistics</h4>
+                <div className="suri-overview-subheading"><div><span>At a glance</span><h3 id="suri-learning-stats-heading">Learning totals</h3></div></div>
                 <div className="suri-stat-grid">
                   <div><strong>{completed.length}</strong><span>Topics completed</span></div>
-                  <div><strong>{progress.mastered}</strong><span>Competencies mastered</span></div>
-                  <div><strong>{practiceMilestones}</strong><span>Practice milestones</span></div>
-                  <div><strong>{sessionCount}</strong><span>Total learning sessions</span></div>
+                  <div><strong>{progress.mastered}</strong><span>Skills mastered</span></div>
+                  <div><strong>{practiceMilestones}</strong><span>Practice runs</span></div>
+                  <div><strong>{reviewCount}</strong><span>Skills to review</span></div>
                 </div>
+              </section>
+
+              <section className="suri-account-details" aria-labelledby="suri-account-details-heading">
+                <div className="suri-overview-subheading"><div><span>Account</span><h3 id="suri-account-details-heading">Student details</h3></div></div>
+                <dl>
+                  <div><dt>Grade level</dt><dd>{me?.grade_level ? `Grade ${me.grade_level}` : "Not available"}</dd></div>
+                  <div><dt>Active topic</dt><dd>{current?.topic_label || "None right now"}</dd></div>
+                  <div><dt><Clock3 size={13} /> Last session</dt><dd>{formatDate(latestSession?.last_active_at, true)}</dd></div>
+                  <div><dt><CalendarDays size={13} /> Member since</dt><dd>{formatDate(me?.created_at)}</dd></div>
+                </dl>
               </section>
             </aside>
           </div>
