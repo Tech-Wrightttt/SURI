@@ -11,9 +11,9 @@ const noRaycast: THREE.Mesh["raycast"] = () => {};
 export type IslandFocus = keyof typeof ISLANDS;
 export type LandscapeFocus = { island: IslandFocus; bounds: ArchitectureClip };
 
-function makeTerrain(bounds:ArchitectureClip,coastDistance:(x:number,z:number)=>number) {
+function makeTerrain(bounds:ArchitectureClip,coastDistance:(x:number,z:number)=>number,detailScale:number) {
   const width=bounds.maxX-bounds.minX,depth=bounds.maxZ-bounds.minZ;
-  const xSegments=Math.max(8,Math.round(width/122*188)),zSegments=Math.max(8,Math.round(depth/98*152));
+  const xSegments=Math.max(8,Math.round(width/122*188*detailScale)),zSegments=Math.max(8,Math.round(depth/98*152*detailScale));
   const geometry=new THREE.PlaneGeometry(width,depth,xSegments,zSegments);geometry.rotateX(-Math.PI/2);geometry.translate((bounds.minX+bounds.maxX)/2,0,(bounds.minZ+bounds.maxZ)/2);
   const p=geometry.attributes.position,colors:number[]=[],color=new THREE.Color();
   for(let i=0;i<p.count;i++){
@@ -36,12 +36,12 @@ function ribbon(points:THREE.Vector3[],width:number | ((x:number,z:number)=>numb
   });
   const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(vertices,3));g.setIndex(indices);g.computeVertexNormals();return g;
 }
-export function Landscape({focus}:{focus?:LandscapeFocus}) {
+export function Landscape({focus,lowDetail=false}:{focus?:LandscapeFocus;lowDetail?:boolean}) {
   // The locked isometric view does not benefit from a dense terrain grid. This
   // retains the faceted fantasy silhouette while cutting terrain vertices by ~40%.
   const bounds=focus?.bounds ?? WORLD_BOUNDS;
   const coastDistance=useMemo(()=>focus ? (x:number,z:number)=>islandScore(x,z,ISLANDS[focus.island]) : shoreDistance,[focus]);
-  const terrain=useMemo(()=>makeTerrain(bounds,coastDistance),[bounds,coastDistance]);
+  const terrain=useMemo(()=>makeTerrain(bounds,coastDistance,lowDetail?0.58:1),[bounds,coastDistance,lowDetail]);
   const roads=useMemo(()=>{
     const harbor=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,[SITES.keep[0],SITES.keep[1]]);
     const harborRoad=harbor ? dockApproachPath(harbor,SITES.keep) : [];

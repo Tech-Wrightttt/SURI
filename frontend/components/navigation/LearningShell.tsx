@@ -5,13 +5,17 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLearningSnapshot, staleLearningData, subscribeLearningData } from "@/lib/learningData";
 import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
+import DashboardWorldBoundary from "@/components/WorldMap/DashboardWorldBoundary";
 
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
 const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
 const loadProgressWorld = () => import("@/components/WorldMap/ProgressTrailWorld");
 const loadCalculatorWorld = () => import("@/components/WorldMap/CalculatorTowerWorld");
 const loadTopicCarousel = () => import("@/components/TopicBookCarousel");
-const DashboardWorld = dynamic(loadWorld, { ssr: false });
+const DashboardWorld = dynamic(loadWorld, {
+  ssr: false,
+  loading: () => <div className="world-loading" role="status"><span className="world-loader" aria-hidden="true" /><span>Preparing your learning kingdom…</span></div>,
+});
 const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
 const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
@@ -39,6 +43,7 @@ const FOCUSED_ROUTES = {
 const TOPICS_WORLD_CROSSFADE_MS = 600;
 const TOPICS_CONTENT_EXIT_MS = 660;
 const routeModulePreloads = new Map<string, Promise<unknown>>();
+const routePrefetches = new Set<string>();
 const routeModuleLoaders: Partial<Record<string, () => Promise<unknown>>> = {
   "/dashboard": loadWorld,
   "/topics": () => Promise.all([loadTopicsWorld(), loadTopicCarousel()]),
@@ -60,10 +65,14 @@ function warmRouteModule(href: string) {
   return preload;
 }
 
-function canPreloadHeavySceneWork() {
+function canPrefetchOnIntent() {
   if (typeof navigator === "undefined") return false;
   const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   return !connection?.saveData && !connection?.effectiveType?.includes("2g");
+}
+
+function routeNeedsCurriculum(pathname: string) {
+  return pathname === "/topics" || pathname === "/progress";
 }
 
 const NavigationContext = createContext<{
@@ -120,13 +129,19 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   const revealTimers = useRef<Partial<Record<FocusedRouteKey, number>>>({});
 
   const preloadRoute = useCallback((href: string, includeScene = false) => {
-    router.prefetch(href);
+    if (!canPrefetchOnIntent()) return;
+    if (!routePrefetches.has(href)) {
+      routePrefetches.add(href);
+      router.prefetch(href);
+    }
     if (includeScene) void warmRouteModule(href).catch(() => {});
+    if (routeNeedsCurriculum(href)) void ensureLearningData({ curriculum: true }).catch(() => {});
   }, [router]);
 
   const setFocusedStage = useCallback((key: FocusedRouteKey, stage: FocusedTransition) => {
+    if (focusedTransitionsRef.current[key] === stage) return;
     focusedTransitionsRef.current = { ...focusedTransitionsRef.current, [key]: stage };
-    setFocusedTransitions(current => ({ ...current, [key]: stage }));
+    setFocusedTransitions(current => current[key] === stage ? current : { ...current, [key]: stage });
   }, []);
   const resetFocusedStages = useCallback(() => {
     const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", errors: "idle" };
@@ -168,9 +183,8 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!managed) return;
-    managedRoutes.forEach((href) => preloadRoute(href));
-    void ensureLearningData().catch(() => {});
-  }, [managed, pathname, preloadRoute]);
+    void ensureLearningData({ curriculum: routeNeedsCurriculum(pathname) }).catch(() => {});
+  }, [managed, pathname]);
 
   useEffect(() => {
     const focusedRoute = getFocusedRoute(pathname);
@@ -179,28 +193,22 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     // the pathname immediately, while this only records that it should stay
     // mounted after the user leaves it.
     const frame = window.requestAnimationFrame(() => {
-      if (overview) setDashboardWorldMounted(true);
-      if (focusedRoute) setFocusedWorldMounted(current => ({ ...current, [focusedRoute.key]: true }));
+      if (overview) {
+        setDashboardWorldMounted(true);
+        setFocusedWorldMounted(createWorldMap(pathname));
+      } else if (focusedRoute) {
+        setFocusedWorldMounted(createWorldMap(pathname));
+      }
     });
     return () => window.cancelAnimationFrame(frame);
   }, [overview, pathname]);
 
   useEffect(() => {
-    if (!managed) return;
-    // Route prefetching fetches code in most cases. This idle preload is a
-    // fallback that keeps Three.js from competing with the first paint.
-    if (!canPreloadHeavySceneWork()) return;
-    const preload = () => { ["/dashboard", "/topics", "/progress", "/calculator", "/error-history"].forEach(href => void warmRouteModule(href).catch(() => {})); };
-    const idle = window.requestIdleCallback?.(preload, { timeout: 2500 });
-    const timeout = idle === undefined ? window.setTimeout(preload, 1200) : undefined;
-    return () => {
-      if (idle !== undefined) window.cancelIdleCallback?.(idle);
-      if (timeout !== undefined) window.clearTimeout(timeout);
+    const refresh = () => {
+      if (managed && document.visibilityState === "visible") {
+        void ensureLearningData({ curriculum: routeNeedsCurriculum(pathname) }).catch(() => {});
+      }
     };
-  }, [managed]);
-
-  useEffect(() => {
-    const refresh = () => { if (managed && document.visibilityState === "visible") void ensureLearningData().catch(() => {}); };
     const change = (event: Event) => {
       if ((event as CustomEvent).detail === "auth") { clearSession(); return; }
       staleLearningData(); refresh();
@@ -208,11 +216,12 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     window.addEventListener("focus", refresh);
     window.addEventListener("suri:data-changed", change);
     return () => { window.removeEventListener("focus", refresh); window.removeEventListener("suri:data-changed", change); };
-  }, [managed, clearSession]);
+  }, [managed, pathname, clearSession]);
 
   useEffect(() => {
     if (dataError && "status" in dataError && dataError.status === 401 && managed) {
-      clearSession(); router.replace("/login");
+      const frame = window.requestAnimationFrame(() => { clearSession(); router.replace("/login"); });
+      return () => window.cancelAnimationFrame(frame);
     }
   }, [dataError, managed, clearSession, router]);
 
@@ -223,6 +232,8 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     transaction.current++;
     pendingRoute.current = null;
     if (pathname === "/login" || pathname === "/register" || pathname === "/") {
+      // Route state must be cleared before paint so a signed-out page never flashes the retained world.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       clearSession(); return;
     }
     const focusedRoute = getFocusedRoute(pathname);
@@ -293,8 +304,11 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     // Prefetching starts eagerly, but navigation is deliberately gated only by
     // the short camera motion. A slow data request must never turn an island
     // click into a blank or spinner-bound intermediate state.
-    if (managedRoutes.includes(href) && destinationFocusedRoute?.key !== "calculator" && !getLearningSnapshot().data) {
-      void ensureLearningData().catch(() => {});
+    if (managedRoutes.includes(href) && destinationFocusedRoute?.key !== "calculator") {
+      const snapshot = getLearningSnapshot().data;
+      if (!snapshot || (routeNeedsCurriculum(href) && !snapshot.curriculumReady)) {
+        void ensureLearningData({ curriculum: routeNeedsCurriculum(href) }).catch(() => {});
+      }
     }
     void Promise.all([camera, worldReady]).then(() => {
       if (token !== transaction.current) return;
@@ -318,8 +332,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     const dewdrops = mastered * 10 + completed.length * 50;
     const rank = dewdrops >= 1000 ? "Elder Canopy Sage" : dewdrops >= 600 ? "Wildwood Ranger" : dewdrops >= 300 ? "Dewdrop Pathfinder" : dewdrops >= 100 ? "Fern Scout" : "Sprout Explorer";
     return { mastered, total, pct, dewdrops, rank };
-  }, [data]);
+  }, [data?.progress]);
   const context = useMemo(() => ({ navigate, preloadRoute, busy, error: error ?? dataError?.message ?? null, clearSession }), [navigate, preloadRoute, busy, error, dataError, clearSession]);
+  const preloadDashboardRoute = useCallback((href: string) => preloadRoute(href, true), [preloadRoute]);
   const focusedTransition = FOCUSED_ROUTE_KEYS.map(key => focusedTransitions[key]).find(stage => stage !== "idle") ?? "idle";
   const dashboardLayerVisible = overview || ["entering", "revealing", "leaving", "zooming-out"].includes(focusedTransition);
   const dashboardActive = overview || ["entering", "leaving", "zooming-out"].includes(focusedTransition);
@@ -339,8 +354,10 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   return <NavigationContext.Provider value={context}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
-      <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={(href) => preloadRoute(href, true)} busy={busy}
-        me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} />
+      <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
+        <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}
+          me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} />
+      </DashboardWorldBoundary>
     </div>}
     {(focusedWorldMounted.topics || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${focusedTransitions.topics}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
       <TopicsLibraryWorld active={pathname === "/topics"} onReady={() => revealFocusedContent("topics")} />

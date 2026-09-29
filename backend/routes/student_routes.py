@@ -25,6 +25,31 @@ async def list_topics(student=Depends(get_current_student)):
     return topics
 
 
+@router.get("/topics/catalog")
+async def list_topic_catalog(student=Depends(get_current_student)):
+    """Return the static topic catalogue and all display chains in one request."""
+    topics = []
+    chains = {}
+
+    for node_id in ENTRY_NODES:
+        node = GRAPH[node_id]
+        topics.append({
+            "node_id": node_id,
+            "label": node["label"],
+            "grade": node["grade"],
+        })
+        chains[node_id] = [
+            {
+                "node_id": chain_node_id,
+                "node_label": GRAPH[chain_node_id]["label"],
+                "grade": GRAPH[chain_node_id]["grade"],
+            }
+            for chain_node_id in get_chain(node_id)
+        ]
+
+    return {"topics": topics, "chains": chains}
+
+
 @router.get("/topics/{node_id}/chain")
 async def get_topic_chain(node_id: str, student=Depends(get_current_student)):
     """Return prerequisite chain from entry node down to floor."""

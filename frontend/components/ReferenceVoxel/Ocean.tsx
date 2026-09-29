@@ -35,8 +35,8 @@ const FRAGMENT_SHADER = `
   }
 `;
 
-function makeOceanGeometry(coastDistance:(x:number,z:number)=>number) {
-  const geometry = new THREE.PlaneGeometry(220, 190, 168, 144);
+function makeOceanGeometry(coastDistance:(x:number,z:number)=>number, lowDetail: boolean) {
+  const geometry = new THREE.PlaneGeometry(220, 190, lowDetail ? 96 : 168, lowDetail ? 82 : 144);
   const positions = geometry.attributes.position;
   const shore = new Float32Array(positions.count);
   const exposure = new Float32Array(positions.count);
@@ -57,9 +57,9 @@ function makeOceanGeometry(coastDistance:(x:number,z:number)=>number) {
 }
 
 /** A static, opaque ocean; all generated GPU resources dispose on unmount. */
-export function Ocean({island}:{island?:keyof typeof ISLANDS}) {
+export function Ocean({island,lowDetail=false}:{island?:keyof typeof ISLANDS;lowDetail?:boolean}) {
   const coastDistance=useMemo(() => island ? (x:number,z:number)=>islandScore(x,z,ISLANDS[island]) : shoreDistance,[island]);
-  const geometry = useMemo(() => makeOceanGeometry(coastDistance), [coastDistance]);
+  const geometry = useMemo(() => makeOceanGeometry(coastDistance, lowDetail), [coastDistance, lowDetail]);
   const material = useMemo(() => new THREE.ShaderMaterial({ vertexShader: VERTEX_SHADER, fragmentShader: FRAGMENT_SHADER }), []);
   useEffect(() => () => { geometry.dispose(); material.dispose(); }, [geometry, material]);
   return <mesh geometry={geometry} material={material} position={[0, -0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow frustumCulled />;

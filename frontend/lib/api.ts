@@ -9,11 +9,11 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // ─── Error type ──────────────────────────────────────
 
-export class ApiError extends Error {
+export class ApiError<T = unknown> extends Error {
   status: number;
-  detail: any;
+  detail: T;
 
-  constructor(status: number, detail: any) {
+  constructor(status: number, detail: T) {
     super(typeof detail === "string" ? detail : "API Error");
     this.name = "ApiError";
     this.status = status;
@@ -28,15 +28,28 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    credentials: "include",
-    signal: options.signal ?? (options.method && options.method !== "GET" ? undefined : AbortSignal.timeout(15000)),
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+  const isRead = !options.method || options.method === "GET";
+  const timeoutController = !options.signal && isRead && typeof AbortController !== "undefined"
+    ? new AbortController()
+    : null;
+  const timeout = timeoutController
+    ? globalThis.setTimeout(() => timeoutController.abort(), 15_000)
+    : null;
+  let res: Response;
+
+  try {
+    res = await fetch(url, {
+      ...options,
+      credentials: "include",
+      signal: options.signal ?? timeoutController?.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
+  } finally {
+    if (timeout !== null) globalThis.clearTimeout(timeout);
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));
@@ -61,6 +74,17 @@ export interface TopicInfo {
   node_id: string;
   label: string;
   grade: number;
+}
+
+export interface TopicChainNode {
+  node_id: string;
+  node_label: string;
+  grade: number;
+}
+
+export interface TopicCatalog {
+  topics: TopicInfo[];
+  chains: Record<string, TopicChainNode[]>;
 }
 
 export interface TopicIntro {
@@ -302,6 +326,10 @@ export function logout(): Promise<{ message: string }> {
 
 export function getTopics(): Promise<TopicInfo[]> {
   return request<TopicInfo[]>("/api/topics");
+}
+
+export function getTopicCatalog(): Promise<TopicCatalog> {
+  return request<TopicCatalog>("/api/topics/catalog");
 }
 
 export function getTopicIntro(nodeId: string): Promise<TopicIntro> {

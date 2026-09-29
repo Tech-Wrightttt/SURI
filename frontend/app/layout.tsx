@@ -19,8 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* This single shared stylesheet is intentionally defined at the root app layout. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-[#f7f9fb] text-[#191c1e] min-h-screen font-['Manrope']">
         <LearningShell>{children}</LearningShell>

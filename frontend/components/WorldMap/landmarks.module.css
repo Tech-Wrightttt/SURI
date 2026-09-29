@@ -38,7 +38,7 @@
 }
 
 /* Anchor the pointer tip to the landmark. As content grows, the card grows up. */
-.anchor { --label-offset-x: 0px; --label-offset-y: 0px; position: relative; z-index: 1; transform: translate(calc(-50% + var(--label-offset-x)), calc(-100% - .56rem + var(--label-offset-y))); }
+.anchor { --label-x: 0px; --label-y: 0px; --label-offset-x: 0px; --label-offset-y: 0px; position: relative; z-index: 1; contain: layout paint style; transform: translate3d(calc(var(--label-x) - 50% + var(--label-offset-x)), calc(var(--label-y) - 100% - .56rem + var(--label-offset-y)), 0); }
 .marker { position: relative; z-index: 1; pointer-events: auto; }
 .marker::before, .marker::after { content: ""; position: absolute; left: 50%; width: 0; height: 0; transform: translateX(-50%); }
 .marker::before { z-index: -1; bottom: -11px; border-right: 10px solid transparent; border-left: 10px solid transparent; border-top: 11px solid #5e3619; }
@@ -54,6 +54,7 @@
 .labelLayer { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .labelLayer .anchor { position: absolute; pointer-events: none; }
 .labelLayer .marker { pointer-events: auto; }
+:global(.is-low-power) .marker { transition: none; }
 @media (max-width: 600px) {
   .marker { padding: .5rem .75rem; font-size: 8px; }
 }

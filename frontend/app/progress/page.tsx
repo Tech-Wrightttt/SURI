@@ -53,7 +53,7 @@ export default function ProgressPage() {
   const activeSessions = data?.progress.active_sessions ?? EMPTY_SESSIONS;
   const topicChains = data?.chains ?? EMPTY_CHAINS;
   const nodeStatuses = data?.statuses ?? EMPTY_NODE_STATUSES;
-  const loading = !data && !loadError;
+  const loading = !data?.curriculumReady && !loadError;
   const error = actionError ?? loadError?.message ?? null;
 
   const summary = useMemo(() => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useCallback, useMemo, useState } from "react";
 import MainPage from "@/components/mainpage";
 import TopicBookCarousel, { type CarouselBook } from "@/components/TopicBookCarousel";
@@ -15,7 +16,7 @@ export default function TopicsPage() {
   const completedTopics = useMemo(() => new Set((data?.progress.completed_sessions ?? []).map(session => session.topic_entry_node)), [data]);
   const nodeStatuses = useMemo(() => data?.statuses ?? {}, [data]);
   const topicChains = useMemo(() => data?.chains ?? {}, [data]);
-  const loading = !data && !loadError;
+  const loading = !data?.curriculumReady && !loadError;
   const error = loadError?.message ?? null;
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
@@ -84,7 +85,7 @@ export default function TopicsPage() {
         </div>
       </header>
 
-      {error && <div className="topics-library-error" role="alert"><img src="/suri-snake-sad.png" alt="Sad Suri" /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
+      {error && <div className="topics-library-error" role="alert"><Image src="/suri-snake-sad.png" alt="Sad Suri" width={42} height={42} /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
 
       <section className="topics-carousel-experience" aria-label="Topic volume carousel">
         {loading ? <div className="topics-library-loading"><i /><p>Consulting the academy catalogue…</p></div> : selectedBook && <>

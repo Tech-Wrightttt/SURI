@@ -20,13 +20,14 @@ type StudentOverviewModalProps = {
 
 type GroupedError = MisconceptionHistoryItem & { count: number };
 
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+
 const formatDate = (value?: string, includeTime = false) => {
   if (!value) return "Not available";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Not available";
-  return new Intl.DateTimeFormat("en-US", includeTime
-    ? { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }
-    : { month: "short", day: "numeric", year: "numeric" }).format(date);
+  return (includeTime ? DATE_TIME_FORMATTER : DATE_FORMATTER).format(date);
 };
 
 function groupRecentErrors(errors: MisconceptionHistoryItem[]): GroupedError[] {
@@ -98,12 +99,14 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
   }, [requestClose]);
 
   const current = active[0];
-  const latestSession = [...active, ...completed].sort((a, b) =>
-    new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime())[0];
+  const sessions = useMemo(() => [...active, ...completed], [active, completed]);
+  const latestSession = useMemo(() => sessions.reduce<ActiveSessionProgress | undefined>((latest, session) =>
+    !latest || new Date(session.last_active_at).getTime() > new Date(latest.last_active_at).getTime() ? session : latest
+  , undefined), [sessions]);
   const groupedErrors = useMemo(() => groupRecentErrors(errors), [errors]);
   const masteredNodeIds = useMemo(() => new Set(
-    [...active, ...completed].flatMap((session) => session.mastered_nodes.map((node) => node.node_id)),
-  ), [active, completed]);
+    sessions.flatMap((session) => session.mastered_nodes.map((node) => node.node_id)),
+  ), [sessions]);
   const unresolvedNodeIds = useMemo(() => new Set(
     active.flatMap((session) => session.unresolved_nodes.map((node) => node.node_id)),
   ), [active]);
@@ -113,8 +116,8 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
     : current ? `Continue ${current.current_node_label}` : "Choose a topic from the Learning Grove";
   const displayName = me?.name || "Student";
   const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "S";
-  const sessionCount = active.length + completed.length;
-  const practiceMilestones = [...active, ...completed].reduce((sum, session) => sum + session.practice_count, 0);
+  const sessionCount = sessions.length;
+  const practiceMilestones = useMemo(() => sessions.reduce((sum, session) => sum + session.practice_count, 0), [sessions]);
   const reviewCount = active.reduce((sum, session) => sum + session.unresolved_nodes.length, 0);
 
   return createPortal(
