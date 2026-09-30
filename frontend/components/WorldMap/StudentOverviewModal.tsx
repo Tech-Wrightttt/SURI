@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Activity, BookOpenCheck, CalendarDays, Castle, CheckCircle2, CircleUserRound, Clock3, GraduationCap, Sparkles, Target, X } from "lucide-react";
+import { Activity, BookOpenCheck, Castle, CircleUserRound, Clock3, GraduationCap, Sparkles, Target, X } from "lucide-react";
 import type { ActiveSessionProgress, MeResponse, MisconceptionHistoryItem } from "@/lib/api";
 
 type ProgressSummary = { mastered: number; total: number; pct: number };
@@ -40,7 +39,7 @@ function groupRecentErrors(errors: MisconceptionHistoryItem[]): GroupedError[] {
   }
   return [...grouped.values()]
     .sort((a, b) => new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime())
-    .slice(0, 6);
+    .slice(0, 5);
 }
 
 export default function StudentOverviewModal({ me, active = [], completed = [], errors = [], progress, opener, onClose }: StudentOverviewModalProps) {
@@ -117,8 +116,10 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
   const displayName = me?.name || "Student";
   const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "S";
   const sessionCount = sessions.length;
-  const practiceMilestones = useMemo(() => sessions.reduce((sum, session) => sum + session.practice_count, 0), [sessions]);
   const reviewCount = active.reduce((sum, session) => sum + session.unresolved_nodes.length, 0);
+  const recentActiveTopics = useMemo(() => [...active]
+    .sort((a, b) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime())
+    .slice(0, 3), [active]);
 
   return createPortal(
     <div className={`suri-overview-overlay ${closing ? "is-closing" : ""}`} onMouseDown={(event) => {
@@ -134,10 +135,6 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
               <p id="suri-overview-subtitle">Progress, priorities, and account details in one place.</p>
             </div>
           </div>
-          <div className="suri-overview-header-status" aria-label={`Learning status: ${learningStatus}`}>
-            <span className="suri-status-pulse" aria-hidden="true" />
-            <div><small>Learning status</small><strong>{learningStatus}</strong></div>
-          </div>
           <button ref={closeButtonRef} type="button" className="suri-overview-close" onClick={requestClose} aria-label="Close progress overview"><X size={21} strokeWidth={2.5} /></button>
         </header>
 
@@ -151,29 +148,27 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
               <article className="suri-progress-summary">
                 <div className="suri-progress-summary-top">
                   <div className="suri-progress-copy">
-                    <span className="suri-card-kicker"><Target size={14} /> Overall progress</span>
+                    <span className="suri-card-kicker"><Target size={14} /> Progress overview</span>
                     <div><strong>{progress.pct}%</strong><span>complete</span></div>
                     <p>{progress.mastered} of {progress.total || 0} competencies mastered across {sessionCount} {sessionCount === 1 ? "topic" : "topics"}.</p>
-                  </div>
-                  <div className="suri-progress-orbit" style={{ "--suri-progress": `${Math.min(100, Math.max(0, progress.pct)) * 3.6}deg` } as CSSProperties} aria-hidden="true">
-                    <span><Sparkles size={18} /><strong>{progress.mastered}</strong><small>mastered</small></span>
                   </div>
                 </div>
                 <div className="suri-progress-track" role="progressbar" aria-label="Overall learning completion" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.pct}>
                   <span style={{ width: `${Math.min(100, Math.max(0, progress.pct))}%` }} />
                 </div>
+
+                <div className="suri-progress-focus-grid">
+                  <div className="suri-progress-focus-item">
+                    <span aria-hidden="true"><GraduationCap size={18} /></span>
+                    <div><small>Current competency</small><strong>{current?.current_node_label || "Choose your next lesson"}</strong></div>
+                  </div>
+                  <div className="suri-progress-focus-item">
+                    <span aria-hidden="true"><BookOpenCheck size={18} /></span>
+                    <div><small>Recommended action</small><strong>{nextAction}</strong></div>
+                    <span className={`suri-learning-status is-${learningStatus.toLowerCase().replaceAll(" ", "-")}`}>{learningStatus}</span>
+                  </div>
+                </div>
               </article>
-
-              <dl className="suri-progress-summary-grid" aria-label="Learning summary">
-                <div><dt><Activity size={13} /> Active topic</dt><dd>{current?.topic_label || "No active topic"}</dd></div>
-                <div><dt><GraduationCap size={13} /> Current competency</dt><dd>{current?.current_node_label || "Choose your next lesson"}</dd></div>
-                <div><dt><CheckCircle2 size={13} /> Latest score</dt><dd>{latestSession ? `${Math.round(Number(latestSession.completion_percentage) || 0)}% mastery` : "Not available"}</dd></div>
-              </dl>
-
-              <section className="suri-current-status" aria-labelledby="suri-current-status-heading">
-                <div className="suri-overview-subheading"><div><span>Next best step</span><h3 id="suri-current-status-heading">Keep your momentum</h3></div></div>
-                <div className="suri-status-next"><span aria-hidden="true"><BookOpenCheck size={19} /></span><div><small>Recommended action</small><strong>{nextAction}</strong></div><span className={`suri-learning-status is-${learningStatus.toLowerCase().replaceAll(" ", "-")}`}>{learningStatus}</span></div>
-              </section>
 
               <section className="suri-recent-errors" aria-labelledby="suri-recent-errors-heading">
                 <div className="suri-overview-subheading"><div><span>Learning insights</span><h3 id="suri-recent-errors-heading">Review queue</h3></div><small>{groupedErrors.length} recent</small></div>
@@ -193,27 +188,28 @@ export default function StudentOverviewModal({ me, active = [], completed = [], 
             <aside id="suri-overview-account-panel" className={`suri-overview-account ${mobilePane === "account" ? "is-mobile-active" : ""}`} role="tabpanel" aria-labelledby="suri-overview-account-tab">
               <div className="suri-profile-card">
                 <span className="suri-profile-avatar" aria-hidden="true">{initials}</span>
-                <div><span className="suri-card-kicker"><CircleUserRound size={13} /> Student profile</span><strong id="suri-account-heading">{displayName}</strong><span>{me?.grade_level ? `Grade ${me.grade_level}` : "Grade level not available"}</span></div>
+                <div><span className="suri-card-kicker"><CircleUserRound size={13} /> Student profile</span><strong id="suri-account-heading">{displayName}</strong><span>{me?.grade_level ? `Grade ${me.grade_level}` : "Grade level not available"}</span><small><Clock3 size={13} /> Last session {formatDate(latestSession?.last_active_at, true)}</small></div>
               </div>
 
               <section className="suri-learning-stats" aria-labelledby="suri-learning-stats-heading">
                 <div className="suri-overview-subheading"><div><span>At a glance</span><h3 id="suri-learning-stats-heading">Learning totals</h3></div></div>
                 <div className="suri-stat-grid">
                   <div><strong>{completed.length}</strong><span>Topics completed</span></div>
-                  <div><strong>{progress.mastered}</strong><span>Skills mastered</span></div>
-                  <div><strong>{practiceMilestones}</strong><span>Practice runs</span></div>
                   <div><strong>{reviewCount}</strong><span>Skills to review</span></div>
                 </div>
               </section>
 
-              <section className="suri-account-details" aria-labelledby="suri-account-details-heading">
-                <div className="suri-overview-subheading"><div><span>Account</span><h3 id="suri-account-details-heading">Student details</h3></div></div>
-                <dl>
-                  <div><dt>Grade level</dt><dd>{me?.grade_level ? `Grade ${me.grade_level}` : "Not available"}</dd></div>
-                  <div><dt>Active topic</dt><dd>{current?.topic_label || "None right now"}</dd></div>
-                  <div><dt><Clock3 size={13} /> Last session</dt><dd>{formatDate(latestSession?.last_active_at, true)}</dd></div>
-                  <div><dt><CalendarDays size={13} /> Member since</dt><dd>{formatDate(me?.created_at)}</dd></div>
-                </dl>
+              <section className="suri-active-topics" aria-labelledby="suri-active-topics-heading">
+                <div className="suri-overview-subheading"><div><span>In progress</span><h3 id="suri-active-topics-heading">Active topics</h3></div><small>{recentActiveTopics.length} recent</small></div>
+                {recentActiveTopics.length ? <div className="suri-active-topic-list">
+                  {recentActiveTopics.map((session) => {
+                    const topicPct = Math.min(100, Math.max(0, Math.round(Number(session.completion_percentage) || 0)));
+                    return <div className="suri-active-topic-item" key={session.id}>
+                      <div className="suri-topic-progress-label"><strong>{session.topic_label}</strong><b>{topicPct}%</b></div>
+                      <div className="suri-topic-track" role="progressbar" aria-label={`${session.topic_label} completion`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={topicPct}><span style={{ width: `${topicPct}%` }} /></div>
+                    </div>;
+                  })}
+                </div> : <div className="suri-active-topics-empty"><Activity size={17} /><span>No active topics right now.</span></div>}
               </section>
             </aside>
           </div>

@@ -478,11 +478,6 @@ html::-webkit-scrollbar {
 .suri-overview-eyebrow { display: block; margin-bottom: .16rem; color: #1d528d; font: 900 .68rem/1.2 "Nunito", sans-serif; letter-spacing: .13em; text-transform: uppercase; }
 .suri-overview-heading h2 { margin: 0; color: #3a2111; font: 900 clamp(1.55rem, 2.3vw, 1.9rem)/1 "Bree Serif", Georgia, serif; letter-spacing: -.025em; }
 .suri-overview-heading p { margin: .28rem 0 0; color: #34507c; font: 900 .8rem/1.35 "Nunito", sans-serif; }
-.suri-overview-header-status { display: flex; align-items: center; gap: .55rem; min-width: 9.5rem; padding: .5rem .65rem; border: 3px solid #6d411c; border-radius: 7px; background: rgba(255,250,229,.72); box-shadow: inset 0 1px 0 rgba(255,255,255,.56); }
-.suri-overview-header-status div { display: grid; gap: .1rem; }
-.suri-overview-header-status small { color: #1d528d; font: 900 .6rem/1.1 "Nunito", sans-serif; text-transform: uppercase; letter-spacing: .08em; }
-.suri-overview-header-status strong { color: #3a2111; font: 900 .75rem/1.2 "Nunito", sans-serif; }
-.suri-status-pulse { width: .5rem; height: .5rem; border: 2px solid #2d754b; border-radius: 50%; background: #6fca8a; box-shadow: 0 2px 0 rgba(23,76,45,.45); }
 .suri-overview-close {
   display: grid;
   flex: 0 0 auto;
@@ -503,69 +498,67 @@ html::-webkit-scrollbar {
 .suri-overview-close:focus-visible { outline: 3px solid #2c80d0; outline-offset: 3px; }
 .suri-overview-scroll { display: grid; min-height: 0; overflow: hidden; }
 .suri-overview-mobile-tabs { display: none; }
-.suri-overview-columns { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(285px, .85fr); gap: .85rem; min-height: 0; padding: .75rem 1rem 1rem; }
-.suri-overview-learning, .suri-overview-account { min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: rgba(139,202,244,.4) transparent; scrollbar-width: thin; }
-.suri-overview-learning { padding-right: .28rem; }
-.suri-overview-account { padding-left: .85rem; border-left: 2px solid rgba(255,226,136,.3); }
+.suri-overview-columns { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(270px, .72fr); gap: 1.15rem; min-height: 0; padding: 1rem 1.2rem 1.2rem; }
+.suri-overview-learning, .suri-overview-account { min-width: 0; min-height: 0; overflow: hidden; overscroll-behavior: contain; }
+.suri-overview-learning { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 1.15rem; padding-right: .4rem; }
+.suri-overview-account { padding-left: 1.15rem; border-left: 2px solid rgba(255,226,136,.3); }
 .suri-card-kicker { display: inline-flex; align-items: center; gap: .35rem; color: #1d528d; font: 900 .66rem/1.2 "Nunito", sans-serif; letter-spacing: .09em; text-transform: uppercase; }
-.suri-progress-summary { padding: .85rem .95rem .8rem; border: 3px solid #9c672b; border-radius: 0; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: inset 0 0 0 2px rgba(89,48,18,.14), 3px 3px 0 #160b07; }
-.suri-progress-summary-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.suri-progress-summary { padding: 1.05rem 1.1rem 1.1rem; border: 3px solid #9c672b; border-radius: 0; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: inset 0 0 0 2px rgba(89,48,18,.14), 3px 3px 0 #160b07; }
+.suri-progress-summary-top { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; }
 .suri-progress-copy { min-width: 0; }
 .suri-progress-copy > div { display: flex; align-items: baseline; gap: .38rem; margin-top: .28rem; }
 .suri-progress-copy > div strong { color: #3a2111; font: 900 2rem/1 "Bree Serif", Georgia, serif; letter-spacing: -.035em; }
 .suri-progress-copy > div span { color: #34507c; font: 900 .76rem/1 "Nunito", sans-serif; }
-.suri-progress-copy p { max-width: 31rem; margin: .35rem 0 0; color: #5f4b2e; font: 800 .76rem/1.45 "Nunito", sans-serif; }
-.suri-progress-orbit { display: grid; flex: 0 0 auto; place-items: center; width: 5.1rem; height: 5.1rem; padding: 5px; border: 3px solid #6d411c; border-radius: 50%; background: conic-gradient(#347ac2 var(--suri-progress), #d4b56e 0); box-shadow: 0 4px 0 rgba(72,34,16,.55); }
-.suri-progress-orbit > span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; color: #c4882e; background: radial-gradient(circle at 35% 24%, #fff1ad, #d69a32 59%, #7b491d); }
-.suri-progress-orbit strong { margin-top: .1rem; color: #321008; font: 900 1.05rem/1 "Bree Serif", Georgia, serif; }
-.suri-progress-orbit small { color: #583315; font: 900 .55rem/1 "Nunito", sans-serif; text-transform: uppercase; }
-.suri-progress-track { height: .58rem; margin-top: .7rem; overflow: hidden; border: 2px solid #071a35; border-radius: 0; background: rgba(3,14,31,.72); box-shadow: inset 0 1px 2px rgba(0,0,0,.52); }
+.suri-progress-copy p { max-width: 31rem; margin: .45rem 0 0; color: #5f4b2e; font: 800 .76rem/1.55 "Nunito", sans-serif; }
+.suri-progress-track { height: .58rem; margin-top: .9rem; overflow: hidden; border: 2px solid #071a35; border-radius: 0; background: rgba(3,14,31,.72); box-shadow: inset 0 1px 2px rgba(0,0,0,.52); }
 .suri-progress-track span { display: block; height: 100%; border-radius: 0; background: linear-gradient(180deg, #7ec3ff, #347ac2 55%, #194578); box-shadow: 0 0 12px rgba(111,188,255,.38); }
-.suri-progress-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .58rem; margin: .58rem 0 0; }
-.suri-progress-summary-grid div { min-width: 0; padding: .62rem .68rem; border: 3px solid #9c672b; border-radius: 0; color: #2b170d; background: #fffdf6; box-shadow: 2px 2px 0 #160b07; }
-.suri-progress-summary-grid dt { display: flex; align-items: center; gap: .32rem; color: #1d528d; font: 900 .62rem/1.2 "Nunito", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
-.suri-progress-summary-grid dd { margin: .3rem 0 0; overflow: hidden; color: #3a2111; font: 900 .76rem/1.35 "Nunito", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
-.suri-current-status, .suri-recent-errors, .suri-account-details, .suri-learning-stats { margin-top: .72rem; }
+.suri-progress-focus-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: .75rem; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid rgba(89,48,18,.2); }
+.suri-progress-focus-item { display: flex; align-items: center; gap: .65rem; min-width: 0; padding: .72rem .78rem; border: 2px solid rgba(109,65,28,.65); color: #2b170d; background: rgba(255,253,246,.78); box-shadow: 2px 2px 0 rgba(75,36,17,.68); }
+.suri-progress-focus-item > span:first-child { display: grid; flex: 0 0 auto; place-items: center; width: 2rem; height: 2rem; border: 2px solid #8f5f1f; border-radius: 50%; color: #2a160d; background: linear-gradient(180deg, #ffe79b, #d99c3a); }
+.suri-progress-focus-item > div { display: grid; flex: 1 1 auto; gap: .22rem; min-width: 0; }
+.suri-progress-focus-item small { color: #1d528d; font: 900 .61rem/1.1 "Nunito", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+.suri-progress-focus-item strong { overflow: hidden; color: #3a2111; font: 900 .75rem/1.35 "Nunito", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.suri-topic-progress-label { display: flex; align-items: end; justify-content: space-between; gap: .6rem; }
+.suri-topic-progress-label strong { display: block; margin-top: .25rem; overflow: hidden; color: #3a2111; font: 900 .75rem/1.25 "Nunito", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.suri-topic-progress-label b { color: #1d528d; font: 900 .75rem/1 "Bree Serif", Georgia, serif; }
+.suri-topic-track { height: .42rem; margin-top: .58rem; overflow: hidden; border: 1px solid #173a66; background: #d1dceb; }
+.suri-topic-track span { display: block; height: 100%; background: linear-gradient(180deg, #7ec3ff, #347ac2 60%, #194578); }
+.suri-recent-errors { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+.suri-learning-stats, .suri-active-topics { margin-top: 1.15rem; }
 .suri-overview-subheading { display: flex; align-items: end; justify-content: space-between; gap: .75rem; margin-bottom: .65rem; }
 .suri-overview-subheading > div > span { display: block; color: #bcdfff; font: 900 .62rem/1 "Nunito", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
 .suri-overview-subheading h3 { margin: .22rem 0 0; color: #fffdf6; font: 900 1.1rem/1.15 "Bree Serif", Georgia, serif; letter-spacing: -.01em; }
 .suri-overview-subheading small { color: #ffe8a2; font: 900 .66rem/1 "Nunito", sans-serif; white-space: nowrap; }
-.suri-status-next { display: flex; align-items: center; gap: .65rem; padding: .68rem .75rem; border: 3px solid #c4882e; border-radius: 0; color: #2b170d; background: #fff8de; box-shadow: inset 0 0 0 2px rgba(89,48,18,.08), 3px 3px 0 #160b07; }
-.suri-status-next > span:first-child { display: grid; flex: 0 0 auto; place-items: center; width: 2.1rem; height: 2.1rem; border: 2px solid #8f5f1f; border-radius: 50%; color: #2a160d; background: linear-gradient(180deg, #ffe79b, #d99c3a); }
-.suri-status-next > div { display: grid; flex: 1 1 auto; gap: .16rem; min-width: 0; }
-.suri-status-next small { color: #7a571d; font: 900 .62rem/1.1 "Nunito", sans-serif; text-transform: uppercase; letter-spacing: .06em; }
-.suri-status-next strong { overflow: hidden; color: #3a2111; font: 900 .78rem/1.35 "Nunito", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .suri-learning-status, .suri-error-status { display: inline-flex; align-items: center; min-height: 1.55rem; padding: .3rem .52rem; border: 1px solid currentColor; border-radius: 99px; font: 900 .6rem/1 "Nunito", sans-serif; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 .suri-learning-status.is-in-progress, .suri-error-status.is-improving { color: #1766a2; background: #e3f3ff; }
 .suri-learning-status.is-remediation, .suri-error-status.is-needs-review { color: #9b3e35; background: #fff0ec; }
 .suri-learning-status.is-advance, .suri-error-status.is-resolved { color: #277448; background: #e9f7ee; }
 .suri-learning-status.is-ready-to-begin { color: #6d5a24; background: #fff7d9; }
-.suri-error-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: 0; padding: 0; list-style: none; }
-.suri-error-item { min-width: 0; padding: .68rem .72rem; border: 3px solid #bd6c65; border-radius: 0; color: #2b170d; background: #fffdf6; box-shadow: inset 0 0 0 2px rgba(137,43,37,.08), 3px 3px 0 #160b07; }
+.suri-error-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: .65rem; min-height: 0; margin: 0; padding: 0; list-style: none; }
+.suri-error-item { min-width: 0; overflow: hidden; padding: .82rem .85rem; border: 3px solid #bd6c65; border-radius: 0; color: #2b170d; background: #fffdf6; box-shadow: inset 0 0 0 2px rgba(137,43,37,.08), 3px 3px 0 #160b07; }
 .suri-error-item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .65rem; }
 .suri-error-item-head > div { min-width: 0; }
 .suri-error-item-head > div > span { display: block; color: #1d528d; font: 900 .6rem/1 "Nunito", sans-serif; letter-spacing: .07em; }
 .suri-error-item h5 { margin: .18rem 0 0; overflow: hidden; color: #3a2111; font: 900 .88rem/1.25 "Bree Serif", Georgia, serif; text-overflow: ellipsis; white-space: nowrap; }
-.suri-error-item > p { display: -webkit-box; margin: .4rem 0 0; overflow: hidden; color: #5f4b2e; font: 800 .72rem/1.45 "Nunito", sans-serif; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.suri-error-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .65rem; margin-top: .45rem; color: #6c5b42; font: 800 .61rem/1.3 "Nunito", sans-serif; }
+.suri-error-item > p { display: -webkit-box; margin: .5rem 0 0; overflow: hidden; color: #5f4b2e; font: 800 .72rem/1.5 "Nunito", sans-serif; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.suri-error-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .75rem; margin-top: .58rem; color: #6c5b42; font: 800 .61rem/1.3 "Nunito", sans-serif; }
 .suri-error-meta span { display: inline-flex; align-items: center; gap: .25rem; }
 .suri-overview-empty { display: flex; align-items: center; gap: .65rem; padding: .7rem; border: 3px solid #4e9d69; border-radius: 0; color: #27603f; background: #f0fae9; box-shadow: inset 0 0 0 2px rgba(37,98,63,.1), 3px 3px 0 #160b07; }
 .suri-overview-empty strong { font: 900 .82rem/1.2 "Bree Serif", Georgia, serif; }
 .suri-overview-empty p { margin: .2rem 0 0; color: #426653; font: 800 .7rem/1.4 "Nunito", sans-serif; }
-.suri-profile-card { display: flex; align-items: center; gap: .72rem; padding: .75rem; border: 3px solid #9c672b; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 28%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: inset 0 0 0 2px rgba(89,48,18,.14), 3px 3px 0 #160b07; }
+.suri-profile-card { display: flex; align-items: center; gap: .85rem; padding: 1rem; border: 3px solid #9c672b; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 28%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: inset 0 0 0 2px rgba(89,48,18,.14), 3px 3px 0 #160b07; }
 .suri-profile-avatar { display: grid; flex: 0 0 auto; place-items: center; width: 3.15rem; height: 3.15rem; border: 3px solid #6d411c; border-radius: 50%; color: #fffaf6; background: linear-gradient(180deg, #4c9fe6, #1e5fa6); box-shadow: 0 4px 0 #09244b; font: 900 .98rem/1 "Bree Serif", Georgia, serif; }
-.suri-profile-card div { display: grid; gap: .22rem; min-width: 0; }
+.suri-profile-card div { display: grid; gap: .25rem; min-width: 0; }
 .suri-profile-card strong { overflow: hidden; color: #3a2111; font: 900 1.1rem/1.2 "Bree Serif", Georgia, serif; text-overflow: ellipsis; white-space: nowrap; }
-.suri-profile-card div > span:last-child { color: #34507c; font: 900 .72rem/1.3 "Nunito", sans-serif; }
-.suri-account-details dl { margin: 0; padding: .2rem .68rem; border: 3px solid #9c672b; border-radius: 0; color: #2b170d; background: #fffdf6; box-shadow: 3px 3px 0 #160b07; }
-.suri-account-details dl div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .55rem; padding: .55rem 0; border-bottom: 2px solid rgba(89,48,18,.16); }
-.suri-account-details dl div:last-child { border-bottom: 0; }
-.suri-account-details dt { display: flex; align-items: center; gap: .3rem; color: #1d528d; font: 900 .66rem/1.35 "Nunito", sans-serif; }
-.suri-account-details dd { margin: 0; overflow-wrap: anywhere; color: #3a2111; font: 900 .68rem/1.35 "Nunito", sans-serif; text-align: right; }
+.suri-profile-card strong + span { color: #34507c; font: 900 .72rem/1.3 "Nunito", sans-serif; }
+.suri-profile-card small { display: inline-flex; align-items: center; gap: .3rem; margin-top: .18rem; color: #6b512c; font: 800 .61rem/1.35 "Nunito", sans-serif; }
 .suri-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .48rem; }
-.suri-stat-grid div { display: grid; align-content: center; min-height: 4rem; padding: .62rem; border: 3px solid #9c672b; border-radius: 0; color: #2b170d; background: linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 2px 2px 0 #160b07; }
+.suri-stat-grid div { display: grid; align-content: center; min-height: 4.35rem; padding: .75rem; border: 3px solid #9c672b; border-radius: 0; color: #2b170d; background: linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 2px 2px 0 #160b07; }
 .suri-stat-grid strong { color: #1d528d; font: 900 1.38rem/1 "Bree Serif", Georgia, serif; }
 .suri-stat-grid span { margin-top: .27rem; color: #5f4b2e; font: 900 .64rem/1.3 "Nunito", sans-serif; }
+.suri-active-topic-list { display: grid; gap: .58rem; }
+.suri-active-topic-item { min-width: 0; padding: .72rem .75rem; border: 3px solid #9c672b; color: #2b170d; background: #fffdf6; box-shadow: 2px 2px 0 #160b07; }
+.suri-active-topics-empty { display: flex; align-items: center; gap: .5rem; padding: .75rem; border: 2px dashed rgba(255,226,136,.45); color: #ffe8a2; font: 900 .7rem/1.4 "Nunito", sans-serif; }
 
 @keyframes suri-overview-overlay-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes suri-overview-overlay-out { from { opacity: 1; } to { opacity: 0; } }
@@ -579,7 +572,6 @@ html::-webkit-scrollbar {
   .suri-overview-heading h2 { font-size: 1.25rem; }
   .suri-overview-heading p { display: none; }
   .suri-overview-eyebrow { font-size: .58rem; }
-  .suri-overview-header-status { display: none; }
   .suri-overview-castle { width: 2.35rem; height: 2.35rem; border-radius: 50%; }
   .suri-overview-close { width: 2.3rem; height: 2.3rem; border-radius: 7px; }
   .suri-overview-scroll { grid-template-rows: auto minmax(0, 1fr); }
@@ -588,15 +580,14 @@ html::-webkit-scrollbar {
   .suri-overview-mobile-tabs button.is-active { color: #321008; border-color: #6d411c; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 3px 0 #4b2411; }
   .suri-overview-mobile-tabs button:focus-visible { outline: 3px solid #ffcf66; outline-offset: 2px; }
   .suri-overview-columns { grid-template-columns: minmax(0, 1fr); gap: 0; min-height: 0; padding: .55rem; overflow: hidden; }
-  .suri-overview-learning, .suri-overview-account { display: none; min-height: 0; padding-right: .15rem; overflow-y: auto; }
+  .suri-overview-learning, .suri-overview-account { display: none; min-height: 0; padding-right: .15rem; overflow-y: auto; scrollbar-color: rgba(139,202,244,.4) transparent; scrollbar-width: thin; }
   .suri-overview-learning.is-mobile-active, .suri-overview-account.is-mobile-active { display: block; }
   .suri-overview-account { padding: 0 .15rem 0 0; border: 0; }
-  .suri-current-status, .suri-recent-errors, .suri-account-details, .suri-learning-stats { margin-top: .62rem; }
-  .suri-progress-summary { padding: .78rem; }
-  .suri-progress-summary-grid { margin-top: .5rem; }
+  .suri-recent-errors { display: block; margin-top: .9rem; }
+  .suri-learning-stats, .suri-active-topics { margin-top: .9rem; }
+  .suri-progress-summary { padding: .9rem; }
   .suri-overview-subheading { margin-bottom: .48rem; }
   .suri-overview-empty { padding: .62rem .72rem; }
-  .suri-account-details dl div { padding: .5rem 0; }
   .suri-stat-grid div { min-height: 3.65rem; padding: .52rem; }
 }
 
@@ -606,13 +597,11 @@ html::-webkit-scrollbar {
   .suri-overview-heading { gap: .58rem; }
   .suri-overview-castle { width: 2.15rem; height: 2.15rem; }
   .suri-progress-summary-top { gap: .55rem; }
-  .suri-progress-orbit { width: 4.35rem; height: 4.35rem; }
-  .suri-progress-summary-grid { grid-template-columns: 1fr; }
-  .suri-progress-summary-grid div { padding: .56rem .65rem; }
-  .suri-status-next { align-items: flex-start; flex-wrap: wrap; }
-  .suri-status-next > div { min-width: calc(100% - 2.8rem); }
-  .suri-status-next .suri-learning-status { margin-left: 2.75rem; }
-  .suri-error-list { grid-template-columns: 1fr; }
+  .suri-progress-focus-grid { grid-template-columns: 1fr; }
+  .suri-progress-focus-item { align-items: flex-start; flex-wrap: wrap; }
+  .suri-progress-focus-item > div { min-width: calc(100% - 2.8rem); }
+  .suri-progress-focus-item .suri-learning-status { margin-left: 2.65rem; }
+  .suri-error-list { grid-template-columns: 1fr; grid-template-rows: none; }
   .suri-error-item-head { align-items: flex-start; flex-direction: column; }
 }
 
@@ -623,15 +612,14 @@ html::-webkit-scrollbar {
   .suri-overview-heading h2 { font-size: 1.25rem; }
   .suri-overview-heading p { display: none; }
   .suri-overview-columns { padding: .6rem; }
-  .suri-current-status, .suri-recent-errors, .suri-account-details, .suri-learning-stats { margin-top: .58rem; }
+  .suri-learning-stats, .suri-active-topics { margin-top: .75rem; }
   .suri-progress-summary { padding: .72rem; }
-  .suri-progress-summary-grid { margin-top: .55rem; }
-  .suri-progress-summary-grid div { padding: .55rem .62rem; }
+  .suri-progress-focus-grid { gap: .55rem; margin-top: .7rem; padding-top: .7rem; }
   .suri-overview-subheading { margin-bottom: .42rem; }
   .suri-overview-empty { padding: .55rem .65rem; }
   .suri-profile-card { padding-bottom: .65rem; }
-  .suri-account-details dl div { padding: .43rem 0; }
   .suri-stat-grid div { min-height: 3.35rem; padding: .48rem; }
+  .suri-active-topic-item:nth-child(n+3) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
