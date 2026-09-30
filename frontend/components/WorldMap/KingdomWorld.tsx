@@ -137,25 +137,7 @@ function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserve
   );
 }
 
-function TutorialModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#080512]/70 px-5 backdrop-blur-sm" onClick={onClose}>
-      <div className="voxel-tutorial" onClick={(event) => event.stopPropagation()}>
-        <div className="voxel-tutorial-mark">?</div>
-        <div>
-          <div className="voxel-overline">SURI KINGDOM FIELD GUIDE</div>
-          <h2>Explore your learning world</h2>
-          <p>Explore the island kingdom to discover every destination. Hover a landmark for a quick read, then click it to open the same learning space you already know.</p>
-          <div className="voxel-tutorial-actions"><span>Every island in view</span><span>Click to travel</span><span>Hover to inspect</span></div>
-        </div>
-        <button className="voxel-close" onClick={onClose}>Got it</button>
-      </div>
-    </div>
-  );
-}
-
 function DashboardWorld(props: WorldProps) {
-  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [overviewOpen, setOverviewOpen] = useState(false);
   const [overviewOpener, setOverviewOpener] = useState<HTMLElement | null>(null);
   const [hoveredLandmark, setHoveredLandmark] = useState<LandmarkKind | null>(null);
@@ -179,11 +161,6 @@ function DashboardWorld(props: WorldProps) {
     const timeout = window.setTimeout(() => setShowSaved(false), 3500);
     return () => window.clearTimeout(timeout);
   }, [showSaved]);
-  useEffect(() => {
-    const openTutorial = () => setTutorialOpen(true);
-    window.addEventListener("suri:open-tutorial", openTutorial);
-    return () => window.removeEventListener("suri:open-tutorial", openTutorial);
-  }, []);
   const openOverview = () => {
     setOverviewOpener(keepTriggerRef.current);
     setOverviewOpen(true);
@@ -238,7 +215,6 @@ function DashboardWorld(props: WorldProps) {
           })}
         </div>
       </div>
-      {tutorialOpen && <TutorialModal onClose={() => setTutorialOpen(false)} />}
       {overviewOpen && <Suspense fallback={<div className="suri-overview-overlay" role="status"><div className="suri-overview-loading">Opening your student overview…</div></div>}>
         <StudentOverviewModal me={props.me} active={props.active} completed={props.completed} errors={props.errors} progress={props.progress} opener={overviewOpener} onClose={() => setOverviewOpen(false)} />
       </Suspense>}

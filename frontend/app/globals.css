@@ -382,36 +382,77 @@ html::-webkit-scrollbar {
 
 @keyframes worldSpin { to { transform: rotate(360deg); } }
 
-.voxel-tutorial {
+/* Shared contextual help: academy archive framing with SURI Keep dialog behavior. */
+.suri-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1.2rem;
-  width: min(42rem, 100%);
-  padding: 1.2rem;
-  border: 1px solid rgba(196, 181, 253, 0.5);
-  border-radius: 1rem;
-  color: #fff;
-  background: linear-gradient(135deg, rgba(40, 25, 88, 0.98), rgba(19, 12, 42, 0.98));
-  box-shadow: 0 25px 80px rgba(3, 0, 12, 0.65);
-}
-
-.voxel-tutorial-mark {
-  display: grid;
+  box-sizing: border-box;
   place-items: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.8rem;
-  color: #17102d;
-  background: #c4b5fd;
-  font: 900 1.6rem/1 "Hanken Grotesk", sans-serif;
+  padding: clamp(.75rem, 3vw, 2rem);
+  background: rgba(3, 14, 31, .68);
+  backdrop-filter: blur(5px) saturate(.88);
+  animation: suri-help-overlay-in .2s ease-out both;
 }
-
-.voxel-tutorial h2 { margin: 0.35rem 0 0; font: 800 1.35rem/1.05 "Hanken Grotesk", sans-serif; letter-spacing: -0.03em; }
-.voxel-tutorial p { margin: 0.55rem 0 0; color: rgba(231, 226, 255, 0.72); font: 500 0.72rem/1.55 "Manrope", sans-serif; }
-.voxel-tutorial-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
-.voxel-tutorial-actions span { padding: 0.36rem 0.5rem; border: 1px solid rgba(196, 181, 253, 0.26); border-radius: 0.4rem; color: #c4b5fd; font: 800 0.55rem/1 "Manrope", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
-.voxel-close { align-self: end; padding: 0.62rem 0.78rem; border: 0; border-radius: 0.55rem; color: #18102f; background: #ffd76a; font: 800 0.62rem/1 "Manrope", sans-serif; cursor: pointer; white-space: nowrap; }
+.suri-help-modal {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(1120px, 94vw);
+  max-height: calc(100dvh - clamp(1.5rem, 4.8vw, 4rem));
+  overflow: hidden;
+  border: 5px solid #5e3619;
+  border-radius: 0;
+  color: #fff4d5;
+  background: linear-gradient(90deg, rgba(12,34,68,.98), rgba(28,75,125,.98), rgba(12,34,68,.98)), repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 66px);
+  box-shadow: 0 9px 0 #160b07, 0 30px 70px rgba(0,0,0,.48), inset 0 0 0 3px rgba(245,199,93,.28);
+  font-family: "Nunito", "Manrope", sans-serif;
+  outline: none;
+  animation: suri-help-modal-in .24s cubic-bezier(.2,.8,.2,1) both;
+}
+.suri-help-modal::after { content: ""; position: absolute; inset: .55rem; z-index: 5; border: 2px solid rgba(255,226,136,.18); pointer-events: none; }
+.suri-help-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: .8rem .8rem 0;
+  padding: .85rem 1rem;
+  border: 3px solid #9c672b;
+  color: #2b170d;
+  background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.36), transparent 28%), linear-gradient(180deg, #fff0bf, #dec07b);
+  box-shadow: inset 0 0 0 2px rgba(89,48,18,.14), 3px 3px 0 #160b07;
+}
+.suri-help-heading { display: flex; min-width: 0; align-items: center; gap: .8rem; }
+.suri-help-page-icon { display: grid; flex: 0 0 auto; place-items: center; width: 2.9rem; height: 2.9rem; border: 3px solid #6d411c; border-radius: 50%; color: #fffaf6; background: linear-gradient(180deg, #4c9fe6, #1e5fa6); box-shadow: 0 4px 0 #09244b; }
+.suri-help-eyebrow { display: block; margin-bottom: .16rem; color: #1d528d; font: 900 .68rem/1.2 "Nunito", sans-serif; letter-spacing: .13em; }
+.suri-help-heading h2 { margin: 0; color: #3a2111; font: 900 clamp(1.55rem, 2.3vw, 1.9rem)/1 "Bree Serif", Georgia, serif; letter-spacing: -.025em; }
+.suri-help-heading h2 em { color: #1d528d; font-style: normal; }
+.suri-help-close { position: relative; z-index: 2; display: grid; flex: 0 0 auto; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; border: 3px solid #6d411c; border-radius: 7px; color: #321008; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 4px 0 #4b2411; cursor: pointer; transition: filter .16s, transform .16s, box-shadow .16s; }
+.suri-help-close:hover { filter: brightness(1.09); transform: translateY(-2px); box-shadow: 0 6px 0 #4b2411; }
+.suri-help-close:active { transform: translateY(2px); box-shadow: 0 2px 0 #4b2411; }
+.suri-help-close:focus-visible { outline: 3px solid #2c80d0; outline-offset: 3px; }
+.suri-help-scroll { position: relative; z-index: 1; display: grid; align-content: start; gap: .85rem; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .85rem 1.2rem 1.05rem; scrollbar-color: rgba(139,202,244,.52) transparent; scrollbar-width: thin; }
+.suri-help-section-heading { display: flex; align-items: end; justify-content: space-between; gap: .75rem; margin-bottom: .48rem; }
+.suri-help-section-heading h3 { margin: 0; color: #fffdf6; font: 900 1.2rem/1.15 "Bree Serif", Georgia, serif; letter-spacing: -.01em; }
+.suri-help-purpose-card { display: flex; align-items: center; gap: .9rem; padding: 1rem 1.05rem; border: 3px solid #9c672b; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 26%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: inset 0 0 0 2px rgba(89,48,18,.14), 3px 3px 0 #160b07; }
+.suri-help-purpose-card > span { display: grid; flex: 0 0 auto; place-items: center; width: 3rem; height: 3rem; border: 3px solid #6d411c; border-radius: 50%; color: #fffaf6; background: linear-gradient(180deg, #4c9fe6, #1e5fa6); box-shadow: 0 4px 0 #09244b; }
+.suri-help-purpose-card b { display: block; color: #1d528d; font: 900 .66rem/1.2 "Nunito", sans-serif; letter-spacing: .09em; text-transform: uppercase; }
+.suri-help-purpose-card p { max-width: 52rem; margin: .35rem 0 0; color: #5f4b2e; font: 800 .86rem/1.55 "Nunito", sans-serif; }
+.suri-help-guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.suri-help-guide-section { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; }
+.suri-help-card { display: grid; grid-template-columns: 2.7rem minmax(0, 1fr); align-items: center; gap: 1rem; min-width: 0; min-height: 9.5rem; padding: 1rem; border: 3px solid #9c672b; color: #2b170d; background: #fffdf6; box-shadow: inset 0 0 0 2px rgba(89,48,18,.1), 3px 3px 0 #160b07; }
+.suri-help-card-icon { display: grid; align-self: center; place-items: center; width: 2.7rem; height: 2.7rem; border: 3px solid #8f5f1f; border-radius: 50%; color: #2a160d; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 3px 0 #4b2411; }
+.suri-help-card ul, .suri-help-card ol { display: grid; align-content: center; gap: .78rem; margin: 0; padding: 0; list-style: none; }
+.suri-help-card ol { gap: .9rem; }
+.suri-help-card li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .58rem; align-items: start; color: #3e4d5d; font: 800 .8rem/1.5 "Nunito", sans-serif; }
+.suri-help-card ul li::before { content: ""; width: .48rem; height: .48rem; margin-top: .3rem; border: 2px solid #6d411c; border-radius: 50%; background: #f4cd57; box-shadow: 1px 1px 0 #4b2411; }
+.suri-help-card li b { display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border: 2px solid #6d411c; border-radius: 50%; color: #321008; background: #f4cd57; font: 900 .57rem/1 "Nunito", sans-serif; }
+@keyframes suri-help-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes suri-help-modal-in { from { opacity: 0; transform: translateY(.75rem) scale(.985); } to { opacity: 1; transform: none; } }
 
 /* SURI Keep: compact academy-archive learning overview. */
 .suri-overview-overlay {
@@ -623,11 +664,19 @@ html::-webkit-scrollbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .suri-overview-overlay, .suri-overview-modal, .suri-overview-close { animation: none; transition: none; }
+  .suri-overview-overlay, .suri-overview-modal, .suri-overview-close, .suri-help-overlay, .suri-help-modal, .suri-help-close { animation: none; transition: none; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .suri-overview-overlay, .world-toast, .world-error { backdrop-filter: none; }
+  .suri-overview-overlay, .suri-help-overlay, .world-toast, .world-error { backdrop-filter: none; }
+}
+
+@media (max-width: 760px) {
+  .suri-help-overlay { padding: .5rem; }
+  .suri-help-modal { width: calc(100vw - 1rem); height: calc(100dvh - 1rem); max-height: calc(100dvh - 1rem); }
+  .suri-help-scroll { gap: .8rem; padding: .75rem .7rem .85rem; }
+  .suri-help-guide-grid { grid-template-columns: 1fr; gap: .8rem; }
+  .suri-help-card { min-height: 0; }
 }
 
 @media (max-width: 640px) {
@@ -636,8 +685,21 @@ html::-webkit-scrollbar {
   .dashboard-world-legend { right: 1rem; bottom: 1.4rem; }
   .dashboard-world-legend b { display: none; }
   .dashboard-world-caption { left: 1rem; bottom: 1.25rem; }
-  .voxel-tutorial { grid-template-columns: auto 1fr; }
-  .voxel-close { grid-column: 2; justify-self: start; }
+  .suri-help-overlay { padding: .3rem; }
+  .suri-help-modal { width: calc(100vw - .6rem); height: calc(100dvh - .6rem); max-height: calc(100dvh - .6rem); border-width: 4px; border-radius: 0; }
+  .suri-help-header { margin: .55rem .55rem 0; padding: .7rem .75rem; }
+  .suri-help-heading { gap: .6rem; }
+  .suri-help-page-icon { width: 2.65rem; height: 2.65rem; border-width: 2px; }
+  .suri-help-heading h2 { font-size: 1.3rem; }
+  .suri-help-eyebrow { font-size: .49rem; letter-spacing: .1em; }
+  .suri-help-close { width: 2.3rem; height: 2.3rem; }
+  .suri-help-scroll { gap: .7rem; padding: .65rem .55rem .75rem; }
+  .suri-help-section-heading { margin-bottom: .45rem; }
+  .suri-help-section-heading h3 { font-size: 1.08rem; }
+  .suri-help-purpose-card { align-items: flex-start; padding: .8rem; }
+  .suri-help-purpose-card > span, .suri-help-card-icon { width: 2.4rem; height: 2.4rem; border-width: 2px; }
+  .suri-help-card { grid-template-columns: 2.4rem minmax(0, 1fr); gap: .65rem; padding: .78rem; }
+  .suri-help-card ul, .suri-help-card ol { gap: .6rem; }
 }
 
 /* Visited world canvases stay mounted and are paused while their route is hidden. */

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HelpCircle, LogOut, UserRound } from "lucide-react";
 import { logout } from "@/lib/api";
 import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
+import HelpModal, { getHelpPage } from "@/components/navigation/HelpModal";
 
 export default function MainPage({
   children,
@@ -15,9 +16,13 @@ export default function MainPage({
   immersive?: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const {clearSession} = useWorldNavigation();
   const {data} = useLearningData();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const helpButtonRef = useRef<HTMLButtonElement>(null);
+  const helpPage = getHelpPage(pathname);
 
   const handleLogout = async () => {
     try {
@@ -39,8 +44,9 @@ export default function MainPage({
           </div>
           <div className="suri-app-bar-actions">
             <button
-              onClick={() => window.dispatchEvent(new Event("suri:open-tutorial"))}
-              aria-label="How to explore SURI"
+              ref={helpButtonRef}
+              onClick={() => setShowHelp(true)}
+              aria-label={helpPage ? `Open ${helpPage === "error-history" ? "Error History" : helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
               className="suri-app-control"
             >
               <HelpCircle className="h-5 w-5" /><span className="suri-app-control-label">Help</span>
@@ -71,6 +77,8 @@ export default function MainPage({
       <main className={immersive ? "min-h-screen" : "pt-4 pb-12 px-4 md:px-8 max-w-[1440px] mx-auto"}>
         {children}
       </main>
+
+      {showHelp && helpPage && <HelpModal page={helpPage} opener={helpButtonRef.current} onClose={() => setShowHelp(false)} />}
 
       {showLogoutConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
