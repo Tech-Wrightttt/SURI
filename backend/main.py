@@ -3,6 +3,26 @@ FastAPI application entry point for SURI.
 """
 
 import os
+import sys
+import types
+
+# ---------------------------------------------------------------------------
+# Vercel compatibility shim
+# ---------------------------------------------------------------------------
+# Locally:  uvicorn backend.main:app   → 'backend' package exists at project root
+# On Vercel: backend/ is the function root, so main.py is /var/task/main.py
+#            and there is no 'backend/' subdirectory → ModuleNotFoundError
+# Fix: if 'backend' isn't already a real package on sys.path, register the
+#      current directory as the 'backend' package so all sub-imports resolve.
+_here = os.path.dirname(os.path.abspath(__file__))
+if "backend" not in sys.modules and not any(
+    os.path.isdir(os.path.join(p, "backend")) for p in sys.path
+):
+    _pkg = types.ModuleType("backend")
+    _pkg.__path__ = [_here]
+    _pkg.__package__ = "backend"
+    sys.modules["backend"] = _pkg
+
 from dotenv import load_dotenv
 load_dotenv()
 
