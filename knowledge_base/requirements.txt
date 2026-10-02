@@ -1,0 +1,7 @@
+# Offline Knowledge Base & SLM Indexing dependencies
+# Used by knowledge_base/build_index.py to parse DepEd SLM PDFs and create embeddings
+chromadb>=0.4.0
+llama-index>=0.10.0
+llama-index-readers-file>=0.1.0
+sentence-transformers>=2.2.0
+pypdf>=3.0.0

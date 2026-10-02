@@ -1,0 +1,20 @@
+# Local virtual environments & Python caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Offline indexing scripts, PDFs, and local databases
+knowledge_base/
+scripts/
+scratch/
+mathsteps_runner/node_modules/
+
+# Local tests & batch scripts
+db_latency_test.py
+run.bat
+
+# IDE and tool configs
+.idea/
+.claude/
+.vscode/
