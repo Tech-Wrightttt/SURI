@@ -2,6 +2,7 @@
 FastAPI application entry point for SURI.
 """
 
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -72,10 +73,18 @@ async def log_request_time(request, call_next):
 #    calls. If even this is slow according to the middleware log, the problem
 #    isn't your queries at all, it's something in FastAPI/uvicorn startup,
 #    middleware, or how the server is being run.
-# CORS — allow Next.js dev server
+# CORS — allow Next.js dev server and Vercel deployments
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+if os.getenv("VERCEL_URL"):
+    origins.append(f"https://{os.getenv('VERCEL_URL')}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -55,6 +55,7 @@ async def register(body: RegisterRequest):
             value=token,
             httponly=True,
             samesite="lax",
+            path="/",
             max_age=7 * 24 * 60 * 60,  # 7 days
         )
         return response
@@ -94,6 +95,7 @@ async def login(body: LoginRequest):
             value=token,
             httponly=True,
             samesite="lax",
+            path="/",
             max_age=7 * 24 * 60 * 60,  # 7 days
         )
         return response
@@ -109,6 +111,7 @@ async def logout():
         key="access_token",
         httponly=True,
         samesite="lax",
+        path="/",
     )
     return response
 

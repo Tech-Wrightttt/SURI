@@ -56,9 +56,15 @@ def decode_token(token: str) -> dict:
 async def get_current_student(request: Request):
     """
     FastAPI dependency that reads the JWT from the 'access_token' cookie
-    and returns the student record from the database.
+    or the 'Authorization: Bearer <token>' header, and returns the student record
+    from the database.
     """
     token = request.cookies.get("access_token")
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

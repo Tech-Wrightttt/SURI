@@ -8,7 +8,13 @@ The pool is initialized once on app startup and shared across all requests.
 import os
 import asyncpg
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+DATABASE_URL = (
+    os.getenv("DATABASE_URL")
+    or os.getenv("POSTGRES_URL")
+    or os.getenv("POSTGRES_PRISMA_URL")
+    or os.getenv("SUPABASE_DATABASE_URL")
+    or ""
+)
 
 _pool: asyncpg.Pool | None = None
 
@@ -16,10 +22,14 @@ _pool: asyncpg.Pool | None = None
 async def init_pool():
     """Create the asyncpg connection pool. Called once on app startup."""
     global _pool
+    if not DATABASE_URL:
+        raise RuntimeError(
+            "Database connection string not found. Please set DATABASE_URL or POSTGRES_URL in environment variables."
+        )
     _pool = await asyncpg.create_pool(
         dsn=DATABASE_URL,
-        min_size=2,
-        max_size=10,
+        min_size=1,
+        max_size=5,
         statement_cache_size=0,  # Required for Supabase transaction pooler (PgBouncer)
     )
 

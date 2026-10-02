@@ -5,7 +5,13 @@
  * for cookie-based auth, returns typed data or throws a typed error.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined"
+    ? (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://localhost:8000"
+        : "")
+    : (process.env.NODE_ENV === "production" ? "" : "http://localhost:8000"));
 
 // ─── Error type ──────────────────────────────────────
 
@@ -19,6 +25,25 @@ export class ApiError<T = unknown> extends Error {
     this.status = status;
     this.detail = detail;
   }
+}
+
+// ─── Token Storage Helpers ───────────────────────────
+
+const TOKEN_KEY = "suri_access_token";
+
+export function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setStoredToken(token: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function removeStoredToken(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 // ─── Helpers ─────────────────────────────────────────
@@ -37,15 +62,21 @@ async function request<T>(
     : null;
   let res: Response;
 
+  const token = getStoredToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string> || {}),
+  };
+  if (token && !headers["Authorization"]) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   try {
     res = await fetch(url, {
       ...options,
       credentials: "include",
       signal: options.signal ?? timeoutController?.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
+      headers,
     });
   } finally {
     if (timeout !== null) globalThis.clearTimeout(timeout);
@@ -290,33 +321,42 @@ export interface SaveProgressResponse {
 
 // ─── Auth ────────────────────────────────────────────
 
-export function register(body: {
+export async function register(body: {
   name: string;
   email: string;
   grade_level: number;
   password: string;
 }): Promise<AuthResponse> {
-  return request<AuthResponse>("/api/auth/register", {
+  const res = await request<AuthResponse>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(body),
   });
+  if (res?.token) {
+    setStoredToken(res.token);
+  }
+  return res;
 }
 
-export function login(body: {
+export async function login(body: {
   email: string;
   password: string;
 }): Promise<AuthResponse> {
-  return request<AuthResponse>("/api/auth/login", {
+  const res = await request<AuthResponse>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify(body),
   });
+  if (res?.token) {
+    setStoredToken(res.token);
+  }
+  return res;
 }
 
 export function getMe(): Promise<MeResponse> {
   return request<MeResponse>("/api/auth/me");
 }
 
-export function logout(): Promise<{ message: string }> {
+export async function logout(): Promise<{ message: string }> {
+  removeStoredToken();
   return request<{ message: string }>("/api/auth/logout", {
     method: "POST",
   });
