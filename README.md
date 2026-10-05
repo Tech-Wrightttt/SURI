@@ -101,20 +101,20 @@ flowchart TB
         ChromaStore[("ChromaDB Vector Store\n(DepEd SLM Embeddings)")]
     end
 
-    Browser -->|Request| VercelRouter
-    VercelRouter -->|/(.*) Frontend Routes| AppRouter
-    VercelRouter -->|/api/(.*) API Calls| FastAPI
+    Browser -->|"User HTTP Requests"| VercelRouter
+    VercelRouter -->|"Frontend Routes: /(.*)"| AppRouter
+    VercelRouter -->|"API Requests: /api/(.*)"| FastAPI
 
     AppRouter --- R3F
     AppRouter --- MathUI
 
     FastAPI --- TimingMiddleware
     FastAPI --- GraphEngine
-    FastAPI -->|Executes| MathstepsSubprocess
+    FastAPI -->|"Executes"| MathstepsSubprocess
 
-    FastAPI -->|Connection Pool| SupabaseDB
-    FastAPI -->|LLM Prompts| GeminiAPI
-    FastAPI -->|LlamaIndex Query| ChromaStore
+    FastAPI -->|"Connection Pool"| SupabaseDB
+    FastAPI -->|"LLM Prompts"| GeminiAPI
+    FastAPI -->|"LlamaIndex Query"| ChromaStore
 ```
 
 ---
@@ -144,10 +144,10 @@ sequenceDiagram
         Diag->>DB: Assign Target Topic Directly
     end
 
-    DB->>AI: Fetch & Generate Lesson (/api/content/{node_id})
+    DB->>AI: Fetch & Generate Lesson (/api/content/:node_id)
     AI-->>Student: Display Lesson, Worked Examples & Visual Guides
     opt Need Simpler Explanation?
-        Student->>AI: Click "Simplify Lesson" (/api/content/{node_id}/simplify)
+        Student->>AI: Click Simplify Lesson (/api/content/:node_id/simplify)
         AI-->>Student: Deliver Simplified Text with Everyday Analogies
     end
 
