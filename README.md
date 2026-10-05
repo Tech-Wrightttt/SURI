@@ -1,521 +1,489 @@
+<div align="center">
+
+<img src="frontend/public/SURI.png" alt="SURI Platform Logo" width="220" />
+
 # SURI — Adaptive Mathematics Learning Platform
 
-[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016%20App%20Router-black?logo=next.js)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/UI-React%2019-blue?logo=react)](https://react.dev/)
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI%200.110+-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/Database-Supabase%20%2F%20PostgreSQL-3ECF8E?logo=supabase)](https://supabase.com/)
-[![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?logo=google)](https://aistudio.google.com/)
-[![Three.js](https://img.shields.io/badge/3D-Three.js%20%26%20R3F-black?logo=three.js)](https://threejs.org/)
+**Personalized, Gamified Math Mastery for Philippine Junior High School (Grades 6–10)**
 
-**SURI** is an adaptive, gamified mathematics learning platform designed specifically for Philippine Junior High School students (Grades 6–10). Aligned with Department of Education (DepEd) Self-Learning Modules (SLM), SURI dynamically diagnoses prerequisite competency gaps, delivers targeted instructional content grounded by Retrieval-Augmented Generation (RAG), and guides students toward mastery through a structured 16-node prerequisite graph in an immersive 3D voxel learning kingdom.
+*Diagnose prerequisite gaps • Generate curriculum-aligned lessons • Solve math step-by-step in an interactive 3D voxel world*
 
 ---
 
-## Table of Contents
+[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016%20App%20Router-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/UI-React%2019-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI%200.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Supabase](https://img.shields.io/badge/Database-Supabase%20%2F%20Postgres-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
+[![Three.js](https://img.shields.io/badge/3D-Three.js%20%26%20R3F-049EF4?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel%20Multi--Service-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-- [Key Features](#key-features)
-- [Project Architecture & Directory Structure](#project-architecture--directory-structure)
-- [Tech Stack & Dependencies](#tech-stack--dependencies)
-  - [Backend Dependencies](#backend-dependencies)
-  - [Frontend Dependencies](#frontend-dependencies)
-  - [Mathsteps Subprocess Dependencies](#mathsteps-subprocess-dependencies)
-- [Prerequisites](#prerequisites)
-- [Environment Configuration](#environment-configuration)
-- [Installation & Setup](#installation--setup)
-  - [1. Set Up Python Virtual Environment (`venv`)](#1-set-up-python-virtual-environment-venv)
-  - [2. Install Backend Dependencies](#2-install-backend-dependencies)
-  - [3. Set Up Mathsteps Runner](#3-set-up-mathsteps-runner)
-  - [4. Install Frontend Dependencies](#4-install-frontend-dependencies)
-  - [5. Set Up the Database (Supabase / PostgreSQL)](#5-set-up-the-database-supabase--postgresql)
-  - [6. Set Up the Knowledge Base Index (Optional / Rebuilding)](#6-set-up-the-knowledge-base-index-optional--rebuilding)
-- [Running the Application](#running-the-application)
-  - [Option A: One-Click Full Stack Launch (`run.bat`)](#option-a-one-click-full-stack-launch-runbat)
-  - [Option B: Manual Terminal Execution (Step-by-Step)](#option-b-manual-terminal-execution-step-by-step)
-  - [Option C: Cursor / VS Code Tasks](#option-c-cursor--vs-code-tasks)
-- [Developer & Utility Scripts](#developer--utility-scripts)
-- [Prerequisite Learning Graph](#prerequisite-learning-graph)
-- [Complete API Reference](#complete-api-reference)
-- [Troubleshooting & FAQ](#troubleshooting--faq)
+[⚡ Quick Start in 30s](#-quick-start-in-30-seconds) • [🏛️ System Architecture](#-system-architecture) • [🔄 Learning Loop](#-the-suri-adaptive-learning-loop) • [🏰 3D World](#-3d-gamified-voxel-world-showcase) • [🚀 Vercel Deploy](#-deploying-to-vercel-multi-service) • [📡 API Reference](#-complete-api-reference)
+
+</div>
 
 ---
 
-## Key Features
+## 🌟 Executive Overview
 
-### 🏰 3D Gamified Voxel World Map
-- **Interactive Voxel Islands**: Built with Three.js and React Three Fiber (`KingdomWorld`, `FocusedIslandWorld`), featuring animated landmarks such as the **Topics Library**, **Calculator Tower**, and **Progress Trail**.
-- **Dynamic 3D Environment**: Immersive voxel landscape with custom skies, ocean shaders, dynamic day/night styling, camera panning, and island zooming.
-- **SURI Keep & Student Overview**: Profile modal showcasing learning streaks, total mastery percentages, active sessions, and unlocked competencies.
+**SURI** is an intelligent, gamified learning platform tailored to the Department of Education (DepEd) Philippines curriculum. Rather than presenting static mathematics worksheets, SURI treats math learning as a **directed acyclic graph (DAG)** of 16 foundational competencies spanning Grades 6 through 10.
 
-### 🧠 Adaptive Diagnostics & Prerequisite Gap Analysis
-- **Targeted Probes**: Dynamically sequences multiple-choice probes along the prerequisite graph chain to pinpoint exact foundational weaknesses.
-- **Fast-Track Skip Option**: Allows students to skip diagnostic probes (`POST /api/diagnostic/skip`) and immediately access customized lesson material.
-- **Gap Detection & Remediation**: Automatically maps failed probe items to specific prerequisite nodes (spanning Grades 6 through 10).
-
-### 📖 AI-Grounded Lessons & Dynamic Simplification
-- **DepEd SLM Grounding**: RAG pipeline powered by ChromaDB, LlamaIndex, and Google Gemini ingests official DepEd Self-Learning Module PDFs to ensure localized curriculum compliance.
-- **Multi-Modal Content**: Generates comprehensive lesson explanations, worked step-by-step examples, and conceptual summaries.
-- **"Simplify Lesson" Mode**: Instant one-click AI adaptation (`POST /api/content/{node_id}/simplify`) that rewrites complex algebraic principles into simpler, student-friendly explanations with intuitive analogies.
-
-### ✍️ Step-by-Step Practice & Quiz Engine
-- **Mathsteps Step Simplifier**: Integrates a Node.js `mathsteps` subprocess to calculate algebraic transformations and scaffold step-by-step math problems.
-- **Virtual Math Keyboard & Formula Input**: Integrated `mathlive` and `react-math-keyboard` with a virtual keypad for fractions, exponents, radicals, and algebraic symbols.
-- **Real-Time Step Evaluation & Hints**: Instant feedback per step (`POST /api/quiz/submit-step`), contextual hint system (`POST /api/quiz/use-hint`), and step skipping (`POST /api/quiz/skip-step`).
-- **Misconception Detection**: Automatic categorization of algebraic errors (e.g., negative sign slip, incorrect distribution, denominator addition) mapped directly to prerequisite nodes for targeted remediation.
-
-### 📊 Progress Trail & Error History
-- **Competency Progression**: Visual tracking across all 16 graph nodes categorized into *Mastered*, *In Progress*, and *Needs Remediation*.
-- **Detailed Error History**: Dedicated log of past algebraic mistakes, timestamps, problem expressions, and mapped prerequisite concepts.
-- **Celebration Effects**: Interactive confetti animations powered by `canvas-confetti` upon topic mastery.
-
-### 🧮 Interactive Calculator Tower
-- Dedicated mathematical sandbox page with MathLive integration, equation evaluation, and live formula manipulation.
-
-### ❓ Contextual Help System
-- Global `HelpModal` integrated across all pages (Dashboard, Topics, Progress, Calculator, Quiz, and Error History) offering instant page guides and usage instructions.
-
-### ⚡ Performance & Low-Latency Architecture
-- **Supabase / PostgreSQL Pool**: Fast connection pooling with `asyncpg` configured for PgBouncer transaction pooling.
-- **Server Request Timing Middleware**: Built-in `X-Process-Time-Ms` response header and server console logging to isolate server processing from network round-trips.
-
----
-
-## Project Architecture & Directory Structure
+When a student struggles with high-school topics (such as *Quadratic Equations* or *Systems of Linear Equations*), SURI isolates prerequisite gaps down to foundational skills (such as *Operations on Integers* or *Laws of Exponents*), generates grounded lessons using **Retrieval-Augmented Generation (RAG)** over official DepEd Self-Learning Modules (SLMs), and guides students toward mastery with step-by-step equation solving, interactive formula keyboards, and real-time misconception diagnoses.
 
 ```
-SURI/
-├── backend/                        # FastAPI Python API Server
-│   ├── data/                       # Pre-generated diagnostic probes JSON
-│   ├── models/                     # Pydantic validation schemas (schemas.py)
-│   ├── routes/                     # Modular API endpoints
-│   │   ├── auth_routes.py          # Registration, login, logout, me
-│   │   ├── content_routes.py       # Lesson content and simplify endpoint
-│   │   ├── diagnostic_routes.py    # Diagnostic probes, answers, skip
-│   │   ├── graph_routes.py         # In-memory fast chain lookup
-│   │   ├── practice_routes.py      # Practice problem generation & step evaluation
-│   │   ├── progression_routes.py   # Advancement / remediation decisions
-│   │   ├── quiz_routes.py          # Quiz steps, hints, skipping, scoring
-│   │   ├── session_routes.py       # Learning session management
-│   │   └── student_routes.py       # Topic catalog and student progress
-│   ├── auth.py                     # JWT token handling & password hashing (bcrypt)
-│   ├── competency_utils.py         # Prerequisite graph evaluation algorithms
-│   ├── database.py                 # asyncpg PostgreSQL connection pool
-│   ├── graph.py                    # 16-node prerequisite graph single source of truth
-│   ├── main.py                     # Application entry point, CORS, and timing middleware
-│   ├── progress_utils.py           # Session progress calculation helpers
-│   ├── requirements.txt            # Backend Python dependencies
-│   └── reset_db.py                 # Database table reset script
-├── frontend/                       # Next.js 16 App Router (React 19 + Tailwind CSS v4)
-│   ├── app/                        # App Router pages and session subroutes
-│   │   ├── calculator/             # Dedicated MathLive calculator page
-│   │   ├── dashboard/              # 3D gamified dashboard world
-│   │   ├── error-history/          # Student misconception log page
-│   │   ├── login/ & register/      # Authentication pages
-│   │   ├── progress/               # Competency trail and mastery page
-│   │   ├── session/[session_id]/   # Dynamic session workflow:
-│   │   │   ├── diagnostic/         # Diagnostic assessment page
-│   │   │   ├── gap-result/         # Prerequisite gap summary page
-│   │   │   ├── lesson/             # Lesson content and AI simplification
-│   │   │   ├── practice/           # Scaffolded practice problems
-│   │   │   ├── quiz/               # Step-by-step quiz with math keyboard & hints
-│   │   │   └── results/            # Performance and mastery results
-│   │   └── topics/                 # Topic selection carousel & library
-│   ├── components/                 # Reusable UI & 3D components
-│   │   ├── navigation/             # LearningShell, HelpModal, BackToTopButton
-│   │   ├── ReferenceVoxel/         # Three.js Sky, Ocean, Ground, Environment
-│   │   ├── WorldMap/               # 3D islands (KingdomWorld, FocusedIslandWorld, etc.)
-│   │   └── TopicBookCarousel.tsx   # Interactive 3D topic book carousel
-│   ├── lib/                        # Client API client (api.ts), types, and utilities
-│   ├── patches/                    # @react-three+fiber React 19 compatibility patch
-│   └── package.json                # Frontend dependencies and scripts
-├── knowledge_base/                 # DepEd SLM indexing and RAG pipeline
-│   ├── slm_pdfs/                   # DepEd Self-Learning Module PDF storage
-│   ├── build_index.py              # ChromaDB vector index builder via LlamaIndex
-│   ├── content_seed.json           # Cached lesson content seed
-│   ├── generate_content.py         # Offline Gemini lesson content generator
-│   ├── generate_distractors.py     # Distractor generator for multiple-choice items
-│   ├── generate_practice.py        # Practice problem generator with mathsteps
-│   ├── load_content_seed.py        # Database seeder for content records
-│   └── migrate_quiz_tables.py      # Quiz database migration script
-├── mathsteps_runner/               # Node.js mathsteps execution subprocess
-│   ├── package.json                # mathsteps runner dependencies
-│   └── runner.js                   # CLI wrapper returning JSON step transformations
-├── scripts/                        # Database schemas and maintenance scripts
-│   ├── export_sqlite_data.py       # Migration helper to export legacy SQLite data
-│   ├── generate_diagnostic_probes.py # Diagnostic probe generator
-│   ├── schema_supabase.sql         # Supabase PostgreSQL schema definition
-│   └── seed_supabase.sql           # Initial database seed (topics, content, problems)
-├── db_latency_test.py              # Standalone Supabase connection latency profiler
-├── run.bat                         # One-click Windows concurrent launcher
-├── system_workflow.md              # System workflow and architecture documentation
-└── README.md                       # Project documentation
+       [Grade 6: Fractions & Decimals]
+                     │
+       [Grade 7: Operations on Integers]
+                     │
+       [Grade 7: Laws of Exponents]
+                     │
+       [Grade 7: Special Products]
+                     │
+       [Grade 8: Factoring Polynomials]
+                     │
+       [Grade 9: Quadratic Equations] 🎯 (Entry Topic)
 ```
 
 ---
 
-## Tech Stack & Dependencies
+## ⚡ Quick Start in 30 Seconds
 
-### Backend Dependencies (`backend/requirements.txt`)
+### Windows One-Click (Recommended)
+Double-click [`run.bat`](file:///run.bat) from the project root. It auto-detects your virtual environment (`venv\` or `backend\venv\`), launches the FastAPI backend on `http://localhost:8000`, and starts the Next.js frontend on `http://localhost:3000`.
 
-| Package | Minimum Version | Purpose / Role |
-| :--- | :--- | :--- |
-| `fastapi` | `>=0.110.0` | Asynchronous REST API framework |
-| `uvicorn[standard]` | `>=0.27.0` | Production-grade ASGI web server with auto-reload |
-| `asyncpg` | `>=0.29.0` | High-performance async PostgreSQL driver for Supabase connection pooling |
-| `python-jose[cryptography]` | `>=3.3.0` | JWT generation, signing, and verification |
-| `bcrypt` | `>=4.0.0` | Secure password hashing |
-| `python-multipart` | `>=0.0.9` | Request payload and multipart form parsing |
-| `chromadb` | `>=0.4.0` | Vector database for storing and querying DepEd SLM embeddings |
-| `llama-index` | `>=0.10.0` | Data orchestration framework for indexing SLM documents |
-| `llama-index-readers-file` | `>=0.1.0` | File loaders for PDF curriculum documents |
-| `sentence-transformers` | `>=2.2.0` | Local embedding model support for semantic search |
-| `pypdf` | `>=3.0.0` | Text extraction from DepEd Self-Learning Module PDFs |
-| `google-generativeai` | Latest | Google Gemini API SDK for lesson generation, step checks, and hints |
-| `python-dotenv` | Latest | Loads `.env` environment variables into `os.environ` |
-
-### Frontend Dependencies (`frontend/package.json`)
-
-| Package | Version | Purpose / Role |
-| :--- | :--- | :--- |
-| `next` | `16.2.6` | Next.js App Router framework |
-| `react` & `react-dom` | `19.2.4` | React 19 UI component library |
-| `@react-three/fiber` | `^9.8.1` | Declarative Three.js renderer for React (patched for React 19) |
-| `@react-three/drei` | `^10.7.8` | Useful 3D helpers, camera controls, and abstractions for R3F |
-| `three` | `^0.186.0` | 3D graphics library powering the voxel kingdom and islands |
-| `tailwindcss` | `^4.0.0` | Modern utility-first CSS styling engine |
-| `@tailwindcss/postcss` | `^4.0.0` | Tailwind v4 PostCSS build integration |
-| `katex` & `rehype-katex` | `^0.17.0` / `^7.0.1` | LaTeX math formula rendering |
-| `remark-math` & `react-markdown` | `^6.0.0` / `^10.1.0` | Markdown parser with math block support |
-| `mathlive` | `^0.109.2` | Interactive math formula editor and virtual keyboard |
-| `react-math-keyboard` | `^2.0.17` | Virtual on-screen keypad for math inputs |
-| `mathjs` | `^3.11.2` | Mathematical expression parsing and evaluation |
-| `canvas-confetti` | `^1.9.4` | Celebration confetti effects on topic completion |
-| `lucide-react` | `^1.16.0` | Icon library for navigation, status badges, and controls |
-| `react-hot-toast` | `^2.6.0` | Responsive toast notifications |
-| `patch-package` | `^8.0.1` | Automatically applies React 19 compatibility patches on `postinstall` |
-
-### Mathsteps Subprocess Dependencies (`mathsteps_runner/package.json`)
-
-| Package | Version | Purpose / Role |
-| :--- | :--- | :--- |
-| `mathsteps` | `^0.1.0` | Step-by-step equation and expression simplifier executed by Node.js |
-
----
-
-## Prerequisites
-
-Before starting, ensure the following are installed on your machine:
-
-1. **Python 3.10+** (64-bit recommended) — Verify with `python --version`
-2. **Node.js 18+ or 20+** — Verify with `node --version`
-3. **npm** (comes with Node.js) — Verify with `npm --version`
-4. **Git** — Verify with `git --version`
-5. **Supabase / PostgreSQL database instance** — Free tier at [supabase.com](https://supabase.com)
-6. **Google Gemini API Key** — Free key at [Google AI Studio](https://aistudio.google.com/)
-
----
-
-## Environment Configuration
-
-Create a `.env` file in the **project root directory** (copy from `.env.example`):
+### Manual Terminal Run
 
 ```bash
-# In project root:
-cp .env.example .env
+# Terminal 1 — Backend
+venv\Scripts\activate.bat             # Or: .\venv\Scripts\Activate.ps1
+uvicorn backend.main:app --reload
+
+# Terminal 2 — Frontend
+cd frontend
+npm run dev
 ```
 
-Configure the following variables in `.env`:
-
-```ini
-# ==============================================================================
-# SURI Environment Configuration
-# ==============================================================================
-
-# 1. Google Gemini API Key (Required for AI lessons, practice, and hints)
-# Get yours free from: https://aistudio.google.com/
-GEMINI_API_KEY=your_google_gemini_api_key_here
-
-# 2. Database Connection String (PostgreSQL / Supabase)
-# For Supabase, use your project's Transaction Pooler URI (port 6543) or Direct URI (port 5432):
-# postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?sslmode=require
-DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres?sslmode=require
-
-# 3. JWT Secret (Required for signing auth cookies — change in production!)
-JWT_SECRET=super-secret-dev-key-change-this-in-production
-```
-
-> [!NOTE]
-> When using Supabase with `asyncpg`, the backend sets `statement_cache_size=0` in `backend/database.py`, ensuring 100% compatibility with Supabase's PgBouncer transaction pooler.
+Visit **`http://localhost:3000`** in your browser!
 
 ---
 
-## Installation & Setup
+## 🏛️ System Architecture
 
-### 1. Set Up Python Virtual Environment (`venv`)
+SURI is architected as an atomic multi-service monorepo configured for seamless local development and unified single-domain deployment on **Vercel**:
 
-From the **project root directory** (`SURI/`), create and activate a Python virtual environment:
+```mermaid
+flowchart TB
+    subgraph Client["🌐 Student Client (Browser)"]
+        Browser["Desktop & Tablet Browser"]
+    end
 
-#### A. Create the virtual environment:
+    subgraph VercelGateway["⚡ Vercel Edge / Single Domain Gateway"]
+        VercelRouter["vercel.json URL Rewriter"]
+    end
+
+    subgraph FrontendService["🎨 Frontend Service (Next.js 16 + React 19)"]
+        R3F["Three.js / React Three Fiber\n(3D Voxel World)"]
+        MathUI["MathLive & Virtual Keyboard\n(Formula Editor)"]
+        AppRouter["Next.js App Router\n(Dashboard, Topics, Quiz, Progress)"]
+    end
+
+    subgraph BackendService["⚙️ Backend Service (FastAPI)"]
+        FastAPI["FastAPI REST Server (Python 3.10+)"]
+        TimingMiddleware["X-Process-Time-Ms Middleware\n(Latency Tracking)"]
+        GraphEngine["Prerequisite Graph Engine\n(graph.py & competency_utils.py)"]
+        MathstepsSubprocess["Node.js Mathsteps Subprocess\n(Step-by-Step Solver)"]
+    end
+
+    subgraph DataAndAI["🗄️ Database, AI & RAG Pipeline"]
+        SupabaseDB[("Supabase PostgreSQL\n(asyncpg Pool)")]
+        GeminiAPI["Google Gemini 1.5 API\n(Lessons, Hints, Simplification)"]
+        ChromaStore[("ChromaDB Vector Store\n(DepEd SLM Embeddings)")]
+    end
+
+    Browser -->|Request| VercelRouter
+    VercelRouter -->|/(.*) Frontend Routes| AppRouter
+    VercelRouter -->|/api/(.*) API Calls| FastAPI
+
+    AppRouter --- R3F
+    AppRouter --- MathUI
+
+    FastAPI --- TimingMiddleware
+    FastAPI --- GraphEngine
+    FastAPI -->|Executes| MathstepsSubprocess
+
+    FastAPI -->|Connection Pool| SupabaseDB
+    FastAPI -->|LLM Prompts| GeminiAPI
+    FastAPI -->|LlamaIndex Query| ChromaStore
+```
+
+---
+
+## 🔄 The SURI Adaptive Learning Loop
+
+Every student interaction follows an adaptive mastery cycle designed to eliminate math anxiety and rebuild missing fundamentals:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student as 🧑‍🎓 Student
+    participant World as 🏰 3D World / Dashboard
+    participant Diag as 🎯 Diagnostic Engine
+    participant AI as 🤖 Gemini RAG Pipeline
+    participant Quiz as ✍️ Mathsteps Quiz Engine
+    participant DB as 🗄️ Supabase / Graph
+
+    Student->>World: Select Topic (e.g., Quadratic Equations)
+    World->>Diag: Start Learning Session (/api/sessions)
+    alt Full Diagnostic
+        Diag->>Student: Present Prerequisite Probes (/api/diagnostic/probe)
+        Student->>Diag: Submit Answers
+        Diag->>DB: Identify Gap Node (e.g., Factoring Polynomials)
+    else Fast-Track Skip
+        Student->>Diag: Skip Diagnostic (/api/diagnostic/skip)
+        Diag->>DB: Assign Target Topic Directly
+    end
+
+    DB->>AI: Fetch & Generate Lesson (/api/content/{node_id})
+    AI-->>Student: Display Lesson, Worked Examples & Visual Guides
+    opt Need Simpler Explanation?
+        Student->>AI: Click "Simplify Lesson" (/api/content/{node_id}/simplify)
+        AI-->>Student: Deliver Simplified Text with Everyday Analogies
+    end
+
+    Student->>Quiz: Start Step-by-Step Problem (/api/quiz/start)
+    loop Each Algebraic Step
+        Student->>Quiz: Submit Formula via Math Keyboard (/api/quiz/submit-step)
+        alt Step is Correct
+            Quiz-->>Student: ✅ Positive Feedback & Next Step
+        else Step has Mistake
+            Quiz->>AI: Analyze Misconception
+            Quiz-->>Student: ❌ Targeted Hint & Explanation (/api/quiz/use-hint)
+            Quiz->>DB: Log to Error History (/api/students/.../progress)
+        end
+    end
+
+    Quiz->>DB: Compute Final Score (/api/quiz/finish)
+    DB->>Student: 🎉 Mastery Confetti Celebration & Update SURI Keep
+```
+
+---
+
+## 🏰 3D Gamified Voxel World Showcase
+
+SURI replaces conventional menus with an immersive 3D Voxel Kingdom built with Three.js and `@react-three/fiber`:
+
+| Realm / Island | Component | Visual Experience & Functionality |
+| :--- | :--- | :--- |
+| **Kingdom World** | `KingdomWorld.tsx` | The central 3D floating archipelago surrounded by procedural voxel oceans, dynamic skies, and ambient lighting. |
+| **Topics Library** | `TopicsLibraryWorld.tsx` | The scholarly bookstore island featuring the 3D `TopicBookCarousel`, where students browse and select learning tracks. |
+| **Calculator Tower** | `CalculatorTowerWorld.tsx` | A towering voxel spire housing a dedicated math laboratory with real-time MathLive formula calculation. |
+| **Progress Trail** | `ProgressTrailWorld.tsx` | A winding highland path visually rendering the student's mastery milestones, completed topics, and active badges. |
+| **Focused View** | `FocusedIslandWorld.tsx` | Cinematic camera zooms that seamlessly transition the viewport when inspecting individual landmark islands. |
+
+### 🎮 3D Camera Controls
+- **Orbit / Rotate**: `Left Click + Drag`
+- **Pan Viewport**: `Right Click + Drag`
+- **Zoom In / Out**: `Mouse Scroll Wheel`
+- **Select Landmark**: Click directly on any 3D building to trigger island focus and open the corresponding modal.
+
+---
+
+## 🚀 Deploying to Vercel (Multi-Service)
+
+SURI is pre-configured with a top-level [`vercel.json`](file:///vercel.json) that leverages **Vercel Services** to deploy both the **FastAPI Backend** and the **Next.js Frontend** under a single shared domain.
+
+### The `vercel.json` Configuration
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "backend": {
+      "root": "backend",
+      "framework": "fastapi"
+    },
+    "frontend": {
+      "root": "frontend",
+      "framework": "nextjs"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "frontend"
+      }
+    }
+  ]
+}
+```
+
+### Why This Architecture Wins
+1. **Zero CORS Issues**: Because both the backend and frontend are hosted under the same domain, client requests to `/api/...` are routed internally without cross-origin friction.
+2. **Atomic Full-Stack Deployments**: Every Git commit deploys the exact matched version of both API endpoints and UI components simultaneously.
+3. **Automatic Scaling**: The Next.js frontend uses Vercel Edge/Serverless functions, while the FastAPI service executes with native Python runtime support.
+
+### Deployment Steps
+
+1. Push your repository to **GitHub**:
+   ```bash
+   git push origin main
+   ```
+2. Log in to [Vercel](https://vercel.com) and click **"Add New Project"**.
+3. Select your **SURI** repository. Vercel will automatically detect `vercel.json` and configure both the `backend` and `frontend` services.
+4. Add your **Environment Variables** in the Vercel Project Settings:
+   - `GEMINI_API_KEY`: Your Google AI Studio API key.
+   - `DATABASE_URL`: Your Supabase PostgreSQL connection string (Transaction Pooler URI on port `6543` recommended).
+   - `JWT_SECRET`: A secure random cryptographic secret string.
+5. Click **Deploy**. Your full-stack platform will be live in minutes!
+
+---
+
+## 📦 Tech Stack & Dependencies Catalog
+
+### 1. Backend (`backend/requirements.txt`)
+
+```text
+fastapi>=0.110.0          # Modern async web framework
+uvicorn[standard]>=0.27.0 # High-speed ASGI web server
+asyncpg>=0.29.0           # Async PostgreSQL driver (Supabase connection pooling)
+python-jose[cryptography] # JWT creation, verification, and cookie security
+bcrypt>=4.0.0             # Secure cryptographic password hashing
+python-multipart          # Form data handling for authentication
+chromadb>=0.4.0           # Vector database for DepEd SLM embeddings
+llama-index>=0.10.0       # RAG document parsing & retrieval orchestration
+sentence-transformers     # Semantic search embedding models
+pypdf>=3.0.0              # DepEd SLM curriculum PDF extraction
+google-generativeai       # Google Gemini SDK (Dynamic content & hints)
+python-dotenv             # Environment variable loader
+```
+
+### 2. Frontend (`frontend/package.json`)
+
+```text
+next: 16.2.6              # Next.js 16 App Router framework
+react & react-dom: 19.2.4 # React 19 UI component library
+@react-three/fiber: 9.8.1 # Declarative Three.js for React
+@react-three/drei: 10.7.8 # Three.js camera & shader helpers
+three: 0.186.0            # 3D graphics engine powering voxel kingdom
+tailwindcss: ^4           # Modern utility-first CSS styling
+mathlive: 0.109.2         # Interactive mathematical equation editor
+react-math-keyboard: 2.0  # On-screen virtual math keypad
+katex & rehype-katex      # Fast LaTeX mathematical typography
+react-markdown            # Dynamic markdown rendering
+canvas-confetti           # Gamified celebration animations
+lucide-react              # Clean modern iconography
+react-hot-toast           # Toast feedback notifications
+patch-package             # React 19 compatibility patcher
+```
+
+### 3. Mathsteps Subprocess (`mathsteps_runner/package.json`)
+
+```text
+mathsteps: ^0.1.0         # Step-by-step algebra & equation simplifier
+```
+
+---
+
+## 🛠️ Step-by-Step Installation & Setup
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Tech-Wrightttt/SURI.git
+cd SURI
+```
+
+### 2. Set Up Python Virtual Environment (`venv`)
+
+Create a dedicated virtual environment in the project root:
+
 ```bash
 python -m venv venv
 ```
 
-#### B. Activate the virtual environment:
+Activate the virtual environment:
 
-- **Windows — Command Prompt (CMD):**
-  ```cmd
-  venv\Scripts\activate.bat
-  ```
-
-- **Windows — PowerShell:**
-  ```powershell
-  # If script execution is disabled on your system, run this once:
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-
-  # Activate the virtual environment:
-  .\venv\Scripts\Activate.ps1
-  ```
-
-- **macOS / Linux — Bash / Zsh:**
-  ```bash
-  source venv/bin/activate
-  ```
+| Operating System / Shell | Activation Command |
+| :--- | :--- |
+| **Windows — CMD** | `venv\Scripts\activate.bat` |
+| **Windows — PowerShell** | `.\venv\Scripts\Activate.ps1` |
+| **macOS / Linux — Bash/Zsh** | `source venv/bin/activate` |
 
 > [!TIP]
-> When activated, your terminal prompt will be prefixed with `(venv)`. Always make sure `(venv)` is active before installing Python dependencies or running backend commands.
+> If PowerShell blocks script execution, run:
+> ```powershell
+> Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+> .\venv\Scripts\Activate.ps1
+> ```
 
----
-
-### 2. Install Backend Dependencies
-
-With the virtual environment activated, install all required Python packages:
-
+### 3. Install Backend Dependencies
 ```bash
 pip install --upgrade pip
 pip install -r backend/requirements.txt
 ```
 
----
-
-### 3. Set Up Mathsteps Runner
-
-The backend invokes `mathsteps_runner/runner.js` as a subprocess to compute step-by-step math simplifications:
-
+### 4. Install Mathsteps Subprocess Dependencies
 ```bash
 cd mathsteps_runner
 npm install
 cd ..
 ```
 
----
-
-### 4. Install Frontend Dependencies
-
-Navigate to the `frontend/` directory and install dependencies. This will automatically execute `patch-package` to apply necessary React 19 compatibility patches:
-
+### 5. Install Frontend Dependencies
 ```bash
 cd frontend
 npm install
 cd ..
 ```
+*(The `postinstall` script automatically applies the React 19 patch for `@react-three/fiber` via `patch-package`.)*
 
----
+### 6. Configure Environment Variables
+Create a `.env` file in the root directory:
 
-### 5. Set Up the Database (Supabase / PostgreSQL)
+```ini
+# Google Gemini API Key
+GEMINI_API_KEY=your_gemini_api_key_here
 
-1. Open your Supabase project dashboard and go to the **SQL Editor**.
-2. Open [`scripts/schema_supabase.sql`](file:///scripts/schema_supabase.sql), copy its contents, and run it in the SQL Editor. This creates all necessary tables:
-   - `students`, `sessions`, `diagnostic_logs`, `competency_status`
-   - `content_records`, `practice_problems`, `practice_attempts`
-   - `misconception_logs`, `progression_logs`
-3. Open [`scripts/seed_supabase.sql`](file:///scripts/seed_supabase.sql), copy its contents, and run it in the SQL Editor to seed the database with initial topics, pre-generated content records, and practice problems.
-4. *(Optional)* Verify database connection and measure latency:
+# Supabase / PostgreSQL Connection String
+DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres?sslmode=require
+
+# JWT Auth Secret
+JWT_SECRET=super-secret-key-change-this-in-production
+```
+
+### 7. Initialize Database (Supabase / PostgreSQL)
+1. Open your **Supabase Dashboard** -> **SQL Editor**.
+2. Run [`scripts/schema_supabase.sql`](file:///scripts/schema_supabase.sql) to create all relational tables.
+3. Run [`scripts/seed_supabase.sql`](file:///scripts/seed_supabase.sql) to seed default topics, lessons, and practice problems.
+4. Test connectivity using the latency profiler:
    ```bash
    python db_latency_test.py
    ```
 
 ---
 
-### 6. Set Up the Knowledge Base Index (Optional / Rebuilding)
+## 🏃 Running the Application
 
-If you wish to rebuild the vector index from raw DepEd Self-Learning Module PDFs:
-
-1. Place your module PDF files in `knowledge_base/slm_pdfs/`.
-2. Build the ChromaDB vector index:
-   ```bash
-   python knowledge_base/build_index.py
-   ```
-3. Load the pre-generated content seed into the database:
-   ```bash
-   python knowledge_base/load_content_seed.py
-   ```
-
----
-
-## Running the Application
-
-### Option A: One-Click Full Stack Launch (`run.bat`)
-
-For Windows users, SURI includes a convenient `run.bat` script in the project root. It automatically detects your virtual environment (`venv\` or `backend\venv\`), launches the FastAPI backend in one Command Prompt window, and launches the Next.js frontend in another Command Prompt window.
-
+### Option A: The One-Click Launcher (`run.bat`)
+Run [`run.bat`](file:///run.bat) from the project root. It will open two Command Prompt windows launching the FastAPI backend and Next.js frontend simultaneously:
 ```cmd
 run.bat
 ```
 
-Both services will start up simultaneously:
-- **FastAPI Backend**: `http://localhost:8000`
-- **Next.js Frontend**: `http://localhost:3000`
+### Option B: Manual Terminal Execution
+- **Terminal 1 (Backend)**:
+  ```cmd
+  venv\Scripts\activate.bat
+  uvicorn backend.main:app --reload
+  ```
+  *Backend runs on `http://localhost:8000` (Swagger docs at `/docs`).*
+
+- **Terminal 2 (Frontend)**:
+  ```bash
+  cd frontend
+  npm run dev
+  ```
+  *Frontend runs on `http://localhost:3000`.*
 
 ---
 
-### Option B: Manual Terminal Execution (Step-by-Step)
+## 🔧 Developer & Utility Scripts
 
-If you prefer launching each service manually in separate terminals:
-
-#### Terminal 1 — Backend (FastAPI)
-
-From the **project root directory**:
-
-1. Activate your virtual environment:
-
-   - **Windows Command Prompt:**
-     ```cmd
-     venv\Scripts\activate.bat
-     ```
-
-   - **Windows PowerShell:**
-     ```powershell
-     .\venv\Scripts\Activate.ps1
-     ```
-
-   - **macOS / Linux:**
-     ```bash
-     source venv/bin/activate
-     ```
-
-2. Run the FastAPI development server:
-   ```bash
-   uvicorn backend.main:app --reload
-   ```
-   *(Or alternatively: `python -m uvicorn backend.main:app --reload`)*
-
-The backend server will be live at:
-- **API Base**: `http://localhost:8000`
-- **Interactive Swagger Docs**: `http://localhost:8000/docs`
-- **Alternative ReDoc**: `http://localhost:8000/redoc`
-
-#### Terminal 2 — Frontend (Next.js)
-
-From a second terminal in the **project root directory**:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Open your browser and navigate to:
-- **Web App**: `http://localhost:3000`
+| Script | Command | Purpose |
+| :--- | :--- | :--- |
+| **Supabase Latency Profiler** | `python db_latency_test.py` | Measures raw connect time, pooled query latency, and cold start times. |
+| **Knowledge Base Indexer** | `python knowledge_base/build_index.py` | Embeds DepEd SLM PDFs from `knowledge_base/slm_pdfs/` into ChromaDB. |
+| **Seed Pre-Generated Content** | `python knowledge_base/load_content_seed.py` | Seeds pre-generated lessons from `content_seed.json` into the database. |
+| **Generate Lessons via Gemini** | `python knowledge_base/generate_content.py` | Uses Gemini RAG to synthesize fresh lessons and worked examples. |
+| **Generate Practice Problems** | `python knowledge_base/generate_practice.py` | Combines Gemini with `mathsteps` to scaffold step-by-step problem sets. |
+| **Generate Distractors** | `python knowledge_base/generate_distractors.py` | Generates realistic multiple-choice distractors for diagnostic items. |
+| **Generate Diagnostic Probes** | `python scripts/generate_diagnostic_probes.py` | Compiles diagnostic assessment probes across all graph nodes. |
+| **Test Mathsteps Directly** | `node mathsteps_runner/runner.js "2x + 5 = 15"` | Tests equation parsing and step output via command line. |
+| **Integration Smoke Test** | `python scratch/verify_suri.py` | Runs automated end-to-end checks against all API endpoints. |
 
 ---
 
-### Option C: Cursor / VS Code Tasks
+## 🗺️ Prerequisite Learning Graph
 
-If you are using Cursor or Visual Studio Code:
-1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
-2. Select **Tasks: Run Task**.
-3. Choose **SURI: Start Full Stack**.
-
-This launches both backend and frontend inside your editor's integrated terminal panel.
-
----
-
-## Developer & Utility Scripts
-
-SURI includes several standalone developer utilities in `scripts/`, `knowledge_base/`, and the root directory:
-
-| Script / Command | Purpose |
-| :--- | :--- |
-| `python db_latency_test.py` | Tests Supabase raw connection latency, connection reuse, and pooling speed. |
-| `python knowledge_base/build_index.py` | Ingests PDF modules from `knowledge_base/slm_pdfs/` into ChromaDB using LlamaIndex. |
-| `python knowledge_base/load_content_seed.py` | Populates `content_records` table with pre-generated lessons from `content_seed.json`. |
-| `python knowledge_base/generate_content.py` | Uses Gemini RAG to generate fresh lessons, worked examples, and guided explanations. |
-| `python knowledge_base/generate_practice.py` | Generates practice problems using Gemini and computes steps via `mathsteps`. |
-| `python knowledge_base/generate_distractors.py` | Synthesizes realistic multiple-choice distractors for practice items. |
-| `python scripts/generate_diagnostic_probes.py` | Generates diagnostic probe questions for each node in the prerequisite graph. |
-| `python scripts/export_sqlite_data.py` | Exports data from legacy `suri.db` SQLite database if migrating to Supabase. |
-| `node mathsteps_runner/runner.js "2x + 5 = 15"` | Directly tests mathsteps expression parsing and step extraction. |
-| `python scratch/verify_suri.py` | Runs end-to-end integration and smoke tests against all API endpoints. |
-
----
-
-## Prerequisite Learning Graph
-
-SURI organizes mathematics curriculum competencies from **Grade 6 through Grade 10** into an interconnected directed acyclic graph (defined in [`backend/graph.py`](file:///backend/graph.py)). There are **4 primary learning chains** anchored by 4 Grade 8–10 entry nodes:
+SURI structures math topics across Grades 6 to 10 into 4 primary learning chains:
 
 ```mermaid
-graph TD
-    subgraph "Chain 1: Quadratic Equations"
-        FD1["FD: Fractions & Decimals (Gr 6)"] --> OI1["OI: Operations on Integers (Gr 7)"]
-        OI1 --> LE1["LE: Laws of Exponents (Gr 7)"]
-        LE1 --> SP1["SP: Special Products (Gr 7)"]
-        SP1 --> FP1["FP: Factoring Polynomials (Gr 8)"]
-        FP1 --> QE["QE: Quadratic Equations (Gr 9) [Entry]"]
+graph LR
+    subgraph Grade6["Grade 6 Foundation"]
+        FD["FD: Fractions & Decimals"]
+        RPP["RPP: Ratio, Proportion, Percent"]
     end
 
-    subgraph "Chain 2: Systems of Linear Equations"
-        FD2["FD: Fractions & Decimals (Gr 6)"] --> RPP["RPP: Ratio, Proportion, Percent (Gr 6)"]
-        RPP --> AE["AE: Algebraic Expressions (Gr 7)"]
-        AE --> L1V["L1V: Linear Eq. in 1 Variable (Gr 7)"]
-        L1V --> L2V["L2V: Linear Eq. in 2 Variables (Gr 8)"]
-        L2V --> SLE["SLE: Systems of Linear Eq. (Gr 8) [Entry]"]
+    subgraph Grade7["Grade 7 Fundamentals"]
+        OI["OI: Operations on Integers"]
+        LE["LE: Laws of Exponents"]
+        SP["SP: Special Products"]
+        AE["AE: Algebraic Expressions"]
+        L1V["L1V: Linear Eq. in 1 Variable"]
     end
 
-    subgraph "Chain 3: Rational Exponents & Radicals"
-        LE2["LE: Laws of Exponents (Gr 7)"] --> RER["RER: Rational Exponents & Radicals (Gr 9) [Entry]"]
+    subgraph Grade8["Grade 8 Intermediate"]
+        FP["FP: Factoring Polynomials"]
+        L2V["L2V: Linear Eq. in 2 Variables"]
+        PO["PO: Polynomial Operations"]
+        SLE["🎯 SLE: Systems of Linear Eq."]
     end
 
-    subgraph "Chain 4: Polynomial Equations"
-        PO["PO: Polynomial Operations (Gr 8)"] --> FP2["FP: Factoring Polynomials (Gr 8)"]
-        PO --> PD["PD: Polynomial Division (Gr 10)"]
-        FP2 --> PE["PE: Polynomial Equations (Gr 10) [Entry]"]
-        PD --> PE
+    subgraph Grade9["Grade 9 Advanced"]
+        QE["🎯 QE: Quadratic Equations"]
+        RER["🎯 RER: Rational Exponents & Radicals"]
     end
+
+    subgraph Grade10["Grade 10 Mastery"]
+        PD["PD: Polynomial Division"]
+        PE["🎯 PE: Polynomial Equations"]
+    end
+
+    FD --> OI
+    OI --> LE
+    LE --> SP
+    SP --> FP
+    FP --> QE
+
+    FD --> RPP
+    RPP --> AE
+    AE --> L1V
+    L1V --> L2V
+    L2V --> SLE
+
+    LE --> RER
+
+    PO --> FP
+    PO --> PD
+    FP --> PE
+    PD --> PE
+
+    classDef entry fill:#4F46E5,stroke:#312E81,stroke-width:2px,color:#fff;
+    class QE,SLE,RER,PE entry;
 ```
-
-### Competency Nodes Summary
-
-| Node ID | Node Title | Grade Level | Primary Chain |
-| :--- | :--- | :---: | :--- |
-| **FD** | Fractions & Decimals | 6 | Foundation for Chains 1 & 2 |
-| **RPP** | Ratio, Proportion, Percent | 6 | Chain 2 |
-| **OI** | Operations on Integers | 7 | Chains 1 & 3 |
-| **LE** | Laws of Exponents | 7 | Chains 1 & 3 |
-| **SP** | Special Products / Polynomial Multiplication | 7 | Chain 1 |
-| **AE** | Algebraic Expressions & Evaluation | 7 | Chain 2 |
-| **L1V** | Linear Equations in 1 Variable | 7 | Chain 2 |
-| **FP** | Factoring Polynomials | 8 | Chains 1 & 4 |
-| **L2V** | Linear Equations in 2 Variables | 8 | Chain 2 |
-| **PO** | Polynomial Operations | 8 | Chain 4 |
-| **SLE** | Systems of Linear Equations *(Entry Topic)* | 8 | Chain 2 Entry |
-| **QE** | Quadratic Equations *(Entry Topic)* | 9 | Chain 1 Entry |
-| **RER** | Rational Exponents & Radicals *(Entry Topic)* | 9 | Chain 3 Entry |
-| **PD** | Polynomial Division | 10 | Chain 4 |
-| **PE** | Polynomial Equations *(Entry Topic)* | 10 | Chain 4 Entry |
 
 ---
 
-## Complete API Reference
+## 📡 Complete API Reference
 
-All API routes are served under the `/api` prefix on `http://localhost:8000`.
+All backend routes are served under the `/api` prefix on `http://localhost:8000`:
 
-### 1. Authentication (`/api/auth`)
+### 🔐 1. Authentication (`/api/auth`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Registers a new student (`name`, `email`, `grade_level`, `password`) and sets HTTP-only auth cookie. |
+| `POST` | `/api/auth/register` | Registers new student (`name`, `email`, `grade_level`, `password`) and sets HTTP-only JWT cookie. |
 | `POST` | `/api/auth/login` | Authenticates student with `email` and `password`, sets HTTP-only session cookie. |
 | `POST` | `/api/auth/logout` | Clears student authentication cookie. |
 | `GET` | `/api/auth/me` | Returns current authenticated student details (`student_id`, `name`). |
 
-### 2. Topics & Catalog (`/api`)
+### 📚 2. Topics & Catalog (`/api`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/topics` | Lists all entry-level topics (QE, SLE, RER, PE). |
@@ -523,12 +491,12 @@ All API routes are served under the `/api` prefix on `http://localhost:8000`.
 | `GET` | `/api/topics/{node_id}/chain` | Returns prerequisite chain from the specified node down to foundational floor. |
 | `GET` | `/api/topics/{node_id}/intro` | Returns introductory metadata and overview description for a topic node. |
 
-### 3. Student Progress & Dashboard (`/api`)
+### 📊 3. Student Progress (`/api`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/students/{student_id}/progress` | Returns student active sessions, completed sessions, and misconception error history. |
 
-### 4. Learning Sessions (`/api/sessions`)
+### 🎯 4. Learning Sessions (`/api/sessions`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/api/sessions` | Creates or resumes a learning session for an entry topic node. |
@@ -536,7 +504,7 @@ All API routes are served under the `/api` prefix on `http://localhost:8000`.
 | `PATCH` | `/api/sessions/{session_id}` | Updates session state (current node or completion status). |
 | `PATCH` | `/api/sessions/{session_id}/progress` | Updates completion percentage for the current session. |
 
-### 5. Diagnostic Assessments (`/api/diagnostic`)
+### 🩺 5. Diagnostic Assessments (`/api/diagnostic`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/diagnostic/{session_id}/probe` | Retrieves the next diagnostic question for the session. |
@@ -544,19 +512,19 @@ All API routes are served under the `/api` prefix on `http://localhost:8000`.
 | `POST` | `/api/diagnostic/{session_id}/submit` | Submits complete batch diagnostic assessment. |
 | `POST` | `/api/diagnostic/skip` | Skips diagnostic assessment and immediately routes student to targeted learning. |
 
-### 6. Lesson Content & Simplification (`/api/content`)
+### 📖 6. Lesson Content & Simplification (`/api/content`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/content/{node_id}` | Fetches lesson text, worked example, and guided explanation for a node. |
 | `POST` | `/api/content/{node_id}/simplify` | Generates a simplified, student-friendly lesson explanation via Gemini. |
 
-### 7. Practice Problems (`/api/practice`)
+### ✍️ 7. Practice Problems (`/api/practice`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/api/practice/start` | Retrieves or generates a scaffolded practice problem set for a node. |
 | `POST` | `/api/practice/submit-step` | Evaluates a single mathematical step submitted by the student, detecting misconceptions. |
 
-### 8. Interactive Quiz Engine (`/api/quiz`)
+### 🏆 8. Interactive Quiz Engine (`/api/quiz`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/api/quiz/start` | Initializes a quiz session for a competency node. |
@@ -565,64 +533,75 @@ All API routes are served under the `/api` prefix on `http://localhost:8000`.
 | `POST` | `/api/quiz/use-hint` | Requests a contextual hint for the current problem step. |
 | `POST` | `/api/quiz/finish` | Concludes the quiz, computes total score, and updates competency status. |
 
-### 9. Learning Progression (`/api/progression`)
+### 📈 9. Learning Progression (`/api/progression`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/api/progression/decide` | Evaluates mastery score and determines whether to **advance** or **remediate**. |
 
-### 10. Graph Traversal (`/api/graph`)
+### ⚡ 10. Fast Graph Traversal (`/api/graph`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/graph/{topic_entry_node}/chain` | High-speed in-memory lookup of prerequisite chain (zero database overhead). |
 
 ---
 
-## Troubleshooting & FAQ
+## ❓ Troubleshooting & FAQ
 
-### 1. PowerShell Script Execution Policy Error
+<details>
+<summary><b>1. PowerShell: "Running scripts is disabled on this system"</b></summary>
+
 **Error:** `.\venv\Scripts\Activate.ps1 : File cannot be loaded because running scripts is disabled on this system.`  
-**Solution:** Run this command in your PowerShell window to permit local scripts for your current session:
+**Solution:** Open PowerShell and set the execution policy for your current session:
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 .\venv\Scripts\Activate.ps1
 ```
+</details>
 
-### 2. Module Not Found: `No module named 'backend'`
+<details>
+<summary><b>2. ModuleNotFoundError: No module named 'backend'</b></summary>
+
 **Error:** `ModuleNotFoundError: No module named 'backend'` when starting `uvicorn`.  
 **Solution:** Ensure you execute `uvicorn backend.main:app --reload` from the **project root folder** (`SURI/`), NOT from inside the `backend/` folder.
+</details>
 
-### 3. Database Connection Failure / Timeout
+<details>
+<summary><b>3. Supabase Database Connection Timeout</b></summary>
+
 **Error:** `asyncpg.exceptions.CannotConnectNowError` or connection timeout during startup.  
 **Solutions:**
-- Check your `.env` file and make sure `DATABASE_URL` is configured correctly.
-- Verify your Supabase project is active (not paused).
-- Run the latency test to check connectivity:
-  ```bash
-  python db_latency_test.py
-  ```
-- If using Supabase connection pooling, ensure port `6543` (transaction pooler) or port `5432` (direct) is specified with `?sslmode=require`.
+- Confirm your `DATABASE_URL` in `.env` is formatted with `?sslmode=require`.
+- If using Supabase Connection Pooling, connect to port `6543` (transaction pooler) instead of port `5432`.
+- Run `python db_latency_test.py` to check direct connectivity and isolate network delays.
+</details>
 
-### 4. Mathsteps Subprocess Errors
+<details>
+<summary><b>4. Mathsteps Subprocess: File Not Found Error</b></summary>
+
 **Error:** `mathsteps runner failed or timed out: [WinError 2] The system cannot find the file specified`.  
-**Solution:** Ensure Node.js is installed and run `npm install` inside `mathsteps_runner/`:
+**Solution:** Ensure Node.js is installed on your machine and run `npm install` inside the `mathsteps_runner` directory:
 ```bash
 cd mathsteps_runner
 npm install
 cd ..
 ```
+</details>
 
-### 5. Frontend Build / Dependency Conflicts with React 19
-**Error:** Dependency resolution errors during `npm install` in `frontend/`.  
-**Solution:** Use the included `patch-package` setup:
+<details>
+<summary><b>5. React 19 / React Three Fiber Conflicts</b></summary>
+
+**Error:** Peer dependency mismatch with React 19.  
+**Solution:** SURI includes a pre-packaged patch in `frontend/patches/`. Run:
 ```bash
 cd frontend
 npm install --legacy-peer-deps
 npm run postinstall
 cd ..
 ```
+</details>
 
 ---
 
-## License
+## 📄 License & Attribution
 
-This project is developed for educational research and mathematics instruction for Philippine Junior High School students under the DepEd curriculum framework.
+This project is developed for educational research and mathematics instruction for Philippine Junior High School students under the Department of Education (DepEd) curriculum guidelines.
