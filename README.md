@@ -210,6 +210,12 @@ SURI is pre-configured with a top-level [`vercel.json`](file:///vercel.json) tha
   },
   "rewrites": [
     {
+      "source": "/api/solve",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
       "source": "/api/(.*)",
       "destination": {
         "service": "backend"

@@ -1172,7 +1172,7 @@ html::-webkit-scrollbar {
   .calculator-input-row, .calculator-result-overview { grid-template-columns: 1fr; }
   .calculator-reset-button, .calculator-solve-button { min-height: 3.25rem; width: 100%; }
   .calculator-transformation { grid-template-columns: 1fr; gap: .55rem; }
-  .calculator-arrow { justify-self: center; transform: rotate(-90deg); }
+  .calculator-arrow { justify-self: center; transform: rotate(90deg); }
   .calculator-solution-list { --calculator-marker-size: 2.05rem; --calculator-rail: calc(.12rem + var(--calculator-marker-size) / 2); padding-inline: .12rem; }
   .calculator-solution-step { gap: .7rem; }
   .calculator-step-card { padding: .85rem .78rem; }
