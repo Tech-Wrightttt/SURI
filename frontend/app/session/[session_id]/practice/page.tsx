@@ -811,9 +811,30 @@ const GAME_CSS = `
   }
   .feedback-banner.correct { background: linear-gradient(135deg,rgba(30,80,50,0.97),rgba(20,60,35,0.99)); border-color: rgba(61,191,110,0.6); }
   .feedback-banner.wrong { background: linear-gradient(135deg,rgba(80,15,15,0.97),rgba(60,8,8,0.99)); border-color: rgba(231,76,60,0.6); }
+  .feedback-banner.checkpoint {
+    background: linear-gradient(135deg, rgba(68, 33, 10, 0.97), rgba(42, 19, 6, 0.99));
+    border-color: #f5b025;
+    box-shadow: 0 0 16px rgba(245, 176, 37, 0.35);
+  }
   .feedback-suri { height: 48px; width: auto; object-fit: contain; flex-shrink: 0; }
   .feedback-title { font-family: 'Fredoka One', cursive; font-size: 14px; color: #fff; margin: 0; }
   .feedback-quote { font-family: 'Nunito', sans-serif; font-size: 12px; color: rgba(255,255,255,0.85); margin: 0; }
+  .chronicle-checkpoint-flag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 10px;
+    margin: 4px 0 6px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(245, 176, 37, 0.08), rgba(245, 176, 37, 0.22), rgba(245, 176, 37, 0.08));
+    border: 1px dashed rgba(245, 176, 37, 0.6);
+    color: #ffe8a2;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
 
   /* Shield Bar */
   .shield-bar { display: flex; gap: 6px; align-items: center; justify-content: center; }
@@ -1443,6 +1464,7 @@ export default function PracticePage() {
   const [streak, setStreak] = useState<number>(0);
   const [guidanceMode, setGuidanceMode] = useState<boolean>(false);
   const [stepFeedback, setStepFeedback] = useState<{ correct: boolean; correctValue: string } | null>(null);
+  const [checkpointNotice, setCheckpointNotice] = useState<{ targetStep: number; wasCheckpoint: boolean } | null>(null);
 
   // Load practice problems
   const loadPracticeData = useCallback(async () => {
@@ -1539,6 +1561,7 @@ export default function PracticePage() {
       setProblemMistakes(0);
       setSuriHearts(MAX_HEARTS);
       setGuidanceMode(false);
+      setCheckpointNotice(null);
       setEnemyShields(problems[nextProbIdx].steps.length);
       setEnemyAnimState("appear");
       setProblemLoading(false);
@@ -1551,6 +1574,7 @@ export default function PracticePage() {
 
     setLocked(true);
     setStepFeedback(null);
+    setCheckpointNotice(null);
 
     const isCorrect = checkStepCorrect(stepInput, currentStep.correct_value);
     const newCompletedStep = {
@@ -1621,38 +1645,68 @@ export default function PracticePage() {
       const newMistakes = problemMistakes + 1;
       setProblemMistakes(newMistakes);
       setStepFeedback({ correct: false, correctValue: currentStep.correct_value });
-      toast.error("Rune Countered!");
+
+      const nextHearts = Math.max(0, suriHearts - 1);
 
       setTimeout(() => {
         setSuriState("hit");
-        setSuriHearts(prev => {
-          const nextHearts = prev - 1;
-          setSuriBreaking(nextHearts);
-          if (nextHearts <= 0) {
-            // Guidance Mode activated instead of game over
-            setGuidanceMode(true);
-            setSuriState("sad");
-            setTimeout(() => {
-              setSuriBreaking(null);
-              setEnemyAnimState("idle");
-            }, 600);
+        setSuriBreaking(nextHearts);
+        setSuriHearts(nextHearts);
+
+        if (nextHearts <= 0) {
+          // Recommendation 1: Phase / Checkpoint Reset
+          const totalSteps = currentProblem?.steps.length || 1;
+          const checkpointIdx = totalSteps > 3 ? Math.floor(totalSteps / 2) : 0;
+          const targetStepIdx = currentStepIdx >= checkpointIdx ? checkpointIdx : 0;
+          const wasCheckpoint = targetStepIdx > 0;
+
+          setSuriState("defeated");
+          setCheckpointNotice({
+            targetStep: targetStepIdx + 1,
+            wasCheckpoint,
+          });
+
+          if (wasCheckpoint) {
+            toast.error(`Shields Broken! Falling back to Checkpoint (Step ${targetStepIdx + 1})...`);
           } else {
-            setTimeout(() => {
-              setSuriBreaking(null);
-              setSuriState("sad");
-              setEnemyAnimState("idle");
-              setTimeout(() => setSuriState("idle"), 600);
-            }, 600);
+            toast.error("Shields Broken! Resetting to Step 1...");
           }
-          return Math.max(0, nextHearts);
-        });
 
-        setTimeout(() => {
-          setSuriBreaking(null);
-          setEnemyAnimState("idle");
-          setLocked(false);
-        }, 1200);
+          setTimeout(() => {
+            setSuriBreaking(null);
+            setSuriHearts(MAX_HEARTS);
+            setCurrentStepIdx(targetStepIdx);
+            setStepInput("");
 
+            const validStepIndices = new Set(
+              currentProblem.steps.slice(0, targetStepIdx).map(s => s.step_index)
+            );
+            setCompletedSteps(prev => prev.filter(cs => validStepIndices.has(cs.step.step_index)));
+            setAllStepSubmissions(prev => ({
+              ...prev,
+              [currentProblemIdx]: (prev[currentProblemIdx] || []).filter(sub => validStepIndices.has(sub.step_index)),
+            }));
+            setEnemyShields(totalSteps - targetStepIdx);
+            setEnemyAnimState("idle");
+            setSuriState("idle");
+            setLocked(false);
+          }, 1200);
+
+        } else {
+          toast.error("Rune Countered!");
+          setTimeout(() => {
+            setSuriBreaking(null);
+            setSuriState("sad");
+            setEnemyAnimState("idle");
+            setTimeout(() => setSuriState("idle"), 600);
+          }, 600);
+
+          setTimeout(() => {
+            setSuriBreaking(null);
+            setEnemyAnimState("idle");
+            setLocked(false);
+          }, 1200);
+        }
       }, 300);
     }
   };
@@ -1779,23 +1833,33 @@ export default function PracticePage() {
                 <GameIcon name="sword" /> Step Chronicle
               </div>
               <div className="chronicle-list">
-                {currentProblem.steps.map((st, idx) => {
-                  const completed = completedSteps.find(cs => cs.step.step_index === st.step_index);
-                  const isActive = idx === currentStepIdx && !completed;
-                  const isPending = idx > currentStepIdx && !completed;
+                {(() => {
+                  const totalSteps = currentProblem.steps.length;
+                  const checkpointIdx = totalSteps > 3 ? Math.floor(totalSteps / 2) : 0;
 
-                  let statusClass = "";
-                  if (completed) {
-                    statusClass = completed.correct ? "is-correct" : "is-wrong";
-                  } else if (isActive) {
-                    statusClass = "is-active";
-                  } else if (isPending) {
-                    statusClass = "is-pending";
-                  }
+                  return currentProblem.steps.map((st, idx) => {
+                    const completed = completedSteps.find(cs => cs.step.step_index === st.step_index);
+                    const isActive = idx === currentStepIdx && !completed;
+                    const isPending = idx > currentStepIdx && !completed;
 
-                  return (
-                    <div key={st.step_index} className={`chronicle-item ${statusClass}`}>
-                      <div className="chronicle-badge">{idx + 1}</div>
+                    let statusClass = "";
+                    if (completed) {
+                      statusClass = completed.correct ? "is-correct" : "is-wrong";
+                    } else if (isActive) {
+                      statusClass = "is-active";
+                    } else if (isPending) {
+                      statusClass = "is-pending";
+                    }
+
+                    return (
+                      <React.Fragment key={st.step_index}>
+                        {checkpointIdx > 0 && idx === checkpointIdx && (
+                          <div className="chronicle-checkpoint-flag">
+                            <span>🚩 Milestone Checkpoint</span>
+                          </div>
+                        )}
+                        <div className={`chronicle-item ${statusClass}`}>
+                          <div className="chronicle-badge">{idx + 1}</div>
                       <div className="flex-1 text-xs space-y-1">
                         <div className="font-bold text-amber-100 leading-snug">
                           <ReactMarkdown
@@ -1844,10 +1908,12 @@ export default function PracticePage() {
                         {isActive && <div className="text-amber-300 font-bold text-[11px] animate-pulse">In Progress...</div>}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </aside>
+                  </React.Fragment>
+                );
+              });
+            })()}
+            </div>
+          </aside>
 
             {/* Right Area: HUD Header (Top) + Arena (Middle) + Input Answer (Bottom) */}
             <div className="right-main-area">
@@ -2021,7 +2087,21 @@ export default function PracticePage() {
                     </div>
 
                     {/* Feedback Banner */}
-                    {stepFeedback && !stepFeedback.correct && (
+                    {checkpointNotice ? (
+                      <div className="feedback-banner checkpoint">
+                        <img src="/suri-snake-sad.png" alt="Suri recovering" className="feedback-suri" />
+                        <div>
+                          <p className="feedback-title">
+                            <GameIcon name="warning" /> {checkpointNotice.wasCheckpoint ? "Shields Shattered — Checkpoint Recovered!" : "Shields Shattered — Starting Over at Step 1!"}
+                          </p>
+                          <div className="feedback-quote">
+                            {checkpointNotice.wasCheckpoint
+                              ? `Milestone preserved! Returned to Step ${checkpointNotice.targetStep} with 3 fresh hearts.`
+                              : "All hearts were lost. Hearts restored to 3 — let's re-forge from Step 1!"}
+                          </div>
+                        </div>
+                      </div>
+                    ) : stepFeedback && !stepFeedback.correct ? (
                       <div className="feedback-banner wrong">
                         <img src="/suri-snake-sad.png" alt="Suri sad" className="feedback-suri" />
                         <div>
@@ -2040,7 +2120,7 @@ export default function PracticePage() {
                           </div>
                         </div>
                       </div>
-                    )}
+                    ) : null}
 
                     {/* Action Button */}
                     <button
