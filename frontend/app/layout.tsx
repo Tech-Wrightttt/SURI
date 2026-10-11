@@ -23,7 +23,7 @@ export default function RootLayout({
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-[#f7f9fb] text-[#191c1e] min-h-screen font-['Manrope']">
+      <body className="bg-[#f7f9fb] text-[#191c1e] min-h-screen font-['Manrope']" suppressHydrationWarning>
         <LearningShell>{children}</LearningShell>
       </body>
     </html>
