@@ -120,6 +120,60 @@ body {
 .suri-app-logout-control:hover { box-shadow: 0 8px 0 #59100e, 0 15px 24px rgba(0,0,0,.26), inset 0 0 0 3px rgba(255,237,218,.16); }
 @media (max-width: 540px) { .suri-app-bar { padding: .48rem; }.suri-app-bar-frame { gap: .45rem; }.suri-app-brand, .suri-app-control { min-height: 3.35rem; border-width: 3px; box-shadow: 0 4px 0 #160b07, 0 9px 16px rgba(0,0,0,.23), inset 0 0 0 2px rgba(111,61,28,.16); }.suri-app-brand::after, .suri-app-control::after { inset: .26rem; border-width: 1px; }.suri-app-brand { min-width: 0; padding: .34rem .52rem; }.suri-app-brand-logo { height: 1.55rem; }.suri-app-bar-actions { gap: .34rem; }.suri-app-control { padding: .42rem .58rem; }.suri-app-control-label { display: none; }.suri-app-account-control { max-width: 9rem; }.suri-app-logout-control { inline-size: 3.35rem !important; block-size: 3.35rem !important; } }
 
+/* Logout confirmation follows the parchment cards and raised archive controls. */
+.suri-logout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 170;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(3, 14, 31, .68);
+  backdrop-filter: blur(5px) saturate(.88);
+  animation: suri-help-overlay-in .2s ease-out both;
+}
+.suri-logout-modal {
+  position: relative;
+  width: min(100%, 28rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 4px solid #5e3619;
+  color: #3a2111;
+  background: radial-gradient(circle at 50% 0, rgba(255,255,255,.45), transparent 55%), linear-gradient(180deg, #fff0bf, #dec07b);
+  box-shadow: 0 7px 0 #160b07, 0 24px 60px rgba(0,0,0,.4), inset 0 0 0 3px rgba(111,61,28,.16);
+  font-family: "Nunito", "Manrope", sans-serif;
+  animation: suri-help-modal-in .24s cubic-bezier(.2,.8,.2,1) both;
+}
+.suri-logout-modal::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
+.suri-logout-header { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.25rem 0; }
+.suri-logout-header::before { content: ""; height: 2.75rem; }
+.suri-logout-content { position: relative; z-index: 1; padding: .75rem 1.75rem 1.5rem; text-align: center; }
+.suri-logout-icon { display: grid; place-items: center; width: 4rem; height: 4rem; margin: 0 auto 1.25rem; border: 3px solid #6d411c; border-radius: 50%; color: #fff4d5; background: linear-gradient(180deg, #d74b42, #a8211c); box-shadow: 0 4px 0 #59100e, inset 0 0 0 2px rgba(255,237,218,.16); }
+.suri-logout-content h2 { margin: 0; font: 400 clamp(1.6rem, 5vw, 1.9rem)/1.2 "Bree Serif", Georgia, serif; letter-spacing: -.025em; }
+.suri-logout-content p { margin: .75rem 0 0; color: #5f4b2e; font-size: .9rem; font-weight: 700; line-height: 1.65; }
+.suri-logout-actions { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0 1.25rem; padding: 1.25rem 0 1.75rem; border-top: 2px solid rgba(111,61,28,.2); }
+.suri-logout-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 3rem; padding: .65rem .75rem; border: 3px solid #6d411c; border-radius: 7px; color: #3a2111; background: linear-gradient(180deg, #fff7dc, #ecd49a); box-shadow: 0 4px 0 #4b2411, inset 0 0 0 2px rgba(111,61,28,.1); font: 900 .85rem/1.2 "Nunito", sans-serif; cursor: pointer; }
+.suri-logout-confirm { color: #fff4d5; background: linear-gradient(180deg, #d74b42, #a8211c); box-shadow: 0 4px 0 #59100e, inset 0 0 0 2px rgba(255,237,218,.16); }
+.suri-logout-button { transition: filter .16s, transform .16s; }
+.suri-logout-button:hover { filter: brightness(1.06); transform: translateY(-2px); }
+.suri-logout-button:active { transform: translateY(2px); }
+.suri-logout-button:focus-visible { outline: 3px solid #1d528d; outline-offset: 3px; }
+@media (max-width: 400px) {
+  .suri-logout-overlay { padding: .75rem; }
+  .suri-logout-modal { max-height: calc(100dvh - 1.5rem); }
+  .suri-logout-header { padding: 1rem 1rem 0; }
+  .suri-logout-content { padding: 1rem 1rem 1.25rem; }
+  .suri-logout-actions { margin: 0 1rem; gap: .65rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .suri-logout-overlay, .suri-logout-modal { animation: none; }
+  .suri-logout-button { transition: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .suri-logout-overlay { backdrop-filter: none; }
+}
+
 .card-shadow {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
