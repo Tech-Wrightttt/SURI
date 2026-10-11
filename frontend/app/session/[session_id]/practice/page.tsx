@@ -184,11 +184,11 @@ const fixUnbalancedMath = (before: string, after: string) => {
 };
 
 const ENEMY_ROSTER = [
-  { name: "Fraction Fiend", title: "Splitter of Wholes", img: "/enemy-math-villain.png" },
-  { name: "Variable Phantom", title: "The Unknown", img: "/enemy-math-villain.png" },
-  { name: "Exponent Wraith", title: "Power Corruptor", img: "/enemy-math-villain.png" },
-  { name: "Equation Golem", title: "Balance Breaker", img: "/enemy-math-villain.png" },
-  { name: "Polynomial Hydra", title: "Many-Termed Beast", img: "/enemy-math-villain.png" },
+  { name: "Fraction Fiend", title: "Splitter of Wholes", img: "/fraction-fiend-villain.png" },
+  { name: "Variable Phantom", title: "The Unknown", img: "/variable-phantom-villan.png" },
+  { name: "Exponent Wraith", title: "Power Corruptor", img: "/exponent-wraith-villain.png" },
+  { name: "Equation Golem", title: "Balance Breaker", img: "/equation-golem-villain.png" },
+  { name: "Polynomial Hydra", title: "Many-Termed Beast", img: "/polynomial-hydra-villain.png" },
 ];
 
 function calculateStars(mistakes: number): number {
