@@ -1,6 +1,7 @@
 "use client";
 
 import { lazy, memo, Suspense, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import type { CameraCommand } from "@/lib/worldMap/navigation";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -207,7 +208,7 @@ function DashboardWorld(props: WorldProps) {
         <FrameGate active={props.visible} />
         <Suspense fallback={null}><CoastalWorld {...props} controlsEnabled={!props.busy && !overviewOpen} headerInset={headerInset} openOverview={openOverview} labelElementsRef={labelElementsRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} lowPower={lowPower} /></Suspense>
       </Canvas>
-        <div className={styles.labelLayer}>
+        {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} hidden={!props.visible || overviewOpen} aria-hidden={!props.visible || overviewOpen}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, detail: configuredDetail }) => {
             const detail = configuredDetail ?? (kind === "records"
               ? `${props.errors?.length ?? 0} misconception records · inspect the error history`
@@ -218,14 +219,14 @@ function DashboardWorld(props: WorldProps) {
                   : "Solve and explore equations");
             const label = title.split(" · ")[0];
             const hovered = hoveredLandmark === kind;
-            return <div key={kind} ref={(element) => { labelElementsRef.current[kind] = element; }} className={styles.anchor} data-landmark={kind} style={{ visibility: "hidden" }}>
+            return <div key={kind} ref={(element) => { labelElementsRef.current[kind] = element; }} className={styles.anchor} data-landmark={kind} data-active={hovered || (props.command?.kind === "island" && props.command.site === kind)} style={{ visibility: "hidden" }}>
               {href ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${detail}`}
                 onClick={() => { if (!props.busy) props.navigate(href); }}
                 onMouseEnter={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}
                 onFocus={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onBlur={() => setHoveredLandmark(null)}>
-                <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span>
+                <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
                 <span className={styles.markerDetail}>{detail}</span>
               </button> : <button ref={keepTriggerRef} type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: Open your student progress and account overview`}
                 onClick={openOverview}
@@ -233,12 +234,12 @@ function DashboardWorld(props: WorldProps) {
                 onMouseLeave={() => setHoveredLandmark(null)}
                 onFocus={() => { void loadStudentOverview(); setHoveredLandmark(kind); }}
                 onBlur={() => setHoveredLandmark(null)}>
-                <span className={styles.markerHeading}><span className={styles.markerIcon} aria-hidden="true">✦</span><span className={styles.markerTitle}>{label}</span></span>
+                <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
                 <span className={styles.markerDetail}>{detail}</span>
               </button>}
             </div>;
           })}
-        </div>
+        </div>, document.body)}
       </div>
       {overviewOpen && <Suspense fallback={<div className="suri-overview-overlay" role="status"><div className="suri-overview-loading">Opening your student overview…</div></div>}>
         <StudentOverviewModal me={props.me} active={props.active} completed={props.completed} errors={props.errors} progress={props.progress} opener={overviewOpener} onClose={() => setOverviewOpen(false)} />
