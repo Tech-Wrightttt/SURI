@@ -69,7 +69,7 @@ type WorldProps = {
 };
 
 type CoastalWorldProps = WorldProps & {
-  openOverview: () => void; labelElementsRef: RefObject<LandmarkElements>; hoveredLandmark: LandmarkKind | null; setHoveredLandmark: (kind: LandmarkKind | null) => void; lowPower: boolean;
+  openOverview: () => void; labelElementsRef: RefObject<LandmarkElements>; hoveredLandmark: LandmarkKind | null; setHoveredLandmark: (kind: LandmarkKind | null) => void; lowPower: boolean; controlsEnabled: boolean; headerInset: number;
 };
 
 function FrameGate({ active }: { active: boolean }) {
@@ -80,12 +80,12 @@ function FrameGate({ active }: { active: boolean }) {
 
 function LandmarkLabelProjector({ elementsRef }: { elementsRef: RefObject<LandmarkElements> }) {
   const size = useThree(state => state.size);
+  const frame = useMemo(() => worldFrame(size.width, size.height, playableProjectionBounds()), [size.width, size.height]);
   const point = useRef(new THREE.Vector3());
   const framePosition = useRef(new THREE.Vector3());
   const yAxis = useRef(new THREE.Vector3(0, 1, 0));
 
   useFrame(({ camera }) => {
-    const frame = worldFrame(size.width, size.height, playableProjectionBounds());
     framePosition.current.set(...frame.position);
     for (const { kind } of DASHBOARD_LANDMARKS) {
       const element = elementsRef.current[kind];
@@ -110,18 +110,19 @@ function LandmarkLabelProjector({ elementsRef }: { elementsRef: RefObject<Landma
   return null;
 }
 
-function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserveCameraOnActivate, openOverview, labelElementsRef, hoveredLandmark, setHoveredLandmark, lowPower }: CoastalWorldProps) {
+function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserveCameraOnActivate, openOverview, labelElementsRef, hoveredLandmark, setHoveredLandmark, lowPower, controlsEnabled, headerInset }: CoastalWorldProps) {
   const size = useThree(state => state.size);
   const frame = useMemo(() => worldFrame(size.width, size.height, playableProjectionBounds()), [size.height, size.width]);
   const visit = (_site: keyof typeof SITES, href: string) => { if(!busy)navigate(href); };
   const selectedSite = command?.kind === "island" ? command.site : undefined;
   return (
     <>
-      <color attach="background" args={["#a9d8df"]} />
+      {/* Continue the existing open-ocean color beyond the finite water mesh on wide views. */}
+      <color attach="background" args={["#034082"]} />
       <ambientLight intensity={0.7} color="#fff8e7" />
       <directionalLight position={[-38, 60, 35]} intensity={2.6} color="#fffde7" castShadow={!lowPower} shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-50} shadow-camera-right={50} shadow-camera-top={42} shadow-camera-bottom={-42} shadow-camera-far={130} shadow-normalBias={0.06} shadow-bias={-0.0004} />
       <hemisphereLight args={["#c4dfef", "#697653", 0.7]} />
-      <MapCamera command={command} active={visible} preserveCameraOnActivate={preserveCameraOnActivate} />
+      <MapCamera command={command} active={visible} preserveCameraOnActivate={preserveCameraOnActivate} controlsEnabled={controlsEnabled} headerInset={headerInset} />
       <LandmarkLabelProjector elementsRef={labelElementsRef} />
       <group position={frame.position} rotation={[0, frame.rotation, 0]} scale={frame.scale}>
         <Ocean lowDetail={lowPower} />
@@ -143,6 +144,30 @@ function DashboardWorld(props: WorldProps) {
   const [hoveredLandmark, setHoveredLandmark] = useState<LandmarkKind | null>(null);
   const labelElementsRef = useRef<LandmarkElements>({});
   const keepTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const worldRef = useRef<HTMLDivElement | null>(null);
+  const [headerInset, setHeaderInset] = useState(0);
+  useEffect(() => {
+    const world = worldRef.current;
+    if (!world) return;
+    let header: Element | null = null;
+    const measure = () => setHeaderInset(Math.max(0, (header?.getBoundingClientRect().bottom ?? 0) - world.getBoundingClientRect().top));
+    const observer = new ResizeObserver(measure);
+    const bindHeader = () => {
+      const next = document.querySelector(".suri-app-bar");
+      if (next === header) return;
+      if (header) observer.unobserve(header);
+      header = next;
+      if (header) observer.observe(header);
+      measure();
+    };
+    // Route navigation replaces the bar while the dashboard canvas stays mounted.
+    const navigationObserver = new MutationObserver(bindHeader);
+    navigationObserver.observe(document.body, { childList: true, subtree: true });
+    observer.observe(world);
+    window.addEventListener("resize", measure);
+    bindHeader();
+    return () => { observer.disconnect(); navigationObserver.disconnect(); window.removeEventListener("resize", measure); };
+  }, []);
   const [lowPower] = useState(() => {
     if (typeof navigator === "undefined") return false;
     const capability = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean; effectiveType?: string } };
@@ -166,9 +191,9 @@ function DashboardWorld(props: WorldProps) {
     setOverviewOpen(true);
   };
   return (
-    <div className={`dashboard-world ${styles.world} ${lowPower ? "is-low-power" : ""}`}>
+    <div ref={worldRef} className={`dashboard-world ${styles.world} ${lowPower ? "is-low-power" : ""}`}>
       {showSaved && <div className="world-toast">✦ Progress cataloged in the kingdom archives.</div>}
-      <div className={styles.viewport}><Canvas
+      <div className={styles.viewport} data-world-viewport><Canvas
         className="dashboard-canvas"
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
         frameloop={props.visible ? "demand" : "never"}
@@ -180,7 +205,7 @@ function DashboardWorld(props: WorldProps) {
         onCreated={({ gl }) => configureWorldRenderer(gl)}
       >
         <FrameGate active={props.visible} />
-        <Suspense fallback={null}><CoastalWorld {...props} openOverview={openOverview} labelElementsRef={labelElementsRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} lowPower={lowPower} /></Suspense>
+        <Suspense fallback={null}><CoastalWorld {...props} controlsEnabled={!props.busy && !overviewOpen} headerInset={headerInset} openOverview={openOverview} labelElementsRef={labelElementsRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} lowPower={lowPower} /></Suspense>
       </Canvas>
         <div className={styles.labelLayer}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, detail: configuredDetail }) => {

@@ -43,10 +43,8 @@
 .marker::before, .marker::after { content: ""; position: absolute; left: 50%; width: 0; height: 0; transform: translateX(-50%); }
 .marker::before { z-index: -1; bottom: -11px; border-right: 10px solid transparent; border-left: 10px solid transparent; border-top: 11px solid #5e3619; }
 .marker::after { z-index: 0; bottom: -7px; border-right: 7px solid transparent; border-left: 7px solid transparent; border-top: 8px solid var(--marker-surface); }
-.viewport { position: absolute; inset: 0; }
-@media (max-aspect-ratio: 1/1) {
-  .viewport { top: 50%; bottom: auto; height: 66.667vw; transform: translateY(-50%); }
-}
+.world { height: 100dvh; min-height: 100dvh; overflow: clip; }
+.viewport { position: absolute; inset: 0; overflow: clip; touch-action: none; }
 
 .world { background: #126f8d; }
 .world::before, .world::after { display: none; }

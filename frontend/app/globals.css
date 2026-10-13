@@ -102,7 +102,7 @@ body {
 
 /* The logo, help, account name, and logout control are individual archive cards,
    following the Topics heading's parchment, double border, and hard corners. */
-.suri-app-bar { padding: .75rem clamp(.7rem, 2.5vw, 2rem); }
+.suri-app-bar { padding: .75rem clamp(.7rem, 2.5vw, 2rem); background: transparent; }
 .suri-app-bar-frame { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; margin: 0 auto; pointer-events: auto; }
 .suri-app-brand, .suri-app-bar-actions { position: relative; z-index: 1; }
 .suri-app-brand, .suri-app-control { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 4.1rem; border: 4px solid #5e3619; border-radius: 0; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.45), transparent 43%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 6px 0 #160b07, 0 13px 23px rgba(0,0,0,.26), inset 0 0 0 3px rgba(111,61,28,.16); }
@@ -760,7 +760,7 @@ html::-webkit-scrollbar {
 .dashboard-world-layer { position: fixed; inset: 0; z-index: 0; background: #126f8d; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .dashboard-world-layer.is-fading-behind-topics, .dashboard-world-layer.is-preparing-topics-return { opacity: 0; }
 .dashboard-world-layer.is-returning-from-topics { opacity: 1; }
-.dashboard-route-overlay { position: relative; z-index: 40; pointer-events: none; }
+.dashboard-route-overlay { position: fixed; inset: 0; height: 100dvh; overflow: hidden; z-index: 40; pointer-events: none; }
 .dashboard-route-overlay nav, .dashboard-route-overlay [role="alert"], .dashboard-route-overlay button { pointer-events: auto; }
 .learning-route-content { position: relative; z-index: 40; }
 /* The shared app bar lives outside these route pages. The complete route page,
