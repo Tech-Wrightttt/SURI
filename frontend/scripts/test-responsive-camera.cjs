@@ -8,12 +8,12 @@ const THREE = require("three");
 require.extensions[".ts"] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
 }).outputText, filename);
-const { responsiveCamera } = require("../lib/worldMap/responsiveCamera.ts");
+const { CAMERA_RESPONSE, responsiveCamera } = require("../lib/worldMap/responsiveCamera.ts");
 const { playableProjectionBounds } = require("../lib/worldMap/worldBounds.ts");
-const { worldFrame, CAMERA_ORTHO_SIZE, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, projectWorldPoint } = require("../lib/worldMap/framing.ts");
+const { worldFrame, CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, projectWorldPoint } = require("../lib/worldMap/framing.ts");
 const { sitePosition } = require("../lib/worldMap/landscape.ts");
 const bounds = playableProjectionBounds();
-for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [495,466], [844,390], [900,500], [768,1024], [1366,768], [1920,1080], [3440,1440]]) {
+for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [495,466], [844,390], [900,500], [768,1024], [1350,652], [1024,600], [1366,768], [1920,1080], [3440,1440]]) {
   const height = fullHeight;
   const headerInset = width <= 540 ? 70 : 88;
   const usableHeight = height - headerInset;
@@ -25,8 +25,8 @@ for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [
   if (result.mobile) {
     assert.ok(Math.abs(extent.y / (usableHeight * result.unitsPerPixel) - 0.9) < 1e-8, "every mobile orientation uses fullscreen vertical coverage");
     // Every landmark's label can be brought fully on screen with a legal pan.
-    const translation = new THREE.Vector3(...frame.position).sub(new THREE.Vector3(0, 1, -8));
-    const cameraOffset = result.position.clone().sub(new THREE.Vector3(130, 130, 130));
+    const translation = new THREE.Vector3(...frame.position).sub(new THREE.Vector3(...CAMERA_TARGET));
+    const cameraOffset = result.position.clone().sub(new THREE.Vector3(...CAMERA_POSITION));
     const centerY = bounds.getCenter(new THREE.Vector2()).y * frame.scale + translation.dot(result.up) - cameraOffset.dot(result.up);
     assert.ok(Math.abs(centerY / result.unitsPerPixel + headerInset / 2) < 1e-8, "initial scene center lies below the header");
     for (const site of ["keep", "topics", "records", "champions", "calculator"]) {
@@ -43,12 +43,19 @@ for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [
     }
   }
   if (!result.mobile) {
-    const original = worldFrame(width, fullHeight, bounds);
-    const magnification = frame.scale * height * result.zoom / (original.scale * fullHeight);
-    assert.ok(Math.abs(magnification - 1.1) < 1e-8, "desktop pixel magnification is 10%");
+    const fittedZoom = Math.min(CAMERA_RESPONSE.desktopZoom, 2 * CAMERA_ORTHO_SIZE * (height - headerInset - CAMERA_RESPONSE.desktopHeaderGapPixels - 60 - 32) / (height * extent.y));
+    assert.ok(Math.abs(result.zoom / fittedZoom - 1.25) < 1e-8, "desktop map is 25% larger than the previous fitted view");
     assert.ok(result.limits.x / result.unitsPerPixel <= 12 + 1e-8);
-    const translation = new THREE.Vector3(...frame.position).sub(new THREE.Vector3(0, 1, -8));
-    const cameraOffset = result.position.clone().sub(new THREE.Vector3(130, 130, 130));
+    assert.ok(Math.abs(result.limits.y / result.unitsPerPixel - 8.4) < 1e-8, "desktop vertical camera travel is reduced by 30%");
+    const translation = new THREE.Vector3(...frame.position).sub(new THREE.Vector3(...CAMERA_TARGET));
+    const cameraOffset = result.position.clone().sub(new THREE.Vector3(...CAMERA_POSITION));
+    const keep = new THREE.Vector3(...sitePosition("keep"));
+    keep.y += LANDMARK_BOUNDS.keep[1] * LANDMARK_SCALE / 2;
+    const keepCenter = projectWorldPoint(keep).multiplyScalar(frame.scale);
+    keepCenter.x += translation.dot(result.right) - cameraOffset.dot(result.right);
+    keepCenter.y += translation.dot(result.up) - cameraOffset.dot(result.up);
+    assert.ok(Math.abs(keepCenter.x) < 1e-8, "desktop keep remains horizontally centered");
+    assert.ok(keepCenter.y > 0 && keepCenter.y / result.unitsPerPixel <= height * CAMERA_RESPONSE.desktopCameraDownFraction + 1e-8, "lowering the camera raises the map up to 30%, bounded by header clearance");
     for (const site of ["keep", "topics", "records", "champions", "calculator"]) {
       const p = new THREE.Vector3(...sitePosition(site));
       p.y += (LANDMARK_BOUNDS[site][1] + LANDMARK_LABEL_LIFT) * LANDMARK_SCALE;
@@ -56,13 +63,9 @@ for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [
       point.x += translation.dot(result.right) - cameraOffset.dot(result.right);
       point.y += translation.dot(result.up) - cameraOffset.dot(result.up);
       assert.ok(Math.abs(point.x) / result.unitsPerPixel + 84 + 12 <= width / 2 + 1e-8, `${site} desktop horizontal access`);
-      assert.ok(point.y / result.unitsPerPixel + 48 + 12 <= height / 2 + 1e-8, `${site} desktop access below top edge`);
-      assert.ok(point.y / result.unitsPerPixel - 48 - 12 >= -height / 2 - 1e-8, `${site} desktop access above bottom edge`);
+      assert.ok(point.y / result.unitsPerPixel + 48 + 8.4 <= height / 2 - headerInset - CAMERA_RESPONSE.desktopHeaderGapPixels * 0.7 + 1e-8, `${site} desktop label clears the header with the 30% smaller margin`);
+      assert.ok(point.y / result.unitsPerPixel - 48 - 8.4 >= -height / 2 - 1e-8, `${site} desktop access above bottom edge`);
     }
-    const sceneCenterY = bounds.getCenter(new THREE.Vector2()).y * frame.scale + translation.dot(result.up) - cameraOffset.dot(result.up);
-    const topGap = height / 2 - (sceneCenterY + extent.y / 2) / result.unitsPerPixel;
-    const bottomGap = height / 2 + (sceneCenterY - extent.y / 2) / result.unitsPerPixel;
-    assert.ok(Math.abs(topGap - bottomGap) < 24, "desktop top and bottom gaps remain balanced within parallax clearance");
   }
   console.log(`${width}x${fullHeight}: ${result.mobile ? "mobile" : "desktop"}, zoom=${result.zoom.toFixed(3)}, coverage=${(extent.y / (2 * CAMERA_ORTHO_SIZE / result.zoom)).toFixed(3)}`);
 }

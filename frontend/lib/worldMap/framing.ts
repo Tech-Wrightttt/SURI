@@ -2,7 +2,9 @@ import * as THREE from "three";
 
 // The world is authored against this fixed view, never by widening the camera.
 export const CAMERA_ORTHO_SIZE = 40;
-export const CAMERA_POSITION = [130, 130, 130] as const;
+// View the rotated world from a shallow diagonal, matching the reference:
+// Topics upper-left, Progress lower-left, Records upper-right, Calculator lower-right.
+export const CAMERA_POSITION = [45, 121, 190] as const;
 export const CAMERA_TARGET = [0, 1, -8] as const;
 export const WORLD_ROTATION = Math.PI / 4;
 export const LANDMARK_SCALE = 0.68;

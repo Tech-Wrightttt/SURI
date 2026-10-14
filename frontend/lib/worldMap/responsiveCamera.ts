@@ -6,6 +6,10 @@ export const CAMERA_RESPONSE = {
   mobileBreakpoint: 900,
   mobileCoverage: 0.9,
   desktopZoom: 1.1,
+  desktopZoomMultiplier: 1.25,
+  desktopHeaderGapPixels: 20,
+  desktopCameraDownFraction: 0.3,
+  desktopVerticalMarginScale: 0.7,
   damping: 9,
   dragThreshold: 6,
   parallaxPixels: 12,
@@ -18,9 +22,14 @@ export function responsiveCamera(width: number, height: number, projected: THREE
   const mobile = width <= CAMERA_RESPONSE.mobileBreakpoint || coarse;
   const frame = worldFrame(width, height, projected);
   const extent = projected.getSize(new THREE.Vector2()).multiplyScalar(frame.scale);
+  // Include the label height and parallax travel in the header clearance.
+  const desktopTop = headerInset + CAMERA_RESPONSE.desktopHeaderGapPixels + 48 + CAMERA_RESPONSE.parallaxPixels;
+  const desktopBottom = 20 + CAMERA_RESPONSE.parallaxPixels;
+  const verticalParallax = CAMERA_RESPONSE.parallaxPixels * CAMERA_RESPONSE.desktopVerticalMarginScale;
+  const verticalTop = headerInset + 48 + CAMERA_RESPONSE.desktopHeaderGapPixels * CAMERA_RESPONSE.desktopVerticalMarginScale + verticalParallax;
   const zoom = mobile
     ? CAMERA_RESPONSE.mobileCoverage * 2 * CAMERA_ORTHO_SIZE * usableHeight / Math.max(height, 1) / extent.y
-    : CAMERA_RESPONSE.desktopZoom;
+    : Math.min(CAMERA_RESPONSE.desktopZoom, 2 * CAMERA_ORTHO_SIZE * Math.max(1, height - desktopTop - desktopBottom) / (Math.max(height, 1) * extent.y)) * CAMERA_RESPONSE.desktopZoomMultiplier;
   const unitsPerPixel = 2 * CAMERA_ORTHO_SIZE / (Math.max(height, 1) * zoom);
   const view = new THREE.Vector2(width, height).multiplyScalar(unitsPerPixel);
   const baseline = new THREE.PerspectiveCamera();
@@ -36,11 +45,13 @@ export function responsiveCamera(width: number, height: number, projected: THREE
     position.addScaledVector(right, center.x + translation.dot(right));
     position.addScaledVector(up, center.y + translation.dot(up) + headerInset * unitsPerPixel / 2);
   } else {
-    // The transparent desktop bar has floating corner controls. Balance the
-    // whole scene vertically instead of reserving an empty full-width header band.
+    // Center horizontally on the keep and lower the camera to raise the map.
     const worldTranslation = new THREE.Vector3(...frame.position).sub(new THREE.Vector3(...CAMERA_TARGET));
-    const center = projected.getCenter(new THREE.Vector2()).multiplyScalar(frame.scale);
-    position.addScaledVector(up, center.y + worldTranslation.dot(up));
+    const keep = new THREE.Vector3(...sitePosition("keep"));
+    keep.y += LANDMARK_BOUNDS.keep[1] * LANDMARK_SCALE / 2;
+    const center = projectWorldPoint(keep).multiplyScalar(frame.scale);
+    position.addScaledVector(right, center.x + worldTranslation.dot(right));
+    position.addScaledVector(up, center.y + worldTranslation.dot(up) - height * CAMERA_RESPONSE.desktopCameraDownFraction * unitsPerPixel);
     // Retain enough edge clearance for labels and the maximum parallax offset.
     const labels = new THREE.Box2();
     for (const site of ["keep", "topics", "records", "champions", "calculator"] as const) {
@@ -52,13 +63,13 @@ export function responsiveCamera(width: number, height: number, projected: THREE
     const offset = position.clone().sub(baseline.position);
     const x = offset.dot(right), y = offset.dot(up);
     position.addScaledVector(right, THREE.MathUtils.clamp(x, labels.max.x - view.x / 2 + 96 * unitsPerPixel, labels.min.x + view.x / 2 - 96 * unitsPerPixel) - x);
-    position.addScaledVector(up, THREE.MathUtils.clamp(y, labels.max.y - view.y / 2 + 60 * unitsPerPixel, labels.min.y + view.y / 2 - 60 * unitsPerPixel) - y);
+    position.addScaledVector(up, THREE.MathUtils.clamp(y, labels.max.y - view.y / 2 + verticalTop * unitsPerPixel, labels.min.y + view.y / 2 - (48 + verticalParallax) * unitsPerPixel) - y);
   }
   const limits = mobile
     ? new THREE.Vector2(
       Math.max(0, (extent.x - view.x) / 2 + Math.min(view.x * 0.25, 90 * unitsPerPixel)),
       Math.max(0, (extent.y - usableHeight * unitsPerPixel) / 2) + Math.max(usableHeight * unitsPerPixel * 0.06, 48 * unitsPerPixel),
     )
-    : new THREE.Vector2(CAMERA_RESPONSE.parallaxPixels * unitsPerPixel, CAMERA_RESPONSE.parallaxPixels * unitsPerPixel);
+    : new THREE.Vector2(CAMERA_RESPONSE.parallaxPixels * unitsPerPixel, verticalParallax * unitsPerPixel);
   return { mobile, zoom, position, quaternion: baseline.quaternion, right, up, limits, unitsPerPixel };
 }
