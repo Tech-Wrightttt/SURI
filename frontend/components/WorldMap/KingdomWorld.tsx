@@ -26,12 +26,12 @@ const noRaycast: THREE.Mesh["raycast"] = () => {};
 type DashboardLandmark = "keep" | "topics" | "records" | "champions" | "calculator";
 type LandmarkElements = Partial<Record<DashboardLandmark, HTMLDivElement | null>>;
 
-const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; detail?: string }> = [
-  { kind: "keep", title: "Castle Keep", detail: "The central welcome hall for your learning kingdom" },
-  { kind: "topics", title: "Topics · Learning Grove", href: "/topics" },
-  { kind: "records", title: "Error History · Hall of Records", href: "/error-history" },
-  { kind: "champions", title: "Progress · Hall of Champions", href: "/progress" },
-  { kind: "calculator", title: "Calculator · Arcane Tower", href: "/calculator" },
+const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; description: string }> = [
+  { kind: "keep", title: "Castle Keep", description: "Your kingdom's welcome hall and student overview." },
+  { kind: "topics", title: "Topics · Learning Grove", href: "/topics", description: "Explore the Learning Grove and choose your next topic." },
+  { kind: "records", title: "Error History · Hall of Records", href: "/error-history", description: "Revisit misconceptions in the Hall of Records." },
+  { kind: "champions", title: "Progress · Hall of Champions", href: "/progress", description: "Track your mastery in the Hall of Champions." },
+  { kind: "calculator", title: "Calculator · Arcane Tower", href: "/calculator", description: "Solve equations step by step in the Arcane Tower." },
 ];
 
 function Landmark({ position, kind, onClick, onIntent, accent, selected=false, hovered=false, onHoverChange }: { position: Point3; kind: LandmarkKind; onClick?: () => void; onIntent?: () => void; accent?: string; selected?: boolean; hovered?: boolean; onHoverChange?: (kind: LandmarkKind | null) => void }) {
@@ -66,6 +66,7 @@ function Landmark({ position, kind, onClick, onIntent, accent, selected=false, h
 type WorldProps = {
   me?: MeResponse; active?: ActiveSessionProgress[]; completed?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
+  topicProgress: { completed: number; total: number | null };
   command: CameraCommand | null; visible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void; preloadRoute?: (href: string) => void;
 };
 
@@ -209,33 +210,37 @@ function DashboardWorld(props: WorldProps) {
         <Suspense fallback={null}><CoastalWorld {...props} controlsEnabled={!props.busy && !overviewOpen} headerInset={headerInset} openOverview={openOverview} labelElementsRef={labelElementsRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} lowPower={lowPower} /></Suspense>
       </Canvas>
         {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} hidden={!props.visible || overviewOpen} aria-hidden={!props.visible || overviewOpen}>
-          {DASHBOARD_LANDMARKS.map(({ kind, title, href, detail: configuredDetail }) => {
-            const detail = configuredDetail ?? (kind === "records"
-              ? `${props.errors?.length ?? 0} misconception records · inspect the error history`
+          {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
+            const subtitle = kind === "records"
+              ? `${props.errors?.length ?? 0} misconception records`
               : kind === "champions"
-                ? `${props.progress.mastered}/${props.progress.total || 0} skills mastered · view progress`
+                ? `${props.progress.mastered}/${props.progress.total} skills mastered`
                 : kind === "topics"
-                  ? "Browse topics and choose your next learning trail"
-                  : "Solve and explore equations");
+                  ? `${props.topicProgress.completed}${props.topicProgress.total === null ? "" : `/${props.topicProgress.total}`} topics completed`
+                  : kind === "keep"
+                    ? props.progress.rank
+                    : "Step-by-step equation solver";
             const label = title.split(" · ")[0];
             const hovered = hoveredLandmark === kind;
             return <div key={kind} ref={(element) => { labelElementsRef.current[kind] = element; }} className={styles.anchor} data-landmark={kind} data-active={hovered || (props.command?.kind === "island" && props.command.site === kind)} style={{ visibility: "hidden" }}>
-              {href ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${detail}`}
+              {href ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${subtitle}. ${description}`}
                 onClick={() => { if (!props.busy) props.navigate(href); }}
                 onMouseEnter={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}
                 onFocus={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onBlur={() => setHoveredLandmark(null)}>
                 <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
-                <span className={styles.markerDetail}>{detail}</span>
-              </button> : <button ref={keepTriggerRef} type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: Open your student progress and account overview`}
+                <span className={styles.markerSubtitle}>{subtitle}</span>
+                <span className={styles.markerDetail}>{description}</span>
+              </button> : <button ref={keepTriggerRef} type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${subtitle}. Open your student progress and account overview`}
                 onClick={openOverview}
                 onMouseEnter={() => { void loadStudentOverview(); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}
                 onFocus={() => { void loadStudentOverview(); setHoveredLandmark(kind); }}
                 onBlur={() => setHoveredLandmark(null)}>
                 <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
-                <span className={styles.markerDetail}>{detail}</span>
+                <span className={styles.markerSubtitle}>{subtitle}</span>
+                <span className={styles.markerDetail}>{description}</span>
               </button>}
             </div>;
           })}

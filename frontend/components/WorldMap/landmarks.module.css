@@ -6,7 +6,7 @@
   align-items: center;
   gap: 0;
   width: max-content;
-  max-width: calc(100vw - 2rem);
+  max-width: min(15rem, calc(100vw - 2rem));
   height: auto;
   min-height: 0;
   padding: .58rem .82rem .54rem;
@@ -15,7 +15,7 @@
   background: var(--marker-background);
   box-shadow: 0 4px 0 #160b07, 0 9px 16px rgba(0, 0, 0, .24), inset 0 0 0 2px rgba(111, 61, 28, .16);
   color: #3a2111;
-  font: 900 .62rem/1.1 "Nunito", sans-serif;
+  font: 900 .76rem/1.1 "Nunito", sans-serif;
   letter-spacing: .08em;
   text-align: center;
   text-transform: uppercase;
@@ -26,13 +26,18 @@
 }
 .scenic { cursor: default; }
 .markerHeading { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: fit-content; height: auto; gap: 6px; white-space: nowrap; }
-.markerTitle { color: inherit; font: 900 .76rem/1 "Nunito", sans-serif; letter-spacing: .035em; }
-.markerDetail { display: block; align-self: stretch; contain: inline-size; min-width: 0; max-width: 15rem; height: 0; max-height: 0; margin: 0; padding: 0; overflow: hidden; opacity: 0; transform: translateY(4px); color: #65421f; font: 800 .62rem/1.4 "Nunito", sans-serif; letter-spacing: .01em; text-transform: none; pointer-events: none; transition: max-height .2s ease, margin-top .2s ease, opacity .2s ease, transform .2s ease; }
-.marker:hover, .marker:focus-visible, .markerExpanded { --marker-background: linear-gradient(180deg, #fff5cf 0%, #ecd18c 100%); --marker-surface: #ecd18c; max-width: min(17rem, calc(100vw - 2rem)); padding: .58rem .82rem .54rem; box-shadow: 0 6px 0 #160b07, 0 13px 20px rgba(0, 0, 0, .27), inset 0 0 0 2px rgba(111, 61, 28, .18); filter: brightness(1.03); transform: translateY(-2px); }
+.markerTitle { color: inherit; font: inherit; font-size: 100%; letter-spacing: .035em; }
+.markerSubtitle { display: block; color: #513016; font-size: 14px; font-weight: 800; line-height: 1.25; letter-spacing: .01em; text-transform: none; }
+.markerDetail { display: block; align-self: stretch; min-width: 0; max-width: 13rem; color: #65421f; font-size: 11.5px; font-weight: 600; line-height: 1.45; letter-spacing: .01em; text-transform: none; }
+.markerSubtitle, .markerDetail { contain: inline-size; height: 0; max-height: 0; margin: 0; overflow: hidden; opacity: 0; transform: translateY(4px); pointer-events: none; transition: max-height .2s ease, margin-top .2s ease, opacity .2s ease, transform .2s ease; }
+.marker:is(:hover, :focus-visible, .markerExpanded) :is(.markerSubtitle, .markerDetail) { contain: none; height: auto; max-height: 8rem; margin-top: .3rem; opacity: 1; transform: translateY(0); }
+.marker:hover, .marker:focus-visible, .markerExpanded { --marker-background: linear-gradient(180deg, #fff5cf 0%, #ecd18c 100%); --marker-surface: #ecd18c; font-size: 20px; max-width: min(17rem, calc(100vw - 2rem)); box-shadow: 0 6px 0 #160b07, 0 13px 20px rgba(0, 0, 0, .27), inset 0 0 0 2px rgba(111, 61, 28, .18); filter: brightness(1.03); transform: translateY(-2px); }
 .marker:focus-visible { outline: 3px solid #fff3a3; outline-offset: 3px; }
-.marker:hover .markerDetail, .marker:focus-visible .markerDetail, .markerExpanded .markerDetail { contain: none; height: auto; max-height: 8rem; margin-top: .4rem; opacity: 1; transform: translateY(0); pointer-events: auto; }
 @media (max-width: 600px) {
-  .marker { padding: .5rem .75rem; gap: 0; font-size: 9px; }
+  .marker { padding: .5rem .75rem; }
+  .marker:is(:hover, :focus-visible, .markerExpanded) { font-size: 16px; }
+  .markerSubtitle { font-size: 12px; }
+  .markerDetail { font-size: 10.5px; }
 }
 
 /* Anchor the pointer tip to the landmark. As content grows, the card grows up. */
@@ -41,7 +46,7 @@
 /* Overlap the bottom edge with a filled diamond so the two sloping borders
    continue the card outline, without a horizontal seam across the arrow. */
 .marker::after { content: ""; position: absolute; z-index: 0; left: 50%; bottom: -10px; width: 16px; height: 16px; background: var(--marker-surface); border-right: 3px solid #5e3619; border-bottom: 3px solid #5e3619; box-shadow: 3px 3px 0 #160b07; transform: translateX(-50%) rotate(45deg); pointer-events: none; }
-.markerHeading, .markerDetail { position: relative; z-index: 1; }
+.markerHeading, .markerSubtitle, .markerDetail { position: relative; z-index: 1; }
 .world { height: 100dvh; min-height: 100dvh; overflow: clip; }
 .viewport { position: absolute; inset: 0; overflow: clip; touch-action: none; }
 
@@ -57,9 +62,6 @@
 .labelLayer .anchor:hover, .labelLayer .anchor:focus-within, .labelLayer .anchor[data-active="true"] { z-index: 10; }
 .labelLayer .marker { pointer-events: auto; }
 :global(.is-low-power) .marker { transition: none; }
-@media (max-width: 600px) {
-  .marker { padding: .5rem .75rem; font-size: 8px; }
-}
 
 /* Separate the dense hub labels when the full archipelago fits a phone width. */
 @media (max-width: 600px) {

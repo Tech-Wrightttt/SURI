@@ -333,6 +333,14 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     const rank = dewdrops >= 1000 ? "Elder Canopy Sage" : dewdrops >= 600 ? "Wildwood Ranger" : dewdrops >= 300 ? "Dewdrop Pathfinder" : dewdrops >= 100 ? "Fern Scout" : "Sprout Explorer";
     return { mastered, total, pct, dewdrops, rank };
   }, [data?.progress]);
+  const topicProgress = useMemo(() => {
+    const completedTopics = new Set((data?.progress.completed_sessions ?? []).map(session => session.topic_entry_node));
+    const topics = data?.topics ?? [];
+    return {
+      completed: data?.curriculumReady ? topics.filter(topic => completedTopics.has(topic.node_id)).length : completedTopics.size,
+      total: data?.curriculumReady ? topics.length : null,
+    };
+  }, [data?.progress.completed_sessions, data?.topics, data?.curriculumReady]);
   const context = useMemo(() => ({ navigate, preloadRoute, busy, error: error ?? dataError?.message ?? null, clearSession }), [navigate, preloadRoute, busy, error, dataError, clearSession]);
   const preloadDashboardRoute = useCallback((href: string) => preloadRoute(href, true), [preloadRoute]);
   const focusedTransition = FOCUSED_ROUTE_KEYS.map(key => focusedTransitions[key]).find(stage => stage !== "idle") ?? "idle";
@@ -356,7 +364,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
         <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}
-          me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} />
+          me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} topicProgress={topicProgress} />
       </DashboardWorldBoundary>
     </div>}
     {(focusedWorldMounted.topics || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${focusedTransitions.topics}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
