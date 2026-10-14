@@ -363,7 +363,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   return <NavigationContext.Provider value={context}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
-        <DashboardWorld visible={dashboardActive} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}
+        <DashboardWorld visible={dashboardActive} labelsVisible={overview && !busy} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}
           me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} topicProgress={topicProgress} />
       </DashboardWorldBoundary>
     </div>}

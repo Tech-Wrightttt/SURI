@@ -67,7 +67,7 @@ type WorldProps = {
   me?: MeResponse; active?: ActiveSessionProgress[]; completed?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
   topicProgress: { completed: number; total: number | null };
-  command: CameraCommand | null; visible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void; preloadRoute?: (href: string) => void;
+  command: CameraCommand | null; visible: boolean; labelsVisible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void; preloadRoute?: (href: string) => void;
 };
 
 type CoastalWorldProps = WorldProps & {
@@ -209,7 +209,7 @@ function DashboardWorld(props: WorldProps) {
         <FrameGate active={props.visible} />
         <Suspense fallback={null}><CoastalWorld {...props} controlsEnabled={!props.busy && !overviewOpen} headerInset={headerInset} openOverview={openOverview} labelElementsRef={labelElementsRef} hoveredLandmark={hoveredLandmark} setHoveredLandmark={setHoveredLandmark} lowPower={lowPower} /></Suspense>
       </Canvas>
-        {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} hidden={!props.visible || overviewOpen} aria-hidden={!props.visible || overviewOpen}>
+        {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} data-visible={props.labelsVisible && !overviewOpen} inert={!props.labelsVisible || overviewOpen} hidden={!props.visible || overviewOpen} aria-hidden={!props.labelsVisible || overviewOpen}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
             const subtitle = kind === "records"
               ? `${props.errors?.length ?? 0} misconception records`

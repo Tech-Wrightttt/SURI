@@ -55,12 +55,17 @@
 .viewport { z-index: 2; }
 /* Render outside the scene's stacking context so an expanded label can cover
    the floating navigation without raising the canvas above the header. */
-.labelLayer { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+.labelLayer { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 1; transition: opacity .36s ease; }
+.labelLayer[data-visible="false"] { opacity: 0; transition-duration: .24s; }
 .labelLayer:has(.anchor:hover, .anchor:focus-within, .anchor[data-active="true"]) { z-index: 50; }
 .labelLayer[hidden], :global(body:has([role="dialog"])) .labelLayer { display: none; }
 .labelLayer .anchor { position: absolute; pointer-events: none; }
 .labelLayer .anchor:hover, .labelLayer .anchor:focus-within, .labelLayer .anchor[data-active="true"] { z-index: 10; }
 .labelLayer .marker { pointer-events: auto; }
+.labelLayer[data-visible="false"] .marker { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .labelLayer { transition: none; }
+}
 :global(.is-low-power) .marker { transition: none; }
 
 /* Separate the dense hub labels when the full archipelago fits a phone width. */
