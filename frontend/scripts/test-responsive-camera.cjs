@@ -12,6 +12,7 @@ const { CAMERA_RESPONSE, responsiveCamera } = require("../lib/worldMap/responsiv
 const { playableProjectionBounds } = require("../lib/worldMap/worldBounds.ts");
 const { worldFrame, CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, projectWorldPoint } = require("../lib/worldMap/framing.ts");
 const { sitePosition } = require("../lib/worldMap/landscape.ts");
+const { ISLAND_ROUTES, islandCameraPose, FOCUSED_CAMERA_OFFSET, FOCUSED_HALF_HEIGHT, FOCUSED_ZOOM } = require("../lib/worldMap/navigation.ts");
 const bounds = playableProjectionBounds();
 for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [495,466], [844,390], [900,500], [768,1024], [1350,652], [1024,600], [1366,768], [1920,1080], [3440,1440]]) {
   const height = fullHeight;
@@ -19,6 +20,29 @@ for (const [width, fullHeight] of [[360,800], [375,812], [390,844], [430,932], [
   const usableHeight = height - headerInset;
   const result = responsiveCamera(width, height, bounds, false, headerInset);
   const frame = worldFrame(width, height, bounds);
+  // A changed overview angle must not move the zoom destination away from
+  // the selected island, or jump in scale when a focused scene takes over.
+  for (const site of Object.values(ISLAND_ROUTES)) {
+    const focal = new THREE.Vector3(...sitePosition(site))
+      .applyAxisAngle(new THREE.Vector3(0, 1, 0), frame.rotation);
+    focal.y += 3.2;
+    const point = focal.clone().multiplyScalar(frame.scale).add(new THREE.Vector3(...frame.position));
+    const pose = islandCameraPose(point, { close: true, worldScale: frame.scale });
+    const camera = new THREE.OrthographicCamera(-CAMERA_ORTHO_SIZE * width / height, CAMERA_ORTHO_SIZE * width / height, CAMERA_ORTHO_SIZE, -CAMERA_ORTHO_SIZE, 0.5, 650);
+    camera.position.copy(pose.position); camera.quaternion.copy(pose.quaternion); camera.zoom = pose.zoom;
+    camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+    const centered = point.clone().project(camera);
+    assert.ok(Math.abs(centered.x) < 1e-8 && Math.abs(centered.y) < 1e-8, `${site}: approach centers selected island`);
+    assert.ok(centered.z > -1 && centered.z < 1, `${site}: destination remains within clipping planes`);
+    assert.ok(pose.quaternion.angleTo(result.quaternion) < 1e-7, `${site}: approach preserves dashboard angle`);
+    const focused = new THREE.OrthographicCamera(-FOCUSED_HALF_HEIGHT * width / height, FOCUSED_HALF_HEIGHT * width / height, FOCUSED_HALF_HEIGHT, -FOCUSED_HALF_HEIGHT, 0.5, 420);
+    focused.position.copy(focal).add(FOCUSED_CAMERA_OFFSET); focused.lookAt(focal); focused.zoom = FOCUSED_ZOOM;
+    focused.updateProjectionMatrix(); focused.updateMatrixWorld();
+    const landmark = focal.clone().add(new THREE.Vector3(2, 5, -3));
+    const dashboardPoint = landmark.clone().multiplyScalar(frame.scale).add(new THREE.Vector3(...frame.position)).project(camera);
+    const focusedPoint = landmark.project(focused);
+    assert.ok(Math.abs(dashboardPoint.x - focusedPoint.x) < 1e-8 && Math.abs(dashboardPoint.y - focusedPoint.y) < 1e-8, `${site}: close-up framing matches handoff`);
+  }
   const extent = bounds.getSize(new THREE.Vector2()).multiplyScalar(frame.scale);
   assert.ok(Number.isFinite(result.zoom) && result.zoom > 0);
   assert.ok(result.limits.x >= 0 && result.limits.y >= 0);

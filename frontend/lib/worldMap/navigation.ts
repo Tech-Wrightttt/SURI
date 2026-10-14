@@ -17,8 +17,12 @@ export const TOPICS_APPROACH_DURATION = 0.78;
 // The route close-up uses an orthographic half-height of 17.5 at zoom 1.08.
 // Keeping these values here lets the dashboard finish at the same apparent
 // scale before its canvas hands off to that close-up.
-const FOCUSED_HALF_HEIGHT = 17.5;
-const FOCUSED_ZOOM = 1.08;
+export const FOCUSED_HALF_HEIGHT = 17.5;
+export const FOCUSED_ZOOM = 1.08;
+// Keep close-ups on the dashboard's current viewing axis. Position and
+// orientation must use the same axis or the selected island drifts off-screen.
+export const FOCUSED_CAMERA_OFFSET = new THREE.Vector3(...CAMERA_POSITION)
+  .sub(new THREE.Vector3(...CAMERA_TARGET)).normalize().multiplyScalar(Math.sqrt(3) * 82);
 
 export type CameraCommand = {
   id: number;
@@ -45,9 +49,10 @@ export function islandCameraPose(point: THREE.Vector3, options?: { close?: boole
   // The dashboard scales the world to fit its viewport. Compensate for that
   // scale so its final visible area matches the focused Topics island.
   const zoom = CAMERA_ORTHO_SIZE * FOCUSED_ZOOM / (FOCUSED_HALF_HEIGHT * options.worldScale);
-  const closeCamera = new THREE.PerspectiveCamera();
-  closeCamera.position.copy(point).addScalar(1);
-  closeCamera.lookAt(point);
-  return { position, zoom, quaternion: closeCamera.quaternion.clone() };
+  return {
+    position: point.clone().addScaledVector(FOCUSED_CAMERA_OFFSET, options.worldScale),
+    zoom,
+    quaternion: camera.quaternion.clone(),
+  };
 }
 export function cameraEase(t: number) { return THREE.MathUtils.smootherstep(THREE.MathUtils.clamp(t, 0, 1), 0, 1); }

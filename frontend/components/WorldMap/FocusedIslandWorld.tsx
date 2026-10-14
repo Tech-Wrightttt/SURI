@@ -10,8 +10,8 @@ import type { LandmarkKind } from "@/lib/worldMap/architecture";
 import { LANDMARK_SCALE, WORLD_ROTATION } from "@/lib/worldMap/framing";
 import { sitePosition, SITES } from "@/lib/worldMap/landscape";
 import { configureWorldRenderer } from "@/lib/three/renderer";
+import { FOCUSED_CAMERA_OFFSET, FOCUSED_HALF_HEIGHT, FOCUSED_ZOOM } from "@/lib/worldMap/navigation";
 
-const CAMERA_HALF_HEIGHT = 17.5;
 const FOCUSED_ARRIVAL_DURATION = 1.15;
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
@@ -30,8 +30,8 @@ function FocusedIslandCamera({ site, arrive = true }: Pick<FocusedIslandScenePro
     () => new THREE.Vector3(...sitePosition(site)).applyAxisAngle(Y_AXIS, WORLD_ROTATION).add(new THREE.Vector3(0, 3.2, 0)),
     [site]
   );
-  const distant = useMemo(() => focal.clone().add(new THREE.Vector3(126, 126, 126)), [focal]);
-  const close = useMemo(() => focal.clone().add(new THREE.Vector3(82, 82, 82)), [focal]);
+  const distant = useMemo(() => focal.clone().addScaledVector(FOCUSED_CAMERA_OFFSET, 126 / 82), [focal]);
+  const close = useMemo(() => focal.clone().add(FOCUSED_CAMERA_OFFSET), [focal]);
 
   useLayoutEffect(() => {
     const { camera } = getThree();
@@ -40,11 +40,11 @@ function FocusedIslandCamera({ site, arrive = true }: Pick<FocusedIslandScenePro
     camera.near = 0.5;
     camera.far = 420;
     if (camera instanceof THREE.OrthographicCamera) {
-      camera.left = -CAMERA_HALF_HEIGHT * size.width / Math.max(size.height, 1);
+      camera.left = -FOCUSED_HALF_HEIGHT * size.width / Math.max(size.height, 1);
       camera.right = -camera.left;
-      camera.top = CAMERA_HALF_HEIGHT;
-      camera.bottom = -CAMERA_HALF_HEIGHT;
-      camera.zoom = arrive ? 0.84 : 1.08;
+      camera.top = FOCUSED_HALF_HEIGHT;
+      camera.bottom = -FOCUSED_HALF_HEIGHT;
+      camera.zoom = arrive ? 0.84 : FOCUSED_ZOOM;
     }
     camera.position.copy(arrive ? distant : close);
     camera.lookAt(focal);
@@ -61,7 +61,7 @@ function FocusedIslandCamera({ site, arrive = true }: Pick<FocusedIslandScenePro
     camera.position.lerpVectors(distant, close, t);
     camera.lookAt(focal);
     if (camera instanceof THREE.OrthographicCamera) {
-      camera.zoom = THREE.MathUtils.lerp(0.84, 1.08, t);
+      camera.zoom = THREE.MathUtils.lerp(0.84, FOCUSED_ZOOM, t);
       camera.updateProjectionMatrix();
     }
     if (elapsed.current < FOCUSED_ARRIVAL_DURATION) invalidate();
