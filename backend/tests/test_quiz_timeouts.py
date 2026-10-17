@@ -37,6 +37,7 @@ class QuizDatabase:
             for i in range(2)
         ])
         self.attempts = []
+        self.misconceptions = []
 
     async def fetchrow(self, query, *args):
         if "FROM quiz_sessions" in query:
@@ -57,6 +58,8 @@ class QuizDatabase:
             self.attempts.append({
                 "problem_id": args[3], "score": args[5], "passed": args[6],
             })
+        elif "INSERT INTO misconception_logs" in query:
+            self.misconceptions.append({"problem_id": args[3], "step_index": args[4]})
         elif "step_errors_json = $2" in query:
             self.session.update(
                 total_points=args[0], step_errors_json=args[1], current_streak=args[2],
