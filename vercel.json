@@ -7,7 +7,10 @@
     },
     "frontend": {
       "root": "frontend",
-      "framework": "nextjs"
+      "framework": "nextjs",
+      "includeFiles": [
+        "public/**"
+      ]
     }
   },
   "rewrites": [
