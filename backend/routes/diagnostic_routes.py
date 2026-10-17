@@ -34,6 +34,7 @@ PROBES: dict = _load_probes()
 
 QUESTIONS_PER_NODE = 4
 PASS_THRESHOLD = 3  # >= 3/4 (75%) = mastered
+FAIL_WRONG_LIMIT = QUESTIONS_PER_NODE - PASS_THRESHOLD + 1  # 2 wrong = 3/4 unreachable
 
 
 # ---------------------------------------------------------------------------
@@ -280,6 +281,12 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
             probe_idx, datetime.now(timezone.utc).isoformat(), session_id,
         )
 
+        correct_row = await conn.fetchrow(
+            "SELECT COALESCE(SUM(probe_result), 0) AS correct FROM diagnostic_logs WHERE session_id = $1 AND node_id = $2",
+            session_id, current_node,
+        )
+        correct_so_far = int(correct_row["correct"] or 0)
+
         return {
             "node_id": current_node,
             "node_label": GRAPH[current_node]["label"],
@@ -287,6 +294,8 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
             "options": selected_probe["options"],
             "questions_answered": answered_count,
             "questions_total": QUESTIONS_PER_NODE,
+            "correct_count": correct_so_far,
+            "wrong_count": answered_count - correct_so_far,
         }
     finally:
         await release_db(conn)
@@ -298,7 +307,7 @@ async def submit_diagnostic_answer(
     body: DiagnosticAnswerRequest,
     student=Depends(get_current_student),
 ):
-    """Submit an answer; track 8 questions per node, require 6/8 for mastery."""
+    """Submit an answer; a node ends at 3 correct (pass) or 2 wrong (fail)."""
     conn = await get_db()
     try:
         session_row = await conn.fetchrow(
@@ -347,8 +356,12 @@ async def submit_diagnostic_answer(
             answered_count = count_row["cnt"]
             correct_count = int(count_row["correct"] or 0)
 
-            if answered_count < QUESTIONS_PER_NODE:
-                # Not done with this node yet — ask another question
+            wrong_count = answered_count - correct_count
+            node_passed = correct_count >= PASS_THRESHOLD
+            node_failed = wrong_count >= FAIL_WRONG_LIMIT
+
+            if not node_passed and not node_failed:
+                # Result for this node is still open: ask another question
                 await conn.execute(
                     "UPDATE sessions SET current_probe_index = NULL, last_active_at = $1 WHERE id = $2",
                     now_iso, session_id,
@@ -357,6 +370,8 @@ async def submit_diagnostic_answer(
                     "correct": is_correct,
                     "next_action": "next_probe",
                     "node_complete": False,
+                    "correct_count": correct_count,
+                    "wrong_count": wrong_count,
                     "questions_answered": answered_count,
                     "questions_total": QUESTIONS_PER_NODE,
                     "next_node_id": current_node,
@@ -364,17 +379,15 @@ async def submit_diagnostic_answer(
                     "prerequisite_path": None,
                 }
 
-            # ── Node complete: 8 questions answered ──────────────────────────
-            node_passed = correct_count >= PASS_THRESHOLD
-            
+            # ── Node resolved: passed at 3 correct, failed at 2 wrong ────────
             chain = get_chain(session_row["topic_entry_node"])
             reversed_chain = list(reversed(chain))
-            
+
             current_idx = reversed_chain.index(current_node) if current_node in reversed_chain else -1
             next_node = reversed_chain[current_idx + 1] if current_idx != -1 and current_idx + 1 < len(reversed_chain) else None
 
-            if next_node:
-                # Move to next node in the forward progression (towards target)
+            if node_passed and next_node:
+                # Passed: move one node up toward the target
                 await conn.execute(
                     "UPDATE sessions SET current_node = $1, current_probe_index = NULL, last_active_at = $2 WHERE id = $3",
                     next_node, now_iso, session_id,
@@ -383,32 +396,34 @@ async def submit_diagnostic_answer(
                     "correct": is_correct,
                     "next_action": "next_probe",
                     "node_complete": True,
-                    "node_passed": node_passed,
+                    "node_passed": True,
                     "correct_count": correct_count,
-                    "questions_answered": QUESTIONS_PER_NODE,
+                    "wrong_count": wrong_count,
+                    "questions_answered": answered_count,
                     "questions_total": QUESTIONS_PER_NODE,
                     "next_node_id": next_node,
                     "identified_node_id": None,
                     "prerequisite_path": None,
                 }
-            else:
-                # All nodes assessed — finalize
-                prereq_path = get_prerequisite_path(current_node, session_row["topic_entry_node"])
-                await conn.execute(
-                    "UPDATE sessions SET last_active_at = $1, current_probe_index = NULL WHERE id = $2",
-                    now_iso, session_id,
-                )
-                return {
-                    "correct": is_correct,
-                    "next_action": "complete",
-                    "node_complete": True,
-                    "node_passed": node_passed,
-                    "correct_count": correct_count,
-                    "questions_answered": QUESTIONS_PER_NODE,
-                    "questions_total": QUESTIONS_PER_NODE,
-                    "next_node_id": None,
-                    "identified_node_id": current_node,
-                    "prerequisite_path": prereq_path,
-                }
+
+            # Failed node (stop traversal here) or top node passed: finalize
+            prereq_path = get_prerequisite_path(current_node, session_row["topic_entry_node"])
+            await conn.execute(
+                "UPDATE sessions SET last_active_at = $1, current_probe_index = NULL WHERE id = $2",
+                now_iso, session_id,
+            )
+            return {
+                "correct": is_correct,
+                "next_action": "complete",
+                "node_complete": True,
+                "node_passed": node_passed,
+                "correct_count": correct_count,
+                "wrong_count": wrong_count,
+                "questions_answered": answered_count,
+                "questions_total": QUESTIONS_PER_NODE,
+                "next_node_id": None,
+                "identified_node_id": current_node,
+                "prerequisite_path": prereq_path,
+            }
     finally:
         await release_db(conn)

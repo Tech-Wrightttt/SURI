@@ -144,6 +144,8 @@ export interface DiagnosticProbe {
   options: string[];
   questions_answered?: number;
   questions_total?: number;
+  correct_count?: number;
+  wrong_count?: number;
 }
 
 export interface DiagnosticAnswer {

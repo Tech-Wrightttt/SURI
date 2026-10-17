@@ -111,6 +111,8 @@ const GAME_CSS = `
   .spell-tile.selected { border-color: rgba(200,150,255,0.8); box-shadow: 0 0 0 2px rgba(155,89,182,0.4); transform: translateY(-2px); animation: selectedSpell 1.5s ease-in-out infinite; }
   @keyframes selectedSpell { 0%,100% { box-shadow: 0 0 0 2px rgba(155,89,182,0.4); } 50% { box-shadow: 0 0 0 4px rgba(155,89,182,0.2), 0 0 20px rgba(155,89,182,0.3); } }
   .spell-tile.locked { cursor: default; opacity: 0.75; }
+  /* selectedSpell replaces tileIn (forwards fill), which would leave .spell-tile-enter at opacity: 0 */
+  .spell-tile.spell-tile-enter.selected { opacity: 1; }
   .spell-tile.correct-reveal { background: linear-gradient(160deg,rgba(30,90,50,0.95),rgba(15,60,30,0.98)) !important; border-color: #3dbf6e !important; box-shadow: 0 0 20px rgba(61,191,110,0.5) !important; }
   .spell-tile.wrong-reveal { background: linear-gradient(160deg,rgba(90,20,20,0.95),rgba(60,10,10,0.98)) !important; border-color: #e74c3c !important; box-shadow: 0 0 20px rgba(231,76,60,0.5) !important; }
   .spell-label { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: rgba(155,89,182,0.3); border: 1px solid rgba(155,89,182,0.5); border-radius: 8px; font-family: 'Fredoka One', cursive; font-size: 16px; color: #c39bd3; flex-shrink: 0; margin-bottom: 6px; }
@@ -1032,7 +1034,10 @@ const GAME_CSS = `
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;
 
-const MAX_HEARTS = 5;
+// One enemy per node: 3 correct answers defeat it (75% of 4 probes);
+// 2 wrong answers make 3/4 unreachable, so Suri only has 2 hearts per node.
+const ENEMY_HEARTS = 3;
+const SURI_HEARTS = 2;
 const LABELS = ["A", "B", "C", "D"];
 
 function ArenaBackground() {
@@ -1208,10 +1213,10 @@ export default function DiagnosticPage() {
   const [score, setScore]   = useState(0);
   const [streak, setStreak] = useState(0);
   const [suriState, setSuriState]       = useState<SuriState>("idle");
-  const [suriHearts, setSuriHearts]     = useState(MAX_HEARTS);
+  const [suriHearts, setSuriHearts]     = useState(SURI_HEARTS);
   const [suriBreaking, setSuriBreaking] = useState<number | null>(null);
   const [enemyAnimState, setEnemyAnimState] = useState<EnemyAnimState>("idle");
-  const [enemyHearts, setEnemyHearts]       = useState(MAX_HEARTS);
+  const [enemyHearts, setEnemyHearts]       = useState(ENEMY_HEARTS);
   const [enemyBreaking, setEnemyBreaking]   = useState<number | null>(null);
   const [enemyDmg, setEnemyDmg] = useState<string | null>(null);
   const [suriDmg, setSuriDmg]   = useState<string | null>(null);
@@ -1244,6 +1249,9 @@ export default function DiagnosticPage() {
     try {
       const data = await getDiagnosticProbe(sessionId);
       setProbe(data); setPhase("battle"); setTileKey(k => k + 1);
+      setAnsweredCount(data.questions_answered ?? 0);
+      setEnemyHearts(ENEMY_HEARTS - (data.correct_count ?? 0));
+      setSuriHearts(SURI_HEARTS - (data.wrong_count ?? 0));
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load question.");
     } finally { setLoading(false); }
@@ -1272,7 +1280,7 @@ export default function DiagnosticPage() {
             setEnemyAnimState("defeated");
             confetti({ particleCount: 180, spread: 110, origin: { y: 0.4 }, colors: ["#f9d71c","#e8a21a","#ff4757","#2ed573","#5352ed","#c39bd3"] });
             setTimeout(() => {
-              setEnemyBreaking(null); setEnemyHearts(MAX_HEARTS);
+              setEnemyBreaking(null); setEnemyHearts(ENEMY_HEARTS); setSuriHearts(SURI_HEARTS);
               setEnemyAnimState("appear"); setSuriState("happy");
               setTimeout(async () => {
                 setSuriState("idle"); setEnemyAnimState("idle"); setLocked(false);
@@ -1331,7 +1339,7 @@ export default function DiagnosticPage() {
     try {
       const res = await submitDiagnosticAnswer(sessionId, { node_id: probe.node_id, selected_option_index: selectedIdx });
       const nextAnswered = answeredCount + 1;
-      const nextAction = res.correct && enemyHearts <= 1 ? "complete" : "next_probe";
+      const nextAction = res.next_action;
       setFeedback({ correct: res.correct, nextAction });
       const cur = JSON.parse(sessionStorage.getItem("diagnostic_answers") || "{}");
       cur[probe.node_id] = res.correct;
@@ -1370,18 +1378,9 @@ export default function DiagnosticPage() {
     }
   };
 
-  const retryAfterDefeat = () => {
-    sessionStorage.removeItem("diagnostic_answers");
-    setAnsweredCount(0); setScore(0); setStreak(0);
-    setSuriHearts(MAX_HEARTS); setSuriBreaking(null); setSuriState("idle");
-    setEnemyHearts(MAX_HEARTS); setEnemyBreaking(null); setEnemyAnimState("idle");
-    setPhase("battle"); setFeedback(null); setLocked(false); setSelectedIdx(null);
-    pendingNext.current = null;
-    void fetchProbe();
-  };
 
-  const enemyDefeatedHits = MAX_HEARTS - enemyHearts;
-  const pct = Math.min((enemyDefeatedHits / MAX_HEARTS) * 100, 100);
+  const enemyDefeatedHits = ENEMY_HEARTS - enemyHearts;
+  const pct = Math.min((enemyDefeatedHits / ENEMY_HEARTS) * 100, 100);
 
   return (
     <>
@@ -1397,8 +1396,8 @@ export default function DiagnosticPage() {
               <div>
                 <span className="combatant-name">Suri</span>
                 <span className="combatant-subtitle">Graduate Bookworm</span>
-                <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${MAX_HEARTS}`}>
-                  {Array.from({ length: MAX_HEARTS }, (_, i) => (
+                <div className="hearts-bar" aria-label={`Suri hearts: ${suriHearts} of ${SURI_HEARTS}`}>
+                  {Array.from({ length: SURI_HEARTS }, (_, i) => (
                     <HeartIcon key={i} full={i < suriHearts} breaking={suriBreaking === i} />
                   ))}
                 </div>
@@ -1406,7 +1405,7 @@ export default function DiagnosticPage() {
             </div>
           </div>
           <div className="chapter-banner">
-            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${MAX_HEARTS}`}</span>
+            <span className="chapter-eyebrow">{`Challenge ${answeredCount + 1} | Enemy hearts ${enemyHearts}/${ENEMY_HEARTS}`}</span>
             <span className="hud-logo">Diagnostic Battle</span>
             <div className="hud-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Quest progress">
               <div className="hud-progress-fill" style={{ width: `${pct}%` }} />
@@ -1417,8 +1416,8 @@ export default function DiagnosticPage() {
               <div>
                 <span className="combatant-name">Count Calculus</span>
                 <span className="combatant-subtitle">Rune Wizard</span>
-                <div className="hearts-bar" aria-label={`Enemy hearts: ${enemyHearts} of ${MAX_HEARTS}`}>
-                  {Array.from({ length: MAX_HEARTS }, (_, i) => { const hi = MAX_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < enemyHearts} breaking={enemyBreaking === hi} />; })}
+                <div className="hearts-bar" aria-label={`Enemy hearts: ${enemyHearts} of ${ENEMY_HEARTS}`}>
+                  {Array.from({ length: ENEMY_HEARTS }, (_, i) => { const hi = ENEMY_HEARTS - 1 - i; return <HeartIcon key={hi} full={hi < enemyHearts} breaking={enemyBreaking === hi} />; })}
                 </div>
               </div>
               {streak > 1 && <div className="streak-pill" aria-label={`${streak} answer streak`}><GameIcon name="flame" /> {streak}x</div>}
@@ -1508,7 +1507,6 @@ export default function DiagnosticPage() {
                   <img src="/suri-snake-sad.png" alt="Suri defeated" className="outcome-suri" />
                   <h2 className="outcome-title defeat-title">DEFEATED!</h2>
                   <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat...</p>
-                  <button id="retry-btn" className="outcome-btn" onClick={retryAfterDefeat}><GameIcon name="retry" /> TRY AGAIN</button>
                   <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={handleSeeResults} disabled={showingResults}>
                     <GameIcon name="play" /> {showingResults ? "LOADING..." : "SEE RESULTS"}
                   </button>
