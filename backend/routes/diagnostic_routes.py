@@ -213,7 +213,7 @@ async def submit_diagnostic(
                 return {
                     "all_mastered": True,
                     "message": "You have already mastered all competencies in this topic.",
-                    "redirect": "/dashboard",
+                    "redirect": f"/session/{session_id}/gap-result",
                     "node_statuses": node_statuses,
                 }
 
