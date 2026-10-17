@@ -157,6 +157,43 @@ function formatMathInText(text: string): string {
   });
 }
 
+/**
+ * Turn a stored step instruction / answer / feedback string into markdown KaTeX can render.
+ * Strings that already contain $...$ are cleaned in place; bare values like "\frac34-\frac18"
+ * are wrapped in $...$ unless they are plain words (e.g. "x = 2, 3" style text answers).
+ */
+function toMathMarkdown(raw: string, isValue = false): string {
+  const t = (raw ?? "").replace(/\\\\/g, "\\").trim();
+  if (!t) return "";
+  if (t.includes("$")) {
+    return t.replace(/\$\$?([^$]+?)\$\$?/g, (_m, inner: string) => {
+      const math = inner
+        .replace(/["“”]/g, "")
+        .replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2")
+        .replace(/(\d+)\s*\/\s*(\d+)/g, "\\frac{$1}{$2}")
+        .trim();
+      return `$${math}$`;
+    });
+  }
+  if (isValue && !requiresTextInput(t)) {
+    const math = t.replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2").replace(/(\d+)\s*\/\s*(\d+)/g, "\\frac{$1}{$2}");
+    return `$${math}$`;
+  }
+  return t;
+}
+
+function MathInline({ text, isValue = false }: { text: string; isValue?: boolean }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkMath]}
+      rehypePlugins={[rehypeKatex]}
+      components={{ p: (props) => <span {...props} /> }}
+    >
+      {toMathMarkdown(text, isValue)}
+    </ReactMarkdown>
+  );
+}
+
 const fixUnbalancedMath = (before: string, after: string) => {
   let b = before;
   let a = after;
@@ -1147,7 +1184,7 @@ const GAME_CSS = `
   }
   .completion-problem-list {
     width: 100%;
-    max-width: 520px;
+    max-width: 640px;
     margin: 0 auto 20px;
     display: flex;
     flex-direction: column;
@@ -1164,22 +1201,40 @@ const GAME_CSS = `
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
   }
   .completion-problem-row.has-report { flex-wrap: wrap; }
+  .completion-problem-row.has-report .completion-problem-text { max-width: none; white-space: normal; overflow: visible; flex: 1 1 60%; }
   .completion-step-report {
     flex-basis: 100%;
-    margin-top: 10px;
-    padding-top: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px dashed rgba(142, 91, 32, 0.7);
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
+    gap: 10px;
+    text-align: left;
+  }
+  .step-card {
+    padding: 12px 14px;
+    background: rgba(255, 244, 213, 0.06);
+    border: 1px solid rgba(255, 220, 168, 0.18);
+    border-left: 5px solid #5fbf7a;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
     color: #fff4d5;
   }
-  .completion-step-line { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-  .completion-step-line.is-wrong { color: #ffb3a7; }
-  .completion-step-line.is-breakdown { font-weight: 800; }
-  .completion-step-mark { font-weight: 900; }
-  .completion-step-note { font-size: 12px; font-style: italic; color: #f3d9a0; }
+  .step-card.is-wrong { border-left-color: #e8705f; background: rgba(232, 112, 95, 0.09); }
+  .step-card.is-breakdown { border-color: rgba(245, 176, 37, 0.6); border-left-color: #f5b025; box-shadow: 0 0 0 1px rgba(245, 176, 37, 0.25); }
+  .step-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .step-card-mark { font-weight: 900; font-size: 16px; color: #8fe3a4; }
+  .step-card.is-wrong .step-card-mark { color: #ff9a8b; }
+  .step-card-title { font-size: 13px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; color: #ffdca8; }
+  .step-card-flag { margin-left: auto; padding: 2px 10px; border-radius: 999px; background: rgba(245, 176, 37, 0.2); border: 1px solid rgba(245, 176, 37, 0.55); font-size: 11px; font-weight: 800; color: #ffe08d; }
+  .step-card-instruction { font-size: 15px; font-weight: 600; line-height: 1.5; color: #fff4d5; margin-bottom: 10px; }
+  .step-card-answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+  .step-card-answer { display: flex; flex-direction: column; gap: 3px; padding: 8px 12px; background: rgba(20, 9, 5, 0.55); border-radius: 8px; }
+  .step-card-answer.is-key { background: rgba(95, 191, 122, 0.14); }
+  .step-card-label { font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: #d9bd8a; }
+  .step-card-value { font-size: 17px; font-weight: 700; color: #fff; overflow-wrap: anywhere; }
+  .completion-step-note { font-size: 14px; line-height: 1.5; font-style: italic; color: #f3d9a0; padding: 2px 4px; }
   .completion-problem-text {
     font-size: 15px;
     font-weight: 800;
@@ -2219,18 +2274,35 @@ export default function PracticePage() {
                             return (
                               <div
                                 key={r.step_index}
-                                className={`completion-step-line${r.correct ? "" : " is-wrong"}${isBreakdown ? " is-breakdown" : ""}`}
+                                className={`step-card${r.correct ? " is-correct" : " is-wrong"}${isBreakdown ? " is-breakdown" : ""}`}
                               >
-                                <span className="completion-step-mark">{r.correct ? "✓" : "✗"}</span>
-                                <span>Step {r.step_index + 1}{stepInfo ? `: ${stepInfo.instruction}` : ""}</span>
-                                <span>Your first answer: {r.submitted_value || "(blank)"}</span>
-                                {!r.correct && <span>Correct: {r.correct_value}</span>}
-                                {isBreakdown && <span>← reasoning broke down here</span>}
+                                <div className="step-card-head">
+                                  <span className="step-card-mark">{r.correct ? "✓" : "✗"}</span>
+                                  <span className="step-card-title">Step {r.step_index + 1}</span>
+                                  {isBreakdown && <span className="step-card-flag">Reasoning broke down here</span>}
+                                </div>
+                                {stepInfo?.instruction && (
+                                  <div className="step-card-instruction"><MathInline text={stepInfo.instruction} /></div>
+                                )}
+                                <div className="step-card-answers">
+                                  <div className="step-card-answer">
+                                    <span className="step-card-label">Your first answer</span>
+                                    <span className="step-card-value">
+                                      {r.submitted_value ? <MathInline text={r.submitted_value} isValue /> : "(blank)"}
+                                    </span>
+                                  </div>
+                                  {!r.correct && (
+                                    <div className="step-card-answer is-key">
+                                      <span className="step-card-label">Correct answer</span>
+                                      <span className="step-card-value"><MathInline text={r.correct_value} isValue /></span>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             );
                           })}
                           {problemReports[idx].feedback_text && (
-                            <div className="completion-step-note">{problemReports[idx].feedback_text}</div>
+                            <div className="completion-step-note"><MathInline text={problemReports[idx].feedback_text} /></div>
                           )}
                         </div>
                       )}
