@@ -601,7 +601,7 @@ export interface QuizStepError {
   step_index: number;
   step_type: string;
   operation_description: string;
-  submitted_value: string;
+  submitted_value: string | null;
   correct_value: string;
 }
 
