@@ -16,6 +16,7 @@ import {
   submitPracticeStep,
   PracticeProblem,
   PracticeStep,
+  PracticeSubmitStepResponse,
 } from "../../../../lib/api";
 
 type MathFieldProps = {
@@ -1162,6 +1163,23 @@ const GAME_CSS = `
     border-radius: 12px;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
   }
+  .completion-problem-row.has-report { flex-wrap: wrap; }
+  .completion-step-report {
+    flex-basis: 100%;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(142, 91, 32, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #fff4d5;
+  }
+  .completion-step-line { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .completion-step-line.is-wrong { color: #ffb3a7; }
+  .completion-step-line.is-breakdown { font-weight: 800; }
+  .completion-step-mark { font-weight: 900; }
+  .completion-step-note { font-size: 12px; font-style: italic; color: #f3d9a0; }
   .completion-problem-text {
     font-size: 15px;
     font-weight: 800;
@@ -1445,6 +1463,11 @@ export default function PracticePage() {
 
   const [allStepSubmissions, setAllStepSubmissions] = useState<Record<number, { step_index: number; submitted_value: string }[]>>({});
   const [problemStars, setProblemStars] = useState<Record<number, number>>({});
+  // Per-step reports returned by the backend, shown on the completion screen.
+  const [problemReports, setProblemReports] = useState<Record<number, PracticeSubmitStepResponse>>({});
+  // First answer given for each step. Retries and checkpoint resets never
+  // overwrite it, so the backend scores the student's first attempt.
+  const firstAttemptsRef = useRef<Record<number, Record<number, string>>>({});
   const [problemMistakes, setProblemMistakes] = useState<number>(0);
 
   // Battle states
@@ -1535,14 +1558,19 @@ export default function PracticePage() {
     setProblemStars(prev => ({ ...prev, [currentProblemIdx]: stars }));
     setAllStepSubmissions(prev => ({ ...prev, [currentProblemIdx]: newSubmissions }));
 
-    // Send full submission payload to backend
+    // Send each step's first attempt to the backend for scoring
     try {
-      await submitPracticeStep({
+      const firstAttempts = firstAttemptsRef.current[currentProblemIdx] || {};
+      const report = await submitPracticeStep({
         session_id: sessionId,
         node_id: nodeId,
         problem_id: currentProblem.id,
-        student_steps: newSubmissions,
+        student_steps: Object.entries(firstAttempts).map(([stepIndex, value]) => ({
+          step_index: Number(stepIndex),
+          submitted_value: value,
+        })),
       });
+      setProblemReports(prev => ({ ...prev, [currentProblemIdx]: report }));
     } catch (err) {
       console.error("Backend step submission failed:", err);
     }
@@ -1577,6 +1605,10 @@ export default function PracticePage() {
     setCheckpointNotice(null);
 
     const isCorrect = checkStepCorrect(stepInput, currentStep.correct_value);
+    const attemptsForProblem = (firstAttemptsRef.current[currentProblemIdx] ||= {});
+    if (!(currentStep.step_index in attemptsForProblem)) {
+      attemptsForProblem[currentStep.step_index] = stepInput.trim();
+    }
     const newCompletedStep = {
       step: currentStep,
       submittedValue: stepInput.trim(),
@@ -2163,7 +2195,7 @@ export default function PracticePage() {
                 {problems.map((prob, idx) => {
                   const stars = problemStars[idx] || 1;
                   return (
-                    <div key={prob.id} className="completion-problem-row">
+                    <div key={prob.id} className={`completion-problem-row${problemReports[idx] ? " has-report" : ""}`}>
                       <span className="completion-problem-text">
                         Problem {idx + 1}:{" "}
                         <ReactMarkdown
@@ -2179,6 +2211,29 @@ export default function PracticePage() {
                           <GameIcon key={sIdx} name="star" className={`star-icon${sIdx < stars ? "" : " empty"}`} />
                         ))}
                       </div>
+                      {problemReports[idx] && (
+                        <div className="completion-step-report">
+                          {problemReports[idx].step_results.map((r) => {
+                            const isBreakdown = problemReports[idx].misconception_step_index === r.step_index;
+                            const stepInfo = prob.steps.find(st => st.step_index === r.step_index);
+                            return (
+                              <div
+                                key={r.step_index}
+                                className={`completion-step-line${r.correct ? "" : " is-wrong"}${isBreakdown ? " is-breakdown" : ""}`}
+                              >
+                                <span className="completion-step-mark">{r.correct ? "✓" : "✗"}</span>
+                                <span>Step {r.step_index + 1}{stepInfo ? `: ${stepInfo.instruction}` : ""}</span>
+                                <span>Your first answer: {r.submitted_value || "(blank)"}</span>
+                                {!r.correct && <span>Correct: {r.correct_value}</span>}
+                                {isBreakdown && <span>← reasoning broke down here</span>}
+                              </div>
+                            );
+                          })}
+                          {problemReports[idx].feedback_text && (
+                            <div className="completion-step-note">{problemReports[idx].feedback_text}</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
