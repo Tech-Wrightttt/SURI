@@ -7,11 +7,13 @@ import {
   startQuiz,
   submitQuizStep,
   skipQuizStep,
-  useQuizHint,
+  useQuizHint as purchaseQuizHint,
   finishQuiz,
   QuizProblem,
   QuizFinishResponse,
+  ApiError,
 } from "../../../../lib/api";
+import PointsNotice, { type PointsNoticeData } from "@/components/quiz/PointsNotice";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -1225,6 +1227,9 @@ export default function QuizPage() {
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
+  const [pointsNotice, setPointsNotice] = useState<PointsNoticeData | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const purchasePendingRef = useRef(false);
 
   const currentProblemIndexRef = useRef(0);
   const currentStepIndexRef = useRef(0);
@@ -1295,7 +1300,7 @@ export default function QuizPage() {
   }, []);
 
   useEffect(() => {
-    if (state !== "STEP") {
+    if (state !== "STEP" || pointsNotice) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -1330,18 +1335,19 @@ export default function QuizPage() {
         timerRef.current = null;
       }
     };
-  }, [state]);
+  }, [state, pointsNotice]);
 
   useEffect(() => {
     if (
       state === "STEP" &&
       timeRemainingMs <= 0 &&
       !isSubmitting &&
+      !pointsNotice &&
       !timedOut
     ) {
       handleTimeout();
     }
-  }, [state, timeRemainingMs, isSubmitting, timedOut]);
+  }, [state, timeRemainingMs, isSubmitting, timedOut, pointsNotice]);
 
   const currentProblem = problems[currentProblemIndex];
   const currentStep = currentProblem?.steps[currentStepIndex];
@@ -1580,46 +1586,68 @@ export default function QuizPage() {
     }
   };
 
-  const buyHint = async (type: "hint") => {
+  const purchaseBoost = async (type: "hint" | "freeze" | "save_streak", opener: HTMLElement) => {
+    if (purchasePendingRef.current || pointsNotice) return null;
+    const required = type === "save_streak" ? 1000 : 750;
+    const action = type === "hint" ? "Hint" : type === "freeze" ? "Freeze Timer" : "Save Streak";
+    const showNotice = (current: number, cost: number, failed = false) => {
+      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+      setPointsNotice({ action, required: cost, current, failed, opener });
+    };
+
+    if (totalPoints < required) {
+      showNotice(totalPoints, required);
+      return null;
+    }
+
+    purchasePendingRef.current = true;
+    setIsPurchasing(true);
     try {
-      const res = await useQuizHint({
+      const res = await purchaseQuizHint({
         quiz_session_id: quizSessionId,
         problem_id: currentProblem.id,
         step_index: currentStep.step_index,
         hint_type: type,
+        ...(type === "save_streak" ? { saved_streak: streakAtRisk } : {}),
       });
-
       setTotalPoints(res.total_points);
-
-      if (type === "hint") {
-        setHintText(res.hint_text);
-      }
-    } catch (err: any) {
-      if (err.status === 400) {
-        alert("Not enough points!");
+      return res;
+    } catch (err: unknown) {
+      const detail = err instanceof ApiError ? err.detail : null;
+      if (detail && typeof detail === "object" && "code" in detail &&
+          detail.code === "insufficient_points" && "required" in detail &&
+          typeof detail.required === "number" && Number.isFinite(detail.required) &&
+          "current" in detail && typeof detail.current === "number" && Number.isFinite(detail.current)) {
+        setTotalPoints(detail.current);
+        showNotice(detail.current, detail.required);
       } else {
-        console.error(err);
+        console.error("Failed to purchase quiz boost:", err);
+        showNotice(totalPoints, required, true);
       }
+      return null;
+    } finally {
+      purchasePendingRef.current = false;
+      setIsPurchasing(false);
     }
   };
 
-  const handleFreeze = async () => {
+  const closePointsNotice = () => {
+    setPointsNotice(null);
+    if (state === "STEP_RESULT") {
+      advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
+    }
+  };
+
+  const buyHint = async (opener: HTMLElement) => {
+    const res = await purchaseBoost("hint", opener);
+    if (res) setHintText(res.hint_text);
+  };
+
+  const handleFreeze = async (opener: HTMLElement) => {
     if (isTimerFrozen || state === "STEP_RESULT" || isSubmitting) return;
 
-    if (totalPoints < 750) {
-      alert("Not enough points!");
-      return;
-    }
-
-    try {
-      const res = await useQuizHint({
-        quiz_session_id: quizSessionId,
-        problem_id: currentProblem.id,
-        step_index: currentStep.step_index,
-        hint_type: "freeze",
-      });
-
-      setTotalPoints(res.total_points);
+    const res = await purchaseBoost("freeze", opener);
+    if (res) {
 
       // Only freeze once the server confirms the purchase.
       timerFrozenRef.current = true;
@@ -1630,8 +1658,6 @@ export default function QuizPage() {
         timerFrozenRef.current = false;
         setIsTimerFrozen(false);
       }, 10_000);
-    } catch (err: any) {
-      alert("Not enough points!");
     }
   };
 
@@ -2031,9 +2057,10 @@ export default function QuizPage() {
 
             <div className="quiz-actions">
               <button
-                onClick={() => buyHint("hint")}
+                onClick={(event) => buyHint(event.currentTarget)}
                 disabled={
                   hintText !== null ||
+                  isPurchasing ||
                   state === "STEP_RESULT" ||
                   isSubmitting
                 }
@@ -2044,9 +2071,10 @@ export default function QuizPage() {
               </button>
 
               <button
-                onClick={handleFreeze}
+                onClick={(event) => handleFreeze(event.currentTarget)}
                 disabled={
                   isTimerFrozen ||
+                  isPurchasing ||
                   state === "STEP_RESULT" ||
                   isSubmitting
                 }
@@ -2250,66 +2278,22 @@ export default function QuizPage() {
 
                     {!stepCorrect && streakAtRisk > 0 && (
                       <button
-                        onClick={async () => {
+                        disabled={isPurchasing}
+                        onClick={async (event) => {
                           if (advanceTimerRef.current) {
                             clearTimeout(
                               advanceTimerRef.current
                             );
                           }
 
-                          try {
-                            const res =
-                              await useQuizHint({
-                                quiz_session_id:
-                                  quizSessionId,
-                                problem_id:
-                                  currentProblem.id,
-                                step_index:
-                                  currentStep.step_index,
-                                hint_type:
-                                  "save_streak",
-                                saved_streak:
-                                  streakAtRisk,
-                              });
+                          const res = await purchaseBoost("save_streak", event.currentTarget);
+                          if (!res) return;
 
-                            setTotalPoints(
-                              res.total_points
-                            );
-
-                            setCurrentStreak(
-                              streakAtRisk
-                            );
-
-                            const mult =
-                              Math.round(
-                                (
-                                  1.0 +
-                                  Math.max(
-                                    0,
-                                    streakAtRisk - 1
-                                  ) *
-                                    0.1
-                                ) * 100
-                              ) / 100;
-
-                            setStreakMultiplier(mult);
-                            setStreakAtRisk(0);
-                          } catch (err: any) {
-                            console.log(
-                              "save streak error:",
-                              err
-                            );
-
-                            alert(
-                              "Not enough points!"
-                            );
-                          }
-
-                          advanceTimerRef.current =
-                            setTimeout(
-                              () => advanceToNext(),
-                              1500
-                            );
+                          setCurrentStreak(streakAtRisk);
+                          const mult = Math.round((1.0 + Math.max(0, streakAtRisk - 1) * 0.1) * 100) / 100;
+                          setStreakMultiplier(mult);
+                          setStreakAtRisk(0);
+                          advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
                         }}
                         className="quiz-action save mt-5 mx-auto"
                       >
@@ -2322,6 +2306,7 @@ export default function QuizPage() {
               </div>
             </div>
           )}
+          {pointsNotice && <PointsNotice notice={pointsNotice} onClose={closePointsNotice} />}
         </div>
       </div>
     );
