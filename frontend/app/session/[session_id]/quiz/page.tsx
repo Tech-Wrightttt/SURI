@@ -721,6 +721,29 @@ const QUIZ_CSS = `
       );
   }
 
+  .quiz-streak-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .quiz-streak-actions .quiz-action {
+    flex: 1 1 180px;
+  }
+
+  .quiz-streak-actions .quiz-action:focus-visible {
+    outline: 3px solid #ffe288;
+    outline-offset: 4px;
+  }
+
+  .quiz-result-card.has-streak-choice {
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
   .quiz-action:disabled {
     opacity: .45;
     filter: grayscale(.5);
@@ -1476,9 +1499,13 @@ export default function QuizPage() {
         setState("STEP_RESULT");
 
         if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-        advanceTimerRef.current = setTimeout(() => {
-          advanceToNext();
-        }, 2500);
+        advanceTimerRef.current = null;
+        // Let the learner explicitly save or skip an existing streak.
+        if (preWrongStreak === 0) {
+          advanceTimerRef.current = setTimeout(() => {
+            advanceToNext();
+          }, 2500);
+        }
 
         return;
       }
@@ -1633,9 +1660,17 @@ export default function QuizPage() {
 
   const closePointsNotice = () => {
     setPointsNotice(null);
-    if (state === "STEP_RESULT") {
+    if (state === "STEP_RESULT" && streakAtRisk === 0) {
       advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
     }
+  };
+
+  const skipSavingStreak = () => {
+    if (purchasePendingRef.current || state !== "STEP_RESULT" || streakAtRisk === 0) return;
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = null;
+    setStreakAtRisk(0);
+    void advanceToNext();
   };
 
   const buyHint = async (opener: HTMLElement) => {
@@ -2205,7 +2240,7 @@ export default function QuizPage() {
 
           {state === "STEP_RESULT" && (
             <div className="quiz-result-overlay">
-              <div className="quiz-result-card">
+              <div className={`quiz-result-card${!stepCorrect && streakAtRisk > 0 ? " has-streak-choice" : ""}`}>
 
                 <div
                   className="quiz-result-rune"
@@ -2277,29 +2312,41 @@ export default function QuizPage() {
                     </div>
 
                     {!stepCorrect && streakAtRisk > 0 && (
-                      <button
-                        disabled={isPurchasing}
-                        onClick={async (event) => {
-                          if (advanceTimerRef.current) {
-                            clearTimeout(
-                              advanceTimerRef.current
-                            );
-                          }
+                      <div className="quiz-streak-actions">
+                        <button
+                          type="button"
+                          disabled={isPurchasing}
+                          onClick={async (event) => {
+                            if (advanceTimerRef.current) {
+                              clearTimeout(
+                                advanceTimerRef.current
+                              );
+                            }
 
-                          const res = await purchaseBoost("save_streak", event.currentTarget);
-                          if (!res) return;
+                            const res = await purchaseBoost("save_streak", event.currentTarget);
+                            if (!res) return;
 
-                          setCurrentStreak(streakAtRisk);
-                          const mult = Math.round((1.0 + Math.max(0, streakAtRisk - 1) * 0.1) * 100) / 100;
-                          setStreakMultiplier(mult);
-                          setStreakAtRisk(0);
-                          advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
-                        }}
-                        className="quiz-action save mt-5 mx-auto"
-                      >
-                        <Flame className="w-4 h-4" />
-                        Save Streak · 1000 pts
-                      </button>
+                            setCurrentStreak(streakAtRisk);
+                            const mult = Math.round((1.0 + Math.max(0, streakAtRisk - 1) * 0.1) * 100) / 100;
+                            setStreakMultiplier(mult);
+                            setStreakAtRisk(0);
+                            advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
+                          }}
+                          className="quiz-action save"
+                        >
+                          <Flame className="w-4 h-4" />
+                          Save Streak · 1000 pts
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isPurchasing}
+                          onClick={skipSavingStreak}
+                          className="quiz-action skip"
+                        >
+                          <SkipForward className="w-4 h-4" />
+                          Skip saving streak
+                        </button>
+                      </div>
                     )}
                   </>
                 )}
