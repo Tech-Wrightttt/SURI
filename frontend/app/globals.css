@@ -174,6 +174,31 @@ body {
   .suri-logout-overlay { backdrop-filter: none; }
 }
 
+/* Quiz boost notices share the archive's parchment, double border and raised gold controls. */
+.suri-points-notice { position: fixed; inset: 0; margin: auto; width: min(28rem, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; overscroll-behavior: contain; padding: 0; border: 4px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.45), transparent 55%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 7px 0 #160b07, 0 24px 60px rgba(0,0,0,.4), inset 0 0 0 3px rgba(111,61,28,.16); font-family: "Nunito", "Manrope", sans-serif; }
+.suri-points-notice[open] { animation: suri-help-modal-in .24s cubic-bezier(.2,.8,.2,1) both; }
+.suri-points-notice::backdrop { background: rgba(12,5,10,.78); backdrop-filter: blur(5px); }
+.suri-points-content { position: relative; padding: 2rem 1.75rem; text-align: center; }
+.suri-points-content::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.2); pointer-events: none; }
+.suri-points-emblem { display: grid; place-items: center; width: 4rem; height: 4rem; margin: 0 auto 1.25rem; border: 3px solid #6d411c; border-radius: 50%; color: #5e3619; background: linear-gradient(180deg, #fff6aa, #ffd35c 58%, #c7832e); box-shadow: 0 4px 0 #4b2411, inset 0 0 0 2px rgba(255,255,255,.35); }
+.suri-points-eyebrow { margin: 0 0 .5rem; color: #6c278e; font-size: .7rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.suri-points-content h2 { margin: 0; font: 400 clamp(1.65rem, 5vw, 2rem)/1.2 "Bree Serif", Georgia, serif; }
+.suri-points-content > p:not(.suri-points-eyebrow) { margin: .85rem 0 0; color: #5f4b2e; font-size: .9rem; font-weight: 700; line-height: 1.6; }
+.suri-points-balance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 1.4rem 0; border: 2px solid #9c672b; background: rgba(255,247,220,.55); }
+.suri-points-balance > div { padding: .85rem .5rem; }
+.suri-points-balance > div + div { border-left: 2px solid rgba(111,61,28,.2); }
+.suri-points-balance dt { font-size: .75rem; font-weight: 800; color: #5f4b2e; }
+.suri-points-balance dd { margin: .3rem 0 0; font: 400 1.65rem/1.2 "Bree Serif", Georgia, serif; }
+.suri-points-balance dd span { font: 800 .75rem "Nunito", sans-serif; }
+.suri-points-content > .suri-points-paused { font-size: .75rem; }
+.suri-points-continue { display: block; width: 100%; min-height: 3rem; margin-top: 1.5rem; padding: .7rem 1rem; border: 3px solid #6d411c; border-radius: 7px; color: #3a2111; background: linear-gradient(180deg, #fff6aa, #ffd35c 58%, #d49a43); box-shadow: 0 4px 0 #4b2411, inset 0 0 0 2px rgba(255,255,255,.25); font: 900 .9rem/1.2 "Nunito", sans-serif; cursor: pointer; transition: filter .16s, transform .16s; }
+.suri-points-continue:hover { filter: brightness(1.06); transform: translateY(-2px); }
+.suri-points-continue:active { transform: translateY(2px); }
+.suri-points-continue:focus-visible { outline: 3px solid #1d528d; outline-offset: 3px; }
+@media (max-width: 400px) { .suri-points-content { padding: 1.75rem 1.1rem; } }
+@media (prefers-reduced-motion: reduce) { .suri-points-notice[open] { animation: none; } .suri-points-continue { transition: none; } }
+@media (prefers-reduced-transparency: reduce) { .suri-points-notice::backdrop { backdrop-filter: none; background: #1b1015; } }
+
 .card-shadow {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }

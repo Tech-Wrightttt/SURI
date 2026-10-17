@@ -284,7 +284,7 @@ class QuizStepError(BaseModel):
     step_index: int
     step_type: str
     operation_description: str
-    submitted_value: str
+    submitted_value: Optional[str]  # None = timeout
     correct_value: str
 
 

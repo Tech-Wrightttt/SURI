@@ -243,12 +243,14 @@ SURI is pre-configured with a top-level [`vercel.json`](file:///vercel.json) tha
    git push origin main
    ```
 2. Log in to [Vercel](https://vercel.com) and click **"Add New Project"**.
-3. Select your **SURI** repository. Vercel will automatically detect `vercel.json` and configure both the `backend` and `frontend` services.
+3. Select your **SURI** repository. Set the project **Root Directory** to the repository root (leave it empty), and set the **Framework Preset** to **Services**. The root `vercel.json` defines both services; each service uses its own framework and build settings. Leave project-level build and output-directory overrides unset.
 4. Add your **Environment Variables** in the Vercel Project Settings:
    - `GEMINI_API_KEY`: Your Google AI Studio API key.
    - `DATABASE_URL`: Your Supabase PostgreSQL connection string (Transaction Pooler URI on port `6543` recommended).
    - `JWT_SECRET`: A secure random cryptographic secret string.
 5. Click **Deploy**. Your full-stack platform will be live in minutes!
+
+Images live in `frontend/public` and use root-relative URLs such as `/SURI1.png` and `/login/library.png`. Next.js includes this directory automatically. The frontend serves images directly (`images.unoptimized`) so the logo and mascots do not depend on the `/_next/image` optimizer through the Services gateway. This preserves original image files, but downloads can be larger than optimized variants. Do not add service-level `includeFiles`: it is not a supported property of the current `services` configuration.
 
 ---
 
