@@ -271,6 +271,28 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
         )
         answered_count = answered_count_row["cnt"] if answered_count_row else 0
 
+        correct_row = await conn.fetchrow(
+            "SELECT COALESCE(SUM(probe_result), 0) AS correct FROM diagnostic_logs WHERE session_id = $1 AND node_id = $2",
+            session_id, current_node,
+        )
+        correct_so_far = int(correct_row["correct"] or 0)
+        wrong_so_far = answered_count - correct_so_far
+
+        # The node was already decided (failed, or the top node passed) before the
+        # student left; don't serve another question, send them to the results.
+        if correct_so_far >= PASS_THRESHOLD or wrong_so_far >= FAIL_WRONG_LIMIT:
+            return {
+                "node_id": current_node,
+                "node_label": GRAPH[current_node]["label"],
+                "question_text": "",
+                "options": [],
+                "questions_answered": answered_count,
+                "questions_total": QUESTIONS_PER_NODE,
+                "correct_count": correct_so_far,
+                "wrong_count": wrong_so_far,
+                "next_action": "complete",
+            }
+
         # Use a session-seeded deterministic order to avoid repeating probes
         order = _probe_order(session_id, current_node, len(probes_list))
         probe_idx = order[answered_count % len(probes_list)]
@@ -281,12 +303,6 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
             probe_idx, datetime.now(timezone.utc).isoformat(), session_id,
         )
 
-        correct_row = await conn.fetchrow(
-            "SELECT COALESCE(SUM(probe_result), 0) AS correct FROM diagnostic_logs WHERE session_id = $1 AND node_id = $2",
-            session_id, current_node,
-        )
-        correct_so_far = int(correct_row["correct"] or 0)
-
         return {
             "node_id": current_node,
             "node_label": GRAPH[current_node]["label"],
@@ -295,7 +311,7 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
             "questions_answered": answered_count,
             "questions_total": QUESTIONS_PER_NODE,
             "correct_count": correct_so_far,
-            "wrong_count": answered_count - correct_so_far,
+            "wrong_count": wrong_so_far,
         }
     finally:
         await release_db(conn)

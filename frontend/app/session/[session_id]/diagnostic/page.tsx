@@ -1248,6 +1248,7 @@ export default function DiagnosticPage() {
     setSuriState("idle"); setEnemyAnimState("idle");
     try {
       const data = await getDiagnosticProbe(sessionId);
+      if (data.next_action === "complete") { await finalize(); return; }
       setProbe(data); setPhase("battle"); setTileKey(k => k + 1);
       setAnsweredCount(data.questions_answered ?? 0);
       setEnemyHearts(ENEMY_HEARTS - (data.correct_count ?? 0));
@@ -1255,7 +1256,7 @@ export default function DiagnosticPage() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load question.");
     } finally { setLoading(false); }
-  }, [sessionId]);
+  }, [sessionId, finalize]);
 
   const advance = useCallback(async (nextAction: string) => {
     try {

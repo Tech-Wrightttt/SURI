@@ -146,6 +146,7 @@ export interface DiagnosticProbe {
   questions_total?: number;
   correct_count?: number;
   wrong_count?: number;
+  next_action?: string;
 }
 
 export interface DiagnosticAnswer {
