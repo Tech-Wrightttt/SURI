@@ -5,26 +5,26 @@ This document provides a comprehensive overview of the SURI (Mathematics Learnin
 ## 1. Technology Stack
 
 ### Frontend
-- **Framework**: Next.js (App Router paradigm) with React.
-- **Styling**: TailwindCSS for utility-first, responsive design.
+- **Framework**: Next.js 16 (App Router) with React 19.
+- **Styling**: Tailwind CSS 4; the dashboard is a three.js 3D world map.
 - **State & Data Fetching**: Standard React Hooks (`useState`, `useEffect`) and custom typed API wrappers.
 
 ### Backend
 - **Framework**: FastAPI (Python) served via Uvicorn.
-- **Database**: SQLite, accessed asynchronously via `aiosqlite`.
+- **Database**: Supabase (PostgreSQL), accessed asynchronously via `asyncpg` with a connection pool.
 - **Authentication**: Custom JWT (JSON Web Token) implementation utilizing `python-jose` and `bcrypt` for password hashing.
-- **AI & RAG Pipeline**: `google-generativeai` (Gemini), `llama-index`, and `chromadb` for Retrieval-Augmented Generation, document parsing, and dynamic content generation.
+- **AI**: `google-generativeai` (Gemini) at runtime for lesson simplification, standard-mode step feedback, and end-of-quiz feedback. `llama-index`, `chromadb`, `sentence-transformers`, and `mathsteps` are used only by the offline build scripts that pre-generate lessons and practice problems; mathsteps also powers the calculator (`/api/solve`).
 
 ---
 
 ## 2. Authentication Pipeline
 
-The authentication system uses HTTP-only cookies to securely manage sessions without exposing tokens to client-side JavaScript.
+The authentication system issues a JWT as an HTTP-only cookie. The token is also returned in the response body; the frontend keeps a copy and sends it as a Bearer token, and the backend accepts either.
 
 1. **Registration** (`POST /api/auth/register`):
-   - Accepts `name`, `grade_level`, and `password`.
+   - Accepts `name`, `email`, `grade_level`, and `password`.
    - Hashes the password using `bcrypt`.
-   - Stores the student record in SQLite.
+   - Stores the student record in the database.
    - Generates a JWT (expiring in 7 days) and sets it as an `access_token` HTTP-only cookie.
 2. **Login** (`POST /api/auth/login`):
    - Verifies credentials.
@@ -64,9 +64,10 @@ When a user engages with a topic, the system orchestrates a personalized learnin
 - **Backend Flow**: Evaluates the competency graph (defined in `graph.py`). A topic is a "node" in a directed graph of prerequisites. The session tracks which nodes the user has mastered and which are currently in progress.
 
 ### Phase 2: Diagnostic Assessment
-- **Purpose**: Identify what the student already knows to skip unnecessary material.
-- **Action**: The system presents multiple-choice diagnostic probes (`/api/diagnostic/{session_id}/probe`).
-- **Evaluation**: Answers are evaluated (`/api/diagnostic/{session_id}/answer`). If the student answers correctly, the system assumes mastery of that node. If incorrect, a "gap" is detected, and the user is routed to the lesson phase for that specific gap node.
+- **Purpose**: Find the first prerequisite the student has not mastered.
+- **Action**: Starting at the deepest prerequisite of the chain, the system presents multiple-choice probes one at a time (`/api/diagnostic/{session_id}/probe`), drawn from 16 stored questions per node. Each node is shown as a battle: one enemy with 3 hearts, and the student has 2 hearts.
+- **Evaluation** (`/api/diagnostic/{session_id}/answer`): a node is passed after 3 correct answers (3 of 4 = 75%) and failed after 2 wrong answers (3 of 4 can no longer be reached). A passed node moves up to the next node; the first failed node ends the diagnostic and becomes the gap. If every node is passed, no gap is found.
+- **Results** (`/api/diagnostic/{session_id}/submit`): nodes below the gap are marked mastered, the gap and nodes above it unresolved. The results screen shows the path and a "Start Practice" button (or an "all Improved" summary when there is no gap).
 
 ### Phase 3: Lesson & Content Delivery
 - **Action**: The user views educational content for the active gap node (`/api/content/{node_id}`).
@@ -77,24 +78,24 @@ When a user engages with a topic, the system orchestrates a personalized learnin
 - **AI Integration**: If the student finds the lesson too difficult, they can trigger an AI simplification (`/api/content/{node_id}/simplify`). The backend uses the LLM to rewrite the text to be more accessible.
 
 ### Phase 4: Active Practice
-- **Action**: After reading the lesson, the user solves practice problems step-by-step (`/api/practice/start`).
-- **Evaluation** (`/api/practice/submit-step`): 
-  - Each mathematical step the user submits is evaluated.
-  - **Misconception Detection**: If a step is wrong, the backend's AI pipeline analyzes the error to identify the specific conceptual misunderstanding (e.g., "Added denominators instead of finding a common denominator").
-  - This misconception is logged to the student's history and mapped back to a specific graph node.
+- **Action**: After reading the lesson, the student picks "Let's Practice!" (standard step-by-step mode, `/api/practice/start`) or "Quiz Me!" (gamified quiz with timers, hints, and streaks, `/api/quiz/*`). 5 of the at least 10 stored problems for the node are sampled.
+- **Evaluation** (`/api/practice/submit-step`):
+  - The student's **first** answer for each step is the one scored; retries do not change it. A problem passes only if every step was right on the first attempt.
+  - **Misconception Detection**: the first wrong step of a problem is logged to the student's history and mapped to a graph node; Gemini writes a short feedback note for that step.
+  - The completion screen lists each step with the student's answer, the correct answer, and where the reasoning broke down. In quiz mode the first wrong step of each problem is logged when the quiz finishes (`/api/quiz/finish`); a timed-out step counts as wrong.
 
 ### Phase 5: Progression Decision
 - **Action**: After practice, the system decides if the student is ready to advance (`/api/progression/decide`).
 - **Outcomes**:
-  - **Advance**: The current node is marked mastered; the session moves to the next node in the prerequisite chain.
-  - **Remediate**: The student is kept on the current node or moved backward to learn foundational concepts based on the misconceptions detected.
-  - **Complete**: All nodes in the topic chain are mastered.
+  - **Advance** (at least 4 of 5 problems): the node is marked mastered (and the nodes below it); the session moves to the next node up the chain.
+  - **Remediate** (3 of 5 or fewer): the student chooses Review Prerequisite, Review This Topic (simplified lesson), or Save and Quit.
+  - **Complete**: all nodes in the topic chain are mastered.
 
 ---
 
 ## 5. AI & Knowledge Base Integration
 
-The system relies heavily on Retrieval-Augmented Generation (RAG) to ground its mathematical instructions:
-- Source documents (textbooks, curriculums) are ingested into **ChromaDB** using **LlamaIndex**.
-- When generating practice problems, evaluating complex open-ended steps, or simplifying lessons, the system queries the vector database to retrieve relevant pedagogical context.
-- **Google Generative AI** interprets this context to ensure that explanations, variables, and problem types strictly adhere to the designated curriculum standards.
+Lessons and practice problems are grounded in the DepEd curriculum through an **offline** Retrieval-Augmented Generation build:
+- Source documents (SLM PDFs) are ingested into **ChromaDB** using **LlamaIndex** and **sentence-transformers** (`knowledge_base/`).
+- **Google Generative AI** uses the retrieved context to pre-generate lessons, worked examples, and guided explanations, which are stored in the database; practice problems are decomposed with **mathsteps** and stored the same way.
+- At runtime ChromaDB is not queried. Gemini is called only to simplify a lesson on request, to give feedback on the first wrong step in standard practice, and to summarize errors at the end of a quiz.
