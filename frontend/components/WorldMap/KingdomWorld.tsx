@@ -29,7 +29,7 @@ type LandmarkElements = Partial<Record<DashboardLandmark, HTMLDivElement | null>
 const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; description: string }> = [
   { kind: "keep", title: "Castle Keep", description: "Your kingdom's welcome hall and student overview." },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics", description: "Explore the Learning Grove and choose your next topic." },
-  { kind: "records", title: "Error History · Hall of Records", href: "/error-history", description: "Revisit misconceptions in the Hall of Records." },
+  { kind: "records", title: "Playground · Hall of Records", href: "/playground", description: "Open Playground." },
   { kind: "champions", title: "Progress · Hall of Champions", href: "/progress", description: "Track your mastery in the Hall of Champions." },
   { kind: "calculator", title: "Calculator · Arcane Tower", href: "/calculator", description: "Solve equations step by step in the Arcane Tower." },
 ];
@@ -132,7 +132,7 @@ function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserve
 
         <Landmark position={sitePosition("keep")} accent={COLORS.gold} kind="keep" onClick={openOverview} onIntent={() => { void loadStudentOverview(); }} hovered={hoveredLandmark === "keep"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} onIntent={() => preloadRoute?.("/topics")} kind="topics" selected={selectedSite === "topics"} hovered={hoveredLandmark === "topics"} onHoverChange={setHoveredLandmark} />
-        <Landmark position={sitePosition("records")} onClick={() => visit("records", "/error-history")} onIntent={() => preloadRoute?.("/error-history")} kind="records" selected={selectedSite === "records"} hovered={hoveredLandmark === "records"} onHoverChange={setHoveredLandmark} />
+        <Landmark position={sitePosition("records")} onClick={() => visit("records", "/playground")} onIntent={() => preloadRoute?.("/playground")} kind="records" selected={selectedSite === "records"} hovered={hoveredLandmark === "records"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} onIntent={() => preloadRoute?.("/progress")} kind="champions" selected={selectedSite === "champions"} hovered={hoveredLandmark === "champions"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} onIntent={() => preloadRoute?.("/calculator")} kind="calculator" selected={selectedSite === "calculator"} hovered={hoveredLandmark === "calculator"} onHoverChange={setHoveredLandmark} />
       </group>
@@ -212,7 +212,7 @@ function DashboardWorld(props: WorldProps) {
         {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} data-visible={props.labelsVisible && !overviewOpen} inert={!props.labelsVisible || overviewOpen} hidden={!props.visible || overviewOpen} aria-hidden={!props.labelsVisible || overviewOpen}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
             const subtitle = kind === "records"
-              ? `${props.errors?.length ?? 0} misconception records`
+              ? "Playground"
               : kind === "champions"
                 ? `${props.progress.mastered}/${props.progress.total} skills mastered`
                 : kind === "topics"

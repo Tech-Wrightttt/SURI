@@ -7,9 +7,7 @@ import {
   BookOpen,
   Calculator,
   CheckCircle2,
-  CircleHelp,
   Compass,
-  History,
   ListChecks,
   Map,
   Sparkles,
@@ -18,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 
-export type HelpPage = "dashboard" | "topics" | "progress" | "calculator" | "error-history";
+export type HelpPage = "dashboard" | "topics" | "progress" | "calculator";
 
 type HelpSection = {
   title: string;
@@ -46,7 +44,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
         title: "What can I do here?",
         icon: Compass,
         items: [
-          "Choose a landmark to open Topics, Progress, Calculator, or Error History.",
+          "Choose a landmark to open Topics, Progress, Calculator, or Playground. Mistake review is in Progress.",
           "Open SURI Keep to view your student overview, account details, and learning totals.",
           "Return to an active learning session from the area where you started it.",
         ],
@@ -93,7 +91,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
   progress: {
     label: "Progress",
     eyebrow: "READ YOUR LEARNING TRAIL",
-    summary: "Progress shows how much of your learning path you have completed and which competencies you have already mastered.",
+    summary: "Progress brings your mastery trail and recorded practice mistakes together in one place.",
     icon: TrendingUp,
     sections: [
       {
@@ -103,6 +101,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
           "Your overall completion percentage across the available competencies.",
           "Progress grouped by topic or grade-level learning path.",
           "The competencies that are mastered, in progress, or still ahead.",
+          "Recent practice mistakes, their original trouble steps, and Suri's recovery notes.",
         ],
       },
       {
@@ -112,7 +111,8 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
         items: [
           "Use the overall percentage for a quick view of your completed path.",
           "Compare topic sections to find where you have made progress and what remains.",
-          "Treat mastered competencies as completed milestones on your learning trail.",
+          "Filter competencies by grade, topic, or status to find your next lesson.",
+          "Reflect & review shows your five most recent mistakes. Open a record to review its lesson, or select View full history for filters and older records.",
         ],
       },
     ],
@@ -144,33 +144,6 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
       },
     ],
   },
-  "error-history": {
-    label: "Error History",
-    eyebrow: "REVISIT YOUR REVIEW NOTES",
-    summary: "Error History keeps the misconceptions recorded during learning so you can return to the exact skills that may need more practice.",
-    icon: History,
-    sections: [
-      {
-        title: "What can I see here?",
-        icon: CircleHelp,
-        items: [
-          "Each record names the related competency and the step to revisit.",
-          "Suri's recovery note gives a focused reminder for your next attempt.",
-          "The archive overview shows how many errors are recorded and how many lessons are active.",
-        ],
-      },
-      {
-        title: "How to use it",
-        icon: ListChecks,
-        numbered: true,
-        items: [
-          "Read the competency name and What to revisit note on a record.",
-          "Use the recorded date to understand when the difficulty occurred.",
-          "Select Review lesson to return to an active lesson or open that competency for review.",
-        ],
-      },
-    ],
-  },
 };
 
 export function getHelpPage(pathname: string): HelpPage | null {
@@ -178,7 +151,6 @@ export function getHelpPage(pathname: string): HelpPage | null {
   if (pathname === "/topics" || pathname.startsWith("/topics/")) return "topics";
   if (pathname === "/progress") return "progress";
   if (pathname === "/calculator") return "calculator";
-  if (pathname === "/error-history") return "error-history";
   return null;
 }
 
