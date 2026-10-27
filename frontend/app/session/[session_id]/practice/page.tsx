@@ -9,7 +9,7 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { BattleSpells, SpellEffect, SPELLS, FLAME_FLIGHT_MS } from "./battle-spells";
+import { BattleSpells, ArmedSpellBubble, SpellEffect, SPELLS, FLAME_FLIGHT_MS } from "./battle-spells";
 import { CombatImpact, type CombatHit } from "./battle-impact";
 import { useBattleAudio } from "./battle-audio";
 
@@ -2104,8 +2104,8 @@ export default function PracticePage() {
 
               {/* Middle: Arena Section */}
               <div className="arena-section" aria-label="Battle arena" data-impact={combatImpact?.kind}>
-                {combatImpact && <CombatImpact key={combatImpact.id} target={combatImpact.target} kind={combatImpact.kind} />}
-                {spellEffect && <SpellEffect key={spellEffect.id} spell={spellEffect.spell} label={spellEffect.label} stage={spellEffect.stage} />}
+                {combatImpact && <CombatImpact key={`impact-${combatImpact.id}`} target={combatImpact.target} kind={combatImpact.kind} />}
+                {spellEffect && <SpellEffect key={`spell-${spellEffect.id}`} spell={spellEffect.spell} label={spellEffect.label} stage={spellEffect.stage} />}
                 <div className="char-container suri-side">
                   <div className="sprite-frame">
                     {battleState?.ward_ready && <span className="suri-spell-aura aura-ward" aria-hidden="true" />}
@@ -2116,7 +2116,9 @@ export default function PracticePage() {
                 </div>
 
                 <div className="reaction-space" aria-live="polite">
-                  {stepFeedback ? (
+                  {battleState?.flame_ready || battleState?.ward_ready ? (
+                    <ArmedSpellBubble flameReady={!!battleState.flame_ready} wardReady={!!battleState.ward_ready} />
+                  ) : stepFeedback ? (
                     <div className="speech-bubble">
                       {stepFeedback.correct ? "Rune Forged! ⚡" : "Nice Try!"}
                     </div>

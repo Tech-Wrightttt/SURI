@@ -62,6 +62,14 @@ class DiagnosticProbeResponse(BaseModel):
 class DiagnosticAnswerRequest(BaseModel):
     node_id: str
     selected_option_index: int
+    battle_id: Optional[str] = None
+    request_id: Optional[str] = None
+
+
+class DiagnosticSpellRequest(BaseModel):
+    battle_id: str
+    request_id: str
+    spell: Literal["flame", "ward", "bloom"]
 
 
 class DiagnosticAnswerItem(BaseModel):

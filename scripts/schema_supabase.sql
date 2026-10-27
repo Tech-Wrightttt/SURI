@@ -81,6 +81,14 @@ CREATE TABLE IF NOT EXISTS practice_battles (
     last_response_json TEXT
 );
 
+CREATE TABLE IF NOT EXISTS diagnostic_battles (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    state_json TEXT NOT NULL,
+    last_request_id TEXT,
+    last_response_json TEXT
+);
+
 CREATE TABLE IF NOT EXISTS misconception_logs (
     id TEXT PRIMARY KEY,
     session_id TEXT NOT NULL REFERENCES sessions(id),

@@ -23,33 +23,46 @@ def new_battle_state():
     }
 
 
-def resolve_action(state, action, steps, correct=None):
-    """Mutate a locked battle state, never skipping a required answer step."""
+def cast_spell(state, spell, max_hearts):
+    if spell in state["used"]:
+        raise HTTPException(status_code=409, detail="Spell already used against this enemy.")
+    if spell == "bloom" and state["hearts"] >= max_hearts:
+        raise HTTPException(status_code=409, detail="Hearts are already full.")
+    state["used"].append(spell)
+    if spell == "flame":
+        state["flame_ready"] = True
+    elif spell == "ward":
+        state["ward_ready"] = True
+    elif spell == "bloom":
+        state["hearts"] = min(max_hearts, state["hearts"] + 1)
+
+
+def resolve_spell_hit(state, correct):
+    """Apply game rewards without changing whether an academic answer is correct."""
     blocked, bonus = False, 0
-    if action != "answer":
-        if action in state["used"]:
-            raise HTTPException(status_code=409, detail="Spell already used against this enemy.")
-        if action == "bloom" and state["hearts"] >= 3:
-            raise HTTPException(status_code=409, detail="Hearts are already full.")
-        state["used"].append(action)
-        if action == "flame":
-            state["flame_ready"] = True
-        elif action == "ward":
-            state["ward_ready"] = True
-        elif action == "bloom":
-            state["hearts"] = min(3, state["hearts"] + 1)
-    elif correct:
+    if correct:
         bonus = 25 if state["flame_ready"] else 0
         state["flame_ready"] = False
         state["score"] += 10 + state["streak"] * 5 + bonus
         state["streak"] += 1
-        state["step_position"] += 1
     else:
         state["streak"] = 0
         blocked = state["ward_ready"]
         state["ward_ready"] = False
         if not blocked:
             state["hearts"] = max(0, state["hearts"] - 1)
+    return blocked, bonus
+
+
+def resolve_action(state, action, steps, correct=None):
+    """Mutate a locked battle state, never skipping a required answer step."""
+    blocked, bonus = False, 0
+    if action != "answer":
+        cast_spell(state, action, 3)
+    else:
+        blocked, bonus = resolve_spell_hit(state, correct)
+        if correct:
+            state["step_position"] += 1
 
     result = {
         key: list(state[key]) if key == "used" else state[key]

@@ -11,13 +11,14 @@ export const SPELLS = [
 
 export const FLAME_FLIGHT_MS = 680;
 
-export function BattleSpells({ state, disabled, failedAction, onCast, muted, onToggleMuted }: {
+export function BattleSpells({ state, disabled, failedAction, onCast, muted, onToggleMuted, maxHearts = 3 }: {
   state: PracticeBattleState | null;
   disabled: boolean;
   failedAction: PracticeSpell | "answer" | null;
   onCast: (spell: PracticeSpell) => void;
   muted: boolean;
   onToggleMuted: () => void;
+  maxHearts?: number;
 }) {
   return (
     <section className="spellbook" aria-label="Battle powerups">
@@ -33,7 +34,7 @@ export function BattleSpells({ state, disabled, failedAction, onCast, muted, onT
         {SPELLS.map(({ id, name, icon: Icon, description, active }) => {
           const armed = id === "flame" ? state?.flame_ready : id === "ward" && state?.ward_ready;
           const used = state?.used.includes(id);
-          const full = id === "bloom" && (state?.hearts ?? 3) >= 3;
+          const full = id === "bloom" && (state?.hearts ?? maxHearts) >= maxHearts;
           const unavailable = disabled || !state || used || full || (!!failedAction && failedAction !== id);
           return (
             <button key={id} type="button" className={`spell-card spell-${id}${armed ? " spell-armed" : ""}`}
@@ -59,12 +60,29 @@ export function BattleSpells({ state, disabled, failedAction, onCast, muted, onT
   );
 }
 
+export function ArmedSpellBubble({ flameReady, wardReady }: { flameReady: boolean; wardReady: boolean }) {
+  if (!flameReady && !wardReady) return null;
+  return (
+    <div className="armed-spell-bubble" role="status">
+      <div className="armed-spell-heading">Suri&apos;s spells are ready!</div>
+      {flameReady && <div className="armed-spell-row armed-flame">
+        <Flame size={27} fill="currentColor" aria-hidden="true" />
+        <div><strong>Flame Strike armed</strong><span>Your next correct answer unleashes fire!</span></div>
+      </div>}
+      {wardReady && <div className="armed-spell-row armed-ward">
+        <Shield size={27} aria-hidden="true" />
+        <div><strong>Aegis Ward active</strong><span>Suri will block the next incoming hit.</span></div>
+      </div>}
+    </div>
+  );
+}
+
 export function SpellEffect({ spell, label, stage = "charge" }: { spell: PracticeSpell; label: string; stage?: "charge" | "strike" }) {
   const Icon = SPELLS.find(s => s.id === spell)!.icon;
   return (
     <div className={`spell-effect effect-${spell} effect-${spell}-${stage}`} aria-hidden="true"
       style={{ "--flame-flight-time": `${FLAME_FLIGHT_MS}ms` } as CSSProperties}>
-      <div className="spell-effect-label"><Icon size={18} />{label}</div>
+      {(stage === "strike" || spell === "bloom") && <div className="spell-effect-label"><Icon size={18} />{label}</div>}
       {spell === "flame" ? stage === "strike" ? <>
         <div className="flame-projectile"><Flame size={62} fill="currentColor" /></div>
         <div className="flame-flight-trail" />

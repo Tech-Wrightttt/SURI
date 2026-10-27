@@ -157,6 +157,24 @@ export interface DiagnosticAnswer {
   correct_count?: number;
   questions_answered?: number;
   questions_total?: number;
+  battle?: DiagnosticBattleState;
+}
+
+export interface DiagnosticBattleState extends PracticeBattleState {
+  enemy_hearts: number;
+}
+
+export interface DiagnosticSpellRequest {
+  battle_id: string;
+  request_id: string;
+  spell: PracticeSpell;
+}
+
+export interface DiagnosticBattleAnswerRequest {
+  node_id: string;
+  selected_option_index: number;
+  battle_id?: string;
+  request_id?: string;
 }
 
 export interface CompetencyStatus {
@@ -463,11 +481,24 @@ export function getDiagnosticProbe(
 
 export function submitDiagnosticAnswer(
   sessionId: string,
-  body: { node_id: string; selected_option_index: number }
+  body: DiagnosticBattleAnswerRequest
 ): Promise<DiagnosticAnswer> {
   return request<DiagnosticAnswer>(`/api/diagnostic/${sessionId}/answer`, {
     method: "POST",
     body: JSON.stringify(body),
+    ...(body.battle_id ? { signal: AbortSignal.timeout(15000) } : {}),
+  });
+}
+
+export function startDiagnosticBattle(sessionId: string): Promise<{ battle_id: string; battle: DiagnosticBattleState }> {
+  return request(`/api/diagnostic/${sessionId}/battle`, {
+    method: "POST", body: JSON.stringify({}), signal: AbortSignal.timeout(15000),
+  });
+}
+
+export function castDiagnosticSpell(sessionId: string, body: DiagnosticSpellRequest): Promise<DiagnosticBattleState> {
+  return request(`/api/diagnostic/${sessionId}/spell`, {
+    method: "POST", body: JSON.stringify(body), signal: AbortSignal.timeout(15000),
   });
 }
 
