@@ -204,6 +204,37 @@ export interface PracticeProblem {
 
 export interface PracticeStartResponse {
   problems: PracticeProblem[];
+  battle_id?: string | null;
+}
+
+export type PracticeSpell = "flame" | "ward" | "bloom";
+
+export interface PracticeBattleAction {
+  battle_id: string;
+  problem_id: string;
+  request_id: string;
+  action: PracticeSpell | "answer";
+  step_index?: number;
+  submitted_value?: string;
+}
+
+export interface PracticeBattleState {
+  hearts: number;
+  used: string[];
+  flame_ready: boolean;
+  ward_ready: boolean;
+  score: number;
+  correct: boolean | null;
+  blocked: boolean;
+  bonus: number;
+}
+
+export function actInPracticeBattle(body: PracticeBattleAction): Promise<PracticeBattleState> {
+  return request<PracticeBattleState>("/api/practice/battle/action", {
+    method: "POST",
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(15000),
+  });
 }
 
 export interface StepEvaluationResult {
@@ -495,13 +526,17 @@ export function simplifyContent(
 export async function startPractice(body: {
   session_id: string;
   node_id: string;
+  enable_powerups?: boolean;
 }): Promise<PracticeStartResponse> {
   const url = `${API_BASE}/api/practice/start`;
   const res = await fetch(url, {
     method: "POST",
     credentials: "include",
     signal: AbortSignal.timeout(15000),
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(getStoredToken() ? { Authorization: `Bearer ${getStoredToken()}` } : {}),
+    },
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));

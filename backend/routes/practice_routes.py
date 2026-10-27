@@ -18,9 +18,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from backend.auth import get_current_student
 from backend.database import get_db, release_db
 from backend.graph import GRAPH
+from backend.practice_battle import BATTLE_TABLE_SQL, new_battle_state, resolve_action
 from backend.models.schemas import (
     PracticeStartRequest,
     PracticeStartResponse,
+    PracticeBattleActionRequest,
+    PracticeBattleActionResponse,
     PracticeSubmitStepRequest,
     PracticeSubmitStepResponse,
     PracticeProblemResponse,
@@ -227,6 +230,12 @@ async def start_practice(body: PracticeStartRequest, student=Depends(get_current
     
     conn = await get_db()
     try:
+        session = await conn.fetchrow(
+            "SELECT id FROM sessions WHERE id = $1 AND student_id = $2",
+            session_id, student["id"],
+        )
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
         existing_rows = await conn.fetch(
             "SELECT id, node_id, problem_expr, steps_json, word_problem_text FROM practice_problems WHERE node_id = $1",
             node_id,
@@ -256,7 +265,61 @@ async def start_practice(body: PracticeStartRequest, student=Depends(get_current
             now_iso, session_id,
         )
 
-        return {"problems": sampled}
+        battle_id = None
+        if body.enable_powerups:
+            await conn.execute(BATTLE_TABLE_SQL)
+            battle_id = str(uuid.uuid4())
+            await conn.execute(
+                "INSERT INTO practice_battles (id, session_id, problem_ids_json, state_json) "
+                "VALUES ($1, $2, $3, $4)",
+                battle_id, session_id, json.dumps([p["id"] for p in sampled]),
+                json.dumps(new_battle_state()),
+            )
+        return {"problems": sampled, "battle_id": battle_id}
+    finally:
+        await release_db(conn)
+
+
+@router.post("/battle/action", response_model=PracticeBattleActionResponse)
+async def battle_action(body: PracticeBattleActionRequest, student=Depends(get_current_student)):
+    """Serialize spell casts and answers, and replay retries without spending twice."""
+    conn = await get_db()
+    try:
+        async with conn.transaction():
+            row = await conn.fetchrow(
+                "SELECT b.* FROM practice_battles b JOIN sessions s ON s.id = b.session_id "
+                "WHERE b.id = $1 AND s.student_id = $2 FOR UPDATE OF b",
+                body.battle_id, student["id"],
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Battle not found")
+            if row["last_request_id"] == body.request_id:
+                return json.loads(row["last_response_json"])
+            state = json.loads(row["state_json"])
+            problem_ids = json.loads(row["problem_ids_json"])
+            if state["problem_index"] >= len(problem_ids) or problem_ids[state["problem_index"]] != body.problem_id:
+                raise HTTPException(status_code=409, detail="This enemy is not active.")
+            problem = await conn.fetchrow(
+                "SELECT steps_json FROM practice_problems WHERE id = $1", body.problem_id,
+            )
+            if not problem:
+                raise HTTPException(status_code=404, detail="Problem not found")
+            steps = normalize_practice_steps(json.loads(problem["steps_json"]))
+            correct = None
+            if body.action == "answer":
+                step = steps[state["step_position"]]
+                if body.step_index != step["step_index"] or not body.submitted_value or not body.submitted_value.strip():
+                    raise HTTPException(status_code=400, detail="Submit an answer for the active step.")
+                submitted, expected = normalize_val(body.submitted_value), normalize_val(step["correct_value"])
+                correct = (abs(float(submitted) - float(expected)) <= 0.01
+                           if is_float(submitted) and is_float(expected) else submitted == expected)
+            result = resolve_action(state, body.action, steps, correct)
+            await conn.execute(
+                "UPDATE practice_battles SET state_json = $1, last_request_id = $2, "
+                "last_response_json = $3 WHERE id = $4",
+                json.dumps(state), body.request_id, json.dumps(result), body.battle_id,
+            )
+            return result
     finally:
         await release_db(conn)
 

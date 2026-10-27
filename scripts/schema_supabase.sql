@@ -71,6 +71,16 @@ CREATE TABLE IF NOT EXISTS practice_attempts (
     attempted_at TEXT NOT NULL
 );
 
+-- Also created lazily by practice/start when powerups are enabled.
+CREATE TABLE IF NOT EXISTS practice_battles (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+    problem_ids_json TEXT NOT NULL,
+    state_json TEXT NOT NULL,
+    last_request_id TEXT,
+    last_response_json TEXT
+);
+
 CREATE TABLE IF NOT EXISTS misconception_logs (
     id TEXT PRIMARY KEY,
     session_id TEXT NOT NULL REFERENCES sessions(id),

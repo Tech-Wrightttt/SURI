@@ -3,7 +3,7 @@ Pydantic request/response models for SURI API.
 """
 
 from pydantic import BaseModel
-from typing import Optional
+from typing import Literal, Optional
 
 
 # ─── Auth ──────────────────────────────────────────────
@@ -104,6 +104,7 @@ class ContentResponse(BaseModel):
 class PracticeStartRequest(BaseModel):
     session_id: str
     node_id: str
+    enable_powerups: bool = False
 
 
 class PracticeStep(BaseModel):
@@ -126,6 +127,27 @@ class PracticeProblemResponse(BaseModel):
 
 class PracticeStartResponse(BaseModel):
     problems: list[PracticeProblemResponse]
+    battle_id: Optional[str] = None
+
+
+class PracticeBattleActionRequest(BaseModel):
+    battle_id: str
+    problem_id: str
+    request_id: str
+    action: Literal["flame", "ward", "bloom", "answer"]
+    step_index: Optional[int] = None
+    submitted_value: Optional[str] = None
+
+
+class PracticeBattleActionResponse(BaseModel):
+    hearts: int
+    used: list[str]
+    flame_ready: bool
+    ward_ready: bool
+    score: int
+    correct: Optional[bool] = None
+    blocked: bool = False
+    bonus: int = 0
 
 
 class StudentStepSubmission(BaseModel):
