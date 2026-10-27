@@ -29,7 +29,7 @@ type LandmarkElements = Partial<Record<DashboardLandmark, HTMLDivElement | null>
 const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; description: string }> = [
   { kind: "keep", title: "Castle Keep", description: "Your kingdom's welcome hall and student overview." },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics", description: "Explore the Learning Grove and choose your next topic." },
-  { kind: "records", title: "Playground · Hall of Records", href: "/playground", description: "Open Playground." },
+  { kind: "records", title: "Playground", href: "/playground", description: "Open your Playground." },
   { kind: "champions", title: "Progress · Hall of Champions", href: "/progress", description: "Track your mastery in the Hall of Champions." },
   { kind: "calculator", title: "Calculator · Arcane Tower", href: "/calculator", description: "Solve equations step by step in the Arcane Tower." },
 ];
@@ -212,7 +212,7 @@ function DashboardWorld(props: WorldProps) {
         {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} data-visible={props.labelsVisible && !overviewOpen} inert={!props.labelsVisible || overviewOpen} hidden={!props.visible || overviewOpen} aria-hidden={!props.labelsVisible || overviewOpen}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
             const subtitle = kind === "records"
-              ? "Playground"
+              ? "Your creative space"
               : kind === "champions"
                 ? `${props.progress.mastered}/${props.progress.total} skills mastered`
                 : kind === "topics"

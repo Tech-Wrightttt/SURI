@@ -56,7 +56,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
         items: [
           "Hover or focus a landmark to see what it contains.",
           "Select the landmark to travel to that page.",
-          "Use the progress and record counts to decide what to study or review next.",
+          "Use the topic and mastery counts to decide what to study or review next.",
         ],
       },
     ],

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** The former Error History destination is now the empty Playground. */
+/** Preserve bookmarks to the former Error History page. */
 export default function ErrorHistoryPage() {
   redirect("/playground");
 }

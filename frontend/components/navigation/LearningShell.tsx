@@ -21,7 +21,7 @@ const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
 
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
-const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator"] as const;
+const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground"] as const;
 type FocusedRouteKey = typeof FOCUSED_ROUTE_KEYS[number];
 type FocusedTransition = "idle" | "entering" | "revealing" | "visible" | "leaving" | "zooming-out";
 type FocusedTransitionMap = Record<FocusedRouteKey, FocusedTransition>;
@@ -35,6 +35,7 @@ const FOCUSED_ROUTES = {
   "/topics": { key: "topics", site: "topics", load: loadTopicsWorld, contentClass: "topic-route-content" },
   "/progress": { key: "progress", site: "champions", load: loadProgressWorld, contentClass: "progress-route-content" },
   "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
+  "/playground": { key: "playground", site: "records", load: null, contentClass: "playground-route-content" },
 } as const;
 
 // Route canvases and foreground pages deliberately overlap for a little
@@ -75,7 +76,7 @@ function routeNeedsCurriculum(pathname: string) {
 
 // Preserve old bookmarks while repurposing the former Error History route.
 function navigationDestination(href: string) {
-  return href === "/error-history" ? "/playground" : href;
+  return href.replace(/^\/error-history(?=[?#]|$)/, "/playground");
 }
 
 const NavigationContext = createContext<{
@@ -97,6 +98,7 @@ function createTransitionMap(pathname: string): FocusedTransitionMap {
     topics: route?.key === "topics" ? "visible" : "idle",
     progress: route?.key === "progress" ? "visible" : "idle",
     calculator: route?.key === "calculator" ? "visible" : "idle",
+    playground: route?.key === "playground" ? "visible" : "idle",
   };
 }
 
@@ -106,6 +108,7 @@ function createWorldMap(pathname: string): FocusedWorldMap {
     topics: route?.key === "topics",
     progress: route?.key === "progress",
     calculator: route?.key === "calculator",
+    playground: route?.key === "playground",
   };
 }
 
@@ -146,7 +149,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     setFocusedTransitions(current => current[key] === stage ? current : { ...current, [key]: stage });
   }, []);
   const resetFocusedStages = useCallback(() => {
-    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle" };
+    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle" };
     focusedTransitionsRef.current = idle;
     setFocusedTransitions(idle);
   }, []);
@@ -180,6 +183,13 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       unlock();
     }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : TOPICS_WORLD_CROSSFADE_MS);
   }, [pathname, setFocusedStage, unlock]);
+
+  useEffect(() => {
+    if (pathname !== "/playground") return;
+    // The static background is ready as soon as the route has painted.
+    const frame = window.requestAnimationFrame(() => revealFocusedContent("playground"));
+    return () => window.cancelAnimationFrame(frame);
+  }, [pathname, revealFocusedContent]);
 
   useEffect(() => () => clearRevealTimers(), [clearRevealTimers]);
 
@@ -307,7 +317,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     // Start the destination's expensive scene work during the intentional map
     // zoom. The route is shown only after that critical module is available.
     const destinationFocusedRoute = getFocusedRoute(destinationPath);
-    const worldReady = destinationFocusedRoute
+    const worldReady = destinationFocusedRoute?.load
       ? destinationFocusedRoute.load().then(() => undefined).catch(() => undefined)
       : Promise.resolve();
     const site = ISLAND_ROUTES[destinationPath as IslandRoute];
@@ -389,6 +399,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     </div>}
     {(focusedWorldMounted.calculator || pathname === "/calculator") && <div className={`calculator-world-shell calculator-transition-${focusedTransitions.calculator}`} aria-hidden={pathname !== "/calculator"} style={{ visibility: pathname === "/calculator" ? "visible" : "hidden" }}>
       <CalculatorTowerWorld active={pathname === "/calculator"} onReady={() => revealFocusedContent("calculator")} />
+    </div>}
+    {(focusedWorldMounted.playground || pathname === "/playground") && <div className={`playground-background-shell playground-transition-${focusedTransitions.playground}`} aria-hidden="true" style={{ visibility: pathname === "/playground" ? "visible" : "hidden" }}>
+      <div className="playground-background" />
     </div>}
     <div className={contentClass}>{children}</div>
   </NavigationContext.Provider>;
