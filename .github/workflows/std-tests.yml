@@ -5,6 +5,8 @@ name: STD Tests
 # docs/GithubActionsImplementationStepByStep.md
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
