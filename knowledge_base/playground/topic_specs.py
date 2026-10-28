@@ -132,7 +132,110 @@ EASY = {
     },
 }
 
-SPECS = {"easy": EASY}
+MEDIUM = {
+    "QE": {
+        "kinds": ["non-monic factorable ax^2+bx+c, integer or simple fraction roots", "equation needing rearrangement to standard form first",
+                  "quadratic formula with integer roots", "x^2 = c with c not a perfect square (simplest radical roots)",
+                  "area/consecutive-integer word problem leading to a quadratic"],
+        "answer_types": {"solution_set": ["none"]},
+        "word": "rectangle dimensions from area, consecutive integers with a given product, projectile-free number puzzles",
+        "notes": "Ask for ALL solutions. Roots may be integers, simple fractions, or +/- a simplest radical. For word problems ask for the solutions of the equation (not a single filtered root) unless the story rules one out clearly.",
+    },
+    "FP": {
+        "kinds": ["non-monic trinomial ax^2+bx+c", "common factor then trinomial", "difference of squares with coefficients",
+                  "perfect square trinomial", "factor by grouping (four terms)"],
+        "answer_types": {"expression": ["factored"]},
+        "word": "rectangle area written as a polynomial; ask for the product of the two side lengths",
+        "notes": "The answer is the fully factored form. Every factor must be primitive and irreducible over the integers.",
+    },
+    "SP": {
+        "kinds": ["square of a binomial with coefficients", "sum and difference with coefficients",
+                  "product of binomials with two variables", "cube of a binomial", "trinomial times binomial"],
+        "answer_types": {"expression": ["expanded"]},
+        "word": "area of a square or volume of a cube with binomial side lengths",
+        "notes": "The answer is the fully expanded polynomial with like terms combined.",
+    },
+    "LE": {
+        "kinds": ["negative exponents", "mixed rules with two variables", "power of a quotient", "scientific-style numeric powers",
+                  "simplify a fraction of powers"],
+        "answer_types": {"expression": ["positive_exponents"], "number": ["none"]},
+        "word": "bacteria doubling, areas and volumes with variable edges, powers of 10",
+        "notes": "Final answers must use positive exponents only. Use number for numeric prompts, expression otherwise.",
+    },
+    "OI": {
+        "kinds": ["order of operations with parentheses and several operations", "integers with exponents",
+                  "absolute values in an expression", "multi-step signed arithmetic"],
+        "answer_types": {"number": ["none"]},
+        "word": "multi-step bank balance, temperature drops over several hours, elevation changes, game scoring",
+        "notes": "Answers are integers. Each prompt needs at least three operations.",
+    },
+    "FD": {
+        "kinds": ["mixed numbers add/subtract", "mixed numbers multiply/divide", "complex fraction",
+                  "decimals and fractions combined", "operations with three fractions"],
+        "answer_types": {"number": ["lowest_terms", "none"]},
+        "word": "multi-step recipes, lengths of rope cut in pieces, money split in fractions",
+        "notes": "Use required_form lowest_terms whenever the answer is a fraction (write improper fractions, not mixed numbers); use none for decimals/integers.",
+    },
+    "SLE": {
+        "kinds": ["elimination requiring multiplying both equations", "substitution with a fractional coefficient",
+                  "system needing rearrangement first", "word problem with two unknowns (ticket/coin/mixture)"],
+        "answer_types": {"ordered_pair": ["none"]},
+        "word": "ticket sales, coins, mixtures, ages, rates",
+        "notes": "Integer solutions. Answer format is (x, y); the prompt must say which value is x and which is y.",
+    },
+    "L2V": {
+        "kinds": ["slope from two points", "equation of a line from two points", "equation from slope and a point",
+                  "convert standard form to slope-intercept", "x- or y-intercept of a line"],
+        "answer_types": {"equation": ["slope_intercept"], "ordered_pair": ["none"], "number": ["none"]},
+        "word": "taxi fare, phone plans, water level rising at a constant rate, savings over weeks",
+        "notes": "Equation answers use y = mx + b exactly. Slopes may be fractions. For ordered_pair ask for an intercept point.",
+    },
+    "L1V": {
+        "kinds": ["variables on both sides with parentheses", "fractional coefficients", "decimal coefficients",
+                  "consecutive integers word problem", "age or cost word problem with two-step setup"],
+        "answer_types": {"number": ["none"]},
+        "word": "ages, costs, consecutive numbers, perimeter, work earnings",
+        "notes": "Answer is the value of the variable as a number (an integer or a simple fraction/decimal).",
+    },
+    "AE": {
+        "kinds": ["evaluate with negative values and exponents", "simplify by distributing and combining like terms",
+                  "evaluate a formula with several variables", "translate a multi-step story to an expression and evaluate"],
+        "answer_types": {"number": ["none"], "expression": ["expanded"]},
+        "word": "cost formulas, perimeter/area formulas, discount rules with a variable",
+        "notes": "Use number for 'evaluate' prompts and expression (expanded) for 'simplify' prompts.",
+    },
+    "RPP": {
+        "kinds": ["percent increase then decrease", "find the original value from a percent", "proportion with algebraic setup",
+                  "unit rate comparison", "simple interest", "percent change"],
+        "answer_types": {"number": ["none", "lowest_terms"]},
+        "word": "discounts and markups, interest on savings, speed and distance, recipes scaled up",
+        "notes": "Percent answers: unit '%'. Money: unit 'pesos'. Rates need a unit. The answer is always just a number.",
+    },
+    "RER": {
+        "kinds": ["simplify a radical with a coefficient", "add/subtract like radicals", "multiply radicals",
+                  "rationalize a simple denominator", "rational exponent with a fraction base", "radical with a variable"],
+        "answer_types": {"number": ["simplest_radical", "none"], "expression": ["simplest_radical"]},
+        "word": "diagonal of a rectangle, distance between points, side of a square from its area",
+        "notes": "Use simplest_radical when the answer contains a radical, none for whole numbers. No radicals in denominators.",
+    },
+    "PE": {
+        "kinds": ["cubic that factors by grouping", "quartic x^4 - c x^2 = 0 form", "factored cubic with a repeated root",
+                  "cubic with a rational-root candidate (integer roots)", "x^3 = c x with negative roots"],
+        "answer_types": {"solution_set": ["none"]},
+        "word": "number puzzles about cubes and squares, and abstract volume relations",
+        "notes": "All roots are integers. Ask for ALL real solutions. Degree 3 or 4.",
+    },
+    "PO": {
+        "kinds": ["subtract polynomials with distribution of the negative", "multiply binomial by trinomial",
+                  "multiply a trinomial by a binomial with negative terms","polynomial division by a monomial",
+                  "perimeter or area with polynomial sides"],
+        "answer_types": {"expression": ["expanded"]},
+        "word": "perimeter and area of figures with polynomial side lengths",
+        "notes": "The answer is the simplified polynomial, like terms combined. Division by a monomial must divide exactly.",
+    },
+}
+
+SPECS = {"easy": EASY, "medium": MEDIUM}
 
 
 def load_seed() -> dict:

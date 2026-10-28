@@ -23,6 +23,15 @@ function nodeTotals(node: PlaygroundNode) {
   );
 }
 
+function ProgressBar({ solved, total }: { solved: number; total: number }) {
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return (
+    <span className={styles.bar} role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={solved}>
+      <span className={styles.barFill} style={{ width: `${pct}%` }} />
+    </span>
+  );
+}
+
 function PlaygroundInner() {
   const { navigate } = useWorldNavigation();
   const router = useRouter();
@@ -84,23 +93,65 @@ function PlaygroundInner() {
           </div>
         )}
 
-        {view === "topics" && topics && topics.chains.map((chain) => (
-          <section key={chain.entry_node_id} className={styles.chain} aria-label={`${chain.label} path`}>
-            <h2 className={styles.chainTitle}>{chain.label} path</h2>
-            <div className={styles.cardGrid}>
-              {chain.nodes.map((n) => {
-                const totals = nodeTotals(n);
-                return (
-                  <button key={n.node_id} type="button" className={styles.card} onClick={() => router.push(`/playground?topic=${n.node_id}`)}>
-                    <span className={styles.cardGrade}>Grade {n.grade}</span>
-                    <span className={styles.cardTitle}>{n.label}</span>
-                    <span className={styles.cardCount}>{totals.solved} / {totals.total} solved</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+        {view === "topics" && topics && topics.chains.map((chain) => {
+          // Chains list the goal topic first; show them foundation-first, the order a student would learn them.
+          const steps = [...chain.nodes].reverse();
+          const pathTotals = steps.reduce(
+            (acc, n) => ({ total: acc.total + nodeTotals(n).total, solved: acc.solved + nodeTotals(n).solved }),
+            { total: 0, solved: 0 }
+          );
+          return (
+            <section key={chain.entry_node_id} className={styles.chain} aria-label={`${chain.label} path`}>
+              <header className={styles.chainHeader}>
+                <div>
+                  <span className={styles.chainKicker}>Path to</span>
+                  <h2 className={styles.chainTitle}>{chain.label}</h2>
+                </div>
+                <div className={styles.chainProgress}>
+                  <span>{pathTotals.solved} / {pathTotals.total} solved</span>
+                  <ProgressBar solved={pathTotals.solved} total={pathTotals.total} />
+                </div>
+              </header>
+              <ol className={styles.trail}>
+                {steps.map((n, i) => {
+                  const totals = nodeTotals(n);
+                  const done = totals.total > 0 && totals.solved === totals.total;
+                  const isGoal = i === steps.length - 1;
+                  return (
+                    <li key={n.node_id} className={styles.trailItem}>
+                      <button
+                        type="button"
+                        className={styles.topicCard}
+                        data-done={done}
+                        data-empty={totals.total === 0}
+                        onClick={() => router.push(`/playground?topic=${n.node_id}`)}
+                      >
+                        <span className={styles.stepBadge} aria-hidden="true">{done ? "✓" : i + 1}</span>
+                        <span className={styles.topicBody}>
+                          <span className={styles.topicMeta}>
+                            Grade {n.grade}{isGoal ? " · Goal" : ""}
+                          </span>
+                          <span className={styles.topicTitle}>{n.label}</span>
+                          <span className={styles.tierRow}>
+                            {DIFFICULTIES.map((d) => {
+                              const c = n.difficulties[d];
+                              return (
+                                <span key={d} className={styles.tier} data-state={c.total === 0 ? "soon" : c.solved === c.total ? "done" : c.solved > 0 ? "part" : "open"} title={c.total === 0 ? `${DIFFICULTY_LABELS[d]}: coming soon` : `${DIFFICULTY_LABELS[d]}: ${c.solved}/${c.total} solved`}>
+                                  {DIFFICULTY_LABELS[d]}{c.total > 0 ? ` ${c.solved}/${c.total}` : ""}
+                                </span>
+                              );
+                            })}
+                          </span>
+                          <ProgressBar solved={totals.solved} total={totals.total} />
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          );
+        })}
 
         {view === "difficulty" && topics && !node && (
           <div className={styles.panel}>

@@ -203,7 +203,7 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
               <li key={p.id} className={styles.summaryItem} data-result={result}>
                 <span className={styles.summaryIcon} aria-label={LABELS[result]}>{ICONS[result]}</span>
                 <span className={styles.summaryNumber}>{i + 1}.</span>
-                <PromptText text={p.prompt} className={styles.summaryPrompt} />
+                <PromptText text={p.prompt} className={styles.summaryPrompt} system />
               </li>
             );
           })}
@@ -226,7 +226,7 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
         <span className={styles.chip}>{problem.style === "word" ? "Word" : "Equation"}</span>
         {problem.solved && <span className={`${styles.chip} ${styles.chipSolved}`} title="Already solved">✓ Solved before</span>}
       </div>
-      <PromptText text={problem.prompt} className={styles.prompt} />
+      <PromptText text={problem.prompt} className={styles.prompt} system />
       <div className={styles.answerRow}>
         <div className={styles.answerField}>
           <MathField key={problem.id} value={state.answer} onChange={handleChange} onEnter={check} disabled={locked || busy} />
