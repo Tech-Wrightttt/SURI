@@ -388,7 +388,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
         <DashboardWorld visible={dashboardActive} labelsVisible={overview && !busy} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}
-          me={data?.me} active={data?.progress.active_sessions} completed={data?.progress.completed_sessions} errors={data?.progress.misconception_history} progress={progress} topicProgress={topicProgress} />
+          me={data?.me} progress={progress} topicProgress={topicProgress} />
       </DashboardWorldBoundary>
     </div>}
     {(focusedWorldMounted.topics || pathname === "/topics") && <div className={`topics-world-shell topics-transition-${focusedTransitions.topics}`} aria-hidden={pathname !== "/topics"} style={{ visibility: pathname === "/topics" ? "visible" : "hidden" }}>
