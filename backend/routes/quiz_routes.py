@@ -88,7 +88,8 @@ def check_correct(submitted: str, correct: str) -> bool:
     sub_norm = normalize_val(submitted)
     corr_norm = normalize_val(correct)
     if is_float(sub_norm) and is_float(corr_norm):
-        return abs(float(sub_norm) - float(corr_norm)) <= 0.01
+        # 1e-9 absorbs float rounding (abs(3.13 - 3.14) == 0.010000000000000231).
+        return abs(float(sub_norm) - float(corr_norm)) <= 0.01 + 1e-9
     return sub_norm == corr_norm
 
 
@@ -211,7 +212,7 @@ async def start_quiz(body: QuizStartRequest, student=Depends(get_current_student
 async def submit_step(body: QuizSubmitStepRequest, student=Depends(get_current_student)):
     """
     Evaluate a single step answer. No AI call.
-    submitted_value=None means timeout — 0 points, not logged as error.
+    submitted_value=None means timeout — 0 points, logged as an incorrect step.
     """
     conn = await get_db()
     try:
@@ -238,22 +239,8 @@ async def submit_step(body: QuizSubmitStepRequest, student=Depends(get_current_s
         submitted = body.submitted_value  # can be None (timeout)
         current_streak = qs["current_streak"]
 
-        # Timeout: 0 points, not logged
-        if submitted is None:
-            await conn.execute(
-                "UPDATE quiz_sessions SET total_points = $1, current_streak = 0 WHERE id = $2",
-                qs["total_points"], body.quiz_session_id,
-            )
-            return {
-                "correct": False,
-                "correct_value": correct_value,
-                "points_earned": 0,
-                "total_points": qs["total_points"],
-                "current_streak": 0,
-                "streak_multiplier": 1.0,
-            }
-
-        correct = check_correct(submitted, correct_value)
+        # Timeouts must reach error recording so final grading counts them wrong.
+        correct = submitted is not None and check_correct(submitted, correct_value)
         total_time_ms = TIMER_MS.get(step.get("step_type", "algebra"), DEFAULT_TIMER_MS)
 
         if correct:
@@ -264,7 +251,7 @@ async def submit_step(body: QuizSubmitStepRequest, student=Depends(get_current_s
             new_total = qs["total_points"] + points_earned
         else:
             points_earned = 0
-            if body.save_streak and qs["total_points"] >= 1000:
+            if submitted is not None and body.save_streak and qs["total_points"] >= 1000:
                 new_streak = current_streak
                 multiplier = round(1.0 + max(0, new_streak - 1) * 0.1, 2)
                 new_total = qs["total_points"] - 1000
@@ -273,7 +260,6 @@ async def submit_step(body: QuizSubmitStepRequest, student=Depends(get_current_s
                 multiplier = 1.0
                 new_total = qs["total_points"]
 
-        new_total = qs["total_points"] + points_earned
         step_errors = json.loads(qs["step_errors_json"])
 
         if not correct:

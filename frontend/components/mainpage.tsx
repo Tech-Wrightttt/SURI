@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { HelpCircle, LogOut, UserRound } from "lucide-react";
 import { logout } from "@/lib/api";
 import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
 import HelpModal, { getHelpPage } from "@/components/navigation/HelpModal";
+import LogoutConfirmModal from "@/components/navigation/LogoutConfirmModal";
 
 export default function MainPage({
   children,
@@ -21,7 +22,9 @@ export default function MainPage({
   const {data} = useLearningData();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const helpButtonRef = useRef<HTMLButtonElement>(null);
+  const [helpOpener, setHelpOpener] = useState<HTMLButtonElement | null>(null);
+  const [logoutOpener, setLogoutOpener] = useState<HTMLButtonElement | null>(null);
+  const closeLogoutConfirm = useCallback(() => setShowLogoutConfirm(false), []);
   const helpPage = getHelpPage(pathname);
 
   const handleLogout = async () => {
@@ -44,9 +47,8 @@ export default function MainPage({
           </div>
           <div className="suri-app-bar-actions">
             <button
-              ref={helpButtonRef}
-              onClick={() => setShowHelp(true)}
-              aria-label={helpPage ? `Open ${helpPage === "error-history" ? "Error History" : helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
+              onClick={(event) => { setHelpOpener(event.currentTarget); setShowHelp(true); }}
+              aria-label={helpPage ? `Open ${helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
               className="suri-app-control"
             >
               <HelpCircle className="h-5 w-5" /><span className="suri-app-control-label">Help</span>
@@ -56,7 +58,7 @@ export default function MainPage({
             </div>
             <button
               type="button"
-              onClick={() => setShowLogoutConfirm(true)}
+              onClick={(event) => { setLogoutOpener(event.currentTarget); setShowLogoutConfirm(true); }}
               aria-label="Log out"
               className="suri-app-control suri-app-logout-control"
               style={{
@@ -78,19 +80,10 @@ export default function MainPage({
         {children}
       </main>
 
-      {showHelp && helpPage && <HelpModal page={helpPage} opener={helpButtonRef.current} onClose={() => setShowHelp(false)} />}
+      {showHelp && helpPage && <HelpModal page={helpPage} opener={helpOpener} onClose={() => setShowHelp(false)} />}
 
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-6 shadow-lg w-80 text-center">
-            <h3 className="font-['Hanken_Grotesk'] text-lg font-bold text-[#191c1e] mb-2">Log out</h3>
-            <p className="font-['Manrope'] text-sm text-[#434656] mb-6">Are you sure you want to log out?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-2 rounded-xl border border-[#c3c5d9] text-[#434656] font-bold text-sm hover:bg-[#f2f4f6] cursor-pointer">Cancel</button>
-              <button onClick={handleLogout} className="flex-1 py-2 rounded-xl bg-[#ba1a1a] text-white font-bold text-sm hover:bg-red-700 cursor-pointer">Log out</button>
-            </div>
-          </div>
-        </div>
+        <LogoutConfirmModal opener={logoutOpener} onClose={closeLogoutConfirm} onConfirm={handleLogout} />
       )}
     </div>
   );

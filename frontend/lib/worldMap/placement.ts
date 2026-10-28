@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { WORLD_BOUNDS, roadDistance, shoreDistance, terrainHeight } from "./landscape";
+import { HARBOR_PATH_ORIGIN, WORLD_BOUNDS, registerHarborGrade, roadDistance, segmentDistance, shoreDistance, terrainHeight } from "./landscape";
 
 /** Terrain data is sampled on one shared grid so generation and rendering agree. */
 export const TERRAIN_GRID_SIZE = 0.5;
@@ -106,7 +106,7 @@ export class PlacementValidator {
 
   canPlace(candidate: Placement, allowed: readonly TerrainKind[], avoidRoads = false) {
     if (!isBoxInsideWorld(candidate.bounds) || !this.canUseTerrain(candidate.footprint, allowed) || this.intersectsPlaced(candidate)) return false;
-    return !avoidRoads || footprintCells(candidate.footprint).every(cell => roadDistance(cell.x, cell.z) > 1.35);
+    return !avoidRoads || footprintCells(candidate.footprint).every(cell => walkingDistance(cell.x, cell.z) > 1.35);
   }
 
   commit(candidate: Placement) { this.placed.push(candidate); return candidate; }
@@ -191,6 +191,34 @@ export function dockApproachPath(dock: DockPlacement, from: readonly [number, nu
   return [new THREE.Vector3(from[0], 0, from[1]), new THREE.Vector3(inland.x, 0, inland.y), new THREE.Vector3(entrance.x, 0, entrance.y)];
 }
 
+let harborPlacement: DockPlacement | null | undefined;
+export function getHarborPlacement() {
+  if(harborPlacement===undefined){
+    harborPlacement=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,HARBOR_PATH_ORIGIN);
+    if(harborPlacement){
+      const entrance=harborPlacement.start.clone().addScaledVector(harborPlacement.outward,-harborPlacement.landwardLength);
+      // Take a longer promenade around the farm so the descent to sea level
+      // is gradual, rather than a short chute directly from the plaza.
+      const curve=new THREE.CatmullRomCurve3([
+        new THREE.Vector3(HARBOR_PATH_ORIGIN[0],0,HARBOR_PATH_ORIGIN[1]),
+        new THREE.Vector3(-15,0,13),new THREE.Vector3(-13,0,17),
+        new THREE.Vector3(-10,0,19),new THREE.Vector3(-4,0,19),new THREE.Vector3(entrance.x,0,entrance.y),
+      ],false,"centripetal");
+      const path=curve.getSpacedPoints(Math.ceil(curve.getLength()/0.3));
+      if(path.every(point=>shoreDistance(point.x,point.z)>0.6))harborPlacement.approach=path;
+      if(harborPlacement.approach)registerHarborGrade(harborPlacement.approach);
+    }
+  }
+  return harborPlacement;
+}
+// Houses and trees reserve the harbor connector as well as the civic roads.
+export function walkingDistance(x:number,z:number) {
+  let distance=roadDistance(x,z);
+  const path=getHarborPlacement()?.approach ?? [];
+  for(let i=1;i<path.length;i++)distance=Math.min(distance,segmentDistance(x,z,[path[i-1].x,path[i-1].z],[path[i].x,path[i].z]));
+  return distance;
+}
+
 /** A bounded grid route that keeps an access path entirely on stable land. */
 export function findLandPath(from: readonly [number, number], to: readonly [number, number]) {
   const start = worldToGrid(from[0], from[1]), goal = worldToGrid(to[0], to[1]);
@@ -215,9 +243,26 @@ export function findLandPath(from: readonly [number, number], to: readonly [numb
     const [column,row] = current.split(":").map(Number); cells.push(WORLD_TERRAIN_GRID.cell(column,row));
   }
   cells.reverse();
-  // Fewer points preserve the low-poly path style. The final cell is always
-  // included, so the path meets the grounded dock entrance exactly.
-  return cells.filter((_,index)=>index%3===0 || index===cells.length-1).map(cell=>new THREE.Vector3(cell.x,0,cell.z));
+  const points=cells.map(cell=>new THREE.Vector3(cell.x,0,cell.z));
+  points[0].set(from[0],0,from[1]);points[points.length-1].set(to[0],0,to[1]);
+  const drySegment=(a:THREE.Vector3,b:THREE.Vector3)=>{
+    const steps=Math.ceil(a.distanceTo(b)/0.2);
+    for(let i=0;i<=steps;i++){
+      const p=a.clone().lerp(b,i/Math.max(steps,1));
+      if(shoreDistance(p.x,p.z)<0.55)return false;
+    }
+    return true;
+  };
+  // Remove the grid staircase before smoothing; retain only safe sight lines.
+  const simplified=[points[0]];
+  for(let i=0;i<points.length-1;){
+    let next=points.length-1;
+    while(next>i+1&&!drySegment(points[i],points[next]))next--;
+    simplified.push(points[next]);i=next;
+  }
+  const curve=new THREE.CatmullRomCurve3(simplified,false,"centripetal");
+  const smooth=curve.getSpacedPoints(Math.max(8,Math.ceil(curve.getLength()/0.3)));
+  return smooth.every((point,i)=>i===0||drySegment(smooth[i-1],point)) ? smooth : simplified;
 }
 
 export function isLandPath(points: THREE.Vector3[]) {

@@ -2,7 +2,7 @@
 Pydantic request/response models for SURI API.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 
@@ -11,7 +11,7 @@ from typing import Optional
 class RegisterRequest(BaseModel):
     name: str
     email: str
-    grade_level: int
+    grade_level: int = Field(ge=7, le=10)
     password: str
 
 
@@ -284,7 +284,7 @@ class QuizStepError(BaseModel):
     step_index: int
     step_type: str
     operation_description: str
-    submitted_value: str
+    submitted_value: Optional[str]  # None = timeout
     correct_value: str
 
 

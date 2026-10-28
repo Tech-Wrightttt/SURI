@@ -279,6 +279,7 @@ export interface ActiveSessionProgress {
 }
 
 export interface MisconceptionHistoryItem {
+  id?: string;
   node_id: string;
   node_label: string;
   step_description: string;
@@ -289,6 +290,16 @@ export interface StudentProgress {
   active_sessions: ActiveSessionProgress[];
   completed_sessions: ActiveSessionProgress[];
   misconception_history: MisconceptionHistoryItem[];
+  misconception_next_offset?: number | null;
+}
+
+export interface MistakeHistoryPage {
+  items: MisconceptionHistoryItem[];
+  next_offset: number | null;
+}
+
+export function getStudentMistakes(studentId: string, offset: number): Promise<MistakeHistoryPage> {
+  return request<MistakeHistoryPage>(`/api/students/${encodeURIComponent(studentId)}/mistakes?offset=${offset}`);
 }
 
 export interface DiagnosticSubmitAnswer {
@@ -601,7 +612,7 @@ export interface QuizStepError {
   step_index: number;
   step_type: string;
   operation_description: string;
-  submitted_value: string;
+  submitted_value: string | null;
   correct_value: string;
 }
 

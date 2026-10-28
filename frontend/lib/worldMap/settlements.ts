@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { drawOuterGround } from "./outerLandmarks";
 import { ArchitectureBuilder } from "./architecture";
-import { BRIDGES, FARMS, ISLANDS, SITES, WORLD_BOUNDS, farmDistance, insideWorld, roadDistance, seededRandom, shoreDistance, siteDistance, terrainHeight } from "./landscape";
-import { PlacementValidator, boatBesideDock, dockFootprint, findDockPlacement, footprintBox, type Footprint } from "./placement";
+import { BRIDGES, BRIDGE_DECK_HEIGHTS, CIVIC_BUILDINGS, PLAZA_HEIGHT, FARMS, ISLANDS, SITES, WORLD_BOUNDS, farmDistance, insideWorld, seededRandom, shoreDistance, siteDistance, terrainHeight } from "./landscape";
+import { PlacementValidator, boatBesideDock, dockFootprint, getHarborPlacement, walkingDistance, footprintBox, type Footprint } from "./placement";
 
 function tree(b:ArchitectureBuilder,x:number,z:number,size:number,oak:boolean) {
   const y=terrainHeight(x,z);
@@ -22,32 +22,33 @@ export function makeSettlements() {
     placements.commit(candidate);b.at(x,y,z,1,rotation,draw);
   };
   // West: a stepped guildhall and market quarter.
-  hubFeature(-9,5,7.2,6.2,8,0.12,()=>{
+  hubFeature(...CIVIC_BUILDINGS.guild.center,7.2,6.2,8,CIVIC_BUILDINGS.guild.rotation,()=>{
     b.part("box","stone","#a9aa9c",0,0.45,0,7.4,0.9,6.3);
-    b.house(5.5,4.1,3.9,"#675f8c",true);b.tower(-3,-0.8,6.7,0.82,"#756b9d");
+    b.at(0,0.9,0,1,0,()=>b.house(5.5,4.1,3.9,"#675f8c",true));b.tower(-3,-0.8,6.7,0.82,"#756b9d");
     b.flag(-3,7.8,-0.8,"#b68ae2");b.stall(3.9,2.4,"#9b677f");b.crate(3.1,-2.1);b.barrel(-2.5,2.5);
   });
   // East: a star observatory rises from its own broad terrace.
-  hubFeature(9,5,6.8,6.4,10,-0.16,()=>{
+  hubFeature(...CIVIC_BUILDINGS.observatory.center,6.8,6.4,10,CIVIC_BUILDINGS.observatory.rotation,()=>{
     b.part("cylinder","stone","#aeb1a3",0,0.35,0,6.8,0.7,6.8);b.tower(0,0,7.5,1.15,"#506f91");
     for(let i=0;i<4;i++){const a=i*Math.PI/2;b.part("crystal","magic",i%2?"#8ee8df":"#b49bf0",Math.sin(a)*2.45,1.2,Math.cos(a)*2.45,0.5,1.5,0.5);}
     b.part("ring","gold","#e2bf79",0,7.2,0,1.7,1,1.7);b.flag(0,10,0,"#79bfc7");
+    b.at(0,0.7,0,1,0,()=>b.door(0,1.26,0.7));
   });
   // Southern gate: towers, bannered arch, and a deliberate road terminus.
-  hubFeature(-3,-13,8,5.4,8,0,()=>{
+  hubFeature(...CIVIC_BUILDINGS.gate.center,8,5.4,8,CIVIC_BUILDINGS.gate.rotation,()=>{
     b.part("box","stone","#9ba39a",0,0.4,0,8.1,0.8,5.5);b.tower(-2.8,0,5.8,0.85,"#66718d");b.tower(2.8,0,5.8,0.85,"#66718d");
-    b.part("arch","stone","#c8c0a8",0,0.2,1.1,2.4,3.4,1);b.part("arch","wood","#584638",0,0.3,1.15,1.85,2.8,1);
+    b.part("arch","stone","#c8c0a8",0,0.8,1.1,2.4,3.4,1);b.part("arch","wood","#584638",0,0.9,1.15,1.85,2.8,1);
     b.flag(-2.8,8.2,0,"#b96f78");b.flag(2.8,8.2,0,"#b96f78");
   });
   // A garden pavilion gives the smaller southern branch a clear purpose.
-  hubFeature(7,-12,6.2,5.8,6,0.2,()=>{
+  hubFeature(...CIVIC_BUILDINGS.pavilion.center,6.2,5.8,6,CIVIC_BUILDINGS.pavilion.rotation,()=>{
     b.part("cylinder","stone","#b4b29d",0,0.24,0,6.2,0.48,5.8);b.part("ring","stone","#a5aa99",0,0.52,0,2.1,1,2.1);
     for(let i=0;i<6;i++){const a=i*Math.PI/3;b.part("cylinder","stone","#c9c4aa",Math.sin(a)*1.85,1.8,Math.cos(a)*1.85,0.24,3.1,0.24);}
     b.part("cone","roof","#6a7c89",0,3.8,0,3.1,1.45,3.1);b.part("crystal","magic","#8fe6dd",0,1.25,0,0.62,1.8,0.62);
   });
   // The civic plaza remains open and readable around the keep.
-  const plazaY=terrainHeight(0,6);
-  b.part("cylinder","stone","#b5b09a",0,plazaY+0.14,6,6.7,0.28,6.7);
+  const plazaY=PLAZA_HEIGHT;
+  b.part("cylinder","stone","#baae8e",0,plazaY-0.05,6,7.4,0.2,7.4);
   b.part("cylinder","plaster","#7ba4a1",0,plazaY+0.42,6,2.15,0.32,2.15);
   b.part("crystal","magic","#8ee8df",0,plazaY+1.25,6,0.7,1.8,0.7);
   for(let i=0;i<6;i++){const a=i*Math.PI/3;b.lantern(Math.sin(a)*4.2,plazaY+1.1,6+Math.cos(a)*4.2);}
@@ -121,9 +122,10 @@ export function makeSettlements() {
       }
     });
   }
-  for(const [a,c,kind] of BRIDGES) {
+  for(const [index,[a,c,kind]] of BRIDGES.entries()) {
     const length=Math.hypot(c[0]-a[0],c[1]-a[1]),angle=Math.atan2(c[0]-a[0],c[1]-a[1]);
-    b.at((a[0]+c[0])/2,0.85,(a[1]+c[1])/2,1,angle,()=>{
+    const deck=BRIDGE_DECK_HEIGHTS[index];
+    b.at((a[0]+c[0])/2,deck,(a[1]+c[1])/2,1,angle,()=>{
       const color=kind==="stone"?"#b5b19c":"#ad8c60";
       b.part("box",kind,color,0,-0.08,0,1.3,0.16,length);
       for(const side of [-1,1]){
@@ -131,11 +133,14 @@ export function makeSettlements() {
         for(let z=-length/2;z<=length/2;z+=1.4)b.part("box",kind,color,side*0.68,0.2,z,0.12,0.9,0.12);
       }
       for(let z=-length/2;z<=length/2;z+=0.4)b.part("box",kind,color,0,0.02,z,1.3,0.06,0.08);
+      for(const z of [-length/3,length/3])for(const side of [-1,1]){
+        b.part("box",kind,color,side*0.5,-(deck+0.6)/2,z,kind==="stone"?0.5:0.22,deck+0.6,0.45);
+      }
     });
   }
   // Select a coast tile and use its water-facing normal; the dock cannot be
   // inland or parallel to the shoreline because every extension tile is water.
-  const dock=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,[SITES.keep[0],SITES.keep[1]]);
+  const dock=getHarborPlacement();
   const boat=(footprint:Footprint,scale:number,cloth:string,large=false)=>{
     const candidate={kind:"boat" as const,footprint,bounds:footprintBox(footprint,-0.1,large?4.6:3.4),clearance:0.55};
     if(!placements.canPlace(candidate,["WATER"]))return;
@@ -184,7 +189,7 @@ export function makeVegetation(distant=false) {
   const b=new ArchitectureBuilder(),random=seededRandom(distant?871:7319),spacing=distant?5:2.8;
   for(let z=WORLD_BOUNDS.minZ+2;z<WORLD_BOUNDS.maxZ-2;z+=spacing)for(let x=WORLD_BOUNDS.minX+2;x<WORLD_BOUNDS.maxX-2;x+=spacing){
     const px=x+random()*1.5,pz=z+random()*1.5;
-    if(!insideWorld(px,pz)||shoreDistance(px,pz)<1.7||siteDistance(px,pz)<5.4||[SITES.topics,SITES.records,SITES.champions,SITES.calculator].some(([sx,sz])=>Math.hypot(px-sx,pz-sz)<8.4)||roadDistance(px,pz)<1.5||farmDistance(px,pz)<4.3)continue;
+    if(!insideWorld(px,pz)||shoreDistance(px,pz)<1.7||siteDistance(px,pz)<5.4||Math.hypot(px,pz-6)<4.2||[SITES.topics,SITES.records,SITES.champions,SITES.calculator].some(([sx,sz])=>Math.hypot(px-sx,pz-sz)<8.4)||walkingDistance(px,pz)<1.5||farmDistance(px,pz)<4.3)continue;
     tree(b,px,pz,0.45+random()*0.45,random()>0.6);
   }
   for(let i=0;i<180;i++){

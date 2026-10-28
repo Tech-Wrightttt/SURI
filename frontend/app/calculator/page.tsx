@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, Calculator, CheckCircle2, ChevronRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowRight, Calculator, CheckCircle2, ChevronRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import React from "react";
@@ -250,7 +250,7 @@ export default function AlgebraCalculatorPage() {
   const { navigate } = useWorldNavigation();
   const [expression, setExpression] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ title: string; message: string } | null>(null);
   const [steps, setSteps] = useState<MathStep[]>([]);
   const [solvedExpression, setSolvedExpression] = useState("");
   const [hasResult, setHasResult] = useState(false);
@@ -276,7 +276,9 @@ export default function AlgebraCalculatorPage() {
       const data = await response.json();
 
       if (!response.ok || data.error) {
-        setError(getStudentError(data.error ?? ""));
+        setError(response.status === 400 || response.status === 422
+          ? { title: "We couldn't understand that expression.", message: getStudentError(data.error ?? "") }
+          : { title: "The solver is unavailable right now.", message: "Please try solving it again in a moment." });
         return;
       }
 
@@ -284,7 +286,7 @@ export default function AlgebraCalculatorPage() {
       setSteps(detailedSteps);
       setHasResult(true);
     } catch {
-      setError("We couldn't reach the solver right now. Please check your connection and try again.");
+      setError({ title: "We couldn't reach the solver right now.", message: "Please check your connection and try again." });
     } finally {
       setLoading(false);
     }
@@ -316,11 +318,12 @@ export default function AlgebraCalculatorPage() {
         </div>
         <div className="calculator-input-row">
           <MathField value={expression} disabled={loading} onChange={setExpression} onEnter={() => handleSolve()} />
-          <button type="button" className="calculator-reset-button" onClick={handleReset} disabled={loading || (!expression && !hasResult && !error)}>
+          {/* Prevent Firefox from restoring button disabled states before hydration. */}
+          <button type="button" {...{ autoComplete: "off" }} className="calculator-reset-button" onClick={handleReset} disabled={loading || (!expression && !hasResult && !error)}>
             <RefreshCw size={16} aria-hidden="true" />
             Reset
           </button>
-          <button type="button" className="calculator-solve-button" onClick={() => handleSolve()} disabled={loading || !expression.trim()}>
+          <button type="button" {...{ autoComplete: "off" }} className="calculator-solve-button" onClick={() => handleSolve()} disabled={loading || !expression.trim()}>
             {loading ? <Loader2 size={17} className="animate-spin" /> : <ChevronRight size={18} />}
             {loading ? "Solving…" : "Show steps"}
           </button>
@@ -337,7 +340,7 @@ export default function AlgebraCalculatorPage() {
 
       {error && <section className="calculator-route-error" role="alert">
         <Image src="/suri-snake-sad.png" alt="Sad Suri" width={45} height={45} />
-        <div><strong>We couldn&apos;t understand that expression.</strong><p>{error}</p></div>
+        <div><strong>{error.title}</strong><p>{error.message}</p></div>
       </section>}
 
       {!hasResult && !error && !loading && <section className="calculator-route-collection calculator-empty-state" aria-live="polite">
@@ -364,7 +367,7 @@ export default function AlgebraCalculatorPage() {
                   <header><small>STEP {String(index + 1).padStart(2, "0")}</small><h3>{copy.title}</h3></header>
                   <div className="calculator-transformation">
                     <div className="calculator-expression-panel"><span>Before</span><MathDisplay value={before} /></div>
-                    <ArrowDown className="calculator-arrow" size={24} aria-hidden="true" />
+                    <ArrowRight className="calculator-arrow" size={24} aria-hidden="true" />
                     <div className="calculator-expression-panel calculator-expression-after"><span>Now</span><MathDisplay value={after} /></div>
                   </div>
                   <div className="calculator-step-explanation"><Image src="/suri-snake-happy.png" alt="" width={36} height={36} /><div><b>Why this works</b><p>{copy.explanation}</p></div></div>

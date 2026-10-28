@@ -5,7 +5,9 @@ import * as THREE from "three";
 import { Architecture, type ArchitectureClip } from "./Architecture";
 import { makeSettlements, makeVegetation } from "@/lib/worldMap/settlements";
 import { ISLANDS, LANDMARK_SITE_KEYS, ROADS, SITES, WORLD_BOUNDS, bridgeDistance, islandScore, roadHeight, shoreDistance, terrainHeight } from "@/lib/worldMap/landscape";
-import { dockApproachPath, findDockPlacement } from "@/lib/worldMap/placement";
+import { dockApproachPath, getHarborPlacement } from "@/lib/worldMap/placement";
+import { terrainSurface, walkingRibbon } from "@/lib/worldMap/walkingPaths";
+import { HARBOR_PATH_ORIGIN } from "@/lib/worldMap/landscape";
 const noRaycast: THREE.Mesh["raycast"] = () => {};
 
 export type IslandFocus = keyof typeof ISLANDS;
@@ -26,32 +28,25 @@ function makeTerrain(bounds:ArchitectureClip,coastDistance:(x:number,z:number)=>
   }
   geometry.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));geometry.computeVertexNormals();return geometry;
 }
-function ribbon(points:THREE.Vector3[],width:number | ((x:number,z:number)=>number),height:(x:number,z:number)=>number,clipToShore=false) {
-  const vertices:number[]=[],indices:number[]=[];
-  points.forEach((p,i)=>{
-    const a=points[Math.max(0,i-1)],b=points[Math.min(points.length-1,i+1)],t=b.clone().sub(a).normalize();
-    const halfWidth=typeof width === "function" ? width(p.x,p.z) : width;
-    for(const side of [-1,1]){const x=p.x+t.z*side*halfWidth,z=p.z-t.x*side*halfWidth;vertices.push(x,height(x,z),z);}
-    if(i<points.length-1&&(!clipToShore||(shoreDistance(p.x,p.z)>0&&shoreDistance(b.x,b.z)>0))){const n=i*2;indices.push(n,n+2,n+1,n+1,n+2,n+3);}
-  });
-  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(vertices,3));g.setIndex(indices);g.computeVertexNormals();return g;
-}
 export function Landscape({focus,lowDetail=false}:{focus?:LandscapeFocus;lowDetail?:boolean}) {
   // The locked isometric view does not benefit from a dense terrain grid. This
   // retains the faceted fantasy silhouette while cutting terrain vertices by ~40%.
   const bounds=focus?.bounds ?? WORLD_BOUNDS;
+  // Grade the harbor before sampling the terrain it rests on.
+  const harbor=useMemo(()=>getHarborPlacement(),[]);
   const coastDistance=useMemo(()=>focus ? (x:number,z:number)=>islandScore(x,z,ISLANDS[focus.island]) : shoreDistance,[focus]);
   const terrain=useMemo(()=>makeTerrain(bounds,coastDistance,lowDetail?0.58:1),[bounds,coastDistance,lowDetail]);
   const roads=useMemo(()=>{
-    const harbor=findDockPlacement(new THREE.Vector2(0,1),4,2.2,1200,2,[SITES.keep[0],SITES.keep[1]]);
-    const harborRoad=harbor ? dockApproachPath(harbor,SITES.keep) : [];
-    return [...ROADS,harborRoad].filter(road=>road.length>1&&(!focus||road.some(point=>point.x>=bounds.minX&&point.x<=bounds.maxX&&point.z>=bounds.minZ&&point.z<=bounds.maxZ))).map((road,index)=>ribbon(road,(x,z)=>index<4 ? THREE.MathUtils.lerp(0.45,1.1,THREE.MathUtils.smoothstep(bridgeDistance(x,z),1.2,4)) : 0.45,(x,z)=>index<ROADS.length?roadHeight(x,z)+0.08:terrainHeight(x,z)+0.08));
-  },[bounds,focus]);
+    const harborRoad=harbor ? dockApproachPath(harbor,HARBOR_PATH_ORIGIN) : [];
+    return [...ROADS,harborRoad].map((road,index)=>({road,index})).filter(({road,index})=>index!==4&&road.length>1&&(!focus||road.some(point=>point.x>=bounds.minX&&point.x<=bounds.maxX&&point.z>=bounds.minZ&&point.z<=bounds.maxZ))).map(({road,index})=>walkingRibbon(road,
+      (x,z)=>index<4 ? THREE.MathUtils.lerp(0.5,0.8,THREE.MathUtils.smoothstep(bridgeDistance(x,z),1.2,4)) : index===4 ? 0.6 : 0.5,
+      (x,z)=>Math.hypot(x,z-6)<3.6?terrainSurface(terrain,x,z)+0.015:roadHeight(x,z,terrainSurface(terrain,x,z))+0.04));
+  },[bounds,focus,terrain,harbor]);
   const buildings=useMemo(()=>makeSettlements(),[]);
   const trees=useMemo(()=>makeVegetation(),[]);
   return <group>
     <mesh geometry={terrain} receiveShadow raycast={noRaycast}><meshStandardMaterial vertexColors roughness={1}/></mesh>
-    {roads.map((geometry,i)=><mesh key={i} geometry={geometry} receiveShadow raycast={noRaycast}><meshStandardMaterial color="#baae8e" roughness={1} side={THREE.DoubleSide}/></mesh>)}
+    {roads.map((geometry,i)=><mesh key={i} geometry={geometry} receiveShadow raycast={noRaycast}><meshStandardMaterial vertexColors roughness={1} side={THREE.DoubleSide}/></mesh>)}
     {LANDMARK_SITE_KEYS.filter(key=>key==="keep").map(key=>{const [x,z]=SITES[key];return <mesh key={`${x},${z}`} position={[x,terrainHeight(x,z)+0.04,z]} rotation={[-Math.PI/2,0,0]} receiveShadow raycast={noRaycast}><circleGeometry args={[3.25,40]}/><meshStandardMaterial color="#b1aa90" roughness={1}/></mesh>})}
     {/* Only hero landmarks cast shadows. The large static instance fields stay lit
         but avoid paying for thousands of shadow-map draws every frame. */}
