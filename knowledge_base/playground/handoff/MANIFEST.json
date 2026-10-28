@@ -1,0 +1,110 @@
+{
+  "drop": 1,
+  "sample": true,
+  "generated_at": "2026-10-28T15:10:10.753495+00:00",
+  "counts": {
+    "QE": {
+      "easy": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      },
+      "medium": {
+        "word": 1,
+        "plain": 0,
+        "total": 1
+      }
+    },
+    "FP": {
+      "easy": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      }
+    },
+    "SP": {
+      "easy": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      }
+    },
+    "FD": {
+      "easy": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      }
+    },
+    "SLE": {
+      "easy": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      },
+      "medium": {
+        "word": 1,
+        "plain": 0,
+        "total": 1
+      }
+    },
+    "L2V": {
+      "easy": {
+        "word": 0,
+        "plain": 2,
+        "total": 2
+      },
+      "medium": {
+        "word": 1,
+        "plain": 0,
+        "total": 1
+      },
+      "hard": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      }
+    },
+    "RPP": {
+      "easy": {
+        "word": 1,
+        "plain": 0,
+        "total": 1
+      },
+      "medium": {
+        "word": 1,
+        "plain": 0,
+        "total": 1
+      }
+    },
+    "RER": {
+      "medium": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      }
+    },
+    "PE": {
+      "medium": {
+        "word": 0,
+        "plain": 1,
+        "total": 1
+      }
+    }
+  },
+  "totals": {
+    "problems": 15,
+    "word": 5,
+    "plain": 10
+  },
+  "validator": {
+    "validated": 0,
+    "blind_resolve": 0,
+    "approved": 0,
+    "hand_verified": 15,
+    "rejected": 0,
+    "needs_review_remaining": 0
+  },
+  "content_sha256": "8710238ad3f4857a7708aedf6926ade86d07afd1e7fcbdda7c54e756d51c0136",
+  "changed_ids": []
+}
