@@ -2,13 +2,51 @@
 Student and topic routes.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from backend.auth import get_current_student
 from backend.database import get_db, release_db
 from backend.graph import GRAPH, ENTRY_NODES
 from backend.competency_utils import get_chain
 
 router = APIRouter(prefix="/api", tags=["students", "topics"])
+
+
+async def _fetch_mistake_page(conn, student_id: str, offset: int = 0):
+    """One bounded, stable page from the student's existing practice logs."""
+    rows = await conn.fetch(
+        """
+        SELECT m.id, m.mapped_node_id, m.step_description, m.logged_at
+        FROM misconception_logs m
+        JOIN sessions s ON s.id = m.session_id
+        WHERE s.student_id = $1 AND m.mapped_node_id = ANY($2)
+        ORDER BY m.logged_at DESC, m.id DESC
+        LIMIT 21 OFFSET $3
+        """,
+        student_id, list(GRAPH), offset,
+    )
+    items = [{
+        "id": row["id"],
+        "node_id": row["mapped_node_id"],
+        "node_label": GRAPH[row["mapped_node_id"]]["label"],
+        "step_description": row["step_description"],
+        "logged_at": row["logged_at"],
+    } for row in rows[:20]]
+    return {"items": items, "next_offset": offset + len(items) if len(rows) > 20 else None}
+
+
+@router.get("/students/{student_id}/mistakes")
+async def get_student_mistakes(
+    student_id: str, offset: int = Query(default=0, ge=0),
+    student=Depends(get_current_student),
+):
+    """Retrieve older mistakes without reloading session or curriculum data."""
+    if student_id != student["id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot view another student's mistakes")
+    conn = await get_db()
+    try:
+        return await _fetch_mistake_page(conn, student_id, offset)
+    finally:
+        await release_db(conn)
 
 
 @router.get("/topics")
@@ -207,46 +245,14 @@ async def get_student_progress(
             else:
                 active_sessions.append(session_dict)
 
-        # Fetch misconception history once.
-        session_ids = [
-            s["id"]
-            for s in active_sessions
-        ] + [
-            s["id"]
-            for s in completed_sessions
-        ]
-
-        misconception_history = []
-
-        if session_ids:
-            misc_rows = await conn.fetch(
-                """
-                SELECT mapped_node_id, step_description, logged_at
-                FROM misconception_logs
-                WHERE session_id = ANY($1)
-                ORDER BY logged_at DESC
-                LIMIT 20
-                """,
-                session_ids,
-            )
-
-            for row in misc_rows:
-                mapped = row["mapped_node_id"]
-
-                if mapped not in GRAPH:
-                    continue
-
-                misconception_history.append({
-                    "node_id": mapped,
-                    "node_label": GRAPH[mapped]["label"],
-                    "step_description": row["step_description"],
-                    "logged_at": row["logged_at"],
-                })
+        # Include logs from competency review sessions as well as entry topics.
+        history = await _fetch_mistake_page(conn, student_id)
 
         return {
             "active_sessions": active_sessions,
             "completed_sessions": completed_sessions,
-            "misconception_history": misconception_history,
+            "misconception_history": history["items"],
+            "misconception_next_offset": history["next_offset"],
         }
 
     finally:

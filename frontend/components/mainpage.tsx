@@ -48,7 +48,7 @@ export default function MainPage({
           <div className="suri-app-bar-actions">
             <button
               onClick={(event) => { setHelpOpener(event.currentTarget); setShowHelp(true); }}
-              aria-label={helpPage ? `Open ${helpPage === "error-history" ? "Error History" : helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
+              aria-label={helpPage ? `Open ${helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
               className="suri-app-control"
             >
               <HelpCircle className="h-5 w-5" /><span className="suri-app-control-label">Help</span>
