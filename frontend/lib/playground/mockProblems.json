@@ -1,0 +1,370 @@
+[
+  {
+    "id": "QE-E-01",
+    "node_id": "QE",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Solve $x^2-5x+6=0$.",
+    "answer_type": "solution_set",
+    "answer": "2, 3",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Factor the trinomial.",
+        "latex": "(x-2)(x-3)=0"
+      },
+      {
+        "explanation": "Set each factor to zero.",
+        "latex": "x=2 \\text{ or } x=3"
+      }
+    ],
+    "source_doc": "grade9_quadratic_equations_intro.pdf",
+    "content_hash": "sha256:7ac50938ac22e2fdc3bfc02a4d21b73e300b22bacd49d03fc5d78114df76ac4f"
+  },
+  {
+    "id": "QE-M-01",
+    "node_id": "QE",
+    "difficulty": "medium",
+    "style": "word",
+    "prompt": "The sum of a number and its square is $30$. Find all such numbers.",
+    "answer_type": "solution_set",
+    "answer": "-6, 5",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Let the number be x. Write the equation.",
+        "latex": "x+x^2=30"
+      },
+      {
+        "explanation": "Move everything to one side and factor.",
+        "latex": "x^2+x-30=0,\\quad (x+6)(x-5)=0"
+      },
+      {
+        "explanation": "Set each factor to zero.",
+        "latex": "x=-6 \\text{ or } x=5"
+      }
+    ],
+    "source_doc": "grade9_quadratic_equations_intro.pdf",
+    "content_hash": "sha256:12ac0948de903ad9cd6fad3f037f3535ed885e6f318cd6b8a13ed403cf1d2549"
+  },
+  {
+    "id": "FP-E-01",
+    "node_id": "FP",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Factor completely: $x^2+7x+12$.",
+    "answer_type": "expression",
+    "answer": "(x+3)(x+4)",
+    "accepted_variants": [],
+    "required_form": "factored",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Find two numbers that multiply to 12 and add to 7: 3 and 4.",
+        "latex": "3\\cdot 4=12,\\quad 3+4=7"
+      },
+      {
+        "explanation": "Write the two binomial factors.",
+        "latex": "(x+3)(x+4)"
+      }
+    ],
+    "source_doc": "grade8_factoring_trinomials.pdf",
+    "content_hash": "sha256:5bd8f0f076af927090fa75ce094a428c2d6851627e0d14d6837baee3c82a604c"
+  },
+  {
+    "id": "SP-E-01",
+    "node_id": "SP",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Expand and simplify: $(x+3)(x-5)$.",
+    "answer_type": "expression",
+    "answer": "x^2-2x-15",
+    "accepted_variants": [],
+    "required_form": "expanded",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Multiply each term of the first factor by each term of the second.",
+        "latex": "x^2-5x+3x-15"
+      },
+      {
+        "explanation": "Combine like terms.",
+        "latex": "x^2-2x-15"
+      }
+    ],
+    "source_doc": "grade7_special_products.pdf",
+    "content_hash": "sha256:33c8c1c30232f70cea73570f0958d9a2e9b1defc9f27fbc16fb8129a8cd352ac"
+  },
+  {
+    "id": "FD-E-01",
+    "node_id": "FD",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Write $\\frac{18}{24}$ in lowest terms.",
+    "answer_type": "number",
+    "answer": "\\frac{3}{4}",
+    "accepted_variants": [],
+    "required_form": "lowest_terms",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Find the greatest common factor of 18 and 24, which is 6.",
+        "latex": "\\gcd(18,24)=6"
+      },
+      {
+        "explanation": "Divide the numerator and denominator by 6.",
+        "latex": "\\frac{18\\div 6}{24\\div 6}=\\frac{3}{4}"
+      }
+    ],
+    "source_doc": "grade6_fractions_division.pdf",
+    "content_hash": "sha256:b8370cacc07ae07c83d568e848892a8f92e4c6f5b604006f0841b3f78aa37009"
+  },
+  {
+    "id": "SLE-E-01",
+    "node_id": "SLE",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Solve the system: $x+y=10$ and $x-y=2$.",
+    "answer_type": "ordered_pair",
+    "answer": "(6, 4)",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Add the two equations to eliminate y.",
+        "latex": "2x=12 \\Rightarrow x=6"
+      },
+      {
+        "explanation": "Substitute x = 6 into the first equation.",
+        "latex": "6+y=10 \\Rightarrow y=4"
+      }
+    ],
+    "source_doc": "grade8_systems_equations_algebraic.pdf",
+    "content_hash": "sha256:da3b6c9fa59091d9552c533ebfdb795f472f770e0987fb513dabce1f259575e8"
+  },
+  {
+    "id": "SLE-M-01",
+    "node_id": "SLE",
+    "difficulty": "medium",
+    "style": "word",
+    "prompt": "The sum of two numbers is $14$ and their difference is $4$. Find the numbers, written as (larger, smaller).",
+    "answer_type": "ordered_pair",
+    "answer": "(9, 5)",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Let x be the larger number and y the smaller.",
+        "latex": "x+y=14,\\quad x-y=4"
+      },
+      {
+        "explanation": "Add the equations.",
+        "latex": "2x=18 \\Rightarrow x=9"
+      },
+      {
+        "explanation": "Substitute back to find y.",
+        "latex": "9+y=14 \\Rightarrow y=5"
+      }
+    ],
+    "source_doc": "grade8_systems_equations_algebraic.pdf",
+    "content_hash": "sha256:1f21404d014b62418c20e599861801caae6ab2533046eb23df5eec258b35bbff"
+  },
+  {
+    "id": "L2V-E-01",
+    "node_id": "L2V",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Find the point on the line $y=3x-2$ whose $x$-coordinate is $4$.",
+    "answer_type": "ordered_pair",
+    "answer": "(4, 10)",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Substitute x = 4 into the equation.",
+        "latex": "y=3(4)-2"
+      },
+      {
+        "explanation": "Compute y.",
+        "latex": "y=10"
+      }
+    ],
+    "source_doc": "grade8_linear_equations_two_var.pdf",
+    "content_hash": "sha256:741b9e8a9d2c7076d16e927022dbbc2308b2cce9813fcb529a08521b3b330232"
+  },
+  {
+    "id": "L2V-E-02",
+    "node_id": "L2V",
+    "difficulty": "easy",
+    "style": "plain",
+    "prompt": "Write $2x+y=10$ in slope-intercept form.",
+    "answer_type": "equation",
+    "answer": "y=-2x+10",
+    "accepted_variants": [],
+    "required_form": "slope_intercept",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Subtract 2x from both sides to isolate y.",
+        "latex": "y=-2x+10"
+      }
+    ],
+    "source_doc": "grade8_slope_intercept.pdf",
+    "content_hash": "sha256:9da95baf0a725ee26ec1cb9887ce9584ff9d7f3bea48ef38e20a5f8f771b2800"
+  },
+  {
+    "id": "L2V-M-01",
+    "node_id": "L2V",
+    "difficulty": "medium",
+    "style": "word",
+    "prompt": "A taxi fare starts at 3 pesos and rises steadily to 7 pesos after $2$ km. Write the fare $y$ for $x$ km in slope-intercept form.",
+    "answer_type": "equation",
+    "answer": "y=2x+3",
+    "accepted_variants": [],
+    "required_form": "slope_intercept",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "The fare at 0 km is the y-intercept.",
+        "latex": "b=3"
+      },
+      {
+        "explanation": "Find the slope from the two points (0, 3) and (2, 7).",
+        "latex": "m=\\frac{7-3}{2-0}=2"
+      },
+      {
+        "explanation": "Write y = mx + b.",
+        "latex": "y=2x+3"
+      }
+    ],
+    "source_doc": "grade8_slope_intercept.pdf",
+    "content_hash": "sha256:dee1d251a661728736eba2bc9688d07075d08a915bb8b535f77debfa4de809d5"
+  },
+  {
+    "id": "L2V-H-01",
+    "node_id": "L2V",
+    "difficulty": "hard",
+    "style": "plain",
+    "prompt": "Write the equation of the line with slope $\\frac{1}{2}$ and $y$-intercept $-4$.",
+    "answer_type": "equation",
+    "answer": "y=\\frac{1}{2}x-4",
+    "accepted_variants": [],
+    "required_form": "slope_intercept",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Substitute m = 1/2 and b = -4 into y = mx + b.",
+        "latex": "y=\\frac{1}{2}x-4"
+      }
+    ],
+    "source_doc": "grade8_slope_intercept.pdf",
+    "content_hash": "sha256:8b40de38766c7f0f25d19bdb03a60ded8dbf0b90d1d1aa1eca7425fa40b0e6dc"
+  },
+  {
+    "id": "RPP-E-01",
+    "node_id": "RPP",
+    "difficulty": "easy",
+    "style": "word",
+    "prompt": "Maria scored $45$ out of $60$ items on a quiz. What percent of the items did she answer correctly?",
+    "answer_type": "number",
+    "answer": "75",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": "%",
+    "solution_steps": [
+      {
+        "explanation": "Write the score as a fraction of the total.",
+        "latex": "\\frac{45}{60}=\\frac{3}{4}"
+      },
+      {
+        "explanation": "Multiply by 100 to get a percent.",
+        "latex": "\\frac{3}{4}\\times 100=75"
+      }
+    ],
+    "source_doc": "grade6_percent.pdf",
+    "content_hash": "sha256:422a3f510968733dee1d939c4f45d0bd65040396321b3273af096267bf22ca2d"
+  },
+  {
+    "id": "RPP-M-01",
+    "node_id": "RPP",
+    "difficulty": "medium",
+    "style": "word",
+    "prompt": "A bus travels $270$ km in $4.5$ hours at a steady speed. What is its average speed?",
+    "answer_type": "number",
+    "answer": "60",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": "km/h",
+    "solution_steps": [
+      {
+        "explanation": "Speed is distance divided by time.",
+        "latex": "\\text{speed}=\\frac{270}{4.5}"
+      },
+      {
+        "explanation": "Divide.",
+        "latex": "\\frac{270}{4.5}=60"
+      }
+    ],
+    "source_doc": "grade6_rate_speed_distance.pdf",
+    "content_hash": "sha256:72e053a225eb3266acb263e342d8568e87720ce2b4f82829f2627a6093d1af84"
+  },
+  {
+    "id": "RER-M-01",
+    "node_id": "RER",
+    "difficulty": "medium",
+    "style": "plain",
+    "prompt": "Simplify $\\sqrt{18x^2}$, where $x\\ge 0$.",
+    "answer_type": "expression",
+    "answer": "3x\\sqrt{2}",
+    "accepted_variants": [],
+    "required_form": "simplest_radical",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Pull out the perfect squares 9 and x^2.",
+        "latex": "\\sqrt{18x^2}=\\sqrt{9\\cdot 2\\cdot x^2}"
+      },
+      {
+        "explanation": "Take the square roots of the perfect squares.",
+        "latex": "3x\\sqrt{2}"
+      }
+    ],
+    "source_doc": "grade9_simplifying_radicals.pdf",
+    "content_hash": "sha256:6d7d116201bff6c4280733605201eca95f5eb9f4bcb61458d36f88ef5d4fe253"
+  },
+  {
+    "id": "PE-M-01",
+    "node_id": "PE",
+    "difficulty": "medium",
+    "style": "plain",
+    "prompt": "Find all solutions of $x^3-6x^2+11x-6=0$.",
+    "answer_type": "solution_set",
+    "answer": "1, 2, 3",
+    "accepted_variants": [],
+    "required_form": "none",
+    "unit": null,
+    "solution_steps": [
+      {
+        "explanation": "Test x = 1 using the rational root theorem; it is a root.",
+        "latex": "1-6+11-6=0"
+      },
+      {
+        "explanation": "Divide out (x-1) and factor the quadratic quotient.",
+        "latex": "(x-1)(x^2-5x+6)=(x-1)(x-2)(x-3)"
+      },
+      {
+        "explanation": "Set each factor to zero.",
+        "latex": "x=1,\\ 2,\\ 3"
+      }
+    ],
+    "source_doc": "grade10_polynomial_equations.pdf",
+    "content_hash": "sha256:77aea4385da0bc9b03d46555a112246eba44382062a295002d1b3d133a2c6d96"
+  }
+]

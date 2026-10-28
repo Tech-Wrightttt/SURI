@@ -2,12 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import MainPage from "@/components/mainpage";
 import TopicBookCarousel, { type CarouselBook } from "@/components/TopicBookCarousel";
 import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
 
 export default function TopicsPage() {
+  const pageRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { navigate } = useWorldNavigation();
   const { data, error: loadError } = useLearningData();
@@ -19,6 +21,11 @@ export default function TopicsPage() {
   const loading = !data?.curriculumReady && !loadError;
   const error = loadError?.message ?? null;
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [carouselLayout, setCarouselLayout] = useState<{ margin: number; center: number } | null>(null);
+  const handlePeakLayout = useCallback((top: number, height: number, center: number) => {
+    const margin = height * .025 - top;
+    setCarouselLayout(previous => previous !== null && Math.abs(previous.margin - margin) < .5 && Math.abs(previous.center - center) < .5 ? previous : { margin, center });
+  }, []);
 
   const openTopic = useCallback((nodeId: string) => router.push(`/topics/${nodeId}`), [router]);
   const resumeTopic = useCallback((sessionId: string) => router.push(`/session/${sessionId}/lesson`), [router]);
@@ -48,6 +55,28 @@ export default function TopicsPage() {
     : defaultSelectedNodeId;
   const selectedIndex = Math.max(0, carouselBooks.findIndex(book => book.nodeId === resolvedSelectedNodeId));
   const selectedBook = carouselBooks[selectedIndex];
+  const hasSelectedBook = Boolean(selectedBook);
+  useLayoutEffect(() => {
+    const page = pageRef.current;
+    const nav = page?.closest("main")?.previousElementSibling?.querySelector<HTMLElement>(".suri-app-bar-frame");
+    const back = page?.querySelector<HTMLElement>(".topics-library-back");
+    const description = page?.querySelector<HTMLElement>(".topics-carousel-focus");
+    if (!page || !nav || !back) return;
+    const syncSpacing = () => {
+      const gap = Math.max(0, back.getBoundingClientRect().top - nav.getBoundingClientRect().bottom);
+      page.style.setProperty("--topics-bottom-gap", `${gap}px`);
+      page.style.setProperty("--topics-nav-height", `${nav.parentElement?.getBoundingClientRect().height ?? 0}px`);
+      if (description) {
+        page.style.setProperty("--topics-description-lift", `${description.getBoundingClientRect().height * .625}px`);
+      }
+    };
+    const observer = new ResizeObserver(syncSpacing);
+    observer.observe(nav);
+    observer.observe(back);
+    if (description) observer.observe(description);
+    syncSpacing();
+    return () => observer.disconnect();
+  }, [hasSelectedBook]);
   const moveSelection = (direction: -1 | 1) => {
     if (!carouselBooks.length) return;
     const nextIndex = (selectedIndex + direction + carouselBooks.length) % carouselBooks.length;
@@ -71,7 +100,7 @@ export default function TopicsPage() {
   }, [carouselBooks, enterTopic, resolvedSelectedNodeId]);
   const handleBookIntent = useCallback((index: number) => preloadTopic(carouselBooks[index]?.nodeId), [carouselBooks, preloadTopic]);
   return <MainPage immersive>
-    <div className="topics-library-page">
+    <div ref={pageRef} className="topics-library-page">
       <div className="topics-library-back-row">
         <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
       </div>
@@ -79,43 +108,66 @@ export default function TopicsPage() {
         <div className="topics-library-kicker"><span /> SURI&apos;S SPELLBOOK ARCHIVE <span /></div>
         <h1>Choose Your <em>Spellbook</em></h1>
         <p>Pick a volume to bring it forward, then begin its learning quest.</p>
-        <div className="topics-library-stats" aria-label="Topics overview">
-          <div><b>{loading ? "--" : String(topics.length).padStart(2, "0")}</b><span>Spellbooks ready</span></div>
-          <div><b>{loading ? "--" : String(Object.keys(activeTopics).length).padStart(2, "0")}</b><span>Quests active</span></div>
-        </div>
       </header>
 
       {error && <div className="topics-library-error" role="alert"><Image src="/suri-snake-sad.png" alt="Sad Suri" width={42} height={42} /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
 
-      <section className="topics-carousel-experience" aria-label="Topic volume carousel">
+      <section className="topics-carousel-experience" aria-label="Topic volume carousel" style={carouselLayout === null ? undefined : { marginTop: carouselLayout.margin, "--carousel-arrow-center": `${carouselLayout.center}px` } as CSSProperties}>
         {loading ? <div className="topics-library-loading"><i /><p>Consulting the academy catalogue…</p></div> : selectedBook && <>
-          <div className="topics-carousel-stage" aria-label="Select a spellbook to bring it into focus">
-            <TopicBookCarousel
-              books={carouselBooks}
-              activeIndex={selectedIndex}
-              onBookClick={handleBookClick}
-              onBookIntent={handleBookIntent}
-            />
+          <div
+            className="topics-carousel-stage"
+            role="group"
+            aria-roledescription="carousel"
+            aria-label={`Spellbooks. Selected: ${selectedBook.label}. Use the left and right arrow keys to choose a volume, and Enter to open it.`}
+            tabIndex={0}
+            onFocus={() => preloadTopic(selectedBook.nodeId)}
+            onKeyDown={(event) => {
+              if (event.target !== event.currentTarget) return;
+              if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                event.preventDefault();
+                moveSelection(event.key === "ArrowLeft" ? -1 : 1);
+              } else if (event.key === "Enter") {
+                event.preventDefault();
+                enterTopic(selectedBook.nodeId);
+              }
+            }}
+          >
+            <button
+              type="button"
+              className="topics-carousel-side-arrow is-previous"
+              onClick={() => moveSelection(-1)}
+              onPointerEnter={() => preloadTopic(carouselBooks[(selectedIndex - 1 + carouselBooks.length) % carouselBooks.length]?.nodeId)}
+              onFocus={() => preloadTopic(carouselBooks[(selectedIndex - 1 + carouselBooks.length) % carouselBooks.length]?.nodeId)}
+              disabled={carouselBooks.length < 2}
+              aria-label="Focus previous topic"
+            ><ChevronLeft aria-hidden="true" /></button>
+            <div className="topics-carousel-viewport">
+              <TopicBookCarousel
+                books={carouselBooks}
+                activeIndex={selectedIndex}
+                onBookClick={handleBookClick}
+                onBookIntent={handleBookIntent}
+                onPeakLayout={handlePeakLayout}
+              />
+            </div>
+            <button
+              type="button"
+              className="topics-carousel-side-arrow is-next"
+              onClick={() => moveSelection(1)}
+              onPointerEnter={() => preloadTopic(carouselBooks[(selectedIndex + 1) % carouselBooks.length]?.nodeId)}
+              onFocus={() => preloadTopic(carouselBooks[(selectedIndex + 1) % carouselBooks.length]?.nodeId)}
+              disabled={carouselBooks.length < 2}
+              aria-label="Focus next topic"
+            ><ChevronRight aria-hidden="true" /></button>
           </div>
 
-          <nav className="topics-carousel-controls" aria-label="Choose a topic volume">
-            <button type="button" className="topics-carousel-arrow" onClick={() => moveSelection(-1)} onPointerEnter={() => preloadTopic(carouselBooks[(selectedIndex - 1 + carouselBooks.length) % carouselBooks.length]?.nodeId)} onFocus={() => preloadTopic(carouselBooks[(selectedIndex - 1 + carouselBooks.length) % carouselBooks.length]?.nodeId)} aria-label="Focus previous topic">←</button>
-            <div className="topics-carousel-dots">{carouselBooks.map((book, index) => <button key={book.nodeId} type="button" className={index === selectedIndex ? "is-selected" : ""} onClick={() => setSelectedNodeId(book.nodeId)} onPointerEnter={() => preloadTopic(book.nodeId)} onFocus={() => preloadTopic(book.nodeId)} aria-label={`Focus topic ${book.ordinal}: ${book.label}`} aria-current={index === selectedIndex ? "true" : undefined}>{String(book.ordinal).padStart(2, "0")}</button>)}</div>
-            <button type="button" className="topics-carousel-arrow" onClick={() => moveSelection(1)} onPointerEnter={() => preloadTopic(carouselBooks[(selectedIndex + 1) % carouselBooks.length]?.nodeId)} onFocus={() => preloadTopic(carouselBooks[(selectedIndex + 1) % carouselBooks.length]?.nodeId)} aria-label="Focus next topic">→</button>
-          </nav>
-
-          <article className="topics-carousel-focus" aria-live="polite">
-            <div className="topics-carousel-focus-heading">
-              <span>TOPIC {String(selectedBook.ordinal).padStart(2, "0")} / {String(carouselBooks.length).padStart(2, "0")}</span>
-              <h2>{selectedBook.label}</h2>
-              <p>Grade {selectedBook.grade} curriculum volume · Trail {selectedBook.nodeId}</p>
-            </div>
-            <div className="topics-carousel-focus-details">
-              <div className={`topics-carousel-status ${selectedBook.completed ? "is-complete" : selectedBook.hasProgress ? "is-progress" : ""}`}><span>{selectedBook.completed ? "✦" : selectedBook.hasProgress ? "●" : "○"}</span>{selectedBook.status}</div>
-              <div className="topics-carousel-mastery"><div><span>Mastery</span><b>{String(selectedBook.mastery).padStart(2, "0")}%</b></div><i><em style={{ width: `${selectedBook.mastery}%` }} /></i></div>
-              <p className="topics-carousel-path">Learning path: {topicChains[selectedBook.nodeId]?.length ?? 0} skills</p>
+          <article className="topics-carousel-focus isolate rounded-none border-solid" aria-label={`Progress and actions for ${selectedBook.label}`} aria-live="polite">
+              <div className="topics-carousel-summary">
+                <h2 className="topics-carousel-title">{selectedBook.label}</h2>
+                <div className={`topics-carousel-status ${selectedBook.completed ? "is-complete" : selectedBook.hasProgress ? "is-progress" : ""}`}><span>{selectedBook.completed ? "✦" : selectedBook.hasProgress ? "●" : "○"}</span>{selectedBook.status}</div>
+              </div>
+              <div className="topics-carousel-mastery"><div><span>Mastery</span><b>{String(selectedBook.mastery).padStart(2, "0")}%</b></div><i role="progressbar" aria-label="Topic mastery" aria-valuemin={0} aria-valuemax={100} aria-valuenow={selectedBook.mastery}><em style={{ width: `${selectedBook.mastery}%` }} /></i></div>
               <button type="button" className="topics-carousel-action" onClick={() => enterTopic(selectedBook.nodeId)} onPointerEnter={() => preloadTopic(selectedBook.nodeId)} onFocus={() => preloadTopic(selectedBook.nodeId)}>{selectedBook.nodeId in activeTopics ? "Resume quest" : selectedBook.completed ? "Review again" : "Open volume"}<span aria-hidden="true">→</span></button>
-            </div>
           </article>
         </>}
       </section>
