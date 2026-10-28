@@ -25,6 +25,6 @@ const realPlayground: PlaygroundClient = {
   reveal: revealPlaygroundAnswer,
 };
 
-const USE_MOCK = true; // <- flip to false once the backend /api/playground routes are live
+const USE_MOCK = false; // flip to true to use the offline sample problems (lib/playground/mock.ts)
 
 export const playground: PlaygroundClient = USE_MOCK ? mockPlayground : realPlayground;
