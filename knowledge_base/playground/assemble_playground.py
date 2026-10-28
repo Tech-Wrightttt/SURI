@@ -66,9 +66,10 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--slice", action="store_true", help="easy only: 3 plain + 2 word per node")
     ap.add_argument("--medium", action="store_true", help="easy slice (3 plain + 2 word) plus medium (5 + 5)")
+    ap.add_argument("--hard", action="store_true", help="easy slice, medium (5 + 5) and hard (5 + 5)")
     args = ap.parse_args()
-    if args.slice and args.medium:
-        ap.error("--slice and --medium are mutually exclusive")
+    if args.slice + args.medium + args.hard > 1:
+        ap.error("--slice, --medium and --hard are mutually exclusive")
 
     diffs = ["easy"] if args.slice else ["easy", "medium"] if args.medium else DIFFS
     previous = {p["id"]: p for p in (load_json(OUT, {}) or {}).get("problems", [])}
@@ -77,7 +78,7 @@ def main():
     final, short = [], []
     for node in NODES:
         for diff in diffs:
-            n_plain, n_word = (3, 2) if (args.slice or (args.medium and diff == "easy")) else (5, 5)
+            n_plain, n_word = (3, 2) if (args.slice or ((args.medium or args.hard) and diff == "easy")) else (5, 5)
             pool = load_json(os.path.join(VALIDATED_DIR, f"{node}-{diff}.json"), [])
             plain = pick([c for c in pool if c["style"] == "plain"], n_plain)
             word = pick([c for c in pool if c["style"] == "word"], n_word)

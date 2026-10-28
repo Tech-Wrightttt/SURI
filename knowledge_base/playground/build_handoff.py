@@ -238,16 +238,17 @@ def check_slice_coverage(problems: list) -> list:
     return errs
 
 
-def check_medium_coverage(problems: list) -> list:
-    """Easy slice (5 per node, slots 01..05) plus medium (10 per node: 5 word + 5 plain); no hard yet."""
+def check_medium_coverage(problems: list, with_hard: bool = False) -> list:
+    """Easy slice (5 per node, slots 01..05) plus medium (10 per node: 5 word + 5 plain), and hard when with_hard."""
     errs = []
+    tiers = [("easy", 5, 2), ("medium", 10, 5)] + ([("hard", 10, 5)] if with_hard else [])
     for p in problems:
         if p["node_id"] == "PD":
             errs.append(f"{p['id']}: PD is not part of the playground")
-        elif p["difficulty"] == "hard":
+        elif p["difficulty"] == "hard" and not with_hard:
             errs.append(f"{p['id']}: this drop has no hard problems yet")
     for node in NODES:
-        for diff, total, n_word in (("easy", 5, 2), ("medium", 10, 5)):
+        for diff, total, n_word in tiers:
             group = [p for p in problems if p["node_id"] == node and p["difficulty"] == diff]
             word = sum(1 for p in group if p["style"] == "word")
             if len(group) != total or word != n_word:
@@ -275,7 +276,7 @@ def check_coverage(problems: list) -> list:
 def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
           source_path: str = None, report_path: str = REPORT_PATH,
           decisions_path: str = DECISIONS_PATH, checker=None, allow_missing_checker: bool = None,
-          slice_mode: bool = False, medium_mode: bool = False) -> dict:
+          slice_mode: bool = False, medium_mode: bool = False, hard_mode: bool = False) -> dict:
     """Build the hand-off. Raises BuildError listing every problem found."""
     source_path = source_path or (SAMPLE_PATH if sample else FULL_PATH)
     if not os.path.exists(source_path):
@@ -325,8 +326,8 @@ def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
                 if not checker(v, p).correct:
                     errors.append(f"{p['id']}: accepted variant '{v}' is not accepted by the checker")
 
-    if medium_mode:
-        errors.extend(check_medium_coverage(problems))
+    if medium_mode or hard_mode:
+        errors.extend(check_medium_coverage(problems, with_hard=hard_mode))
     elif slice_mode:
         errors.extend(check_slice_coverage(problems))
     elif not sample:
@@ -356,9 +357,9 @@ def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
         c["total"] += 1
     statuses = [status_of(p, sample, report, decisions) for p in problems]
     manifest = {
-        "drop": "medium" if medium_mode else "slice" if slice_mode else (1 if sample else 2),
+        "drop": "hard" if hard_mode else "medium" if medium_mode else "slice" if slice_mode else (1 if sample else 2),
         "sample": sample,
-        "complete": not (sample or slice_mode or medium_mode),
+        "complete": not (sample or slice_mode or medium_mode or hard_mode),
         "generated_at": generated_at,
         "counts": counts,
         "totals": {"problems": len(public), "word": sum(1 for p in public if p["style"] == "word"),
@@ -411,11 +412,12 @@ def main():
     ap.add_argument("--sample", action="store_true", help="build Drop 1 from the 15 sample problems")
     ap.add_argument("--slice", action="store_true", help="build the early slice (14 topics x easy x 5)")
     ap.add_argument("--medium", action="store_true", help="build the medium drop (easy 5 + medium 10 per topic)")
+    ap.add_argument("--hard", action="store_true", help="build the hard drop (easy 5 + medium 10 + hard 10 per topic)")
     args = ap.parse_args()
-    if sum([args.sample, args.slice, args.medium]) > 1:
-        ap.error("--sample, --slice and --medium are mutually exclusive")
+    if sum([args.sample, args.slice, args.medium, args.hard]) > 1:
+        ap.error("--sample, --slice, --medium and --hard are mutually exclusive")
     try:
-        manifest = build(args.sample, slice_mode=args.slice, medium_mode=args.medium)
+        manifest = build(args.sample, slice_mode=args.slice, medium_mode=args.medium, hard_mode=args.hard)
     except BuildError as e:
         print("BUILD REFUSED:\n" + str(e), file=sys.stderr)
         sys.exit(1)

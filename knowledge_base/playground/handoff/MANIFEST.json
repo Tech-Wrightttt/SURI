@@ -1,8 +1,8 @@
 {
-  "drop": "medium",
+  "drop": "hard",
   "sample": false,
   "complete": false,
-  "generated_at": "2026-10-28T22:58:42.798187+00:00",
+  "generated_at": "2026-10-28T23:12:52.758770+00:00",
   "counts": {
     "QE": {
       "easy": {
@@ -11,6 +11,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -26,6 +31,11 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     },
     "SP": {
@@ -35,6 +45,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -50,6 +65,11 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     },
     "OI": {
@@ -59,6 +79,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -74,6 +99,11 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     },
     "SLE": {
@@ -83,6 +113,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -98,6 +133,11 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     },
     "L1V": {
@@ -107,6 +147,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -122,6 +167,11 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     },
     "RPP": {
@@ -131,6 +181,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -146,6 +201,11 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     },
     "PE": {
@@ -155,6 +215,11 @@
         "total": 5
       },
       "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
         "word": 5,
         "plain": 5,
         "total": 10
@@ -170,22 +235,29 @@
         "word": 5,
         "plain": 5,
         "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
       }
     }
   },
   "totals": {
-    "problems": 210,
-    "word": 98,
-    "plain": 112
+    "problems": 350,
+    "word": 168,
+    "plain": 182
   },
   "validator": {
-    "validated": 204,
+    "validated": 334,
     "blind_resolve": 0,
-    "approved": 6,
+    "approved": 16,
     "hand_verified": 0,
-    "rejected": 1,
+    "rejected": 5,
     "needs_review_remaining": 0
   },
-  "content_sha256": "49b95643b44883d102099f6c57f2247a8ba880c23bd6063fe712b25c2f0739b7",
-  "changed_ids": []
+  "content_sha256": "16d5097f635e8f4faa42bbfbf76ba8d93e337c7307b6f37b1213079a6fe8e34f",
+  "changed_ids": [
+    "PE-H-02"
+  ]
 }

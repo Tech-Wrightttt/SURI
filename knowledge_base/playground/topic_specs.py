@@ -235,7 +235,110 @@ MEDIUM = {
     },
 }
 
-SPECS = {"easy": EASY, "medium": MEDIUM}
+HARD = {
+    "QE": {
+        "kinds": ["non-monic quadratic with fractional or integer roots, rearranged first", "quadratic formula with irrational roots in simplest radical form",
+                  "completing the square leading to simplest radical roots", "rational equation that reduces to a quadratic",
+                  "area, consecutive-integer, or work-style word problem with a multi-step setup"],
+        "answer_types": {"solution_set": ["none"]},
+        "word": "rectangle with a border or path, consecutive integers, projectile-free number puzzles, dimensions from area and perimeter",
+        "notes": "Ask for ALL solutions that satisfy the equation. BUILD EACH PROBLEM BACKWARD: first choose the roots (integers or simple fractions such as 3/2; at most 3 problems of the batch may have irrational roots like 1 +/- \\sqrt{5}), then multiply out to get the equation, then write the prompt. Substitute every stated root back into the equation before answering. For a word problem the prompt must state the equation or make it unambiguous, and must ask for ALL solutions of the equation (never discard a negative root yourself). Never reject a root in the prompt.",
+    },
+    "FP": {
+        "kinds": ["non-monic trinomial with large coefficients", "common factor then difference of squares", "sum or difference of cubes",
+                  "factor by grouping with six terms or two variables", "difference of fourth powers (factor completely)"],
+        "answer_types": {"expression": ["factored"]},
+        "word": "rectangle or box dimensions from an area/volume polynomial; ask for the product of the factors",
+        "notes": "The answer is the FULLY factored form over the integers; every factor primitive and irreducible.",
+    },
+    "SP": {
+        "kinds": ["cube of a binomial with coefficients", "(a+b+c)^2 trinomial square", "product of conjugates with two variables, repeated",
+                  "binomial times a trinomial pattern (a+b)(a^2-ab+b^2)", "expand and simplify a sum or difference of products"],
+        "answer_types": {"expression": ["expanded"]},
+        "word": "volume of a cube or box with binomial edges, area of a square frame",
+        "notes": "The answer is the fully expanded polynomial with like terms combined and terms in descending order.",
+    },
+    "LE": {
+        "kinds": ["nested powers with negative exponents", "quotient of products with several variables", "zero and negative exponents together",
+                  "rational exponents of perfect powers", "numeric expression mixing exponent rules"],
+        "answer_types": {"expression": ["positive_exponents"], "number": ["none"]},
+        "word": "bacterial growth with exponent arithmetic, area and volume with variable edges, powers of 10 in measurement",
+        "notes": "Final answers use positive exponents only and are fully simplified (no power of a product, quotient or power left). Use number for numeric prompts, expression otherwise.",
+    },
+    "OI": {
+        "kinds": ["long order-of-operations expression with nested parentheses", "integers with exponents and absolute values combined",
+                  "expression with several negative powers/products", "multi-step signed word problem with three or more changes"],
+        "answer_types": {"number": ["none"]},
+        "word": "multi-day bank balance, elevation changes in a hike, scores over several rounds, temperature across the day",
+        "notes": "Answers are integers. Each prompt needs at least five operations or steps.",
+    },
+    "FD": {
+        "kinds": ["complex fraction with mixed numbers", "multi-step expression with fractions and decimals", "fractional part of a remaining part",
+                  "word problem with successive fractions of a whole", "decimals with repeating-free fraction conversion"],
+        "answer_types": {"number": ["lowest_terms", "none"]},
+        "word": "money spent in successive fractions, recipes scaled and combined, lengths cut repeatedly",
+        "notes": "Use required_form lowest_terms whenever the answer is a fraction (improper fraction, not a mixed number); none for decimals and integers.",
+    },
+    "SLE": {
+        "kinds": ["fractional coefficients", "system needing rearrangement and distribution", "word problem: mixture or investment",
+                  "word problem: motion with current or wind", "system with negative coefficients"],
+        "answer_types": {"ordered_pair": ["none"]},
+        "word": "mixtures, rates with and against a current, tickets, ages, two investments",
+        "notes": "Integer solutions only. Answer format is (x, y); the prompt must say which value is x and which is y.",
+    },
+    "L2V": {
+        "kinds": ["line through two points with fractional slope", "line parallel or perpendicular to a given line through a point",
+                  "intercepts of a line in standard form with fractional coefficients", "equation from a word problem with two data points",
+                  "point where a line has a given y-value"],
+        "answer_types": {"equation": ["slope_intercept"], "ordered_pair": ["none"], "number": ["none"]},
+        "word": "taxi fare from two trips, phone plan costs, a tank filling at a steady rate, savings between two dates",
+        "notes": "Equation answers use y = mx + b exactly. Slopes and intercepts may be fractions. For ordered_pair ask for an intercept point.",
+    },
+    "L1V": {
+        "kinds": ["fractions on both sides needing a common denominator", "decimals and parentheses together", "literal-free word problem needing a two-step setup",
+                  "consecutive odd or even integers", "multi-step equation with fractions, parentheses, and variables on both sides"],
+        "answer_types": {"number": ["none"]},
+        "word": "ages now and later, coins, consecutive integers, perimeter, work earnings with a bonus",
+        "notes": "The answer is the value of the variable as a number (integer, simple fraction, or decimal).",
+    },
+    "AE": {
+        "kinds": ["evaluate with fractions and exponents", "simplify with nested parentheses and two variables", "evaluate a formula needing substitution of negatives",
+                  "translate a multi-condition story to an expression and evaluate"],
+        "answer_types": {"number": ["none"], "expression": ["expanded"]},
+        "word": "tiered pricing formulas, perimeter and area formulas with several variables, rule-based costs",
+        "notes": "Use number for 'evaluate' prompts and expression (expanded) for 'simplify' prompts.",
+    },
+    "RPP": {
+        "kinds": ["successive percent changes", "find the original amount after a discount and tax", "mixture or concentration by proportion",
+                  "work or speed with proportion over several steps", "compound-style two-step interest", "percent of a percent"],
+        "answer_types": {"number": ["none", "lowest_terms"]},
+        "word": "store discounts then tax, school scores, speed and distance with changes, recipes scaled up, savings with interest",
+        "notes": "Percent answers: unit '%'. Money: unit 'pesos'. Rates need a unit. The answer is always just a number.",
+    },
+    "RER": {
+        "kinds": ["simplify a sum of unlike radicals that reduce to like radicals", "multiply binomials with radicals", "rationalize a denominator with a radical",
+                  "rational exponents with fraction bases and negative exponents", "radical expression with variables"],
+        "answer_types": {"number": ["simplest_radical", "none"], "expression": ["simplest_radical"]},
+        "word": "diagonals and distances requiring radical simplification, area of a square or circle-free figure from a radical side",
+        "notes": "Use simplest_radical when the answer contains a radical, none for whole numbers or fractions without radicals. No radicals in denominators.",
+    },
+    "PE": {
+        "kinds": ["quartic that factors as a difference of squares", "cubic requiring a rational-root search with integer roots", "factor by grouping, degree 4",
+                  "polynomial equation with a repeated root", "biquadratic x^4 + bx^2 + c with real integer roots"],
+        "answer_types": {"solution_set": ["none"]},
+        "word": "number puzzles about squares and cubes, volume relations with a missing edge",
+        "notes": "All REAL roots are integers. Ask for ALL real solutions. Degree 3 or 4. List each distinct root once.",
+    },
+    "PO": {
+        "kinds": ["multiply a binomial by a trinomial and simplify", "multiply three binomials", "subtract then multiply polynomials",
+                  "divide a polynomial by a monomial or a binomial exactly", "perimeter and area with polynomial sides"],
+        "answer_types": {"expression": ["expanded"]},
+        "word": "area or volume of figures with polynomial dimensions, perimeter after combining sides",
+        "notes": "The answer is the simplified polynomial in descending order. Every division must come out exactly with no remainder.",
+    },
+}
+
+SPECS = {"easy": EASY, "medium": MEDIUM, "hard": HARD}
 
 
 def load_seed() -> dict:
