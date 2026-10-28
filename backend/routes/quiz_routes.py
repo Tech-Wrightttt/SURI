@@ -60,9 +60,16 @@ DEFAULT_TIMER_MS = 30_000
 
 # ── Normalization (copied from practice_routes for isolation) ────────────────
 def normalize_val(val: str) -> str:
+    """Normalize input strings for robust mathematical comparison."""
     val = val.strip().lower()
-    val = val.replace('\\', '\\')
-    val = val.replace('$', '').replace('*', '')
+    val = val.replace('\\\\', '\\')
+    val = val.replace('$', '')
+
+    # Normalize multiplication symbols to the same representation.
+    val = val.replace(r'\cdot', '*').replace(r'\times', '*')
+    val = val.replace('·', '*').replace('⋅', '*').replace('×', '*')
+
+    # Normalize common LaTeX formatting.
     val = val.replace(r'\left(', '(').replace(r'\right)', ')')
     val = val.replace(r'\left', '').replace(r'\right', '')
     val = re.sub(r'\\frac{([^}]+)}{([^}]+)}', r'\1/\2', val)
@@ -70,9 +77,13 @@ def normalize_val(val: str) -> str:
     val = re.sub(r'\\sqrt\s*\[\]\s*{', r'\\sqrt{', val)
     val = re.sub(r'\\sqrt\s*{([^}]+)}', r'\\sqrt{\1}', val)
     val = re.sub(r'\\sqrt\s*([a-zA-Z0-9])', r'\\sqrt{\1}', val)
+
+    # Remove spaces around operators, but preserve the operators themselves.
     val = re.sub(r'\s*([\+\-\*/=\(\)\^,])\s*', r'\1', val)
     val = re.sub(r'\s+', ' ', val)
+
     val = re.sub(r'\^{\(([^()]+)\)}', r'^{\1}', val)
+    val = re.sub(r'\^{([a-zA-Z0-9]+)}', r'^\1', val)
     return val
 
 
