@@ -1,0 +1,108 @@
+name: STD Tests
+
+# Runs the SURI backend + frontend test suites and builds the Software Test
+# Document (.docx) from the results. Setup guide:
+# docs/GithubActionsImplementationStepByStep.md
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: std-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-document:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: suri_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/suri_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            tests/requirements.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend + test dependencies
+        run: pip install -r backend/requirements.txt -r tests/requirements.txt
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --ignore-scripts
+
+      - name: Backend tests (pytest + coverage)
+        id: backend
+        continue-on-error: true
+        run: >
+          pytest
+          --cov --cov-report=term --cov-report=xml:reports/coverage.xml
+          --junitxml=reports/backend-junit.xml
+
+      - name: Frontend tests (node:test + coverage)
+        id: frontend
+        continue-on-error: true
+        run: >
+          node --experimental-strip-types --import ./tests/solver/register.mjs
+          --test --experimental-test-coverage --test-coverage-include="frontend/app/**"
+          --test-reporter=spec --test-reporter-destination=stdout
+          --test-reporter=junit --test-reporter-destination=reports/frontend-junit.xml
+          --test-reporter=lcov --test-reporter-destination=reports/frontend-lcov.info
+          tests/solver/*.test.mjs
+
+      - name: Generate Software Test Document
+        if: always()
+        run: python tests/std/generate_std.py --out "docs/std/SURI_Software_Test_Document.docx"
+
+      - name: Upload STD document
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SURI-STD-${{ github.run_number }}
+          path: docs/std/SURI_Software_Test_Document.docx
+
+      - name: Upload raw test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: reports/
+
+      - name: Fail the job if any suite failed
+        if: steps.backend.outcome == 'failure' || steps.frontend.outcome == 'failure'
+        run: |
+          echo "backend=${{ steps.backend.outcome }} frontend=${{ steps.frontend.outcome }}"
+          exit 1

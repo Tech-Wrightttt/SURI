@@ -297,7 +297,8 @@ async def submit_step(body: PracticeSubmitStepRequest, student=Depends(get_curre
             corr_norm = normalize_val(correct_value)
 
             if is_float(sub_norm) and is_float(corr_norm):
-                correct = abs(float(sub_norm) - float(corr_norm)) <= 0.01
+                # 1e-9 absorbs float rounding (abs(3.13 - 3.14) == 0.010000000000000231).
+                correct = abs(float(sub_norm) - float(corr_norm)) <= 0.01 + 1e-9
             else:
                 correct = sub_norm == corr_norm
 
