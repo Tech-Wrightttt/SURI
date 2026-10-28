@@ -24,7 +24,7 @@ and the real client use exactly these shapes.
   `INSERT INTO playground_solved (student_id, problem_id, solved_at) ... ON CONFLICT DO NOTHING`
   and returns `solved: true`. "Mark solved" is folded into `/check` on purpose: only server-verified
   answers count, so a client cannot fake a solve.
-- **/reveal**: returns the answer, unit and steps. It does **not** mark the problem solved.
+- **/reveal**: returns the answer, unit and steps. It also marks the problem solved for the student (inserted into `playground_solved`), so revealed problems count as done.
 - Out of scope: scores, streaks, mastery writes, `misconception_logs` writes.
 - Errors: `404` for an unknown `problem_id` / `node_id`, `422` for a bad `difficulty`.
 

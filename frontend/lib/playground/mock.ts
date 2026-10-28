@@ -190,6 +190,7 @@ export const mockPlayground: PlaygroundClient = {
   reveal(problemId): Promise<PlaygroundReveal> {
     const problem = PROBLEMS.find((p) => p.id === problemId);
     if (!problem) return Promise.reject(new Error("Unknown problem"));
+    solved.add(problem.id); // revealing counts as solved, matching the backend
     return delay({ answer: problem.answer, unit: problem.unit, solution_steps: problem.solution_steps });
   },
 };

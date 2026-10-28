@@ -248,6 +248,19 @@ async def reveal_playground_answer(
                 detail="Unknown problem_id",
             )
 
+        # Seeing the answer counts as done, so the student resumes past it and topic progress includes it.
+        await conn.execute(
+            """
+            INSERT INTO playground_solved
+                (student_id, problem_id, solved_at)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (student_id, problem_id) DO NOTHING
+            """,
+            student["id"],
+            request.problem_id,
+            datetime.now(timezone.utc).isoformat(),
+        )
+
         return {
             "answer": row["answer"],
             "unit": row["unit"],
