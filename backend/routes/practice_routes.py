@@ -199,6 +199,9 @@ def normalize_val(val: str) -> str:
     val = val.replace(r'\cdot', '*').replace(r'\times', '*')
     val = val.replace('·', '*').replace('⋅', '*').replace('×', '*')
 
+    # Normalize explicit multiplication between a coefficient and a variable.
+    val = re.sub(r'(?<=\d)\s*\*\s*(?=[a-zA-Z])', '', val)
+
     # Normalize common LaTeX formatting.
     val = val.replace(r'\left(', '(').replace(r'\right)', ')')
     val = val.replace(r'\left', '').replace(r'\right', '')
