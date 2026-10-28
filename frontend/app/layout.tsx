@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import LearningShell from "@/components/navigation/LearningShell";
 
@@ -8,7 +8,19 @@ export const metadata: Metadata = {
     "Adaptive mathematics learning application for Philippine Junior High School students",
   icons: {
     icon: "/suri-snake-happy.png",
+    apple: "/icons/apple-touch-icon.png",
   },
+  appleWebApp: {
+    capable: true,
+    title: "SURI",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#f7f9fb",
 };
 
 export default function RootLayout({

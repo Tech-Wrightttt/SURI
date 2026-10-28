@@ -30,20 +30,43 @@ import {
   Sparkles,
   BookOpen,
   Snowflake,
+  ChevronDown,
 } from "lucide-react";
 
 type QuizState =
   | "LOADING"
   | "INTRO"
   | "STEP"
-  | "STEP_RESULT"
+  | "STEP_SEALED"
   | "SUMMARY";
+
+// Verdicts stay hidden during the quiz; the ledger reveals them on Quiz Complete.
+type RuneOutcome = "correct" | "wrong" | "skipped" | "timeout";
+
+type RuneRecord = {
+  problemIndex: number;
+  stepIndex: number;
+  answer: string | null;
+  correctValue: string;
+  outcome: RuneOutcome;
+  points: number;
+};
+
+const OUTCOME_LABEL: Record<RuneOutcome, string> = {
+  correct: "Forged",
+  wrong: "Cracked",
+  skipped: "Skipped",
+  timeout: "Time ran out",
+};
+
+const SEAL_DELAY_MS = 700;
 
 const QUIZ_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@400;600;700;800;900&display=swap');
 
   .quiz-forge {
     min-height: 100vh;
+    min-height: 100dvh;
     padding: clamp(10px, 1.5vw, 18px);
     background:
       radial-gradient(circle at 50% 0%, rgba(250,204,96,0.18), transparent 28%),
@@ -554,9 +577,32 @@ const QUIZ_CSS = `
     cursor: pointer;
   }
 
-  .quiz-answer:hover:not(:disabled) {
-    transform: translateY(-3px);
-    filter: brightness(1.06);
+  /* Hover lifts only on pointer devices so a tap on a tablet doesn't leave a
+     choice stuck in its hover state. */
+  @media (hover: hover) {
+    .quiz-answer:hover:not(:disabled) {
+      transform: translateY(-3px);
+      filter: brightness(1.06);
+    }
+
+    .quiz-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+    }
+  }
+
+  .quiz-answer,
+  .quiz-action,
+  .quiz-exit {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (pointer: coarse) {
+    .quiz-exit,
+    .quiz-action {
+      min-height: 48px;
+    }
   }
 
   .quiz-answer:active:not(:disabled) {
@@ -566,49 +612,26 @@ const QUIZ_CSS = `
       inset 0 0 0 2px rgba(255,255,255,.24);
   }
 
+  /* Selection is gold, never green: green would read as "correct" before the reveal. */
   .quiz-answer.selected {
-    background:
-      linear-gradient(
-        180deg,
-      #9df2a7 0%,
-        #31a85e 55%,
-        #176235 100%
-      );
-  }
-
-  .quiz-answer.correct {
     border-color: #ffe288;
 
     background:
       linear-gradient(
         180deg,
-        #9df2a7 0%,
-        #31a85e 55%,
-        #176235 100%
+        #8a5bc0 0%,
+        #5b2f8a 55%,
+        #32174f 100%
       );
 
-    color: #071d0f;
-
     box-shadow:
-      0 6px 0 #12361e,
-      0 0 24px rgba(88,255,138,.32);
+      0 6px 0 #1d0c2e,
+      0 10px 22px rgba(255,211,92,.22);
   }
 
-  .quiz-answer.wrong {
-    border-color: #ff8e7c;
-
-    background:
-      linear-gradient(
-        180deg,
-        #7b2630,
-        #351017
-      );
-
-    color: #ffd9d4;
-
-    box-shadow:
-      0 6px 0 #220a10,
-      0 0 20px rgba(255,77,77,.18);
+  .quiz-answer:focus-visible {
+    outline: 3px solid #ffe288;
+    outline-offset: 3px;
   }
 
   .quiz-answer.disabled {
@@ -678,11 +701,6 @@ const QUIZ_CSS = `
     cursor: pointer;
   }
 
-  .quiz-action:hover:not(:disabled) {
-    transform: translateY(-2px);
-    filter: brightness(1.06);
-  }
-
   .quiz-action:active:not(:disabled) {
     transform: translateY(3px);
   }
@@ -711,37 +729,32 @@ const QUIZ_CSS = `
     color: #3b0908;
   }
 
-  .quiz-action.save {
-    background:
-      linear-gradient(
-        180deg,
-        #fff6aa,
-        #ffb84c 58%,
-        #a95e20
-      );
-  }
-
-  .quiz-streak-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .quiz-streak-actions .quiz-action {
-    flex: 1 1 180px;
-  }
-
-  .quiz-streak-actions .quiz-action:focus-visible {
+  .quiz-action:focus-visible {
     outline: 3px solid #ffe288;
     outline-offset: 4px;
   }
 
-  .quiz-result-card.has-streak-choice {
-    max-height: calc(100dvh - 40px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
+  .quiz-action.sealed:disabled {
+    opacity: 1;
+    filter: none;
+    background:
+      linear-gradient(
+        180deg,
+        #c9a6f0,
+        #8749b7 58%,
+        #4c2470
+      );
+    color: #fff4d5;
+  }
+
+  .quiz-sealed-note {
+    margin-top: 10px;
+    text-align: center;
+
+    color: #f7dfad;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
   }
 
   .quiz-action:disabled {
@@ -894,144 +907,270 @@ const QUIZ_CSS = `
   }
 
   /* =========================
-     RESULT OVERLAY
+     RUNE LEDGER (Quiz Complete review)
   ========================= */
 
-  .quiz-result-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
+  .quiz-ledger {
+    margin-top: 26px;
+    text-align: left;
+  }
 
+  .quiz-ledger-head {
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-      radial-gradient(
-        circle at center,
-        rgba(155,67,207,.2),
-        transparent 50%
-      ),
-      rgba(12,5,10,.78);
-
-    backdrop-filter: blur(5px);
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255,226,136,.22);
   }
 
-  .quiz-result-card {
-    width: min(540px, 100%);
-    padding: 28px;
+  .quiz-ledger-title {
+    color: #ffe8a2;
+    font-family: "Bree Serif", Georgia, serif;
+    font-size: clamp(22px, 3vw, 28px);
+    line-height: 1.1;
+  }
 
-    border: 5px solid #5e3619;
+  .quiz-ledger-tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
-    background:
-      linear-gradient(
-        180deg,
-        #57321d,
-        #24130d
-      );
-
+  .quiz-ledger-problem {
+    margin-top: 14px;
+    border: 3px solid #8e5b20;
+    background: linear-gradient(180deg, #4a2a18, #24130d);
     box-shadow:
-      0 10px 0 #160b07,
-      0 25px 55px rgba(0,0,0,.5),
-      inset 0 0 0 3px rgba(245,199,93,.28);
-
-    text-align: center;
+      0 6px 0 #160b07,
+      inset 0 0 0 2px rgba(20,9,5,.55);
   }
 
-  .quiz-result-rune {
-    width: 92px;
-    height: 92px;
+  .quiz-ledger-problem > :not(summary) {
+    margin-left: clamp(12px, 2vw, 18px);
+    margin-right: clamp(12px, 2vw, 18px);
+  }
 
-    margin: 0 auto 18px;
+  .quiz-ledger-problem > ol {
+    padding-bottom: clamp(10px, 1.6vw, 14px);
+  }
 
+  /* Each problem is a native disclosure: keyboard, screen reader and touch
+     support come for free, and the page stays short until a problem is opened. */
+  .quiz-ledger-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 10px clamp(12px, 2vw, 18px);
+    cursor: pointer;
+    list-style: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .quiz-ledger-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .quiz-ledger-summary:focus-visible {
+    outline: 3px solid #ffe288;
+    outline-offset: -3px;
+  }
+
+  .quiz-ledger-problem[open] > .quiz-ledger-summary {
+    border-bottom: 2px solid rgba(255,226,136,.18);
+  }
+
+  .quiz-ledger-chevron {
+    color: #ffe8a2;
+    transition: transform .3s cubic-bezier(.16,1,.3,1);
+  }
+
+  .quiz-ledger-problem[open] .quiz-ledger-chevron {
+    transform: rotate(180deg);
+  }
+
+  @media (hover: hover) {
+    .quiz-ledger-summary:hover {
+      background: rgba(255,226,136,.06);
+    }
+  }
+
+  .quiz-ledger-problem-title {
+    color: #ffe8a2;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+  }
+
+  .quiz-ledger-problem-text {
+    margin-top: 12px;
+    color: #f7dfad;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.55;
+    max-width: 70ch;
+  }
+
+  .quiz-ledger-row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,226,136,.14);
+    animation: quiz-ledger-in .5s cubic-bezier(.16,1,.3,1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  .quiz-ledger-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 2px;
+  }
+
+  @keyframes quiz-ledger-in {
+    from { opacity: 0; transform: translateY(8px); filter: blur(3px); }
+    to { opacity: 1; transform: none; filter: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-ledger-row { animation: none; }
+  }
+
+  .quiz-ledger-num {
+    width: 40px;
+    height: 40px;
     display: grid;
     place-items: center;
-
     border-radius: 50%;
-    border: 4px solid #8749b7;
-
-    background:
-      radial-gradient(
-        circle at 35% 25%,
-        #fff6aa,
-        #ffd35c 42%,
-        #7f2cad
-      );
-
-    box-shadow:
-      0 0 32px rgba(255,211,92,.52),
-      0 0 42px rgba(155,67,207,.36);
-
-    color: #32104d;
-  }
-
-  .quiz-result-title {
-    color: #ffe8a2;
-
+    border: 3px solid #6d411c;
     font-family: "Bree Serif", Georgia, serif;
-    font-size: 34px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
   }
 
-  .quiz-result-subtitle {
-    margin-top: 8px;
+  .quiz-ledger-body {
+    min-width: 0;
+  }
 
+  .quiz-ledger-instruction {
     color: #f7dfad;
-
     font-family: 'Nunito', sans-serif;
     font-size: 13px;
     font-weight: 800;
+    line-height: 1.45;
   }
 
-  .quiz-result-value {
+  .quiz-ledger-expr {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: 2px solid #9c672b;
+    background: linear-gradient(180deg, #fff0bf, #dec07b);
+    color: #28150c;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 900;
+    overflow-x: auto;
+  }
+
+  .quiz-ledger-answers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .quiz-ledger-answer {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-
-    margin-top: 14px;
-    padding: 8px 15px;
-
-    border: 3px solid #6d411c;
-    border-radius: 8px;
-
-    background:
-      linear-gradient(
-        180deg,
-        #fff6aa,
-        #ffd35c 58%,
-        #c7832e
-      );
-
-    color: #321008;
-
-    font-family: "Bree Serif", Georgia, serif;
-    font-size: 20px;
-
-    box-shadow: 0 5px 0 #28150c;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 2px solid transparent;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 15px;
+    font-weight: 900;
   }
 
-  .quiz-correct-answer {
-    margin-top: 16px;
-
-    border: 2px solid #9c672b;
-
-    background:
-      linear-gradient(
-        180deg,
-        #fff0bf,
-        #dec07b
-      );
-
-    color: #28150c;
-
-    padding: 12px;
-
-    font-family: Georgia, 'Times New Roman', serif;
+  .quiz-ledger-answer-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
     font-weight: 900;
-    font-size: 22px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .quiz-ledger-answer.yours {
+    border-color: #c96a5c;
+    background: #ffd9d2;
+    color: #5a1410;
+  }
+
+  .quiz-ledger-answer.yours.is-correct,
+  .quiz-ledger-answer.right {
+    border-color: #4f9b62;
+    background: #d4f5d9;
+    color: #0f3d1e;
+  }
+
+  .quiz-ledger-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .quiz-ledger-verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    border: 2px solid;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .quiz-ledger-points {
+    color: #ffe8a2;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .outcome-correct .quiz-ledger-num,
+  .quiz-ledger-verdict.outcome-correct {
+    border-color: #4f9b62;
+    background: #d4f5d9;
+    color: #0f3d1e;
+  }
+
+  .outcome-wrong .quiz-ledger-num,
+  .quiz-ledger-verdict.outcome-wrong {
+    border-color: #c96a5c;
+    background: #ffd9d2;
+    color: #5a1410;
+  }
+
+  .outcome-skipped .quiz-ledger-num,
+  .outcome-timeout .quiz-ledger-num,
+  .quiz-ledger-verdict.outcome-skipped,
+  .quiz-ledger-verdict.outcome-timeout {
+    border-color: #9c672b;
+    background: #ecdcb6;
+    color: #4a3520;
   }
 
   /* =========================
@@ -1039,7 +1178,7 @@ const QUIZ_CSS = `
   ========================= */
 
   .quiz-summary {
-    width: min(780px, 100%);
+    width: min(860px, 100%);
     margin: 45px auto;
     text-align: center;
   }
@@ -1066,7 +1205,7 @@ const QUIZ_CSS = `
 
   .quiz-summary-stats {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
     margin-top: 20px;
   }
@@ -1204,6 +1343,24 @@ const QUIZ_CSS = `
       align-items: flex-start;
       flex-direction: column;
     }
+
+    .quiz-ledger-row {
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .quiz-ledger-num {
+      width: 34px;
+      height: 34px;
+      font-size: 15px;
+    }
+
+    .quiz-ledger-side {
+      grid-column: 2;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
   }
 `;
 
@@ -1238,6 +1395,18 @@ function ForgeRuneIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function OutcomeIcon({ outcome }: { outcome: RuneOutcome }) {
+  const Icon =
+    outcome === "correct"
+      ? CheckCircle2
+      : outcome === "wrong"
+        ? XCircle
+        : outcome === "skipped"
+          ? SkipForward
+          : Timer;
+  return <Icon className="w-4 h-4" aria-hidden="true" />;
+}
+
 export default function QuizPage() {
   const router = useRouter();
   const params = useParams();
@@ -1263,13 +1432,7 @@ export default function QuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
 
-  const [stepAnswers, setStepAnswers] = useState<
-    Record<number, { user: string; correct: string }>
-  >({});
-
-  const [stepCorrect, setStepCorrect] = useState<boolean | null>(null);
-  const [correctValue, setCorrectValue] = useState<string | null>(null);
-  const [pointsEarned, setPointsEarned] = useState(0);
+  const [runeLog, setRuneLog] = useState<RuneRecord[]>([]);
 
   const [summaryData, setSummaryData] =
     useState<QuizFinishResponse | null>(null);
@@ -1281,9 +1444,6 @@ export default function QuizPage() {
   const freezeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isTimerFrozen, setIsTimerFrozen] = useState(false);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [streakMultiplier, setStreakMultiplier] = useState(1.0);
-  const [streakAtRisk, setStreakAtRisk] = useState(0);
 
   const hasFetched = useRef(false);
 
@@ -1381,18 +1541,29 @@ export default function QuizPage() {
     setSelectedChoice(null);
     setTimedOut(false);
 
-    setStepCorrect(null);
-    setCorrectValue(null);
-    setPointsEarned(0);
-
     setTimeRemainingMs(currentProblem.steps[0].timer_ms);
-
-    setStepAnswers({});
 
     timerFrozenRef.current = false;
     setIsTimerFrozen(false);
 
     setState("STEP");
+  };
+
+  // Record the rune's verdict without showing it, then move on after a short beat.
+  const sealRune = (record: Omit<RuneRecord, "problemIndex" | "stepIndex">) => {
+    setRuneLog((prev) => [
+      ...prev,
+      {
+        problemIndex: currentProblemIndexRef.current,
+        stepIndex: currentStep.step_index,
+        ...record,
+      },
+    ]);
+
+    setState("STEP_SEALED");
+
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = setTimeout(() => advanceToNext(), SEAL_DELAY_MS);
   };
 
   const handleTimeout = async () => {
@@ -1419,23 +1590,15 @@ export default function QuizPage() {
         time_remaining_ms: 0,
       });
 
-      setStepCorrect(false);
-      setCorrectValue(res.correct_value);
-      setPointsEarned(0);
-
       setTotalPoints(res.total_points);
-      setCurrentStreak(0);
-      setStreakMultiplier(1.0);
-
       setSelectedChoice(null);
 
-      setState("STEP_RESULT");
-
-      // Automatically move to the next rune
-      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-      advanceTimerRef.current = setTimeout(() => {
-        advanceToNext();
-      }, 2000);
+      sealRune({
+        answer: null,
+        correctValue: res.correct_value,
+        outcome: "timeout",
+        points: 0,
+      });
     } catch (err) {
       console.error("Failed to submit timeout:", err);
 
@@ -1468,62 +1631,14 @@ export default function QuizPage() {
         time_remaining_ms: Math.max(0, timeRemainingMs),
       });
 
-      // Save user's answer for Previous Steps
-      if (choice !== null) {
-        setStepAnswers((prev) => ({
-          ...prev,
-          [currentStep.step_index]: {
-            user: choice,
-            correct: res.correct_value,
-          },
-        }));
-      }
-
-      const preWrongStreak = currentStreak;
-
       setTotalPoints(res.total_points);
-      setCurrentStreak(res.current_streak);
-      setStreakMultiplier(res.streak_multiplier);
 
-      // Wrong answer
-      if (!res.correct && choice !== null) {
-        setStreakAtRisk(preWrongStreak);
-
-        setStepCorrect(false);
-        setCorrectValue(res.correct_value);
-        setPointsEarned(0);
-
-        setCurrentStreak(0);
-        setStreakMultiplier(1.0);
-
-        setState("STEP_RESULT");
-
-        if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-        advanceTimerRef.current = null;
-        // Let the learner explicitly save or skip an existing streak.
-        if (preWrongStreak === 0) {
-          advanceTimerRef.current = setTimeout(() => {
-            advanceToNext();
-          }, 2500);
-        }
-
-        return;
-      }
-
-      // Correct answer
-      setStepCorrect(res.correct);
-      setCorrectValue(res.correct_value);
-      setPointsEarned(res.points_earned);
-
-      setCurrentStreak(res.current_streak);
-      setStreakMultiplier(res.streak_multiplier);
-
-      setState("STEP_RESULT");
-
-      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-      advanceTimerRef.current = setTimeout(() => {
-        advanceToNext();
-      }, 1500);
+      sealRune({
+        answer: choice,
+        correctValue: res.correct_value,
+        outcome: res.correct ? "correct" : "wrong",
+        points: res.points_earned,
+      });
     } catch (err) {
       console.error("Error submitting step:", err);
 
@@ -1556,15 +1671,12 @@ export default function QuizPage() {
         step_index: currentStep.step_index,
       });
 
-      setStepCorrect(false);
-      setCorrectValue(res.correct_value);
-      setPointsEarned(0);
-      setCurrentStreak(0);
-      setStreakMultiplier(1.0);
-      setState("STEP_RESULT");
-
-      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-      advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
+      sealRune({
+        answer: null,
+        correctValue: res.correct_value,
+        outcome: "skipped",
+        points: 0,
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -1613,12 +1725,11 @@ export default function QuizPage() {
     }
   };
 
-  const purchaseBoost = async (type: "hint" | "freeze" | "save_streak", opener: HTMLElement) => {
+  const purchaseBoost = async (type: "hint" | "freeze", opener: HTMLElement) => {
     if (purchasePendingRef.current || pointsNotice) return null;
-    const required = type === "save_streak" ? 1000 : 750;
-    const action = type === "hint" ? "Hint" : type === "freeze" ? "Freeze Timer" : "Save Streak";
+    const required = 750;
+    const action = type === "hint" ? "Hint" : "Freeze Timer";
     const showNotice = (current: number, cost: number, failed = false) => {
-      if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
       setPointsNotice({ action, required: cost, current, failed, opener });
     };
 
@@ -1635,7 +1746,6 @@ export default function QuizPage() {
         problem_id: currentProblem.id,
         step_index: currentStep.step_index,
         hint_type: type,
-        ...(type === "save_streak" ? { saved_streak: streakAtRisk } : {}),
       });
       setTotalPoints(res.total_points);
       return res;
@@ -1660,17 +1770,6 @@ export default function QuizPage() {
 
   const closePointsNotice = () => {
     setPointsNotice(null);
-    if (state === "STEP_RESULT" && streakAtRisk === 0) {
-      advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
-    }
-  };
-
-  const skipSavingStreak = () => {
-    if (purchasePendingRef.current || state !== "STEP_RESULT" || streakAtRisk === 0) return;
-    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
-    advanceTimerRef.current = null;
-    setStreakAtRisk(0);
-    void advanceToNext();
   };
 
   const buyHint = async (opener: HTMLElement) => {
@@ -1679,7 +1778,7 @@ export default function QuizPage() {
   };
 
   const handleFreeze = async (opener: HTMLElement) => {
-    if (isTimerFrozen || state === "STEP_RESULT" || isSubmitting) return;
+    if (isTimerFrozen || state !== "STEP" || isSubmitting) return;
 
     const res = await purchaseBoost("freeze", opener);
     if (res) {
@@ -1864,11 +1963,19 @@ export default function QuizPage() {
      STEP + RESULT
   ========================= */
 
-  if (state === "STEP" || state === "STEP_RESULT") {
+  if (state === "STEP" || state === "STEP_SEALED") {
     const progressPct =
       currentStep && currentStep.timer_ms
         ? (timeRemainingMs / currentStep.timer_ms) * 100
         : 0;
+
+    const isSealed = state === "STEP_SEALED";
+    const totalRunes = problems.reduce((sum, p) => sum + p.steps.length, 0);
+    const sealedAnswers = new Map(
+      runeLog
+        .filter((r) => r.problemIndex === currentProblemIndex)
+        .map((r) => [r.stepIndex, r.answer])
+    );
 
     return (
       <div className="quiz-forge">
@@ -1904,16 +2011,19 @@ export default function QuizPage() {
             </div>
 
             <div className="quiz-hud-right">
-              <div className="quiz-stat">
-                ✦ {totalPoints} pts
+              {/* Points stay visible for spending on boosts; the streak and
+                  every verdict stay sealed until Quiz Complete. */}
+              <div className="quiz-stat" aria-label={`${totalPoints} points`}>
+                <Sparkles className="w-4 h-4" aria-hidden="true" />
+                {totalPoints} pts
               </div>
 
-              <div className="quiz-stat streak">
-                <Flame className="w-4 h-4" />
-                {currentStreak}
-                {streakMultiplier > 1 && (
-                  <span>{streakMultiplier}×</span>
-                )}
+              <div
+                className="quiz-stat"
+                aria-label={`${runeLog.length} of ${totalRunes} runes sealed`}
+              >
+                <ForgeRuneIcon className="w-4 h-4" />
+                {runeLog.length}/{totalRunes} sealed
               </div>
 
               <div className="quiz-stat timer">
@@ -2007,34 +2117,13 @@ export default function QuizPage() {
                 {currentStep.choices.map((choice, idx) => {
                   const isSelected = selectedChoice === choice;
 
-                  // The correct choice is highlighted whenever a result is
-                  // showing — whether the user picked it, picked something
-                  // else, or the timer ran out before they picked at all.
-                  const isCorrectChoice =
-                    state === "STEP_RESULT" &&
-                    correctValue != null &&
-                    choice.trim().toLowerCase() ===
-                      correctValue.trim().toLowerCase();
-
+                  // No correct/wrong styling here: the verdict is revealed
+                  // only in the Quiz Complete ledger.
                   let className = "quiz-answer";
 
                   if (isSelected) {
                     className += " selected";
-                  }
-
-                  if (state === "STEP_RESULT") {
-                    if (isCorrectChoice) {
-                      className += " correct";
-                    } else if (isSelected && stepCorrect === false) {
-                      className += " wrong";
-                    }
-                  }
-
-                  if (
-                    state === "STEP_RESULT" ||
-                    isSubmitting ||
-                    timedOut
-                  ) {
+                  } else if (isSealed || isSubmitting || timedOut) {
                     className += " disabled";
                   }
 
@@ -2077,15 +2166,23 @@ export default function QuizPage() {
                     timedOut ||
                     timeRemainingMs <= 0
                   }
-                  className="quiz-action submit-rune"
+                  className={`quiz-action submit-rune${isSealed ? " sealed" : ""}`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
 
-                  {isSubmitting
-                    ? "Forging..."
-                    : "Submit Rune"}
+                  {isSealed
+                    ? "Rune Sealed"
+                    : isSubmitting
+                      ? "Forging..."
+                      : "Submit Rune"}
                 </button>
               </div>
+
+              <p className="quiz-sealed-note" aria-live="polite">
+                {isSealed
+                  ? "Sealed. Suri reveals every rune when the quiz is complete."
+                  : "Answers stay sealed until the quiz is complete. Points can be spent on boosts."}
+              </p>
             </section>
 
             {/* Actions */}
@@ -2096,7 +2193,7 @@ export default function QuizPage() {
                 disabled={
                   hintText !== null ||
                   isPurchasing ||
-                  state === "STEP_RESULT" ||
+                  isSealed ||
                   isSubmitting
                 }
                 className="quiz-action"
@@ -2110,7 +2207,7 @@ export default function QuizPage() {
                 disabled={
                   isTimerFrozen ||
                   isPurchasing ||
-                  state === "STEP_RESULT" ||
+                  isSealed ||
                   isSubmitting
                 }
                 className="quiz-action freeze"
@@ -2169,23 +2266,14 @@ export default function QuizPage() {
                   .slice(0, currentStepIndex)
                   .reverse()
                   .map((s, idx) => {
+                    // Show the rune as the learner sealed it, never the
+                    // correct value, so nothing is revealed mid-quiz.
+                    const userAnswer = sealedAnswers.get(s.step_index) ?? null;
+
                     const filledExpr =
-                      s.blank_expression.replace(
-                        "?",
-                        s.correct_value
-                      );
-
-                    const userAnswer =
-                      stepAnswers[s.step_index]?.user;
-
-                    const correctAnswer =
-                      stepAnswers[s.step_index]?.correct;
-
-                    const isCorrect =
-                      userAnswer !== undefined &&
-                      correctAnswer !== undefined &&
-                      userAnswer.trim().toLowerCase() ===
-                        correctAnswer.trim().toLowerCase();
+                      userAnswer !== null
+                        ? s.blank_expression.replace("?", userAnswer)
+                        : s.blank_expression.replace("?", "\\_\\_\\_");
 
                     return (
                       <div
@@ -2199,7 +2287,7 @@ export default function QuizPage() {
                         <div className="flex flex-col gap-2">
                           <div className="quiz-history-answer">
                             <span className="text-[9px] uppercase">
-                              Question:
+                              {userAnswer !== null ? "Sealed as:" : "Left unsealed:"}
                             </span>
 
                             {renderMath(
@@ -2207,27 +2295,6 @@ export default function QuizPage() {
                               true
                             )}
                           </div>
-
-                          {userAnswer !== undefined && (
-                            <div className="quiz-history-answer">
-                              <span className="text-[9px] uppercase">
-                               Answer:
-                              </span>
-
-                              <span
-                                className={
-                                  isCorrect
-                                    ? "text-green-700"
-                                    : "text-red-700"
-                                }
-                              >
-                                {renderMath(
-                                  userAnswer,
-                                  true
-                                )}
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     );
@@ -2236,123 +2303,6 @@ export default function QuizPage() {
             )}
           </main>
 
-          {/* RESULT OVERLAY */}
-
-          {state === "STEP_RESULT" && (
-            <div className="quiz-result-overlay">
-              <div className={`quiz-result-card${!stepCorrect && streakAtRisk > 0 ? " has-streak-choice" : ""}`}>
-
-                <div
-                  className="quiz-result-rune"
-                  style={{
-                    borderColor: stepCorrect
-                      ? "#ffe288"
-                      : "#ff8e7c",
-                  }}
-                >
-                  {stepCorrect ? (
-                    <CheckCircle2 className="w-14 h-14" />
-                  ) : (
-                    <XCircle className="w-14 h-14" />
-                  )}
-                </div>
-
-                {stepCorrect ? (
-                  <>
-                    <h2 className="quiz-result-title">
-                      Correct!
-                    </h2>
-
-                    <p className="quiz-result-subtitle">
-                      Excellent work. The algebraic pattern
-                      is holding strong.
-                    </p>
-
-                    <div className="quiz-result-value">
-                      +{pointsEarned} pts
-                    </div>
-
-                    {currentStreak >= 2 && (
-                      <div className="mt-4 flex items-center justify-center gap-2">
-                        <Flame className="w-5 h-5 text-orange-400" />
-
-                        <span className="font-black text-[#ffe8a2] text-sm uppercase tracking-wider">
-                          {currentStreak} streak ·{" "}
-                          {streakMultiplier}×
-                        </span>
-                      </div>
-                    )}
-
-                    {currentStreak === 1 && (
-                      <p className="mt-4 text-xs font-black text-[#f7dfad] uppercase tracking-widest">
-                        Streak started — keep going!
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <h2 className="quiz-result-title">
-                      Wrong!
-                    </h2>
-
-                    <p className="quiz-result-subtitle">
-                      The pattern needs another look. Suri
-                      has marked the stable answer below.
-                    </p>
-
-                    <div className="mt-4 text-[10px] font-black text-[#ffe8a2] uppercase tracking-widest">
-                      Stable Pattern
-                    </div>
-
-                    <div className="quiz-correct-answer markdown-content">
-                      {renderMath(
-                        correctValue || "",
-                        true
-                      )}
-                    </div>
-
-                    {!stepCorrect && streakAtRisk > 0 && (
-                      <div className="quiz-streak-actions">
-                        <button
-                          type="button"
-                          disabled={isPurchasing}
-                          onClick={async (event) => {
-                            if (advanceTimerRef.current) {
-                              clearTimeout(
-                                advanceTimerRef.current
-                              );
-                            }
-
-                            const res = await purchaseBoost("save_streak", event.currentTarget);
-                            if (!res) return;
-
-                            setCurrentStreak(streakAtRisk);
-                            const mult = Math.round((1.0 + Math.max(0, streakAtRisk - 1) * 0.1) * 100) / 100;
-                            setStreakMultiplier(mult);
-                            setStreakAtRisk(0);
-                            advanceTimerRef.current = setTimeout(() => advanceToNext(), 1500);
-                          }}
-                          className="quiz-action save"
-                        >
-                          <Flame className="w-4 h-4" />
-                          Save Streak · 1000 pts
-                        </button>
-                        <button
-                          type="button"
-                          disabled={isPurchasing}
-                          onClick={skipSavingStreak}
-                          className="quiz-action skip"
-                        >
-                          <SkipForward className="w-4 h-4" />
-                          Skip saving streak
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          )}
           {pointsNotice && <PointsNotice notice={pointsNotice} onClose={closePointsNotice} />}
         </div>
       </div>
@@ -2371,6 +2321,29 @@ export default function QuizPage() {
         Math.max(1, summaryData.total_steps)) *
         100
     );
+
+    let bestStreak = 0;
+    let streak = 0;
+    for (const rune of runeLog) {
+      streak = rune.outcome === "correct" ? streak + 1 : 0;
+      bestStreak = Math.max(bestStreak, streak);
+    }
+
+    const tally: Record<RuneOutcome, number> = {
+      correct: 0,
+      wrong: 0,
+      skipped: 0,
+      timeout: 0,
+    };
+    for (const rune of runeLog) tally[rune.outcome] += 1;
+
+    const ledger = problems
+      .map((problem, problemIndex) => ({
+        problem,
+        problemIndex,
+        runes: runeLog.filter((r) => r.problemIndex === problemIndex),
+      }))
+      .filter((group) => group.runes.length > 0);
 
     return (
       <div className="quiz-forge">
@@ -2420,6 +2393,16 @@ export default function QuizPage() {
                       {accuracy}%
                     </div>
                   </div>
+
+                  <div className="quiz-summary-stat">
+                    <div className="quiz-summary-stat-label">
+                      Best Streak
+                    </div>
+
+                    <div className="quiz-summary-stat-value">
+                      {bestStreak}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="quiz-feedback">
@@ -2439,6 +2422,134 @@ export default function QuizPage() {
                     </p>
                   </div>
                 </div>
+
+                {ledger.length > 0 && (
+                  <section className="quiz-ledger" aria-labelledby="quiz-ledger-title">
+                    <div className="quiz-ledger-head">
+                      <h2 id="quiz-ledger-title" className="quiz-ledger-title">
+                        Rune Ledger
+                      </h2>
+
+                      <div className="quiz-ledger-tally">
+                        {(Object.keys(tally) as RuneOutcome[])
+                          .filter((outcome) => tally[outcome] > 0)
+                          .map((outcome) => (
+                            <span
+                              key={outcome}
+                              className={`quiz-ledger-verdict outcome-${outcome}`}
+                            >
+                              <OutcomeIcon outcome={outcome} />
+                              {tally[outcome]} {OUTCOME_LABEL[outcome]}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+
+                    {ledger.map(({ problem, problemIndex, runes }) => {
+                      const forged = runes.filter((r) => r.outcome === "correct").length;
+                      const outcome: RuneOutcome =
+                        forged === runes.length ? "correct" : "wrong";
+
+                      return (
+                      <details key={problem.id} className="quiz-ledger-problem">
+                        <summary className="quiz-ledger-summary">
+                          <span className="quiz-ledger-problem-title">
+                            Problem {problemIndex + 1}
+                          </span>
+
+                          <span className={`quiz-ledger-verdict outcome-${outcome}`}>
+                            <OutcomeIcon outcome={outcome} />
+                            {forged}/{runes.length} forged
+                          </span>
+
+                          <ChevronDown className="quiz-ledger-chevron w-5 h-5" aria-hidden="true" />
+                        </summary>
+
+                        {problem.word_problem_text && (
+                          <div className="quiz-ledger-problem-text markdown-content">
+                            {renderMath(problem.word_problem_text)}
+                          </div>
+                        )}
+
+                        <ol className="mt-2">
+                          {runes.map((rune, i) => {
+                            const step = problem.steps.find(
+                              (s) => s.step_index === rune.stepIndex
+                            );
+                            if (!step) return null;
+
+                            return (
+                              <li
+                                key={rune.stepIndex}
+                                className={`quiz-ledger-row outcome-${rune.outcome}`}
+                                style={{ "--i": i } as React.CSSProperties}
+                              >
+                                <span className="quiz-ledger-num" aria-hidden="true">
+                                  {rune.stepIndex + 1}
+                                </span>
+
+                                <div className="quiz-ledger-body">
+                                  <div className="quiz-ledger-instruction markdown-content">
+                                    {renderMath(step.instruction)}
+                                  </div>
+
+                                  <div className="quiz-ledger-expr markdown-content">
+                                    {renderMath(
+                                      step.blank_expression.replace("?", rune.correctValue),
+                                      true
+                                    )}
+                                  </div>
+
+                                  <div className="quiz-ledger-answers">
+                                    {rune.answer !== null && (
+                                      <span
+                                        className={`quiz-ledger-answer yours${
+                                          rune.outcome === "correct" ? " is-correct" : ""
+                                        }`}
+                                      >
+                                        <span className="quiz-ledger-answer-label">
+                                          Your answer
+                                        </span>
+                                        <span className="markdown-content">
+                                          {renderMath(rune.answer, true)}
+                                        </span>
+                                      </span>
+                                    )}
+
+                                    {rune.outcome !== "correct" && (
+                                      <span className="quiz-ledger-answer right">
+                                        <span className="quiz-ledger-answer-label">
+                                          Correct
+                                        </span>
+                                        <span className="markdown-content">
+                                          {renderMath(rune.correctValue, true)}
+                                        </span>
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="quiz-ledger-side">
+                                  <span className={`quiz-ledger-verdict outcome-${rune.outcome}`}>
+                                    <OutcomeIcon outcome={rune.outcome} />
+                                    {OUTCOME_LABEL[rune.outcome]}
+                                  </span>
+
+                                  {rune.points > 0 && (
+                                    <span className="quiz-ledger-points">
+                                      +{rune.points} pts
+                                    </span>
+                                  )}
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ol>
+                      </details>
+                      );
+                    })}
+                  </section>
+                )}
 
                 <div className="quiz-summary-actions">
                   {progression.topic_complete ? (
