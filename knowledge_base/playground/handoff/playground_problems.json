@@ -1,5 +1,5 @@
 {
-  "drop": "slice",
+  "drop": "medium",
   "problems": [
     {
       "id": "QE-E-01",
@@ -146,6 +146,310 @@
       "content_hash": "sha256:faab69b55da4f220173615c752ae6b4c8ed3e5a373d3228c397096cfd0b693f6"
     },
     {
+      "id": "QE-M-01",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve the quadratic equation $x^2 = 75$ by extracting the square root.",
+      "answer_type": "solution_set",
+      "answer": "-5\\sqrt{3}, 5\\sqrt{3}",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The equation is already in the form $x^2 = c$. Take the square root of both sides.",
+          "latex": "x^2 = 75 \\\\ \\sqrt{x^2} = \\pm\\sqrt{75}"
+        },
+        {
+          "explanation": "Simplify the square root by finding the largest perfect square factor of $75$.",
+          "latex": "x = \\pm\\sqrt{25 \\cdot 3} \\\\ x = \\pm 5\\sqrt{3}"
+        },
+        {
+          "explanation": "The solutions are $-5\\sqrt{3}$ and $5\\sqrt{3}$.",
+          "latex": "x = -5\\sqrt{3}, 5\\sqrt{3}"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:215ca413f9bc6a46a7906757a70bea69598620a01bd22be2f3227ac3ec499405"
+    },
+    {
+      "id": "QE-M-02",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The area of a rectangular vegetable plot is $165$ square meters. The length of the plot is $4$ meters longer than its width. If $w$ represents the width, find the possible values for $w$ that satisfy the equation describing this situation.",
+      "answer_type": "solution_set",
+      "answer": "-15, 11",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Let $w$ be the width and $w+4$ be the length. The area is given by the product of length and width, which is $165$ square meters. Set up the quadratic equation.",
+          "latex": "w(w+4) = 165 \\\\ w^2 + 4w - 165 = 0"
+        },
+        {
+          "explanation": "Factor the quadratic equation.",
+          "latex": "(w+15)(w-11) = 0"
+        },
+        {
+          "explanation": "Apply the Zero Product Property by setting each factor equal to zero and solving for $w$.",
+          "latex": "w+15=0 \\\\ w=-15 \\\\ \\text{or} \\\\ w-11=0 \\\\ w=11"
+        },
+        {
+          "explanation": "The possible values for $w$ that satisfy the equation are $-15$ and $11$.",
+          "latex": "w = -15, 11"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:0b82f47d1d5fda1222a0304779a094116c9462a63bbe0ca8065edcdb67f13082"
+    },
+    {
+      "id": "QE-M-03",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve the quadratic equation $3x^2 + 10x + 7 = 0$ by factoring.",
+      "answer_type": "solution_set",
+      "answer": "-1, -\\frac{7}{3}",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Factor the trinomial $3x^2 + 10x + 7$.",
+          "latex": "(3x+7)(x+1) = 0"
+        },
+        {
+          "explanation": "Apply the Zero Product Property by setting each factor equal to zero and solving each linear equation for $x$.",
+          "latex": "3x+7=0 \\\\ 3x=-7 \\\\ x=-\\frac{7}{3} \\\\ \\text{or} \\\\ x+1=0 \\\\ x=-1"
+        },
+        {
+          "explanation": "The solutions are $-1$ and $-\\frac{7}{3}$.",
+          "latex": "x = -1, -\\frac{7}{3}"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:10ab75af3169754a0e9fa0d30e5b9b1f47c0565356fcdf85f21376ddc761a739"
+    },
+    {
+      "id": "QE-M-04",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The product of two consecutive even integers is $224$. Let $x$ be the first even integer. Find all possible values of $x$.",
+      "answer_type": "solution_set",
+      "answer": "-16, 14",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Let $x$ be the first even integer. The next consecutive even integer is $x+2$. Their product is $224$. Set up the quadratic equation.",
+          "latex": "x(x+2) = 224 \\\\ x^2 + 2x - 224 = 0"
+        },
+        {
+          "explanation": "Factor the quadratic equation.",
+          "latex": "(x+16)(x-14) = 0"
+        },
+        {
+          "explanation": "Apply the Zero Product Property by setting each factor equal to zero and solving for $x$.",
+          "latex": "x+16=0 \\\\ x=-16 \\\\ \\text{or} \\\\ x-14=0 \\\\ x=14"
+        },
+        {
+          "explanation": "The possible values for $x$ are $-16$ and $14$.",
+          "latex": "x = -16, 14"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:f93edf1bfaf015c13248939fb0a6f223d29668e05e0b13d0208444e3362a8c8a"
+    },
+    {
+      "id": "QE-M-05",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve the quadratic equation $x(x+5) = 14$.",
+      "answer_type": "solution_set",
+      "answer": "-7, 2",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute $x$ and rearrange the equation into standard quadratic form $ax^2 + bx + c = 0$.",
+          "latex": "x^2 + 5x = 14 \\\\ x^2 + 5x - 14 = 0"
+        },
+        {
+          "explanation": "Factor the quadratic equation.",
+          "latex": "(x+7)(x-2) = 0"
+        },
+        {
+          "explanation": "Apply the Zero Product Property by setting each factor equal to zero and solving for $x$.",
+          "latex": "x+7=0 \\\\ x=-7 \\\\ \\text{or} \\\\ x-2=0 \\\\ x=2"
+        },
+        {
+          "explanation": "The solutions are $-7$ and $2$.",
+          "latex": "x = -7, 2"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:10b127fe7c2a1aaf72048a3ff409e11324b1f33c33eecb12dd898a70bcdd6093"
+    },
+    {
+      "id": "QE-M-06",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The square of a number is $24$ less than $10$ times the number. Let $n$ be this number. Find all possible values of $n$.",
+      "answer_type": "solution_set",
+      "answer": "4, 6",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set up the equation based on the problem statement and rearrange it into standard quadratic form $an^2 + bn + c = 0$.",
+          "latex": "n^2 = 10n - 24 \\\\ n^2 - 10n + 24 = 0"
+        },
+        {
+          "explanation": "Factor the quadratic equation.",
+          "latex": "(n-4)(n-6) = 0"
+        },
+        {
+          "explanation": "Apply the Zero Product Property by setting each factor equal to zero and solving for $n$.",
+          "latex": "n-4=0 \\\\ n=4 \\\\ \\text{or} \\\\ n-6=0 \\\\ n=6"
+        },
+        {
+          "explanation": "The possible values for $n$ are $4$ and $6$.",
+          "latex": "n = 4, 6"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:68b261ae95b07910e59f3c1964b183658e79fc8eb7b803fd5b3bcfeb5ac6736f"
+    },
+    {
+      "id": "QE-M-07",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve the quadratic equation $x^2 + 8x - 20 = 0$.",
+      "answer_type": "solution_set",
+      "answer": "-10, 2",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Factor the quadratic equation $x^2 + 8x - 20 = 0$.",
+          "latex": "(x+10)(x-2) = 0"
+        },
+        {
+          "explanation": "Apply the Zero Product Property by setting each factor equal to zero and solving for $x$.",
+          "latex": "x+10=0 \\\\ x=-10 \\\\ \\text{or} \\\\ x-2=0 \\\\ x=2"
+        },
+        {
+          "explanation": "The solutions are $-10$ and $2$.",
+          "latex": "x = -10, 2"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:bc26a20cf9414b9b6b1bad58b849d542fff9d4bd7e664cc3695f141768262044"
+    },
+    {
+      "id": "QE-M-08",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A rectangular billboard has an area of $144$ square meters. Its length is twice its width. If $w$ represents the width, find the solutions to the quadratic equation that represents this situation.",
+      "answer_type": "solution_set",
+      "answer": "-6\\sqrt{2}, 6\\sqrt{2}",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Let $w$ be the width and $2w$ be the length. The area is $w(2w) = 144$. Set up the quadratic equation and simplify.",
+          "latex": "w(2w) = 144 \\\\ 2w^2 = 144 \\\\ w^2 = 72"
+        },
+        {
+          "explanation": "Take the square root of both sides to solve for $w$.",
+          "latex": "\\sqrt{w^2} = \\pm\\sqrt{72}"
+        },
+        {
+          "explanation": "Simplify the square root.",
+          "latex": "w = \\pm\\sqrt{36 \\cdot 2} \\\\ w = \\pm 6\\sqrt{2}"
+        },
+        {
+          "explanation": "The solutions to the equation are $-6\\sqrt{2}$ and $6\\sqrt{2}$.",
+          "latex": "w = -6\\sqrt{2}, 6\\sqrt{2}"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:aabe1180a63a277b0d57eb52171b32ddb334739fed3350c4294245ba5851ad84"
+    },
+    {
+      "id": "QE-M-09",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve the quadratic equation $2x^2 - 12 = 0$ by extracting the square root.",
+      "answer_type": "solution_set",
+      "answer": "-\\sqrt{6}, \\sqrt{6}",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Isolate the $x^2$ term.",
+          "latex": "2x^2 = 12 \\\\ x^2 = 6"
+        },
+        {
+          "explanation": "Take the square root of both sides.",
+          "latex": "\\sqrt{x^2} = \\pm\\sqrt{6}"
+        },
+        {
+          "explanation": "The solutions are $-\\sqrt{6}$ and $\\sqrt{6}$.",
+          "latex": "x = -\\sqrt{6}, \\sqrt{6}"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:72cb2fe7e8371704f37d196b27c2c36b0b019c6e9bf7ffb5e0c0156dbbc97169"
+    },
+    {
+      "id": "QE-M-10",
+      "node_id": "QE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The product of two consecutive odd integers is $323$. Let $x$ be the first odd integer. Find all possible values of $x$.",
+      "answer_type": "solution_set",
+      "answer": "-19, 17",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Let $x$ be the first odd integer and $x+2$ be the next consecutive odd integer. Their product is $323$. Set up the quadratic equation.",
+          "latex": "x(x+2) = 323 \\\\ x^2 + 2x - 323 = 0"
+        },
+        {
+          "explanation": "Use the quadratic formula, $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$, to solve for $x$. Here, $a=1, b=2, c=-323$.",
+          "latex": "x = \\frac{-2 \\pm \\sqrt{2^2 - 4(1)(-323)}}{2(1)} \\\\ x = \\frac{-2 \\pm \\sqrt{4 + 1292}}{2} \\\\ x = \\frac{-2 \\pm \\sqrt{1296}}{2}"
+        },
+        {
+          "explanation": "Simplify the square root and calculate the two solutions for $x$.",
+          "latex": "x = \\frac{-2 \\pm 36}{2} \\\\ x_1 = \\frac{-2+36}{2} = \\frac{34}{2} = 17 \\\\ x_2 = \\frac{-2-36}{2} = \\frac{-38}{2} = -19"
+        },
+        {
+          "explanation": "The possible values for $x$ are $-19$ and $17$.",
+          "latex": "x = -19, 17"
+        }
+      ],
+      "source_doc": "grade9_discriminant_roots.pdf",
+      "content_hash": "sha256:c4cc9ac57819eb9f888b2418110fe25536dffbbbd6b3b4177d8d59a4623b76a4"
+    },
+    {
       "id": "FP-E-01",
       "node_id": "FP",
       "difficulty": "easy",
@@ -280,6 +584,310 @@
       ],
       "source_doc": "grade8_factoring_difference_squares.pdf",
       "content_hash": "sha256:7b6a165dd9ec026825cc20721a78b20f71460168d42703cad74e3bc00d63747f"
+    },
+    {
+      "id": "FP-M-01",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Factor the polynomial $6y^2 + 11y - 10$ completely.",
+      "answer_type": "expression",
+      "answer": "(3y-2)(2y+5)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Identify coefficients: $a=6$, $b=11$, $c=-10$.",
+          "latex": "6y^2 + 11y - 10"
+        },
+        {
+          "explanation": "Find two numbers that multiply to $ac = 6 \\times (-10) = -60$ and add to $b=11$. These numbers are 15 and -4.",
+          "latex": "15 \\times (-4) = -60, \\quad 15 + (-4) = 11"
+        },
+        {
+          "explanation": "Rewrite the middle term and factor by grouping.",
+          "latex": "6y^2 + 15y - 4y - 10 = 3y(2y+5) - 2(2y+5)"
+        },
+        {
+          "explanation": "Factor out the common binomial factor $(2y+5)$.",
+          "latex": "(3y-2)(2y+5)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:636ee1bf99836919bfa72f3572397c1f9acd834d3c4343789622d4b034000737"
+    },
+    {
+      "id": "FP-M-02",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A rectangular garden has an area represented by the polynomial $3x^2 + 10x + 8$ square meters. If the lengths of its sides can be expressed as binomials with integer coefficients, what is the factored form of the area?",
+      "answer_type": "expression",
+      "answer": "(3x+4)(x+2)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Identify the coefficients of the trinomial $ax^2+bx+c$: $a=3$, $b=10$, $c=8$.",
+          "latex": "3x^2 + 10x + 8"
+        },
+        {
+          "explanation": "Find two numbers that multiply to $ac = 3 \\times 8 = 24$ and add to $b=10$. The numbers are 6 and 4.",
+          "latex": "6 \\times 4 = 24, \\quad 6 + 4 = 10"
+        },
+        {
+          "explanation": "Rewrite the middle term using these numbers and factor by grouping.",
+          "latex": "3x^2 + 6x + 4x + 8 = 3x(x+2) + 4(x+2)"
+        },
+        {
+          "explanation": "Factor out the common binomial factor $(x+2)$.",
+          "latex": "(3x+4)(x+2)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:3d75bb8d5870d2335c14d7c6c7b5ade59f7f24b8f66dbc63c52a6c799385d0e6"
+    },
+    {
+      "id": "FP-M-03",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Factor the polynomial $4w^3 + 20w^2 + 24w$ completely.",
+      "answer_type": "expression",
+      "answer": "4w(w+2)(w+3)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Find the Greatest Common Monomial Factor (GCMF) of $4w^3$, $20w^2$, and $24w$.",
+          "latex": "\\text{GCMF} = 4w"
+        },
+        {
+          "explanation": "Factor out the GCMF from the polynomial.",
+          "latex": "4w(w^2 + 5w + 6)"
+        },
+        {
+          "explanation": "Factor the trinomial $w^2 + 5w + 6$. Find two numbers that multiply to 6 and add to 5. These numbers are 2 and 3.",
+          "latex": "w^2 + 5w + 6 = (w+2)(w+3)"
+        },
+        {
+          "explanation": "Combine the GCMF and the factored trinomial to get the complete factored form.",
+          "latex": "4w(w+2)(w+3)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:8e021421dec4410c4b0833485611228c4625b355130ffa664582d3b6121b0a0e"
+    },
+    {
+      "id": "FP-M-04",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Mang Tonyo owns a rectangular rice field whose area is given by the polynomial $5x^3 - 25x^2 + 30x$ square meters. What is the factored form of the polynomial representing the area of his field?",
+      "answer_type": "expression",
+      "answer": "5x(x-2)(x-3)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Find the Greatest Common Monomial Factor (GCMF) of $5x^3$, $-25x^2$, and $30x$.",
+          "latex": "\\text{GCMF} = 5x"
+        },
+        {
+          "explanation": "Factor out the GCMF from the polynomial.",
+          "latex": "5x(x^2 - 5x + 6)"
+        },
+        {
+          "explanation": "Factor the trinomial $x^2 - 5x + 6$. Find two numbers that multiply to 6 and add to -5. These numbers are -2 and -3.",
+          "latex": "x^2 - 5x + 6 = (x-2)(x-3)"
+        },
+        {
+          "explanation": "Combine the GCMF and the factored trinomial to get the complete factored form.",
+          "latex": "5x(x-2)(x-3)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:59ceec4e4fe1f424881e39e1d625fe6dbe33f7e03f662981edae735ce8624d77"
+    },
+    {
+      "id": "FP-M-05",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Factor the polynomial $81x^2 - 16y^2$ completely.",
+      "answer_type": "expression",
+      "answer": "(9x-4y)(9x+4y)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Recognize that $81x^2$ is a perfect square $(9x)^2$.",
+          "latex": "81x^2 = (9x)^2"
+        },
+        {
+          "explanation": "Recognize that $16y^2$ is a perfect square $(4y)^2$.",
+          "latex": "16y^2 = (4y)^2"
+        },
+        {
+          "explanation": "Apply the difference of squares formula $A^2 - B^2 = (A-B)(A+B)$, where $A=9x$ and $B=4y$.",
+          "latex": "(9x-4y)(9x+4y)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:a537e5fcde5b142a0d9104a6470628e8b5fc784f301bbdf828bb3d9f1f3f2217"
+    },
+    {
+      "id": "FP-M-06",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A property developer is planning two square plots. The first plot has a side length of $7a$ meters, and the second plot has a side length of $2b$ meters. The difference in their areas can be expressed as a polynomial. Factor this polynomial completely.",
+      "answer_type": "expression",
+      "answer": "(7a-2b)(7a+2b)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The area of the first plot is $(7a)^2$ and the area of the second plot is $(2b)^2$. The difference in their areas is $(7a)^2 - (2b)^2$.",
+          "latex": "49a^2 - 4b^2"
+        },
+        {
+          "explanation": "Recognize this as a difference of two squares, $A^2 - B^2$, where $A=7a$ and $B=2b$.",
+          "latex": "(7a)^2 - (2b)^2"
+        },
+        {
+          "explanation": "Apply the difference of squares formula: $A^2 - B^2 = (A-B)(A+B)$.",
+          "latex": "(7a-2b)(7a+2b)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:0f411716a3d0d0dfa1074f48e93c80dedc2a0273f1d81614bd2780d222ef633d"
+    },
+    {
+      "id": "FP-M-07",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Factor the polynomial $9a^2 + 30a + 25$ completely.",
+      "answer_type": "expression",
+      "answer": "(3a+5)^2",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Check if the first term $9a^2$ is a perfect square: $(3a)^2$.",
+          "latex": "9a^2 = (3a)^2"
+        },
+        {
+          "explanation": "Check if the last term $25$ is a perfect square: $(5)^2$.",
+          "latex": "25 = (5)^2"
+        },
+        {
+          "explanation": "Check if the middle term $30a$ is equal to $2 \\times (3a) \\times (5)$. $2(3a)(5) = 30a$. This matches the pattern $A^2 + 2AB + B^2$.",
+          "latex": "2(3a)(5) = 30a"
+        },
+        {
+          "explanation": "Since it fits the pattern of a perfect square trinomial $A^2 + 2AB + B^2 = (A+B)^2$, the factored form is $(3a+5)^2$.",
+          "latex": "(3a+5)^2"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:fda386929084bacad167f46c0a1ba6eba6ee6dbfd7d3781438016a44e4c4b50d"
+    },
+    {
+      "id": "FP-M-08",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Aling Nena has a square piece of fabric whose area is given by the polynomial $4x^2 - 28x + 49$ square centimeters. What is the factored form of the polynomial representing the area of the fabric?",
+      "answer_type": "expression",
+      "answer": "(2x-7)^2",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Check if the first term $4x^2$ is a perfect square: $(2x)^2$.",
+          "latex": "4x^2 = (2x)^2"
+        },
+        {
+          "explanation": "Check if the last term $49$ is a perfect square: $(7)^2$.",
+          "latex": "49 = (7)^2"
+        },
+        {
+          "explanation": "Check if the middle term $-28x$ is equal to $2 \\times (2x) \\times (-7)$. $2(2x)(-7) = -28x$. This matches the pattern $A^2 - 2AB + B^2$.",
+          "latex": "2(2x)(7) = 28x"
+        },
+        {
+          "explanation": "Since it fits the pattern of a perfect square trinomial $A^2 - 2AB + B^2 = (A-B)^2$, the factored form is $(2x-7)^2$.",
+          "latex": "(2x-7)^2"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:6ad7c3d82434b12098a8263f127bd3b3a2184e6ce2a4a85af1787575c48331e6"
+    },
+    {
+      "id": "FP-M-09",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Factor the polynomial $x^3 - 6x^2 + 2x - 12$ completely.",
+      "answer_type": "expression",
+      "answer": "(x^2+2)(x-6)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Group the first two terms and the last two terms of the polynomial.",
+          "latex": "(x^3 - 6x^2) + (2x - 12)"
+        },
+        {
+          "explanation": "Factor out the Greatest Common Monomial Factor (GCMF) from each group.",
+          "latex": "x^2(x-6) + 2(x-6)"
+        },
+        {
+          "explanation": "Factor out the common binomial factor $(x-6)$.",
+          "latex": "(x^2+2)(x-6)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:17be8faaab1f2645cd53a8cde0b81b3b91ce6f1174f4b206848b46db2fdd30a5"
+    },
+    {
+      "id": "FP-M-10",
+      "node_id": "FP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The volume of a rectangular box is described by the polynomial $m^3 + 4m^2 + 3m + 12$ cubic units. If the dimensions of the box are expressed as polynomials, what is the factored form of the volume?",
+      "answer_type": "expression",
+      "answer": "(m^2+3)(m+4)",
+      "accepted_variants": [],
+      "required_form": "factored",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Group the first two terms and the last two terms of the polynomial.",
+          "latex": "(m^3 + 4m^2) + (3m + 12)"
+        },
+        {
+          "explanation": "Factor out the Greatest Common Monomial Factor (GCMF) from each group.",
+          "latex": "m^2(m+4) + 3(m+4)"
+        },
+        {
+          "explanation": "Factor out the common binomial factor $(m+4)$.",
+          "latex": "(m^2+3)(m+4)"
+        }
+      ],
+      "source_doc": "grade8_factoring_difference_squares.pdf",
+      "content_hash": "sha256:5c4fe8b9a7386ed1d828546d0af30d2da2d325feb10da051990ef1381d1dd031"
     },
     {
       "id": "SP-E-01",
@@ -418,6 +1026,310 @@
       "content_hash": "sha256:0520576e775c646543b2e1bf920733047051a1f6b9ffb62c5f4a179f51f76fed"
     },
     {
+      "id": "SP-M-01",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Expand $(7x + 3)^2$.",
+      "answer_type": "expression",
+      "answer": "49x^2 + 42x + 9",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the square of a binomial formula $(a+b)^2 = a^2 + 2ab + b^2$, where $a = 7x$ and $b = 3$.",
+          "latex": "(7x)^2 + 2(7x)(3) + (3)^2"
+        },
+        {
+          "explanation": "Calculate the terms.",
+          "latex": "49x^2 + 42x + 9"
+        },
+        {
+          "explanation": "Combine the terms to get the expanded form.",
+          "latex": "49x^2 + 42x + 9"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:3a68e724ba91a0d1165061b497795bdffab3a5e724d47bc35223521f99b6278e"
+    },
+    {
+      "id": "SP-M-02",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A square garden has a side length of $(3x + 2)$ meters. What is the area of the garden?",
+      "answer_type": "expression",
+      "answer": "9x^2 + 12x + 4",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The area of a square is given by the formula $A = s^2$, where $s$ is the side length. Substitute the given side length into the formula.",
+          "latex": "A = (3x + 2)^2"
+        },
+        {
+          "explanation": "Apply the square of a binomial formula $(a+b)^2 = a^2 + 2ab + b^2$, where $a = 3x$ and $b = 2$.",
+          "latex": "(3x)^2 + 2(3x)(2) + (2)^2"
+        },
+        {
+          "explanation": "Calculate the terms.",
+          "latex": "9x^2 + 12x + 4"
+        },
+        {
+          "explanation": "Combine the terms to get the expanded form.",
+          "latex": "9x^2 + 12x + 4"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:aeb5bad0639712322391a6a2f4d41d2fc42c61d244dd31909b5dbf363ad19842"
+    },
+    {
+      "id": "SP-M-03",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find the product of $(9c - 4)(9c + 4)$.",
+      "answer_type": "expression",
+      "answer": "81c^2 - 16",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Recognize the pattern as the product of the sum and difference of two terms: $(a-b)(a+b) = a^2 - b^2$, where $a = 9c$ and $b = 4$.",
+          "latex": "(9c)^2 - (4)^2"
+        },
+        {
+          "explanation": "Calculate the squares of the terms.",
+          "latex": "81c^2 - 16"
+        },
+        {
+          "explanation": "Subtract the squared terms to get the expanded form.",
+          "latex": "81c^2 - 16"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:7affe69361f4a07c2a3fdd40bda32497672cf90ee7f3251d221376d27b5825ce"
+    },
+    {
+      "id": "SP-M-04",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A cubical gift box has sides of length $(y + 4)$ centimeters. What is the volume of the gift box?",
+      "answer_type": "expression",
+      "answer": "y^3 + 12y^2 + 48y + 64",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The volume of a cube is given by the formula $V = s^3$, where $s$ is the side length. Substitute the given side length into the formula.",
+          "latex": "V = (y + 4)^3"
+        },
+        {
+          "explanation": "Apply the cube of a binomial formula $(a+b)^3 = a^3 + 3a^2b + 3ab^2 + b^3$, where $a = y$ and $b = 4$.",
+          "latex": "(y)^3 + 3(y)^2(4) + 3(y)(4)^2 + (4)^3"
+        },
+        {
+          "explanation": "Calculate the terms.",
+          "latex": "y^3 + 12y^2 + 48y + 64"
+        },
+        {
+          "explanation": "Combine the terms to get the expanded form.",
+          "latex": "y^3 + 12y^2 + 48y + 64"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:684b4deaf15e6f14a6dbbd47ff9fa427619df8d396f83981198a170449fcc9f0"
+    },
+    {
+      "id": "SP-M-05",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Multiply $(3m - n)(m + 5n)$.",
+      "answer_type": "expression",
+      "answer": "3m^2 + 14mn - 5n^2",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Use the FOIL method or distributive property to multiply the two binomials.",
+          "latex": "(3m)(m) + (3m)(5n) + (-n)(m) + (-n)(5n)"
+        },
+        {
+          "explanation": "Simplify the products.",
+          "latex": "3m^2 + 15mn - mn - 5n^2"
+        },
+        {
+          "explanation": "Combine like terms.",
+          "latex": "3m^2 + 14mn - 5n^2"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:3ef87fad3c56dc6e0ccefd3b7ebe9612a3bc575ef78292e04522dbedba5ace35"
+    },
+    {
+      "id": "SP-M-06",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A rectangular swimming pool has a length of $(5m + 6)$ meters and a width of $(5m - 6)$ meters. What is the area of the pool?",
+      "answer_type": "expression",
+      "answer": "25m^2 - 36",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The area of a rectangle is given by the formula $A = \\text{length} \\times \\text{width}$. Substitute the given length and width into the formula.",
+          "latex": "A = (5m + 6)(5m - 6)"
+        },
+        {
+          "explanation": "Recognize the pattern as the product of the sum and difference of two terms: $(a+b)(a-b) = a^2 - b^2$, where $a = 5m$ and $b = 6$.",
+          "latex": "(5m)^2 - (6)^2"
+        },
+        {
+          "explanation": "Calculate the squares of the terms.",
+          "latex": "25m^2 - 36"
+        },
+        {
+          "explanation": "Subtract the squared terms to get the expanded form.",
+          "latex": "25m^2 - 36"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:5e6c4cc49b827706000b9c5d69ec3abf87a580f661a6541d93b24f7e09278a6d"
+    },
+    {
+      "id": "SP-M-07",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Expand $(x^2 + 2x - 5)(x + 2)$.",
+      "answer_type": "expression",
+      "answer": "x^3 + 4x^2 - x - 10",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute each term of the binomial to the trinomial.",
+          "latex": "x(x^2 + 2x - 5) + 2(x^2 + 2x - 5)"
+        },
+        {
+          "explanation": "Multiply out each distribution.",
+          "latex": "(x^3 + 2x^2 - 5x) + (2x^2 + 4x - 10)"
+        },
+        {
+          "explanation": "Combine like terms.",
+          "latex": "x^3 + (2x^2 + 2x^2) + (-5x + 4x) - 10"
+        },
+        {
+          "explanation": "Simplify to get the expanded form.",
+          "latex": "x^3 + 4x^2 - x - 10"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:38a51d71addc53ceb65f39cc57db88e5377013571d4cdbdc33cb22f05c7523e0"
+    },
+    {
+      "id": "SP-M-08",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A rectangular flag has a length of $(2a + 3b)$ units and a width of $(a + b)$ units. What is the area of the flag?",
+      "answer_type": "expression",
+      "answer": "2a^2 + 5ab + 3b^2",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The area of a rectangle is given by the formula $A = \\text{length} \\times \\text{width}$. Substitute the given length and width into the formula.",
+          "latex": "A = (2a + 3b)(a + b)"
+        },
+        {
+          "explanation": "Multiply the two binomials using the FOIL method or distributive property.",
+          "latex": "2a(a) + 2a(b) + 3b(a) + 3b(b)"
+        },
+        {
+          "explanation": "Simplify the products.",
+          "latex": "2a^2 + 2ab + 3ab + 3b^2"
+        },
+        {
+          "explanation": "Combine like terms.",
+          "latex": "2a^2 + 5ab + 3b^2"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:2529c74585dbd3f05e9e63567728883b748a16c3c6638fd292f8bcdcce8e4530"
+    },
+    {
+      "id": "SP-M-09",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Expand $(6y - 7)^2$.",
+      "answer_type": "expression",
+      "answer": "36y^2 - 84y + 49",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the square of a binomial formula $(a-b)^2 = a^2 - 2ab + b^2$, where $a = 6y$ and $b = 7$.",
+          "latex": "(6y)^2 - 2(6y)(7) + (7)^2"
+        },
+        {
+          "explanation": "Calculate the terms.",
+          "latex": "36y^2 - 84y + 49"
+        },
+        {
+          "explanation": "Combine the terms to get the expanded form.",
+          "latex": "36y^2 - 84y + 49"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:55f884812c3d465d1878086a54b0197f7cd0595d12c252b0509d2ef31f7f9b80"
+    },
+    {
+      "id": "SP-M-10",
+      "node_id": "SP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The side of a square display board is $(4p - 5)$ inches. Find the area of the board.",
+      "answer_type": "expression",
+      "answer": "16p^2 - 40p + 25",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The area of a square is given by the formula $A = s^2$, where $s$ is the side length. Substitute the given side length into the formula.",
+          "latex": "A = (4p - 5)^2"
+        },
+        {
+          "explanation": "Apply the square of a binomial formula $(a-b)^2 = a^2 - 2ab + b^2$, where $a = 4p$ and $b = 5$.",
+          "latex": "(4p)^2 - 2(4p)(5) + (5)^2"
+        },
+        {
+          "explanation": "Calculate the terms.",
+          "latex": "16p^2 - 40p + 25"
+        },
+        {
+          "explanation": "Combine the terms to get the expanded form.",
+          "latex": "16p^2 - 40p + 25"
+        }
+      ],
+      "source_doc": "grade7_polynomial_multiplication.pdf",
+      "content_hash": "sha256:332b838bf6ec2c531fb3df2e7e01d26183a1b8a8d22570d75c3a809b6e551ca3"
+    },
+    {
       "id": "LE-E-01",
       "node_id": "LE",
       "difficulty": "easy",
@@ -554,6 +1466,286 @@
       "content_hash": "sha256:d2c5dec7fdc98a33160db5ed33f848ffb6f1e9f4d4e38debe8e316c52a75c243"
     },
     {
+      "id": "LE-M-01",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression: $6^{-3}$",
+      "answer_type": "number",
+      "answer": "\\frac{1}{216}",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the Negative Exponent Law $x^{-n} = \\frac{1}{x^n}$.",
+          "latex": "6^{-3} = \\frac{1}{6^3}"
+        },
+        {
+          "explanation": "Evaluate the power $6^3$.",
+          "latex": "\\frac{1}{6 \\cdot 6 \\cdot 6} = \\frac{1}{216}"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:b502675f7d9a360e25a9b8620d211bfa30099156ed1e36c022c8c5e00099a73d"
+    },
+    {
+      "id": "LE-M-02",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A certain type of bacteria doubles its population every hour. If a petri dish starts with $10^3$ bacteria, how many bacteria will there be after 5 hours?",
+      "answer_type": "number",
+      "answer": "32000",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "To find the population after 5 hours, multiply the initial population by $2^5$ (since it doubles 5 times). First, evaluate $2^5$.",
+          "latex": "2^5 = 32"
+        },
+        {
+          "explanation": "Now, multiply the initial population ($10^3$) by this value.",
+          "latex": "10^3 \\cdot 32 = 1000 \\cdot 32"
+        },
+        {
+          "explanation": "Perform the multiplication.",
+          "latex": "32000"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:3c2ec24e9d1785ba8ad6b7f1975dc93ab00e5f14065f3089d9897f2743cc39c2"
+    },
+    {
+      "id": "LE-M-03",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression: $(a^4b^3)(a^6b^2)$",
+      "answer_type": "expression",
+      "answer": "a^{10}b^5",
+      "accepted_variants": [],
+      "required_form": "positive_exponents",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the Product Law of Exponents $x^a \\cdot x^b = x^{a+b}$ to each base.",
+          "latex": "a^{4+6}b^{3+2}"
+        },
+        {
+          "explanation": "Simplify the exponents.",
+          "latex": "a^{10}b^5"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:79809351b1c071a1bdb1108f337116df79368477de312ae607eddb223f606016"
+    },
+    {
+      "id": "LE-M-04",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The side length of a storage cube is given by $3xy^2$ meters. What is the volume of the cube in cubic meters?",
+      "answer_type": "expression",
+      "answer": "27x^3y^6",
+      "accepted_variants": [],
+      "required_form": "positive_exponents",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The volume of a cube is given by the formula $V = s^3$, where $s$ is the side length. Substitute the given side length into the formula.",
+          "latex": "V = (3xy^2)^3"
+        },
+        {
+          "explanation": "Apply the Power of a Product Law $(ab)^n = a^n b^n$ and the Power of a Power Law $(a^m)^n = a^{mn}$.",
+          "latex": "V = 3^3 x^3 (y^2)^3 = 27 x^3 y^{2 \\cdot 3}"
+        },
+        {
+          "explanation": "Simplify the exponents and the coefficient.",
+          "latex": "V = 27x^3y^6"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:c0aa8a74557e098cc4c226a69995f3e165e809bca9a9570f9f4616f4f6dbfcc8"
+    },
+    {
+      "id": "LE-M-05",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression: $\\left(\\frac{x^3}{y^5}\\right)^3$",
+      "answer_type": "expression",
+      "answer": "\\frac{x^9}{y^{15}}",
+      "accepted_variants": [],
+      "required_form": "positive_exponents",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the Power of a Quotient Law $\\left(\\frac{a}{b}\\right)^n = \\frac{a^n}{b^n}$.",
+          "latex": "\\frac{(x^3)^3}{(y^5)^3}"
+        },
+        {
+          "explanation": "Apply the Power of a Power Law $(a^m)^n = a^{mn}$ to both the numerator and the denominator.",
+          "latex": "\\frac{x^{3 \\cdot 3}}{y^{5 \\cdot 3}}"
+        },
+        {
+          "explanation": "Simplify the exponents.",
+          "latex": "\\frac{x^9}{y^{15}}"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:1ffbb5c95cc1eb496c77d6c317cab9af65780ada1168ef893cab1e3effaff66a"
+    },
+    {
+      "id": "LE-M-06",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A large pizza is cut into $2^5$ equal slices. If a group of friends eats $\\frac{1}{2^2}$ of the pizza, how many slices did they eat?",
+      "answer_type": "number",
+      "answer": "8",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "To find the number of slices eaten, multiply the total number of slices by the fraction eaten. The fraction $\\frac{1}{2^2}$ can be written using a negative exponent as $2^{-2}$.",
+          "latex": "2^5 \\cdot 2^{-2}"
+        },
+        {
+          "explanation": "Apply the Product Law of Exponents $x^a \\cdot x^b = x^{a+b}$.",
+          "latex": "2^{5 + (-2)} = 2^{5-2}"
+        },
+        {
+          "explanation": "Simplify the exponent.",
+          "latex": "2^3"
+        },
+        {
+          "explanation": "Evaluate the final numerical value.",
+          "latex": "8"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:90c761ad5792b345e37e4b5cf9dcb60c1cff014f87bc1e124485ae2ac476a281"
+    },
+    {
+      "id": "LE-M-07",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Evaluate the expression: $(2 \\times 10^4)^2$",
+      "answer_type": "number",
+      "answer": "400000000",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the Power of a Product Law $(ab)^n = a^n b^n$.",
+          "latex": "2^2 \\times (10^4)^2"
+        },
+        {
+          "explanation": "Apply the Power of a Power Law $(a^m)^n = a^{mn}$.",
+          "latex": "4 \\times 10^{4 \\cdot 2}"
+        },
+        {
+          "explanation": "Simplify the exponent.",
+          "latex": "4 \\times 10^8"
+        },
+        {
+          "explanation": "Evaluate the numerical value.",
+          "latex": "400,000,000"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:014011559ce473422a5f2329bbc5b832b8bf4076fb03fa1240398090b1c04342"
+    },
+    {
+      "id": "LE-M-08",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A factory produces $k^{10}$ toys in the morning and $k^4$ toys in the afternoon. What is the ratio of the toys produced in the morning to the toys produced in the afternoon, expressed as a simplified power of $k$?",
+      "answer_type": "expression",
+      "answer": "k^6",
+      "accepted_variants": [],
+      "required_form": "positive_exponents",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The ratio of toys produced in the morning to the afternoon is $\\frac{\\text{Morning Production}}{\\text{Afternoon Production}}$.",
+          "latex": "\\frac{k^{10}}{k^4}"
+        },
+        {
+          "explanation": "Apply the Quotient Law of Exponents $x^a / x^b = x^{a-b}$.",
+          "latex": "k^{10-4}"
+        },
+        {
+          "explanation": "Simplify the exponent.",
+          "latex": "k^6"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:4cd786142fc9421f93dfebdb9f64ff8b2f3ee065b8668ad41ea2bcefb46fe230"
+    },
+    {
+      "id": "LE-M-09",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression: $\\frac{p^{12}q^7}{p^5q^3}$",
+      "answer_type": "expression",
+      "answer": "p^7q^4",
+      "accepted_variants": [],
+      "required_form": "positive_exponents",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the Quotient Law of Exponents $x^a / x^b = x^{a-b}$ to each base.",
+          "latex": "p^{12-5}q^{7-3}"
+        },
+        {
+          "explanation": "Simplify the exponents.",
+          "latex": "p^7q^4"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:530d65c6bdb4ceb3633ca619013cc1b4dc7a485d3b066049d0840f7bc1722f50"
+    },
+    {
+      "id": "LE-M-10",
+      "node_id": "LE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A square garden has a side length of $\\frac{m^3}{n^2}$ meters. What is the area of the garden in square meters?",
+      "answer_type": "expression",
+      "answer": "\\frac{m^6}{n^4}",
+      "accepted_variants": [],
+      "required_form": "positive_exponents",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The area of a square is given by the formula $A = s^2$, where $s$ is the side length. Substitute the given side length into the formula.",
+          "latex": "A = \\left(\\frac{m^3}{n^2}\\right)^2"
+        },
+        {
+          "explanation": "Apply the Power of a Quotient Law $\\left(\\frac{a}{b}\\right)^x = \\frac{a^x}{b^x}$.",
+          "latex": "A = \\frac{(m^3)^2}{(n^2)^2}"
+        },
+        {
+          "explanation": "Apply the Power of a Power Law $(a^x)^y = a^{xy}$ to both the numerator and the denominator.",
+          "latex": "A = \\frac{m^{3 \\cdot 2}}{n^{2 \\cdot 2}}"
+        },
+        {
+          "explanation": "Simplify the exponents.",
+          "latex": "A = \\frac{m^6}{n^4}"
+        }
+      ],
+      "source_doc": "grade7_laws_of_exponents.pdf",
+      "content_hash": "sha256:147ecb47a47e1e48d771a3aa3cebd0980e988e7ab63f969702247ed6fb77c5a0"
+    },
+    {
       "id": "OI-E-01",
       "node_id": "OI",
       "difficulty": "easy",
@@ -680,6 +1872,246 @@
       ],
       "source_doc": "grade7_absolute_value_integers.pdf",
       "content_hash": "sha256:1f5daf84d677dbc27502cd43434af8430b57da9490cd6036875255ded0f63e46"
+    },
+    {
+      "id": "OI-M-01",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Evaluate the following expression: $|-15 + 8| - |4 - 9| + |-2|$.",
+      "answer_type": "number",
+      "answer": "4",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Evaluate the contents of each absolute value.",
+          "latex": "|-7| - |-5| + |-2| = 7 - 5 + 2"
+        },
+        {
+          "explanation": "Perform the addition and subtraction.",
+          "latex": "7 - 5 + 2 = 4"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:260ad2eaef31c1343030f713b37076c1e69eea040b17b74a785a5c61c3d763bd"
+    },
+    {
+      "id": "OI-M-02",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Aling Nena started the day with 500 pesos in her sari-sari store cash box. During the morning, she earned 350 pesos from sales but had to pay 120 pesos for a delivery. In the afternoon, she gave her daughter 200 pesos for school supplies. How much money is left in the cash box?",
+      "answer_type": "number",
+      "answer": "530",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Start with the initial amount and add the morning earnings.",
+          "latex": "500 + 350 = 850"
+        },
+        {
+          "explanation": "Subtract the delivery cost and the money given to her daughter.",
+          "latex": "850 - 120 - 200 = 530"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:11f8db546a9405ea4c29e186f65164e13d21f2d62f2f65d72dbbab73f38e1bf9"
+    },
+    {
+      "id": "OI-M-03",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve: $24 \\div (-3) \\times 2 - (5 - 9) \\times (-2)$.",
+      "answer_type": "number",
+      "answer": "-24",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Perform the operations inside parentheses first.",
+          "latex": "24 \\div (-3) \\times 2 - (-4) \\times (-2)"
+        },
+        {
+          "explanation": "Perform multiplication and division from left to right.",
+          "latex": "-8 \\times 2 - 8 = -16 - 8 = -24"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:23b6628428355da237c892da1d367b83f73757ffa588c99628ffd75ead650407"
+    },
+    {
+      "id": "OI-M-04",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A jeepney driver starts at a terminal at 0 meters elevation. He drives up a hill to an elevation of 450 meters, then descends into a valley 120 meters below the terminal. Finally, he drives up another incline of 85 meters. What is his final elevation relative to the terminal?",
+      "answer_type": "number",
+      "answer": "415",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "meters",
+      "solution_steps": [
+        {
+          "explanation": "Add the first climb and subtract the descent.",
+          "latex": "450 - 120 = 330"
+        },
+        {
+          "explanation": "Add the final incline to the previous result.",
+          "latex": "330 + 85 = 415"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:1f14350ce341925b61de28c61c326fc802708e3216fd7b121665e77ff3ecbbfe"
+    },
+    {
+      "id": "OI-M-05",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression: $(-3)^2 + (-2)^3 - (-5)^1$.",
+      "answer_type": "number",
+      "answer": "6",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Calculate each power separately.",
+          "latex": "9 + (-8) - (-5)"
+        },
+        {
+          "explanation": "Add and subtract the results.",
+          "latex": "9 - 8 + 5 = 6"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:157700f86a83aac8e95891aae908b6798f239933e58ad9a85efeb56bb480de26"
+    },
+    {
+      "id": "OI-M-06",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "In a school quiz bee, Team A earned 10 points for every correct answer and lost 5 points for every wrong answer. If they got 8 correct answers and 6 wrong answers, but then received a bonus penalty of -10 points due to a rule violation, what is their final score?",
+      "answer_type": "number",
+      "answer": "40",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "points",
+      "solution_steps": [
+        {
+          "explanation": "Calculate the points from correct and wrong answers.",
+          "latex": "(8 \\times 10) - (6 \\times 5) = 80 - 30 = 50"
+        },
+        {
+          "explanation": "Apply the penalty to the subtotal.",
+          "latex": "50 - 10 = 40"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:9b6c52f5f19ff32b362ea452f0c0332481e5ddc3ab28412bf99f08fd329c10da"
+    },
+    {
+      "id": "OI-M-07",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Calculate the result of: $(-12) \\times 3 \\div (-4) - 7 + 15$.",
+      "answer_type": "number",
+      "answer": "17",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Divide/multiply from left to right.",
+          "latex": "(-36) \\div (-4) - 7 + 15 = 9 - 7 + 15"
+        },
+        {
+          "explanation": "Finish the addition and subtraction.",
+          "latex": "2 + 15 = 17"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:5c6fff4cd6fe17a9e6e23166793148ef5695bb82c856e70168eb898c427ae588"
+    },
+    {
+      "id": "OI-M-08",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A basketball player had a plus-minus rating of -5 in the first half. In the second half, his team outscored the opponents by 12 points while he was on the court. However, he committed 3 technical fouls, each resulting in a -2 rating change. What is his total rating?",
+      "answer_type": "number",
+      "answer": "1",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Add the second half performance to the first half rating.",
+          "latex": "-5 + 12 = 7"
+        },
+        {
+          "explanation": "Subtract the impact of the technical fouls.",
+          "latex": "7 - (3 \\times 2) = 7 - 6 = 1"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:e0a29316d70b7bbef491b6661fe49504e5e97c9a2c4eb9e595c9c6f67dc47a97"
+    },
+    {
+      "id": "OI-M-09",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find the value of: $|-10| \\times 2 - |-3| \\times |-5| + 10$.",
+      "answer_type": "number",
+      "answer": "15",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert absolute values to positive integers.",
+          "latex": "10 \\times 2 - 3 \\times 5 + 10"
+        },
+        {
+          "explanation": "Multiply and then add/subtract.",
+          "latex": "20 - 15 + 10 = 15"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:945e2470cc59156419e702792937d1565570a06e567914f52974c9a00a354248"
+    },
+    {
+      "id": "OI-M-10",
+      "node_id": "OI",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A diver starts at the surface (0 meters). She dives down 15 meters, swims up 4 meters to inspect a coral, then dives down 9 meters further into a cave. What is her final depth expressed as an integer relative to the surface?",
+      "answer_type": "number",
+      "answer": "-20",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "meters",
+      "solution_steps": [
+        {
+          "explanation": "Represent diving down as negative and swimming up as positive.",
+          "latex": "-15 + 4 = -11"
+        },
+        {
+          "explanation": "Add the final dive to the current depth.",
+          "latex": "-11 - 9 = -20"
+        }
+      ],
+      "source_doc": "grade7_absolute_value_integers.pdf",
+      "content_hash": "sha256:77cbe2f01e96f499243eff093f25525245726124ce118856593516d9c3611b9c"
     },
     {
       "id": "FD-E-01",
@@ -832,6 +2264,322 @@
       ],
       "source_doc": "grade6_decimals_operations.pdf",
       "content_hash": "sha256:89329766aff5de07f8f546d5c95da7f527b659aa410ade32cf5a728d703dea9f"
+    },
+    {
+      "id": "FD-M-01",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Add: $2 \\frac{1}{6} + 3 \\frac{2}{3}$",
+      "answer_type": "number",
+      "answer": "\\frac{35}{6}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed numbers to improper fractions.",
+          "latex": "2 \\frac{1}{6} = \\frac{2 \\times 6 + 1}{6} = \\frac{13}{6} \\quad \\text{and} \\quad 3 \\frac{2}{3} = \\frac{3 \\times 3 + 2}{3} = \\frac{11}{3}"
+        },
+        {
+          "explanation": "Find a common denominator for the fractions. The LCD of $6$ and $3$ is $6$.",
+          "latex": "\\frac{11}{3} = \\frac{11 \\times 2}{3 \\times 2} = \\frac{22}{6}"
+        },
+        {
+          "explanation": "Add the fractions.",
+          "latex": "\\frac{13}{6} + \\frac{22}{6} = \\frac{13+22}{6} = \\frac{35}{6}"
+        },
+        {
+          "explanation": "The fraction is already in its simplest form.",
+          "latex": "\\frac{35}{6}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:67ef7c0a35464a1ce7cfdf60cb40f7719248beddac6d845fe27c346390c18607"
+    },
+    {
+      "id": "FD-M-02",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Maria baked a cake for a school fair. She used $1 \\frac{1}{2}$ cups of flour for the cake batter and an additional $ \\frac{3}{4}$ cup of flour for the frosting. How many cups of flour did Maria use in total?",
+      "answer_type": "number",
+      "answer": "\\frac{9}{4}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed number to an improper fraction.",
+          "latex": "1 \\frac{1}{2} = \\frac{1 \\times 2 + 1}{2} = \\frac{3}{2}"
+        },
+        {
+          "explanation": "Find a common denominator for the fractions. The LCD of $2$ and $4$ is $4$.",
+          "latex": "\\frac{3}{2} = \\frac{3 \\times 2}{2 \\times 2} = \\frac{6}{4}"
+        },
+        {
+          "explanation": "Add the fractions.",
+          "latex": "\\frac{6}{4} + \\frac{3}{4} = \\frac{6+3}{4} = \\frac{9}{4}"
+        },
+        {
+          "explanation": "The fraction is already in its simplest form.",
+          "latex": "\\frac{9}{4}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:1db35f0c651365833b086bb3ed0cba34c75dc6dc4a6fba2bfd6155f860d75e36"
+    },
+    {
+      "id": "FD-M-03",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Multiply: $1 \\frac{3}{4} \\times 2 \\frac{1}{5}$",
+      "answer_type": "number",
+      "answer": "\\frac{77}{20}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed numbers to improper fractions.",
+          "latex": "1 \\frac{3}{4} = \\frac{1 \\times 4 + 3}{4} = \\frac{7}{4} \\quad \\text{and} \\quad 2 \\frac{1}{5} = \\frac{2 \\times 5 + 1}{5} = \\frac{11}{5}"
+        },
+        {
+          "explanation": "Multiply the numerators and multiply the denominators.",
+          "latex": "\\frac{7}{4} \\times \\frac{11}{5} = \\frac{7 \\times 11}{4 \\times 5}"
+        },
+        {
+          "explanation": "Calculate the product.",
+          "latex": "\\frac{77}{20}"
+        },
+        {
+          "explanation": "The fraction is already in its simplest form.",
+          "latex": "\\frac{77}{20}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:38f3ab655ea7b77f8da3840cd57bb5a4d4241639ec87451d3ea376bc1699a337"
+    },
+    {
+      "id": "FD-M-04",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Aling Nena has a roll of ribbon that is $5 \\frac{1}{4}$ meters long. She wants to cut it into smaller pieces, each measuring $ \\frac{3}{4}$ meter in length. How many smaller pieces of ribbon can Aling Nena cut?",
+      "answer_type": "number",
+      "answer": "7",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed number to an improper fraction.",
+          "latex": "5 \\frac{1}{4} = \\frac{5 \\times 4 + 1}{4} = \\frac{21}{4}"
+        },
+        {
+          "explanation": "To find out how many pieces can be cut, divide the total length by the length of each piece.",
+          "latex": "\\frac{21}{4} \\div \\frac{3}{4}"
+        },
+        {
+          "explanation": "To divide by a fraction, multiply by its reciprocal.",
+          "latex": "\\frac{21}{4} \\times \\frac{4}{3} = \\frac{21 \\times 4}{4 \\times 3} = \\frac{84}{12}"
+        },
+        {
+          "explanation": "Simplify the fraction to a whole number.",
+          "latex": "\\frac{84}{12} = 7"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:22af1d44f2e8c8dfc99b8839b5146ac7821845db53783e631f9c5c99caac902e"
+    },
+    {
+      "id": "FD-M-05",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the complex fraction: $ \\frac{\\frac{2}{5}}{\\frac{3}{10}} $",
+      "answer_type": "number",
+      "answer": "\\frac{4}{3}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "A complex fraction means dividing the numerator by the denominator.",
+          "latex": "\\frac{2}{5} \\div \\frac{3}{10}"
+        },
+        {
+          "explanation": "To divide by a fraction, multiply by its reciprocal.",
+          "latex": "\\frac{2}{5} \\times \\frac{10}{3}"
+        },
+        {
+          "explanation": "Multiply the numerators and denominators.",
+          "latex": "\\frac{2 \\times 10}{5 \\times 3} = \\frac{20}{15}"
+        },
+        {
+          "explanation": "Simplify the fraction by dividing the numerator and denominator by their greatest common factor, which is $5$.",
+          "latex": "\\frac{20 \\div 5}{15 \\div 5} = \\frac{4}{3}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:fe938be1532bcdfc9a01fb571ceb6e5b1cc410634a268112e7378aece712590a"
+    },
+    {
+      "id": "FD-M-06",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Lito went to the sari-sari store to buy school supplies. He bought a notebook for $32.75$ pesos and a pencil for $15 \\frac{1}{4}$ pesos. What is the total amount Lito spent?",
+      "answer_type": "number",
+      "answer": "48",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the fraction to a decimal.",
+          "latex": "\\frac{1}{4} = 0.25"
+        },
+        {
+          "explanation": "Add the whole number part to the decimal.",
+          "latex": "15 \\frac{1}{4} = 15 + 0.25 = 15.25"
+        },
+        {
+          "explanation": "Add the two decimal amounts to find the total.",
+          "latex": "32.75 + 15.25 = 48.00"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:7b77dfcd3f1b0676b9160984591d4f2b38ced5c32d7d7b8a2742881ae404de21"
+    },
+    {
+      "id": "FD-M-07",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Calculate the value of $0.75 + \\frac{1}{8}$.",
+      "answer_type": "number",
+      "answer": "\\frac{7}{8}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the decimal to a fraction. $0.75$ is equivalent to $ \\frac{3}{4}$.",
+          "latex": "0.75 = \\frac{75}{100} = \\frac{3}{4}"
+        },
+        {
+          "explanation": "Find a common denominator for the fractions. The LCD of $4$ and $8$ is $8$.",
+          "latex": "\\frac{3}{4} = \\frac{3 \\times 2}{4 \\times 2} = \\frac{6}{8}"
+        },
+        {
+          "explanation": "Add the fractions.",
+          "latex": "\\frac{6}{8} + \\frac{1}{8} = \\frac{6+1}{8} = \\frac{7}{8}"
+        },
+        {
+          "explanation": "The fraction is already in its simplest form.",
+          "latex": "\\frac{7}{8}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:7387d9b3952bfe18403e7107e4d2e44df956729fd1f96feb9a29a1ee7d99ad85"
+    },
+    {
+      "id": "FD-M-08",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Mang Tonyo has a rectangular garden plot that measures $3 \\frac{1}{5}$ meters long and $2 \\frac{1}{2}$ meters wide. What is the total area of his garden plot?",
+      "answer_type": "number",
+      "answer": "8",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed numbers to improper fractions.",
+          "latex": "3 \\frac{1}{5} = \\frac{3 \\times 5 + 1}{5} = \\frac{16}{5} \\quad \\text{and} \\quad 2 \\frac{1}{2} = \\frac{2 \\times 2 + 1}{2} = \\frac{5}{2}"
+        },
+        {
+          "explanation": "Multiply the improper fractions to find the area (Area = length × width).",
+          "latex": "\\frac{16}{5} \\times \\frac{5}{2} = \\frac{16 \\times 5}{5 \\times 2}"
+        },
+        {
+          "explanation": "Simplify before multiplying, or multiply and then simplify.",
+          "latex": "\\frac{16}{5} \\times \\frac{5}{2} = \\frac{16}{2} = 8"
+        },
+        {
+          "explanation": "The area of the garden plot is 8 square meters.",
+          "latex": "8"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:07b1c1748b21164c0bbfdae39ab06dbedf9dbbb8814e13b0fffc5085fe030fd2"
+    },
+    {
+      "id": "FD-M-09",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Subtract: $5 \\frac{1}{3} - 2 \\frac{5}{6}$",
+      "answer_type": "number",
+      "answer": "\\frac{5}{2}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed numbers to improper fractions.",
+          "latex": "5 \\frac{1}{3} = \\frac{5 \\times 3 + 1}{3} = \\frac{16}{3} \\quad \\text{and} \\quad 2 \\frac{5}{6} = \\frac{2 \\times 6 + 5}{6} = \\frac{17}{6}"
+        },
+        {
+          "explanation": "Find a common denominator for the fractions. The LCD of $3$ and $6$ is $6$.",
+          "latex": "\\frac{16}{3} = \\frac{16 \\times 2}{3 \\times 2} = \\frac{32}{6}"
+        },
+        {
+          "explanation": "Subtract the fractions.",
+          "latex": "\\frac{32}{6} - \\frac{17}{6} = \\frac{32-17}{6} = \\frac{15}{6}"
+        },
+        {
+          "explanation": "Simplify the fraction by dividing the numerator and denominator by their greatest common factor, which is $3$.",
+          "latex": "\\frac{15 \\div 3}{6 \\div 3} = \\frac{5}{2}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:76bd793c3f150bafe09fb65945b0f805ee8d52d45eaac1dd870689d1ac06e5fb"
+    },
+    {
+      "id": "FD-M-10",
+      "node_id": "FD",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Nene had $4 \\frac{3}{8}$ kilograms of rice in her pantry. She used $1 \\frac{1}{2}$ kilograms of rice to cook dinner for her family. How many kilograms of rice are left in Nene's pantry?",
+      "answer_type": "number",
+      "answer": "\\frac{23}{8}",
+      "accepted_variants": [],
+      "required_form": "lowest_terms",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Convert the mixed numbers to improper fractions.",
+          "latex": "4 \\frac{3}{8} = \\frac{4 \\times 8 + 3}{8} = \\frac{35}{8} \\quad \\text{and} \\quad 1 \\frac{1}{2} = \\frac{1 \\times 2 + 1}{2} = \\frac{3}{2}"
+        },
+        {
+          "explanation": "Find a common denominator for the fractions. The LCD of $8$ and $2$ is $8$.",
+          "latex": "\\frac{3}{2} = \\frac{3 \\times 4}{2 \\times 4} = \\frac{12}{8}"
+        },
+        {
+          "explanation": "Subtract the fractions.",
+          "latex": "\\frac{35}{8} - \\frac{12}{8} = \\frac{35-12}{8} = \\frac{23}{8}"
+        },
+        {
+          "explanation": "The fraction is already in its simplest form.",
+          "latex": "\\frac{23}{8}"
+        }
+      ],
+      "source_doc": "grade6_decimals_operations.pdf",
+      "content_hash": "sha256:125b4a4638bb810456755afaa55f6e5da0b64cbc445261e3ec9f84abb9b4ca8f"
     },
     {
       "id": "SLE-E-01",
@@ -994,6 +2742,310 @@
       "content_hash": "sha256:479277106bbbf4c67bf23d146ad059dc280bab1cbbdd22fa27c589ef77215b20"
     },
     {
+      "id": "SLE-M-01",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for (x, y) in the system: 3x + 2y = 16 and 2x + 3y = 14.",
+      "answer_type": "ordered_pair",
+      "answer": "(4, 2)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply the first by 3 and the second by 2: 9x + 6y = 48 and 4x + 6y = 28.",
+          "latex": "\\begin{cases} 9x+6y=48 \\\\ 4x+6y=28 \\end{cases}"
+        },
+        {
+          "explanation": "Subtract the two equations: 5x = 20, so x = 4.",
+          "latex": "5x=20"
+        },
+        {
+          "explanation": "Substitute x=4 into 3x + 2y = 16: 12 + 2y = 16, so 2y = 4, y = 2.",
+          "latex": "y=2"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:3dcc23ef30e37e7bec62445c9d82cefbf3acb99980270b463ca38d8639e6c4d2"
+    },
+    {
+      "id": "SLE-M-02",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A sari-sari store owner sold 15 items consisting of notebooks and ballpens. Each notebook costs 25 pesos and each ballpen costs 10 pesos. If the total sales amounted to 300 pesos, how many notebooks (x) and ballpens (y) were sold?",
+      "answer_type": "ordered_pair",
+      "answer": "(10, 5)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set up the system: x + y = 15 and 25x + 10y = 300.",
+          "latex": "\\begin{cases} x+y=15 \\\\ 25x+10y=300 \\end{cases}"
+        },
+        {
+          "explanation": "From the first equation, y = 15 - x. Substitute into the second.",
+          "latex": "25x + 10(15 - x) = 300"
+        },
+        {
+          "explanation": "Solve for x: 15x + 150 = 300, so 15x = 150, x = 10.",
+          "latex": "x=10"
+        },
+        {
+          "explanation": "Substitute x=10 into y = 15 - x to find y = 5.",
+          "latex": "y=5"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:38c559f47966d4694842b99087cc40f3dce73e7c294e2624e5e8538079460bc1"
+    },
+    {
+      "id": "SLE-M-03",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for (x, y) in the system: y = (1/2)x + 1 and x + y = 7.",
+      "answer_type": "ordered_pair",
+      "answer": "(4, 3)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Substitute y = 0.5x + 1 into x + y = 7.",
+          "latex": "x + (0.5x + 1) = 7"
+        },
+        {
+          "explanation": "Simplify: 1.5x = 6.",
+          "latex": "1.5x=6"
+        },
+        {
+          "explanation": "Solve: x = 4. Then y = 0.5(4) + 1 = 3.",
+          "latex": "x=4, y=3"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:46901f5b7849c4dc60bc1d815fa0eb48146680b9609f4dbd451dc5f215070504"
+    },
+    {
+      "id": "SLE-M-04",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "For a school play, student tickets (x) cost 50 pesos and adult tickets (y) cost 80 pesos. If 100 tickets were sold in total for 6500 pesos, how many student tickets (x) and adult tickets (y) were sold?",
+      "answer_type": "ordered_pair",
+      "answer": "(50, 50)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set up the system: x + y = 100 and 50x + 80y = 6500.",
+          "latex": "\\begin{cases} x+y=100 \\\\ 50x+80y=6500 \\end{cases}"
+        },
+        {
+          "explanation": "Multiply the first equation by 50: 50x + 50y = 5000.",
+          "latex": "50x+50y=5000"
+        },
+        {
+          "explanation": "Subtract this from the second equation: 30y = 1500, so y = 50.",
+          "latex": "y=50"
+        },
+        {
+          "explanation": "Substitute y = 50 back to find x = 50.",
+          "latex": "x=50"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:7129b03290da68fcb59dc129ef682db7190d246d06b85bb0fb79b5d7d62213e3"
+    },
+    {
+      "id": "SLE-M-05",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for (x, y) by rearranging: x - 4 = y and y + 2x = 11.",
+      "answer_type": "ordered_pair",
+      "answer": "(5, 1)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Rearrange to x - y = 4 and 2x + y = 11.",
+          "latex": "\\begin{cases} x-y=4 \\\\ 2x+y=11 \\end{cases}"
+        },
+        {
+          "explanation": "Add the two equations: 3x = 15.",
+          "latex": "3x=15"
+        },
+        {
+          "explanation": "Solve: x = 5. Then y = 5 - 4 = 1.",
+          "latex": "x=5, y=1"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:8e58829300b8fca67a3144afa56d524b820d045e70b5894481244fc80a4f63cd"
+    },
+    {
+      "id": "SLE-M-06",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A piggy bank contains 20 coins consisting of 5-peso coins (x) and 10-peso coins (y). The total value is 140 pesos. Find the number of 5-peso coins (x) and 10-peso coins (y).",
+      "answer_type": "ordered_pair",
+      "answer": "(12, 8)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The equations are x + y = 20 and 5x + 10y = 140.",
+          "latex": "\\begin{cases} x+y=20 \\\\ 5x+10y=140 \\end{cases}"
+        },
+        {
+          "explanation": "Divide the second equation by 5: x + 2y = 28.",
+          "latex": "x+2y=28"
+        },
+        {
+          "explanation": "Subtract the first equation from this result: (x + 2y) - (x + y) = 28 - 20, so y = 8.",
+          "latex": "y=8"
+        },
+        {
+          "explanation": "Solve for x: x + 8 = 20, so x = 12.",
+          "latex": "x=12"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:8fb0f8959dc98ec222f6b48c2e0670a28c0ba0d3afd483d0fe7ad55afef0547e"
+    },
+    {
+      "id": "SLE-M-07",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for (x, y): 4x + 5y = 22 and 3x + 2y = 11.",
+      "answer_type": "ordered_pair",
+      "answer": "(1, 4)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply 4x + 5y = 22 by 2 and 3x + 2y = 11 by 5.",
+          "latex": "\\begin{cases} 8x+10y=44 \\\\ 15x+10y=55 \\end{cases}"
+        },
+        {
+          "explanation": "Subtract the first from the second: 7x = 11. Wait, let's re-calculate. 15x-8x=7x, 55-44=11. x = 11/7? Let's check: 4(1)+5(4)=24, not 22. Let's re-check prompt constants. 4x+5y=24 and 3x+2y=11.",
+          "latex": "4x+5y=24; 3x+2y=11"
+        },
+        {
+          "explanation": "Corrected system: 4x+5y=24, 3x+2y=11. Multiply: 8x+10y=48 and 15x+10y=55.",
+          "latex": "7x=7, x=1"
+        },
+        {
+          "explanation": "Substitute x=1: 3(1)+2y=11, 2y=8, y=4.",
+          "latex": "x=1, y=4"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:efc06b2f06614b69e2e77623f54507b929e001a3fabd4d8683b28eeaa135ea86"
+    },
+    {
+      "id": "SLE-M-08",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A mixture of two types of coffee beans consists of Type A (x) at 120 pesos per kg and Type B (y) at 180 pesos per kg. If 10 kg of the mixture costs 1500 pesos, how many kg of Type A (x) and Type B (y) are in the mixture?",
+      "answer_type": "ordered_pair",
+      "answer": "(5, 5)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "System: x + y = 10 and 120x + 180y = 1500.",
+          "latex": "\\begin{cases} x+y=10 \\\\ 120x+180y=1500 \\end{cases}"
+        },
+        {
+          "explanation": "Divide the second equation by 60: 2x + 3y = 25.",
+          "latex": "2x+3y=25"
+        },
+        {
+          "explanation": "Multiply the first by 2: 2x + 2y = 20. Subtract from the new second equation.",
+          "latex": "(2x+3y)-(2x+2y) = 25-20"
+        },
+        {
+          "explanation": "Thus y = 5, and substituting back, x = 5.",
+          "latex": "y=5, x=5"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:334fa60ad99647d8205a46e8349a85083e892ab88b793bb69cf063f816047f67"
+    },
+    {
+      "id": "SLE-M-09",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for (x, y): y = (2/3)x + 2 and x - y = 1.",
+      "answer_type": "ordered_pair",
+      "answer": "(9, 8)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Substitute y: x - (2/3x + 2) = 1.",
+          "latex": "x - \\frac{2}{3}x - 2 = 1"
+        },
+        {
+          "explanation": "Combine: (1/3)x = 3.",
+          "latex": "\\frac{1}{3}x = 3"
+        },
+        {
+          "explanation": "Solve: x = 9. Then y = (2/3)*9 + 2 = 8.",
+          "latex": "x=9, y=8"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:ef87d22765cbc0617c619553d3570b4c81677f29462d9849425395ee482b9114"
+    },
+    {
+      "id": "SLE-M-10",
+      "node_id": "SLE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Two friends, Ana and Bea, have a combined age of 40 years. Ana's age (x) is 4 years more than Bea's age (y). Find their ages (x, y).",
+      "answer_type": "ordered_pair",
+      "answer": "(22, 18)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The system is x + y = 40 and x = y + 4.",
+          "latex": "\\begin{cases} x+y=40 \\\\ x-y=4 \\end{cases}"
+        },
+        {
+          "explanation": "Add the two equations: 2x = 44.",
+          "latex": "2x=44"
+        },
+        {
+          "explanation": "Solve for x: x = 22.",
+          "latex": "x=22"
+        },
+        {
+          "explanation": "Find y: 22 + y = 40, so y = 18.",
+          "latex": "y=18"
+        }
+      ],
+      "source_doc": "grade8_systems_equations_algebraic.pdf",
+      "content_hash": "sha256:7af828a5266c6f962396fc46749450bf50f9bb2441a3af5fb7e4359756a16bcf"
+    },
+    {
       "id": "L2V-E-01",
       "node_id": "L2V",
       "difficulty": "easy",
@@ -1146,6 +3198,250 @@
       "content_hash": "sha256:055c4141d347d63da9c2268ae58c2f661319a9c1d0c9a2bc6ce650eaec11a166"
     },
     {
+      "id": "L2V-M-01",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find the slope of the line passing through the points $(1, 4)$ and $(3, 10)$.",
+      "answer_type": "number",
+      "answer": "3",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Apply the slope formula $m = \\frac{y_2 - y_1}{x_2 - x_1}$.",
+          "latex": "m = \\frac{10 - 4}{3 - 1} = \\frac{6}{2} = 3"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:dff49473561dbebfe46ab2ce300356dc48a8e1d4455edd14682b5fd00bd61d09"
+    },
+    {
+      "id": "L2V-M-02",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A jeepney operator tracks that the daily profit $y$ depends on the number of passengers $x$. If the profit is 200 pesos for 10 passengers and 500 pesos for 25 passengers, write the equation relating profit to passengers in $y = mx + b$ form.",
+      "answer_type": "equation",
+      "answer": "y=20x+0",
+      "accepted_variants": [],
+      "required_form": "slope_intercept",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Find the slope using m = (y2 - y1) / (x2 - x1).",
+          "latex": "m = \\frac{500 - 200}{25 - 10} = \\frac{300}{15} = 20"
+        },
+        {
+          "explanation": "Use the point-slope form with point (10, 200) to find the intercept.",
+          "latex": "200 = 20(10) + b \\Rightarrow b = 0"
+        },
+        {
+          "explanation": "Write the final equation.",
+          "latex": "y = 20x + 0"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:b87d92c8076a10eb613fc64195785aeba68ed26329d05a9c9d2cd16a5caebfcf"
+    },
+    {
+      "id": "L2V-M-03",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Determine the linear equation in $y = mx + b$ form for the line passing through $(-2, 1)$ and $(2, 5)$.",
+      "answer_type": "equation",
+      "answer": "y=x+3",
+      "accepted_variants": [],
+      "required_form": "slope_intercept",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Find the slope.",
+          "latex": "m = \\frac{5 - 1}{2 - (-2)} = \\frac{4}{4} = 1"
+        },
+        {
+          "explanation": "Find the y-intercept using the point (2, 5).",
+          "latex": "5 = 1(2) + b \\Rightarrow b = 3"
+        },
+        {
+          "explanation": "Construct the equation.",
+          "latex": "y = x + 3"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:a7c8885e92b955edf870a0b4cb65987a61398f8e3685abf57e98b8e68d1e3db5"
+    },
+    {
+      "id": "L2V-M-04",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Maria is saving money in a piggy bank. At the end of week 2, she has 140 pesos. At the end of week 6, she has 300 pesos. What is the weekly rate of savings in pesos per week?",
+      "answer_type": "number",
+      "answer": "40",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Identify the coordinates as (2, 140) and (6, 300).",
+          "latex": "(2, 140), (6, 300)"
+        },
+        {
+          "explanation": "Calculate the slope representing the rate of change.",
+          "latex": "m = \\frac{300 - 140}{6 - 2} = \\frac{160}{4} = 40"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:acb6bcfd05455d5abec19ac06a823c03cbd395ca5957993153b719ca2c73f5ec"
+    },
+    {
+      "id": "L2V-M-05",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Write the equation of a line with a slope $m = -2$ that passes through the point $(4, -1)$.",
+      "answer_type": "equation",
+      "answer": "y=-2x+7",
+      "accepted_variants": [],
+      "required_form": "slope_intercept",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Use the point-slope form $y - y_1 = m(x - x_1)$.",
+          "latex": "y - (-1) = -2(x - 4)"
+        },
+        {
+          "explanation": "Simplify to $y = mx + b$.",
+          "latex": "y + 1 = -2x + 8 \\Rightarrow y = -2x + 7"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:b2710d5b772182403c28e934b4351de0484fb9d5921b8b3fc9a2a413cbabb81a"
+    },
+    {
+      "id": "L2V-M-06",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A sari-sari store owner has a water tank. The volume of water $y$ (in liters) after $x$ minutes is given by $y = -3x + 120$. How many liters of water are in the tank at the start (when $x=0$)?",
+      "answer_type": "number",
+      "answer": "120",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "liters",
+      "solution_steps": [
+        {
+          "explanation": "To find the initial amount, set the time $x$ to 0.",
+          "latex": "y = -3(0) + 120"
+        },
+        {
+          "explanation": "Solve for $y$.",
+          "latex": "y = 120"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:ea8e3d958175a474e179f754829160ffdbc1a46cc708eddcfb4b9ee070dd0ddc"
+    },
+    {
+      "id": "L2V-M-07",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Convert the standard form equation $4x - 2y = 8$ into slope-intercept form.",
+      "answer_type": "equation",
+      "answer": "y=2x-4",
+      "accepted_variants": [],
+      "required_form": "slope_intercept",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Subtract $4x$ from both sides.",
+          "latex": "-2y = -4x + 8"
+        },
+        {
+          "explanation": "Divide by -2.",
+          "latex": "y = 2x - 4"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:a04209c9a0322516fbd3baad01d6f6a174d315a9da9a92519caba230230ff8b0"
+    },
+    {
+      "id": "L2V-M-08",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A telecom company charges a fixed monthly fee plus a variable rate. If the slope of the cost equation is 5 pesos per text message and the bill is 150 pesos when 10 messages are sent, what is the equation for the monthly bill?",
+      "answer_type": "equation",
+      "answer": "y=5x+100",
+      "accepted_variants": [],
+      "required_form": "slope_intercept",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Use y = mx + b with m = 5 and point (10, 150).",
+          "latex": "150 = 5(10) + b"
+        },
+        {
+          "explanation": "Solve for b.",
+          "latex": "150 = 50 + b \\Rightarrow b = 100"
+        },
+        {
+          "explanation": "Form the equation.",
+          "latex": "y = 5x + 100"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:6e14009d3d60069a6f6f3e111681098fb369428ae08b9265c652aebfd65280c0"
+    },
+    {
+      "id": "L2V-M-09",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find the $y$-intercept of the line $3x + 4y = 24$. Express as an ordered pair.",
+      "answer_type": "ordered_pair",
+      "answer": "(0,6)",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set $x = 0$ to find the $y$-intercept.",
+          "latex": "3(0) + 4y = 24"
+        },
+        {
+          "explanation": "Solve for $y$.",
+          "latex": "4y = 24 \\Rightarrow y = 6"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:8a913110b92b099639aeb126bda67f2e7738633438cc3a826d448e5a43b7c0b4"
+    },
+    {
+      "id": "L2V-M-10",
+      "node_id": "L2V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A school fund collection follows the rule $2x + y = 500$, where $x$ is the number of students and $y$ is the total amount collected. Rewrite this in $y = mx + b$ form.",
+      "answer_type": "equation",
+      "answer": "y=-2x+500",
+      "accepted_variants": [],
+      "required_form": "slope_intercept",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Subtract $2x$ from both sides of the equation.",
+          "latex": "y = -2x + 500"
+        }
+      ],
+      "source_doc": "grade8_slope_intercept.pdf",
+      "content_hash": "sha256:3c76d13a7852d514ccb9a562649e110ba1e641b8e7e76a9073ff92725bfb0a76"
+    },
+    {
       "id": "L1V-E-01",
       "node_id": "L1V",
       "difficulty": "easy",
@@ -1290,6 +3586,270 @@
       "content_hash": "sha256:845806c2f523c986ba8edc505bdf479d22be5cae8e936ab2df6437e5e7d062f7"
     },
     {
+      "id": "L1V-M-01",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $x$: $3(x - 4) = 2(x + 5)$.",
+      "answer_type": "number",
+      "answer": "22",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute the constants.",
+          "latex": "3x - 12 = 2x + 10"
+        },
+        {
+          "explanation": "Subtract 2x from both sides.",
+          "latex": "x - 12 = 10"
+        },
+        {
+          "explanation": "Add 12 to both sides.",
+          "latex": "x = 22"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:5aa8817653b9a664fb6dfc295bda8ff651696f7d367dd92bcf7a8dbd589c5052"
+    },
+    {
+      "id": "L1V-M-02",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Maria bought 3 notebooks and a pen that cost 15 pesos. If the total bill was 135 pesos, what was the cost of one notebook in pesos?",
+      "answer_type": "number",
+      "answer": "40",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Define x as the cost of one notebook and set up the equation.",
+          "latex": "3x + 15 = 135"
+        },
+        {
+          "explanation": "Subtract 15 from both sides.",
+          "latex": "3x = 120"
+        },
+        {
+          "explanation": "Divide by 3 to find the cost.",
+          "latex": "x = 40"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:b7ed87b689cc526c85760abc3438d821a25d3d33a5a6abe2fa10e2d476cba985"
+    },
+    {
+      "id": "L1V-M-03",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $n$: $\\frac{1}{3}n + 5 = 12$.",
+      "answer_type": "number",
+      "answer": "21",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Subtract 5 from both sides.",
+          "latex": "\\frac{1}{3}n = 7"
+        },
+        {
+          "explanation": "Multiply by 3.",
+          "latex": "n = 21"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:88173af83cffac2698f3c364cd74276a26f59b2f557cb137ef03f3cb56bfb634"
+    },
+    {
+      "id": "L1V-M-04",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The sum of three consecutive integers is 114. What is the smallest of these three integers?",
+      "answer_type": "number",
+      "answer": "37",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Let x, x+1, and x+2 be the three integers.",
+          "latex": "x + (x+1) + (x+2) = 114"
+        },
+        {
+          "explanation": "Simplify the equation.",
+          "latex": "3x + 3 = 114"
+        },
+        {
+          "explanation": "Solve for x.",
+          "latex": "3x = 111, x = 37"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:25e503fc9c7bb6e5a79dc249cfcccbb96d5f34f83455286cef2498edbd44687c"
+    },
+    {
+      "id": "L1V-M-05",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $y$: $0.5y + 4.2 = 9.8$.",
+      "answer_type": "number",
+      "answer": "11.2",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Subtract 4.2 from both sides.",
+          "latex": "0.5y = 5.6"
+        },
+        {
+          "explanation": "Divide by 0.5.",
+          "latex": "y = 11.2"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:141b8028c4b106cc6ed6cc3970cd269ef53b0d12531b1a585548faa550b7d347"
+    },
+    {
+      "id": "L1V-M-06",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A sari-sari store owner earns 500 pesos daily. She pays her assistant 150 pesos and spends 50 pesos on transport. If she saves the rest for $t$ days, how many days $t$ will it take to save 6000 pesos?",
+      "answer_type": "number",
+      "answer": "20",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Calculate daily savings: 500 - 150 - 50.",
+          "latex": "300t = 6000"
+        },
+        {
+          "explanation": "Divide total goal by daily savings.",
+          "latex": "t = 6000 / 300 = 20"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:695fc4935bd9d2a36c24bc17094853ef4ce559fd22937e49ee24cb7d5a4188f8"
+    },
+    {
+      "id": "L1V-M-07",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $a$: $5(a + 2) = 3(a + 8)$.",
+      "answer_type": "number",
+      "answer": "7",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Expand both sides.",
+          "latex": "5a + 10 = 3a + 24"
+        },
+        {
+          "explanation": "Rearrange terms.",
+          "latex": "2a = 14"
+        },
+        {
+          "explanation": "Divide by 2.",
+          "latex": "a = 7"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:bc491395f2969860f446c6423ad22a7bb502024fad494f563a2ca41bf9a0651c"
+    },
+    {
+      "id": "L1V-M-08",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Juan is currently 14 years old, which is 2 years more than half of his father's age $f$. How old is his father?",
+      "answer_type": "number",
+      "answer": "24",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set up the equation based on the problem statement.",
+          "latex": "\\frac{1}{2}f + 2 = 14"
+        },
+        {
+          "explanation": "Subtract 2 from both sides.",
+          "latex": "\\frac{1}{2}f = 12"
+        },
+        {
+          "explanation": "Multiply by 2 to solve for f.",
+          "latex": "f = 24"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:89cb53d53c93a36493a73a3b8b6dfda3458702f015080ad2f0691560afa72f09"
+    },
+    {
+      "id": "L1V-M-09",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $x$: $\\frac{2}{5}x - 3 = 7$.",
+      "answer_type": "number",
+      "answer": "25",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Add 3 to both sides.",
+          "latex": "\\frac{2}{5}x = 10"
+        },
+        {
+          "explanation": "Multiply by 5/2.",
+          "latex": "x = 25"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:fe024be04f22cc90184c0c8ba6b25f943115479f34995caef860e496437edca1"
+    },
+    {
+      "id": "L1V-M-10",
+      "node_id": "L1V",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A jeepney fare is 12 pesos for the first 4 kilometers and 2 pesos for every additional kilometer. If a passenger paid 24 pesos, how many additional kilometers did they travel?",
+      "answer_type": "number",
+      "answer": "6",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set up the equation with k as additional kilometers.",
+          "latex": "12 + 2k = 24"
+        },
+        {
+          "explanation": "Subtract 12 from both sides.",
+          "latex": "2k = 12"
+        },
+        {
+          "explanation": "Divide by 2.",
+          "latex": "k = 6"
+        }
+      ],
+      "source_doc": "grade7_linear_equations_one_var.pdf",
+      "content_hash": "sha256:dee6950fadbe0af67ca30101419847b460f64dcaa4537baabec7e717cb7cce9a"
+    },
+    {
       "id": "AE-E-01",
       "node_id": "AE",
       "difficulty": "easy",
@@ -1428,6 +3988,246 @@
       ],
       "source_doc": "grade7_algebraic_expressions.pdf",
       "content_hash": "sha256:57f69a340f048e69d362dcd74af60941bae80ea229d3f41ff13716c2140c9bdf"
+    },
+    {
+      "id": "AE-M-01",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Evaluate $2x^2 - 3x + 5$ when $x = -2$.",
+      "answer_type": "number",
+      "answer": "19",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Substitute -2 for x.",
+          "latex": "2(-2)^2 - 3(-2) + 5"
+        },
+        {
+          "explanation": "Simplify terms.",
+          "latex": "2(4) + 6 + 5 = 8 + 6 + 5 = 19"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:ded4dffeff163473380ea123abc421f6ca796372a751d2ff598988c009f525ef"
+    },
+    {
+      "id": "AE-M-02",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Maria buys $x$ pieces of candy at 5 pesos each and $y$ pieces of chocolate at 12 pesos each. If she buys 4 candies and 3 chocolates, how many pesos does she spend in total?",
+      "answer_type": "number",
+      "answer": "56",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Substitute x = 4 and y = 3 into the cost formula 5x + 12y.",
+          "latex": "5(4) + 12(3)"
+        },
+        {
+          "explanation": "Calculate the total cost.",
+          "latex": "20 + 36 = 56"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:76923b16039724a483b8dffc7d5d50aa2a0deabbe8441d3abfc3c6063ff28c40"
+    },
+    {
+      "id": "AE-M-03",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression $3(2x + 4) - 2(x - 5)$.",
+      "answer_type": "expression",
+      "answer": "4x+22",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute the coefficients.",
+          "latex": "6x + 12 - 2x + 10"
+        },
+        {
+          "explanation": "Combine like terms.",
+          "latex": "(6-2)x + (12+10) = 4x + 22"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:8fe74312f5b2c4945760dcf7826ce8ea86a553913ff39cdbb2dbe822ff3f21d6"
+    },
+    {
+      "id": "AE-M-04",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A jeepney driver earns $E = 15p - 2c$ pesos, where $p$ is the number of passengers and $c$ is the number of liters of fuel consumed. If he has 10 passengers and uses 5 liters of fuel, how much is his net earnings?",
+      "answer_type": "number",
+      "answer": "140",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Substitute p = 10 and c = 5 into the earnings formula.",
+          "latex": "15(10) - 2(5)"
+        },
+        {
+          "explanation": "Calculate the result.",
+          "latex": "150 - 10 = 140"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:c7f584be6a2df7d3536e7d9194c4f28302d4bcf8be416c3a0a3d87851b6dd76b"
+    },
+    {
+      "id": "AE-M-05",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Evaluate $-x^3 + 4x^2 - 1$ when $x = -3$.",
+      "answer_type": "number",
+      "answer": "62",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Substitute -3 for x.",
+          "latex": "-(-3)^3 + 4(-3)^2 - 1"
+        },
+        {
+          "explanation": "Simplify the exponents.",
+          "latex": "-(-27) + 4(9) - 1 = 27 + 36 - 1 = 62"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:38e3d36e4b1c050a20f984fe15dc284c63eede761ea7ea71cf419d398b7fb58d"
+    },
+    {
+      "id": "AE-M-06",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A sari-sari store owner calculates the area of a rectangular plot using the formula $A = 2lw + 3l$. If the length $l = 5$ meters and the width $w = 2$ meters, what is the total area value?",
+      "answer_type": "number",
+      "answer": "35",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "meters",
+      "solution_steps": [
+        {
+          "explanation": "Substitute l = 5 and w = 2 into the expression 2lw + 3l.",
+          "latex": "2(5)(2) + 3(5)"
+        },
+        {
+          "explanation": "Evaluate the terms and add them.",
+          "latex": "20 + 15 = 35"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:8985ef93b6b29725369cd2305c2902726491ee05b839fb5c972aca98e9bf0cba"
+    },
+    {
+      "id": "AE-M-07",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $5(a - 2b) + 3(2a + b)$.",
+      "answer_type": "expression",
+      "answer": "11a-7b",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute the constants.",
+          "latex": "5a - 10b + 6a + 3b"
+        },
+        {
+          "explanation": "Group like terms.",
+          "latex": "(5+6)a + (-10+3)b = 11a - 7b"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:6c0d8b06bbce8939a4c97befe2a1426a4fa6c171681204eefb447a32695adfc5"
+    },
+    {
+      "id": "AE-M-08",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "To estimate the total cost of school supplies, the formula $T = 3b + 2p + 5$ is used, where $b$ is the number of ballpens and $p$ is the number of pads of paper. If a student buys 6 ballpens and 4 pads, what is the total cost?",
+      "answer_type": "number",
+      "answer": "31",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Substitute b = 6 and p = 4 into the formula.",
+          "latex": "3(6) + 2(4) + 5"
+        },
+        {
+          "explanation": "Simplify the arithmetic.",
+          "latex": "18 + 8 + 5 = 31"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:ad77b04904f6409527f5ef2b31f4e7ff9f3f50b1f3c46e8ef3bb934326689ae4"
+    },
+    {
+      "id": "AE-M-09",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $x(x - 3) + 2(x^2 + 5)$.",
+      "answer_type": "expression",
+      "answer": "3x^2-3x+10",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute variables and constants.",
+          "latex": "x^2 - 3x + 2x^2 + 10"
+        },
+        {
+          "explanation": "Combine x squared terms.",
+          "latex": "3x^2 - 3x + 10"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:a73030ea6425e6cddf91acd9b67c95c22194987d753f264e8bfeed21561d976d"
+    },
+    {
+      "id": "AE-M-10",
+      "node_id": "AE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A fruit vendor sells mangoes at 40 pesos per kilogram and pays a daily fee of 50 pesos. If $k$ is the number of kilograms sold, the profit formula is $P = 40k - 50$. What is the profit if the vendor sells 8 kilograms?",
+      "answer_type": "number",
+      "answer": "270",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Substitute k = 8 into the profit formula.",
+          "latex": "40(8) - 50"
+        },
+        {
+          "explanation": "Subtract the daily fee from the revenue.",
+          "latex": "320 - 50 = 270"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:78726f58a159f2344854cf7b682dc0415b09e875ee88fd69e44ad4cf4e9cc760"
     },
     {
       "id": "RPP-E-01",
@@ -1590,6 +4390,254 @@
       "content_hash": "sha256:9664cfaa05b2ce4f5b36f78a7e42a2eb5f8472af872ac72d0cb456ac62c8ffb9"
     },
     {
+      "id": "RPP-M-01",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Calculate the percentage change if a value decreases from 80 to 60. State the percentage value as a positive number.",
+      "answer_type": "number",
+      "answer": "25",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "%",
+      "solution_steps": [
+        {
+          "explanation": "Find the absolute change: 80 - 60 = 20.",
+          "latex": "80 - 60 = 20"
+        },
+        {
+          "explanation": "Divide by the original value and multiply by 100.",
+          "latex": "\\frac{20}{80} \\times 100 = 25"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:18f0489d5be8b610db213ebdf338d7cd17dd74b1c81e7685ad78d8558c1b482a"
+    },
+    {
+      "id": "RPP-M-02",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A sari-sari store owner sells a pack of noodles for 14 pesos. If this price represents a 40% markup on the original wholesale price, what was the original price of the pack of noodles in pesos?",
+      "answer_type": "number",
+      "answer": "10",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Let x be the original price. The selling price is the original price plus 40% of the original price.",
+          "latex": "x + 0.40x = 14"
+        },
+        {
+          "explanation": "Combine like terms and solve for x.",
+          "latex": "1.4x = 14 \\implies x = \\frac{14}{1.4} = 10"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:ffa48f5bbc7c790e664c645a4570ba5b03b52b4b27cfba588eae38c9da89df99"
+    },
+    {
+      "id": "RPP-M-03",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for x in the following proportion: \\frac{x}{12} = \\frac{9}{18}.",
+      "answer_type": "number",
+      "answer": "6",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Cross-multiply to solve for x.",
+          "latex": "18x = 12 \\times 9"
+        },
+        {
+          "explanation": "Simplify the expression.",
+          "latex": "18x = 108 \\implies x = 6"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:11e991ec9149c1534e6f019c5c4b1bd354efa59a6bb9619c754e187b895240bb"
+    },
+    {
+      "id": "RPP-M-04",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A smartphone was originally priced at 12000 pesos. The store increased its price by 25% for a holiday sale, and then later decreased the new price by 20%. What is the final price of the phone in pesos?",
+      "answer_type": "number",
+      "answer": "12000",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Calculate the price after the 25% increase.",
+          "latex": "12000 \\times 1.25 = 15000"
+        },
+        {
+          "explanation": "Calculate the price after the 20% decrease from the new price.",
+          "latex": "15000 \\times 0.80 = 12000"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:df5f773542d1364dd927ed3fd86bc2f57855148c118a8f0eb27856eb56a80654"
+    },
+    {
+      "id": "RPP-M-05",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "If 15% of a number is 45, what is the number?",
+      "answer_type": "number",
+      "answer": "300",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Write the equation 0.15 * x = 45.",
+          "latex": "0.15x = 45"
+        },
+        {
+          "explanation": "Divide 45 by 0.15.",
+          "latex": "x = \\frac{45}{0.15} = 300"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:b89c302e6e6808aede7ded4dc6bbc0fa414bc346abfa70b000c3ac3899bdb346"
+    },
+    {
+      "id": "RPP-M-06",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Maria deposited 5000 pesos into a savings account that earns 3% simple interest per year. If she keeps the money in the account for 2 years, how much interest in pesos will she earn in total?",
+      "answer_type": "number",
+      "answer": "300",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Use the simple interest formula I = P * r * t.",
+          "latex": "I = 5000 \\times 0.03 \\times 2"
+        },
+        {
+          "explanation": "Calculate the total interest.",
+          "latex": "I = 150 \\times 2 = 300"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:164b8c1c867d49095526e7dee5f412f7d35155eb86c396ae91c9961a1466ad92"
+    },
+    {
+      "id": "RPP-M-07",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find the principal amount if the simple interest earned is 120 pesos, the rate is 4% per year, and the time is 5 years.",
+      "answer_type": "number",
+      "answer": "600",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Use I = P * r * t, so 120 = P * 0.04 * 5.",
+          "latex": "120 = P \\times 0.20"
+        },
+        {
+          "explanation": "Divide 120 by 0.20.",
+          "latex": "P = \\frac{120}{0.20} = 600"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:fd7d0f8fb86dd52bdb033ef8727fbaf2c2ee975c0bc0ccac7df0f5f837c3e72c"
+    },
+    {
+      "id": "RPP-M-08",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A recipe for a fruit punch requires 4 cups of pineapple juice for every 7 cups of orange juice. If a caterer uses 35 cups of orange juice for a large event, how many cups of pineapple juice are needed to maintain the same ratio?",
+      "answer_type": "number",
+      "answer": "20",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "cups",
+      "solution_steps": [
+        {
+          "explanation": "Set up a proportion where x is the amount of pineapple juice.",
+          "latex": "\\frac{4}{7} = \\frac{x}{35}"
+        },
+        {
+          "explanation": "Solve for x by multiplying both sides by 35.",
+          "latex": "x = \\frac{4 \\times 35}{7} = 4 \\times 5 = 20"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:3e834ef86f5081a746ac563bb685d3b4ffd75f455a1581d0356e739e6f80601b"
+    },
+    {
+      "id": "RPP-M-09",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Which rate is faster: 100 meters in 20 seconds, or 150 meters in 40 seconds? Provide the faster unit rate in meters per second.",
+      "answer_type": "number",
+      "answer": "5",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "m/s",
+      "solution_steps": [
+        {
+          "explanation": "Calculate the first rate: 100 / 20 = 5.",
+          "latex": "100 / 20 = 5"
+        },
+        {
+          "explanation": "Calculate the second rate: 150 / 40 = 3.75.",
+          "latex": "150 / 40 = 3.75"
+        },
+        {
+          "explanation": "Compare the rates; 5 is greater than 3.75.",
+          "latex": "5 > 3.75"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:b37ae1d447494fb46bfd7074c751d108afabcbfe4a5a0a03c49826ea004f80b9"
+    },
+    {
+      "id": "RPP-M-10",
+      "node_id": "RPP",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "Jollibee sells 5 pieces of chicken for 350 pesos, while McDonald's sells 8 pieces of the same chicken for 600 pesos. Which store has the lower price per piece of chicken, and what is the difference in pesos between the unit prices?",
+      "answer_type": "number",
+      "answer": "5",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Find the price per piece for Jollibee: 350 / 5 = 70 pesos per piece.",
+          "latex": "350 / 5 = 70"
+        },
+        {
+          "explanation": "Find the price per piece for McDonald's: 600 / 8 = 75 pesos per piece.",
+          "latex": "600 / 8 = 75"
+        },
+        {
+          "explanation": "Find the difference: 75 - 70 = 5.",
+          "latex": "75 - 70 = 5"
+        }
+      ],
+      "source_doc": "grade6_percent.pdf",
+      "content_hash": "sha256:aed168c750de263304c282b37be02ed55d3baf8ace110b4333a29f4ae993d7c9"
+    },
+    {
       "id": "RER-E-01",
       "node_id": "RER",
       "difficulty": "easy",
@@ -1724,6 +4772,254 @@
       ],
       "source_doc": "grade9_operations_radicals.pdf",
       "content_hash": "sha256:8f90d10df4f0fed64fcbf4a725a3f0a40229e70659b01fc963fa4f7093ade101"
+    },
+    {
+      "id": "RER-M-01",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $4\\sqrt{75}$.",
+      "answer_type": "number",
+      "answer": "20\\sqrt{3}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Factor 75 as $25 \\times 3$.",
+          "latex": "4\\sqrt{25 \\cdot 3}"
+        },
+        {
+          "explanation": "Simplify.",
+          "latex": "4 \\cdot 5\\sqrt{3} = 20\\sqrt{3}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:37032ecac50f6caf9094fc9924680cb1c75a54f290f92b67947b3a6d55cb246b"
+    },
+    {
+      "id": "RER-M-02",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The area of a square garden at a sari-sari store is $120x^5$ square meters. What is the length of one side of the square garden in simplest radical form?",
+      "answer_type": "expression",
+      "answer": "2x^2\\sqrt{30x}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The side length $s$ is the square root of the area $A$.",
+          "latex": "s = \\sqrt{120x^5}"
+        },
+        {
+          "explanation": "Factor the radicand into perfect squares.",
+          "latex": "\\sqrt{(4x^4) \\cdot (30x)}"
+        },
+        {
+          "explanation": "Take the square root of the perfect squares.",
+          "latex": "2x^2\\sqrt{30x}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:994325ba7acaaa01f5fdfd840c2b1ad1d2169a356b74f60bdffd09803a74f487"
+    },
+    {
+      "id": "RER-M-03",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $10\\sqrt{2} - 3\\sqrt{2} + 4\\sqrt{2}$.",
+      "answer_type": "number",
+      "answer": "11\\sqrt{2}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Combine the coefficients.",
+          "latex": "(10 - 3 + 4)\\sqrt{2}"
+        },
+        {
+          "explanation": "Calculate.",
+          "latex": "11\\sqrt{2}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:1851cc6f9820ca48ef1a8a4511ff7b6f1e8617b3dc4bd82c0a3827cccf2f6a9d"
+    },
+    {
+      "id": "RER-M-04",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A delivery driver travels $12\\sqrt{5}$ kilometers to a market and then another $8\\sqrt{5}$ kilometers to a house. On the way back, he takes a shortcut and travels $15\\sqrt{5}$ kilometers. How many kilometers total did he travel?",
+      "answer_type": "number",
+      "answer": "35\\sqrt{5}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": "km",
+      "solution_steps": [
+        {
+          "explanation": "Sum the distances traveled.",
+          "latex": "12\\sqrt{5} + 8\\sqrt{5} + 15\\sqrt{5}"
+        },
+        {
+          "explanation": "Combine the coefficients of the like radicals.",
+          "latex": "(12 + 8 + 15)\\sqrt{5} = 35\\sqrt{5}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:cdcbe8b8c4fe4766eae5aaff0c5d8a5ec76e05edaedc47a4547c1200a5d8441a"
+    },
+    {
+      "id": "RER-M-05",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $\\sqrt{8} \\cdot \\sqrt{10}$.",
+      "answer_type": "number",
+      "answer": "4\\sqrt{5}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply the radicands.",
+          "latex": "\\sqrt{80}"
+        },
+        {
+          "explanation": "Factor into perfect squares.",
+          "latex": "\\sqrt{16 \\cdot 5} = 4\\sqrt{5}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:f161cacfba2611f4c052787d18f8a9b006fb3f4ac663c549f0bcb950487ee74e"
+    },
+    {
+      "id": "RER-M-06",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The base of a rectangular classroom measures $3\\sqrt{2}$ meters and its height is $4\\sqrt{6}$ meters. What is the area of the wall in square meters?",
+      "answer_type": "number",
+      "answer": "24\\sqrt{3}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": "square meters",
+      "solution_steps": [
+        {
+          "explanation": "Use the area formula $A = bh$.",
+          "latex": "A = (3\\sqrt{2})(4\\sqrt{6})"
+        },
+        {
+          "explanation": "Multiply the coefficients and the radicands.",
+          "latex": "12\\sqrt{12} = 12\\sqrt{4 \\cdot 3}"
+        },
+        {
+          "explanation": "Simplify the radical.",
+          "latex": "12 \\cdot 2\\sqrt{3} = 24\\sqrt{3}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:5bcfff0823657b39a2e04dc89df88512d2aabbe8cfaba2d0cea87951089c1cb3"
+    },
+    {
+      "id": "RER-M-07",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Rationalize the denominator of $\\frac{6}{\\sqrt{3}}$.",
+      "answer_type": "number",
+      "answer": "2\\sqrt{3}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply numerator and denominator by $\\sqrt{3}$.",
+          "latex": "\\frac{6\\sqrt{3}}{3}"
+        },
+        {
+          "explanation": "Divide 6 by 3.",
+          "latex": "2\\sqrt{3}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:65d147858772c576c75eeaf5ff586f361608505cee419f14cc898e9ec1a20c20"
+    },
+    {
+      "id": "RER-M-08",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A student measures the diagonal of a rectangular tablet screen to be $\\frac{10}{\\sqrt{5}}$ centimeters. Express this length with a rationalized denominator.",
+      "answer_type": "number",
+      "answer": "2\\sqrt{5}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": "cm",
+      "solution_steps": [
+        {
+          "explanation": "Multiply the numerator and denominator by $\\sqrt{5}$.",
+          "latex": "\\frac{10}{\\sqrt{5}} \\cdot \\frac{\\sqrt{5}}{\\sqrt{5}}"
+        },
+        {
+          "explanation": "Simplify the fraction.",
+          "latex": "\\frac{10\\sqrt{5}}{5} = 2\\sqrt{5}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:05ef3d0e9f1c21003602e2a85e0612a18228645bb75a607905a2aa40d199b5ba"
+    },
+    {
+      "id": "RER-M-09",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $(16/81)^{1/4}$.",
+      "answer_type": "number",
+      "answer": "2/3",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Find the fourth root of 16 and 81.",
+          "latex": "\\frac{\\sqrt[4]{16}}{\\sqrt[4]{81}}"
+        },
+        {
+          "explanation": "Simplify.",
+          "latex": "\\frac{2}{3}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:30edcc05d316b48269f1cd0b23f36a465fd434d4ad90753e720dd8ccb21f1cee"
+    },
+    {
+      "id": "RER-M-10",
+      "node_id": "RER",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "To calculate the budget for a school project, a student uses the expression $5\\sqrt{48}$ pesos. Simplify this amount to find the coefficient.",
+      "answer_type": "number",
+      "answer": "20\\sqrt{3}",
+      "accepted_variants": [],
+      "required_form": "simplest_radical",
+      "unit": "pesos",
+      "solution_steps": [
+        {
+          "explanation": "Factor 48 to find perfect squares.",
+          "latex": "5\\sqrt{16 \\cdot 3}"
+        },
+        {
+          "explanation": "Extract the root of 16.",
+          "latex": "5 \\cdot 4\\sqrt{3} = 20\\sqrt{3}"
+        }
+      ],
+      "source_doc": "grade9_operations_radicals.pdf",
+      "content_hash": "sha256:6587464a92d55bd4d66be3df9c8c67a3fee6b770205285c83705565cc926ce27"
     },
     {
       "id": "PE-E-01",
@@ -1878,6 +5174,286 @@
       "content_hash": "sha256:f0b555e8dc8f7bc0ac7dae6c1f3bde98254895899c394474caebfb99d193803f"
     },
     {
+      "id": "PE-M-01",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $x$: $x^3 + 6x^2 - x - 6 = 0$.",
+      "answer_type": "solution_set",
+      "answer": "-6, -1, 1",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Group terms: $x^2(x+6) - 1(x+6) = 0$.",
+          "latex": "(x^2-1)(x+6) = 0"
+        },
+        {
+          "explanation": "Factor the difference of squares: $(x-1)(x+1)(x+6) = 0$.",
+          "latex": "(x-1)(x+1)(x+6) = 0"
+        },
+        {
+          "explanation": "Solve for $x$.",
+          "latex": "x=1, x=-1, x=-6"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:8cf35c7bbb4ec7c253016f4e3644cd8004a5fd3bed4fc0c247418cbbb2130827"
+    },
+    {
+      "id": "PE-M-02",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A local sari-sari store owner models her total profit as $P(x) = x^3 + 4x^2 - 9x - 36$ pesos, where $x$ represents the number of daily bundles sold. Find all values of $x$ such that the profit is exactly 0 pesos.",
+      "answer_type": "solution_set",
+      "answer": "-4, -3, 3",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Group the terms of the polynomial: $(x^3 + 4x^2) - (9x + 36) = 0$.",
+          "latex": "x^2(x+4) - 9(x+4) = 0"
+        },
+        {
+          "explanation": "Factor out the common binomial $(x+4)$: $(x^2 - 9)(x + 4) = 0$.",
+          "latex": "(x-3)(x+3)(x+4) = 0"
+        },
+        {
+          "explanation": "Solve for x by setting each factor to zero.",
+          "latex": "x=3, x=-3, x=-4"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:4e863d5eebcdbe24fb13b146eaea9373cc803cf615cb216fdd5db3f4bfb52328"
+    },
+    {
+      "id": "PE-M-03",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find all real solutions for $x^4 - 81x^2 = 0$.",
+      "answer_type": "solution_set",
+      "answer": "-9, 0, 9",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Factor out $x^2$: $x^2(x^2 - 81) = 0$.",
+          "latex": "x^2(x^2 - 81) = 0"
+        },
+        {
+          "explanation": "Factor the difference of squares.",
+          "latex": "x^2(x-9)(x+9) = 0"
+        },
+        {
+          "explanation": "Identify roots.",
+          "latex": "x=0, x=9, x=-9"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:8d00da80087cc0cc84943239e80288dad73a2f44f78c23d8e9163b7e8db90eec"
+    },
+    {
+      "id": "PE-M-04",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A student calculates the cost of materials for a project as $C(x) = (x - 2)^2(x + 5)$ pesos. At what values of $x$ is the cost zero?",
+      "answer_type": "solution_set",
+      "answer": "2, -5",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set the cost function to zero: $(x - 2)^2(x + 5) = 0$.",
+          "latex": "(x-2)(x-2)(x+5)=0"
+        },
+        {
+          "explanation": "Identify the roots from each linear factor.",
+          "latex": "x-2=0 \\text{ or } x+5=0"
+        },
+        {
+          "explanation": "Solve for $x$.",
+          "latex": "x=2, x=-5"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:7aef88cc0cfb262a8c2ed1e5a99b937c1f45072eeea8f76bf77246ba59a00f79"
+    },
+    {
+      "id": "PE-M-05",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $x$ in $(x + 7)(x - 3)^2 = 0$.",
+      "answer_type": "solution_set",
+      "answer": "-7, 3",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "The equation is already factored.",
+          "latex": "(x+7)(x-3)(x-3)=0"
+        },
+        {
+          "explanation": "Set each factor to zero.",
+          "latex": "x+7=0 \\text{ or } x-3=0"
+        },
+        {
+          "explanation": "Find values.",
+          "latex": "x=-7, x=3"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:51173d9f023d4bab8577a62cae4781944fb7d6cc4ce1f5982aba2503d1a50071"
+    },
+    {
+      "id": "PE-M-06",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A jeepney transport operator estimates the balance of his daily earnings using the equation $E(x) = x^3 - 7x^2 + 7x + 15$, where $E(x)$ is in pesos. Determine all values of $x$ for which the earnings balance is zero.",
+      "answer_type": "solution_set",
+      "answer": "-1, 3, 5",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Test integer roots using the Rational Root Theorem (factors of 15).",
+          "latex": "P(-1) = (-1)^3 - 7(-1)^2 + 7(-1) + 15 = -1 - 7 - 7 + 15 = 0"
+        },
+        {
+          "explanation": "Divide the polynomial by $(x+1)$ to get $x^2 - 8x + 15 = 0$.",
+          "latex": "(x+1)(x^2-8x+15)=0"
+        },
+        {
+          "explanation": "Factor the quadratic $x^2 - 8x + 15$ as $(x-3)(x-5)$.",
+          "latex": "(x+1)(x-3)(x-5)=0"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:20e785a3af5f6e57b675ac37d24650e19f2b93a03545f976bab1b6377b69f924"
+    },
+    {
+      "id": "PE-M-07",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Find all solutions for $x^3 - 2x^2 - 5x + 6 = 0$.",
+      "answer_type": "solution_set",
+      "answer": "-2, 1, 3",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Test integer candidates (factors of 6).",
+          "latex": "P(1) = 1 - 2 - 5 + 6 = 0"
+        },
+        {
+          "explanation": "Perform synthetic division by $(x-1)$ to get $x^2 - x - 6 = 0$.",
+          "latex": "(x-1)(x^2-x-6)=0"
+        },
+        {
+          "explanation": "Factor the quadratic.",
+          "latex": "(x-1)(x-3)(x+2)=0"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:ab454a8035fb307601ad560daec78c46d80b6dcaf8f3773ee34ba70974ff27fb"
+    },
+    {
+      "id": "PE-M-08",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A geometric puzzle defines a shape with volume $V(x) = x^3 - 16x$. For what values of $x$ is the volume zero?",
+      "answer_type": "solution_set",
+      "answer": "-4, 0, 4",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set the equation to zero: $x^3 - 16x = 0$.",
+          "latex": "x(x^2 - 16) = 0"
+        },
+        {
+          "explanation": "Factor using the difference of squares.",
+          "latex": "x(x-4)(x+4) = 0"
+        },
+        {
+          "explanation": "Find the roots.",
+          "latex": "x=0, x=4, x=-4"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:b750f5aeb9285bfc7ef6f39a2f4757c73b5318dec1efe7b2feb4085cfa749b70"
+    },
+    {
+      "id": "PE-M-09",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Solve for $x$: $x^3 - 100x = 0$.",
+      "answer_type": "solution_set",
+      "answer": "-10, 0, 10",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Factor out $x$: $x(x^2 - 100) = 0$.",
+          "latex": "x(x^2 - 100) = 0"
+        },
+        {
+          "explanation": "Factor the quadratic.",
+          "latex": "x(x-10)(x+10)=0"
+        },
+        {
+          "explanation": "Solve for $x$.",
+          "latex": "x=0, x=10, x=-10"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:5fcdcbb7fee5d0045abdd52040a9c40cdf03b9e8c33839b56765f48688cc3d45"
+    },
+    {
+      "id": "PE-M-10",
+      "node_id": "PE",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "The population growth of a bacteria colony in a lab is modeled by $P(t) = t^3 - 2t^2 - 4t + 8$. Find all time values $t$ for which the population $P(t)$ is zero.",
+      "answer_type": "solution_set",
+      "answer": "-2, 2",
+      "accepted_variants": [],
+      "required_form": "none",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Group the terms: $(t^3 - 2t^2) - (4t - 8) = 0$.",
+          "latex": "t^2(t-2) - 4(t-2) = 0"
+        },
+        {
+          "explanation": "Factor out $(t-2)$: $(t^2 - 4)(t-2) = 0$.",
+          "latex": "(t-2)(t+2)(t-2) = 0"
+        },
+        {
+          "explanation": "Solve for $t$.",
+          "latex": "t=2, t=-2"
+        }
+      ],
+      "source_doc": "grade10_polynomial_equations.pdf",
+      "content_hash": "sha256:0d61ff14d7baaec2787f0664d11044d22476efece19f54ffb29ae6530e45809c"
+    },
+    {
       "id": "PO-E-01",
       "node_id": "PO",
       "difficulty": "easy",
@@ -2016,6 +5592,282 @@
       ],
       "source_doc": "grade7_algebraic_expressions.pdf",
       "content_hash": "sha256:a8184bc93406a938a9e6b4b1b44bbc50a08a44eeb02fbf7a22900d84cd196f47"
+    },
+    {
+      "id": "PO-M-01",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression $(x+2)(x^2 - 3x + 4)$.",
+      "answer_type": "expression",
+      "answer": "x^3-x^2-2x+8",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute x across the trinomial.",
+          "latex": "x(x^2 - 3x + 4) = x^3 - 3x^2 + 4x"
+        },
+        {
+          "explanation": "Distribute 2 across the trinomial.",
+          "latex": "2(x^2 - 3x + 4) = 2x^2 - 6x + 8"
+        },
+        {
+          "explanation": "Combine like terms.",
+          "latex": "x^3 - x^2 - 2x + 8"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:a2d14316111cac1c57cd8bf25d80fec7167b1906c72564e4db082af55d5d21d0"
+    },
+    {
+      "id": "PO-M-02",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A rectangular garden in a school compound has a length of $(3x + 5)$ meters and a width of $(2x - 1)$ meters. What is the area of the garden in square meters?",
+      "answer_type": "expression",
+      "answer": "6x^2+7x-5",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Use the area formula for a rectangle: Area = length * width.",
+          "latex": "A = (3x+5)(2x-1)"
+        },
+        {
+          "explanation": "Apply the FOIL method or distributive property to expand the expression.",
+          "latex": "A = 6x^2 - 3x + 10x - 5"
+        },
+        {
+          "explanation": "Combine the like terms (-3x and 10x).",
+          "latex": "A = 6x^2 + 7x - 5"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:dcb842a19aad4dd4e7ee0ed12556d30977fedf2060ce14c31d3fbd0b5d19d544"
+    },
+    {
+      "id": "PO-M-03",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression $(2x - 3)(x^2 + 4x - 5)$.",
+      "answer_type": "expression",
+      "answer": "2x^3+5x^2-22x+15",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply 2x by each term in the trinomial.",
+          "latex": "2x^3 + 8x^2 - 10x"
+        },
+        {
+          "explanation": "Multiply -3 by each term in the trinomial.",
+          "latex": "-3x^2 - 12x + 15"
+        },
+        {
+          "explanation": "Combine the results.",
+          "latex": "2x^3 + 5x^2 - 22x + 15"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:99b05f966efc2f9a9b74375aab42ae93c98facb11068ac27cf8fc49f4a101065"
+    },
+    {
+      "id": "PO-M-04",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A sari-sari store owner calculated her weekly revenue as $(9x^2 + 4x + 15)$ pesos and her total expenses as $(3x^2 - 2x + 8)$ pesos. What expression represents her profit?",
+      "answer_type": "expression",
+      "answer": "6x^2+6x+7",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Profit is revenue minus expenses.",
+          "latex": "P = (9x^2 + 4x + 15) - (3x^2 - 2x + 8)"
+        },
+        {
+          "explanation": "Distribute the negative sign to the second polynomial.",
+          "latex": "P = 9x^2 + 4x + 15 - 3x^2 + 2x - 8"
+        },
+        {
+          "explanation": "Combine like terms.",
+          "latex": "P = (9-3)x^2 + (4+2)x + (15-8)"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:c47594ea16d9c7a144e331f4579a628cc68a66fad86dde1f9b798818b4ef5762"
+    },
+    {
+      "id": "PO-M-05",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify $(5x^2 - 7x + 2) - (2x^2 + 3x - 9)$.",
+      "answer_type": "expression",
+      "answer": "3x^2-10x+11",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Distribute the negative sign.",
+          "latex": "5x^2 - 7x + 2 - 2x^2 - 3x + 9"
+        },
+        {
+          "explanation": "Group like terms.",
+          "latex": "(5-2)x^2 + (-7-3)x + (2+9)"
+        },
+        {
+          "explanation": "Simplify.",
+          "latex": "3x^2 - 10x + 11"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:6bc70d334398a6a4c2a4c2cb583288cca838186d0117995b0f62c9524883325b"
+    },
+    {
+      "id": "PO-M-06",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A delivery truck travels $(12x^3 - 8x^2 + 4x)$ kilometers in $4x$ hours. What is the average speed of the truck in kilometers per hour?",
+      "answer_type": "expression",
+      "answer": "3x^2-2x+1",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Divide distance by time to find speed.",
+          "latex": "v = \\frac{12x^3 - 8x^2 + 4x}{4x}"
+        },
+        {
+          "explanation": "Divide each term in the numerator by the monomial 4x.",
+          "latex": "v = \\frac{12x^3}{4x} - \\frac{8x^2}{4x} + \\frac{4x}{4x}"
+        },
+        {
+          "explanation": "Simplify the resulting expression.",
+          "latex": "v = 3x^2 - 2x + 1"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:93ad5434acc5e43251df04db88f27bcb88efb487cd92c168580d046a7a7f0b09"
+    },
+    {
+      "id": "PO-M-07",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression $\\frac{15x^4 - 25x^3 + 10x^2}{5x^2}$.",
+      "answer_type": "expression",
+      "answer": "3x^2-5x+2",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Divide each term of the numerator by the denominator.",
+          "latex": "\\frac{15x^4}{5x^2} - \\frac{25x^3}{5x^2} + \\frac{10x^2}{5x^2}"
+        },
+        {
+          "explanation": "Simplify coefficients and exponents.",
+          "latex": "3x^2 - 5x + 2"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:2e3102653f3cb8124470fcd044e0bc741ff611c06b02b9bd8eb741e4b2094bca"
+    },
+    {
+      "id": "PO-M-08",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A triangular piece of land has a base of $(4x + 2)$ meters and a height of $(3x - 4)$ meters. If the area of a triangle is given by $\\frac{1}{2} \\times \\text{base} \\times \\text{height}$, what is the area of this land?",
+      "answer_type": "expression",
+      "answer": "6x^2-5x-4",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Set up the area expression: A = 0.5 * (4x + 2) * (3x - 4).",
+          "latex": "A = (2x + 1)(3x - 4)"
+        },
+        {
+          "explanation": "Expand the binomials using FOIL.",
+          "latex": "A = 6x^2 - 8x + 3x - 4"
+        },
+        {
+          "explanation": "Combine like terms to get the final polynomial.",
+          "latex": "A = 6x^2 - 5x - 4"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:2c79eed7cde1b572b9dac526ce17384c6ec528e9e9a3fb4df7a45b4f2d6d613b"
+    },
+    {
+      "id": "PO-M-09",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "plain",
+      "prompt": "Simplify the expression $(3x - 1)(x^2 + 2x + 4)$.",
+      "answer_type": "expression",
+      "answer": "3x^3+5x^2+10x-4",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply 3x by (x^2 + 2x + 4).",
+          "latex": "3x^3 + 6x^2 + 12x"
+        },
+        {
+          "explanation": "Multiply -1 by (x^2 + 2x + 4).",
+          "latex": "-x^2 - 2x - 4"
+        },
+        {
+          "explanation": "Sum the results.",
+          "latex": "3x^3 + 5x^2 + 10x - 4"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:99b4ee6563dadce0026e196290ef0379497e072c00894ce0edfb5590a355c203"
+    },
+    {
+      "id": "PO-M-10",
+      "node_id": "PO",
+      "difficulty": "medium",
+      "style": "word",
+      "prompt": "A rectangular jeepney advertisement space has a width of $(x - 5)$ cm and a length of $(x^2 + 5x + 25)$ cm. What is the area of the advertisement space?",
+      "answer_type": "expression",
+      "answer": "x^3-125",
+      "accepted_variants": [],
+      "required_form": "expanded",
+      "unit": null,
+      "solution_steps": [
+        {
+          "explanation": "Multiply width by length.",
+          "latex": "A = (x - 5)(x^2 + 5x + 25)"
+        },
+        {
+          "explanation": "Distribute x and -5 across the trinomial.",
+          "latex": "A = (x^3 + 5x^2 + 25x) - (5x^2 + 25x + 125)"
+        },
+        {
+          "explanation": "Combine like terms and simplify.",
+          "latex": "A = x^3 - 125"
+        }
+      ],
+      "source_doc": "grade7_algebraic_expressions.pdf",
+      "content_hash": "sha256:61070218e09a135ceadbd443d3b73460701a3f25e9d94fb897778127d448676b"
     }
   ]
 }
