@@ -805,7 +805,7 @@ html::-webkit-scrollbar {
 .topics-library-page, .progress-library-page { --archive-section-gap: clamp(1.5rem, 3vw, 2rem); }
 .topics-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff; }
 .topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(69.3rem, 100%); margin: 1rem auto var(--archive-section-gap); }
-.topics-library-header { position: relative; z-index: 2; width: min(69.3rem, 100%); margin: 0 auto; padding: clamp(1rem, 2vw, 1.3rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
+.topics-library-header { position: relative; z-index: 2; width: min(69.3rem, 100%); margin: 0 auto; padding: calc(clamp(1rem, 2vw, 1.3rem) + .5rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .topics-library-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
 .topics-library-back { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.75rem; padding: .58rem .9rem; border: 3px solid #6d411c; border-radius: 8px; color: #321008; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 5px 0 #4b2411, inset 0 1px 0 rgba(255,255,255,.55); font: 900 .76rem/1 "Bree Serif", Georgia, serif; letter-spacing: .055em; cursor: pointer; transition: transform .2s, filter .2s, box-shadow .2s; }.topics-library-back:hover { filter: brightness(1.08); box-shadow: 0 7px 0 #4b2411; transform: translateY(-2px); }.topics-library-back span { color: inherit; font-size: 1rem; }
 .topics-library-kicker { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: .7rem; color: #6c278e; font: 900 .66rem/1 "Nunito", sans-serif; letter-spacing: .18em; }.topics-library-kicker span { display: inline-block; width: 2.25rem; height: 3px; background: #9c672b; }
@@ -1053,7 +1053,7 @@ html::-webkit-scrollbar {
    framing is shared, while the body reveals the chosen book's competency trail. */
 .progress-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff; }
 .progress-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(69.3rem, 100%); margin: 1rem auto var(--archive-section-gap); }
-.progress-library-header { position: relative; z-index: 2; width: min(69.3rem, 100%); margin: 0 auto; padding: clamp(1rem, 2vw, 1.3rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
+.progress-library-header { position: relative; z-index: 2; width: min(69.3rem, 100%); margin: 0 auto; padding: calc(clamp(1rem, 2vw, 1.3rem) + .5rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .progress-library-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
 .progress-library-kicker { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: .7rem; color: #1d528d; font: 900 .66rem/1 "Nunito", sans-serif; letter-spacing: .18em; }
 .progress-library-kicker span { display: inline-block; width: 2.25rem; height: 3px; background: #c4882e; }
@@ -1163,9 +1163,10 @@ html::-webkit-scrollbar {
   .playground-background-shell, .playground-route-content, .playground-route-page { transition: none; }
 }
 
-.calculator-route-page { --calculator-section-gap: clamp(1.5rem, 3vw, 2rem); position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff4d5; font-family: "Nunito", "Manrope", sans-serif; }
-.calculator-route-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(69.3rem, 100%); margin: 1rem auto var(--calculator-section-gap); }
-.calculator-route-header { position: relative; z-index: 2; width: min(69.3rem, 100%); margin: 0 auto; padding: clamp(1rem, 2vw, 1.3rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
+.calculator-route-page { --calculator-section-gap: clamp(1.5rem, 3vw, 2rem); position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem; color: #fff4d5; font-family: "Nunito", "Manrope", sans-serif; }
+.calculator-route-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: 100%; margin: 1rem auto var(--calculator-section-gap); }
+/* Extra vertical space makes the workshop header about 10% taller. */
+.calculator-route-header { position: relative; z-index: 2; width: 100%; margin: 0 auto; padding: calc(clamp(1rem, 2vw, 1.3rem) + .5rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .calculator-route-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
 .calculator-route-kicker { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: .7rem; color: #1d528d; font: 900 .66rem/1 "Nunito", sans-serif; letter-spacing: .18em; }
 .calculator-route-kicker span { display: inline-block; width: 2.25rem; height: 3px; background: #c4882e; }
@@ -1173,7 +1174,7 @@ html::-webkit-scrollbar {
 .calculator-route-header h1 em { color: #1d528d; font-style: normal; text-shadow: 0 2px 0 rgba(255,255,255,.48); }
 .calculator-route-header > p { position: relative; z-index: 1; max-width: 39rem; margin: .65rem auto 0; color: #34507c; font: 900 .82rem/1.55 "Nunito", sans-serif; }
 
-.calculator-route-collection { width: min(69.3rem, 100%); margin: var(--calculator-section-gap) auto 0; padding: clamp(.9rem, 2vw, 1.2rem); border: 5px solid #5e3619; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 28%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 22px 34px rgba(0,0,0,.32), inset 0 0 0 3px rgba(111,61,28,.16); }
+.calculator-route-collection { width: 100%; margin: var(--calculator-section-gap) auto 0; padding: clamp(.9rem, 2vw, 1.2rem); border: 5px solid #5e3619; color: #2b170d; background: radial-gradient(circle at 18% 12%, rgba(255,255,255,.34), transparent 28%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 22px 34px rgba(0,0,0,.32), inset 0 0 0 3px rgba(111,61,28,.16); }
 .calculator-input-card { display: grid; gap: 1rem; }
 .calculator-section-heading { display: flex; align-items: center; gap: .85rem; padding: .25rem .2rem; color: #3a2111; }
 .calculator-section-icon { display: grid; flex: 0 0 auto; place-items: center; width: 3.15rem; height: 3.15rem; border: 3px solid #6d411c; border-radius: 50%; color: #fffaf6; background: linear-gradient(180deg, #4c9fe6, #1e5fa6); box-shadow: 0 4px 0 #09244b; }
@@ -1200,7 +1201,7 @@ html::-webkit-scrollbar {
 .calculator-samples button > span { color: #1d528d; font-size: .51rem; letter-spacing: .07em; text-transform: uppercase; }
 .calculator-math-inline { display: inline-flex; font-size: .88rem; }
 
-.calculator-route-error { display: flex; align-items: center; gap: .8rem; width: min(50.6rem, 100%); margin: var(--calculator-section-gap) auto 0; padding: .85rem 1rem; border: 3px solid #8e5b20; color: #ffe8a2; background: linear-gradient(180deg, #5a2027, #2b1013); box-shadow: 0 6px 0 #160b07, inset 0 0 0 2px rgba(20,9,5,.55); }
+.calculator-route-error { display: flex; align-items: center; gap: .8rem; width: 100%; margin: var(--calculator-section-gap) auto 0; padding: .85rem 1rem; border: 3px solid #8e5b20; color: #ffe8a2; background: linear-gradient(180deg, #5a2027, #2b1013); box-shadow: 0 6px 0 #160b07, inset 0 0 0 2px rgba(20,9,5,.55); }
 .calculator-route-error img { width: 2.6rem; height: 2.6rem; object-fit: contain; }
 .calculator-route-error strong { font: 900 .67rem/1 "Nunito", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
 .calculator-route-error p { margin: .32rem 0 0; font: 800 .75rem/1.4 "Nunito", sans-serif; }
@@ -1209,7 +1210,7 @@ html::-webkit-scrollbar {
 .calculator-empty-state b { display: block; color: #3a2111; font: 900 .72rem/1.2 "Nunito", sans-serif; letter-spacing: .09em; text-transform: uppercase; }
 .calculator-empty-state p { margin: .35rem 0 0; color: #34507c; font: 800 .78rem/1.45 "Nunito", sans-serif; }
 
-.calculator-results { display: grid; gap: var(--calculator-section-gap); width: min(69.3rem, 100%); margin: var(--calculator-section-gap) auto 0; }
+.calculator-results { display: grid; gap: var(--calculator-section-gap); width: 100%; margin: var(--calculator-section-gap) auto 0; }
 .calculator-results > .calculator-route-collection { width: 100%; margin: 0; }
 .calculator-result-overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, .8fr); gap: 1rem; align-items: center; }
 .calculator-result-copy { padding: .25rem .2rem; }
@@ -1253,10 +1254,9 @@ html::-webkit-scrollbar {
   .calculator-solution-step { opacity: 1; }
 }
 @media (max-width: 640px) {
-  .calculator-route-page { --calculator-section-gap: 1.25rem; padding: 1rem .72rem 1.75rem; }
-  .calculator-route-back-row, .calculator-route-header { width: calc(100% - .15rem); }
+  .calculator-route-page { --calculator-section-gap: 1.25rem; }
   .calculator-route-back-row { margin-bottom: var(--calculator-section-gap); }
-  .calculator-route-header { padding: 1rem .85rem; }
+  .calculator-route-header { padding: 1.7rem .85rem; }
   .calculator-route-header h1 { font-size: 2.45rem; }
   .calculator-route-header > p { max-width: 20rem; font-size: .72rem; }
   .calculator-route-collection { padding: .7rem; }
