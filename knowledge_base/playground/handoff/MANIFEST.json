@@ -1,111 +1,121 @@
 {
-  "drop": 1,
-  "sample": true,
+  "drop": "slice",
+  "sample": false,
   "complete": false,
-  "generated_at": "2026-10-28T15:19:34.331182+00:00",
+  "generated_at": "2026-10-28T16:05:14.435068+00:00",
   "counts": {
     "QE": {
       "easy": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
-      },
-      "medium": {
-        "word": 1,
-        "plain": 0,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "FP": {
       "easy": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "SP": {
       "easy": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
+      }
+    },
+    "LE": {
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
+      }
+    },
+    "OI": {
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "FD": {
       "easy": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "SLE": {
       "easy": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
-      },
-      "medium": {
-        "word": 1,
-        "plain": 0,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "L2V": {
       "easy": {
-        "word": 0,
-        "plain": 2,
-        "total": 2
-      },
-      "medium": {
-        "word": 1,
-        "plain": 0,
-        "total": 1
-      },
-      "hard": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
+      }
+    },
+    "L1V": {
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
+      }
+    },
+    "AE": {
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "RPP": {
       "easy": {
-        "word": 1,
-        "plain": 0,
-        "total": 1
-      },
-      "medium": {
-        "word": 1,
-        "plain": 0,
-        "total": 1
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "RER": {
-      "medium": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     },
     "PE": {
-      "medium": {
-        "word": 0,
-        "plain": 1,
-        "total": 1
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
+      }
+    },
+    "PO": {
+      "easy": {
+        "word": 2,
+        "plain": 3,
+        "total": 5
       }
     }
   },
   "totals": {
-    "problems": 15,
-    "word": 5,
-    "plain": 10
+    "problems": 70,
+    "word": 28,
+    "plain": 42
   },
   "validator": {
-    "validated": 0,
+    "validated": 70,
     "blind_resolve": 0,
     "approved": 0,
-    "hand_verified": 15,
-    "rejected": 0,
+    "hand_verified": 0,
+    "rejected": 1,
     "needs_review_remaining": 0
   },
-  "content_sha256": "8710238ad3f4857a7708aedf6926ade86d07afd1e7fcbdda7c54e756d51c0136",
+  "content_sha256": "53d20b029274d4cca1ea7440806a264ccdd3ce222445b7b54e4ad373f0106772",
   "changed_ids": []
 }

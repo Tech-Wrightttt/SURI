@@ -10,8 +10,11 @@ mock client.
 
 **Out of scope:** scores, mastery writes, and the Mistakes view. Nothing is written there.
 
-Drop 1 contains 15 sample problems (`MANIFEST.json` has `"sample": true`). Drop 2 will be the full
-420 problems in exactly the same format, so you only need to re-run the seed.
+**Current drop: slice** (`MANIFEST.json` has `"drop": "slice"` and `"complete": false`). It has 70
+problems: all 14 topics, easy only, 5 per topic (3 plain + 2 word), ids `<NODE>-E-01..05`. The remaining
+easy slots (06-10) and all medium/hard problems follow in a later drop in exactly the same format, so you
+only need to re-run the seed. Because each topic currently has 5 problems and only the easy tier,
+`/topics` will report `total: 5` for easy and `0` for medium and hard until then.
 
 ## 2. Setup
 

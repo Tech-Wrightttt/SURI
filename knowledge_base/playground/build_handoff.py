@@ -211,6 +211,8 @@ def status_of(p: dict, sample: bool, report: dict, decisions: dict) -> str:
     h = p.get("content_hash")
     if decisions.get(h) == "approved":
         return "approved"
+    if p.get("validation", {}).get("status"):  # stamped by assemble_playground.py
+        return p["validation"]["status"]
     entry = report.get(p["id"], {})
     return entry.get("status", "missing")
 

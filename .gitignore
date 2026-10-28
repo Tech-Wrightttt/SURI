@@ -30,3 +30,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Playground offline work files (decisions are committed)
+knowledge_base/playground/work/*
+!knowledge_base/playground/work/review_decisions.json
