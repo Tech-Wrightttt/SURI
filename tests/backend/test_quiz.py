@@ -97,7 +97,9 @@ async def test_TC44_timeout_awards_zero_and_resets_streak(client, db):
     assert body["total_points"] == 800
     row = await db.fetchrow("SELECT step_errors_json, current_streak FROM quiz_sessions WHERE id = $1",
                             quiz_id)
-    assert json.loads(row["step_errors_json"]) == [] and row["current_streak"] == 0
+    errors = json.loads(row["step_errors_json"])
+    assert len(errors) == 1 and errors[0]["submitted_value"] is None
+    assert row["current_streak"] == 0
 
 
 async def test_TC45_save_streak_rejected_below_1000_points(client, db):
