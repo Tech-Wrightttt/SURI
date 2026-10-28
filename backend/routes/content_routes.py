@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from backend.auth import get_current_student
 from backend.database import get_db, release_db
 from backend.graph import GRAPH
-from backend.competency_utils import get_status, upsert_status
+from backend.competency_utils import get_status
 
 import google.generativeai as genai
 
@@ -87,19 +87,6 @@ async def get_content(
 
         student_id = student["id"]
         status_row = await get_status(conn, student_id, node_id)
-        if (
-            status_row
-            and status_row["status"] == "mastered"
-            and status_row["source"] == "diagnostic"
-        ):
-            await upsert_status(
-                conn,
-                student_id,
-                node_id,
-                "in_progress",
-                "diagnostic_revisited",
-            )
-            status_row = await get_status(conn, student_id, node_id)
 
         competency = None
         if status_row:

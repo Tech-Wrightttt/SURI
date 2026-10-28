@@ -1,0 +1,12 @@
+[run]
+source = backend
+branch = True
+omit =
+    backend/reset_db.py
+
+[report]
+show_missing = True
+skip_empty = True
+# Offline LLM content generation (RAG pipeline side), not served by any route.
+exclude_also =
+    async def generate_scaffold_for_expression
