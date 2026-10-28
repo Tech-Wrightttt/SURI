@@ -56,12 +56,22 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "LOAD":
       return INITIAL;
-    case "LOADED":
+    case "LOADED": {
+      // Solved problems go first and count as done, so a returning student resumes at the next unsolved one.
+      const solved = action.problems.filter((p) => p.solved);
+      const unsolved = action.problems.filter((p) => !p.solved);
+      const replay = unsolved.length === 0; // everything solved: start over from 1
+      const problems = replay ? action.problems : [...solved, ...unsolved];
+      const results: Record<string, Result> = {};
+      if (!replay) solved.forEach((p) => { results[p.id] = "correct"; });
       return {
         ...INITIAL,
-        status: action.problems.length ? "active" : "empty",
-        problems: action.problems,
+        status: problems.length ? "active" : "empty",
+        problems,
+        results,
+        index: replay ? 0 : solved.length,
       };
+    }
     case "FAILED":
       return { ...INITIAL, status: "error", error: action.error };
     case "ANSWER":
