@@ -30,6 +30,7 @@ import {
   Sparkles,
   BookOpen,
   Snowflake,
+  ChevronDown,
 } from "lucide-react";
 
 type QuizState =
@@ -65,6 +66,7 @@ const QUIZ_CSS = `
 
   .quiz-forge {
     min-height: 100vh;
+    min-height: 100dvh;
     padding: clamp(10px, 1.5vw, 18px);
     background:
       radial-gradient(circle at 50% 0%, rgba(250,204,96,0.18), transparent 28%),
@@ -575,9 +577,32 @@ const QUIZ_CSS = `
     cursor: pointer;
   }
 
-  .quiz-answer:hover:not(:disabled) {
-    transform: translateY(-3px);
-    filter: brightness(1.06);
+  /* Hover lifts only on pointer devices so a tap on a tablet doesn't leave a
+     choice stuck in its hover state. */
+  @media (hover: hover) {
+    .quiz-answer:hover:not(:disabled) {
+      transform: translateY(-3px);
+      filter: brightness(1.06);
+    }
+
+    .quiz-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+    }
+  }
+
+  .quiz-answer,
+  .quiz-action,
+  .quiz-exit {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (pointer: coarse) {
+    .quiz-exit,
+    .quiz-action {
+      min-height: 48px;
+    }
   }
 
   .quiz-answer:active:not(:disabled) {
@@ -674,11 +699,6 @@ const QUIZ_CSS = `
       transform .12s ease,
       filter .12s ease;
     cursor: pointer;
-  }
-
-  .quiz-action:hover:not(:disabled) {
-    transform: translateY(-2px);
-    filter: brightness(1.06);
   }
 
   .quiz-action:active:not(:disabled) {
@@ -919,13 +939,64 @@ const QUIZ_CSS = `
   }
 
   .quiz-ledger-problem {
-    margin-top: 16px;
+    margin-top: 14px;
     border: 3px solid #8e5b20;
     background: linear-gradient(180deg, #4a2a18, #24130d);
     box-shadow:
       0 6px 0 #160b07,
       inset 0 0 0 2px rgba(20,9,5,.55);
-    padding: clamp(12px, 2vw, 18px);
+  }
+
+  .quiz-ledger-problem > :not(summary) {
+    margin-left: clamp(12px, 2vw, 18px);
+    margin-right: clamp(12px, 2vw, 18px);
+  }
+
+  .quiz-ledger-problem > ol {
+    padding-bottom: clamp(10px, 1.6vw, 14px);
+  }
+
+  /* Each problem is a native disclosure: keyboard, screen reader and touch
+     support come for free, and the page stays short until a problem is opened. */
+  .quiz-ledger-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 10px clamp(12px, 2vw, 18px);
+    cursor: pointer;
+    list-style: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .quiz-ledger-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .quiz-ledger-summary:focus-visible {
+    outline: 3px solid #ffe288;
+    outline-offset: -3px;
+  }
+
+  .quiz-ledger-problem[open] > .quiz-ledger-summary {
+    border-bottom: 2px solid rgba(255,226,136,.18);
+  }
+
+  .quiz-ledger-chevron {
+    color: #ffe8a2;
+    transition: transform .3s cubic-bezier(.16,1,.3,1);
+  }
+
+  .quiz-ledger-problem[open] .quiz-ledger-chevron {
+    transform: rotate(180deg);
+  }
+
+  @media (hover: hover) {
+    .quiz-ledger-summary:hover {
+      background: rgba(255,226,136,.06);
+    }
   }
 
   .quiz-ledger-problem-title {
@@ -938,7 +1009,7 @@ const QUIZ_CSS = `
   }
 
   .quiz-ledger-problem-text {
-    margin-top: 6px;
+    margin-top: 12px;
     color: #f7dfad;
     font-family: 'Nunito', sans-serif;
     font-size: 14px;
@@ -1940,7 +2011,13 @@ export default function QuizPage() {
             </div>
 
             <div className="quiz-hud-right">
-              {/* Points and streak stay sealed until Quiz Complete. */}
+              {/* Points stay visible for spending on boosts; the streak and
+                  every verdict stay sealed until Quiz Complete. */}
+              <div className="quiz-stat" aria-label={`${totalPoints} points`}>
+                <Sparkles className="w-4 h-4" aria-hidden="true" />
+                {totalPoints} pts
+              </div>
+
               <div
                 className="quiz-stat"
                 aria-label={`${runeLog.length} of ${totalRunes} runes sealed`}
@@ -2104,7 +2181,7 @@ export default function QuizPage() {
               <p className="quiz-sealed-note" aria-live="polite">
                 {isSealed
                   ? "Sealed. Suri reveals every rune when the quiz is complete."
-                  : "Answers stay sealed until the quiz is complete."}
+                  : "Answers stay sealed until the quiz is complete. Points can be spent on boosts."}
               </p>
             </section>
 
@@ -2368,11 +2445,25 @@ export default function QuizPage() {
                       </div>
                     </div>
 
-                    {ledger.map(({ problem, problemIndex, runes }) => (
-                      <article key={problem.id} className="quiz-ledger-problem">
-                        <h3 className="quiz-ledger-problem-title">
-                          Problem {problemIndex + 1}
-                        </h3>
+                    {ledger.map(({ problem, problemIndex, runes }) => {
+                      const forged = runes.filter((r) => r.outcome === "correct").length;
+                      const outcome: RuneOutcome =
+                        forged === runes.length ? "correct" : "wrong";
+
+                      return (
+                      <details key={problem.id} className="quiz-ledger-problem">
+                        <summary className="quiz-ledger-summary">
+                          <span className="quiz-ledger-problem-title">
+                            Problem {problemIndex + 1}
+                          </span>
+
+                          <span className={`quiz-ledger-verdict outcome-${outcome}`}>
+                            <OutcomeIcon outcome={outcome} />
+                            {forged}/{runes.length} forged
+                          </span>
+
+                          <ChevronDown className="quiz-ledger-chevron w-5 h-5" aria-hidden="true" />
+                        </summary>
 
                         {problem.word_problem_text && (
                           <div className="quiz-ledger-problem-text markdown-content">
@@ -2454,8 +2545,9 @@ export default function QuizPage() {
                             );
                           })}
                         </ol>
-                      </article>
-                    ))}
+                      </details>
+                      );
+                    })}
                   </section>
                 )}
 
