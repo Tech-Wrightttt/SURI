@@ -128,9 +128,9 @@ function PlaygroundInner() {
                       >
                         <span className={styles.topicHead}>
                           <span className={styles.stepBadge} aria-hidden="true">{done ? "✓" : i + 1}</span>
+                          <span className={styles.topicTitle}>{n.label}</span>
                           {isGoal && <span className={styles.goalTag}>Goal</span>}
                         </span>
-                        <span className={styles.topicTitle}>{n.label}</span>
                         <span className={styles.tierList}>
                           {DIFFICULTIES.map((d) => {
                             const c = n.difficulties[d];
