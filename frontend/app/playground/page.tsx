@@ -1,20 +1,143 @@
 "use client";
 
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import MainPage from "@/components/mainpage";
 import { useWorldNavigation } from "@/components/navigation/LearningShell";
+import ProblemRunner from "@/components/playground/ProblemRunner";
+import { playground } from "@/lib/playground/client";
+import type { PlaygroundDifficulty, PlaygroundNode, PlaygroundTopics } from "@/lib/api";
 import styles from "./playground.module.css";
 
-export default function PlaygroundPage() {
+const DIFFICULTIES: PlaygroundDifficulty[] = ["easy", "medium", "hard"];
+const DIFFICULTY_LABELS: Record<PlaygroundDifficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" };
+
+function isDifficulty(value: string | null): value is PlaygroundDifficulty {
+  return value !== null && (DIFFICULTIES as string[]).includes(value);
+}
+
+function nodeTotals(node: PlaygroundNode) {
+  return DIFFICULTIES.reduce(
+    (acc, d) => ({ total: acc.total + node.difficulties[d].total, solved: acc.solved + node.difficulties[d].solved }),
+    { total: 0, solved: 0 }
+  );
+}
+
+function PlaygroundInner() {
   const { navigate } = useWorldNavigation();
+  const router = useRouter();
+  const params = useSearchParams();
+  const topic = params.get("topic");
+  const difficultyParam = params.get("difficulty");
+  const difficulty = isDifficulty(difficultyParam) ? difficultyParam : null;
+  const view = !topic ? "topics" : difficulty ? "problem" : "difficulty";
+
+  const [topics, setTopics] = useState<PlaygroundTopics | null>(null);
+  const [loadError, setLoadError] = useState("");
+  const [attempt, setAttempt] = useState(0);
+
+  // Refetch on every view change so solved counts and labels stay fresh; keep the old data while loading.
+  useEffect(() => {
+    let cancelled = false;
+    playground
+      .getTopics()
+      .then((data) => {
+        if (!cancelled) {
+          setTopics(data);
+          setLoadError("");
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Could not load topics.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [view, attempt]);
+
+  const node = topics?.chains.flatMap((c) => c.nodes).find((n) => n.node_id === topic) ?? null;
+  const goTopics = useCallback(() => router.push("/playground"), [router]);
+  const goDifficulty = useCallback(() => router.push(`/playground?topic=${topic}`), [router, topic]);
+  const goBack = view === "topics" ? () => navigate("/dashboard") : view === "difficulty" ? goTopics : goDifficulty;
+
   return <MainPage immersive>
     <div className={`progress-library-page playground-route-page ${styles.page}`}>
       <div className="progress-library-back-row">
-        <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Return to dashboard"><span aria-hidden="true">←</span> Go back</button>
+        <button type="button" className="topics-library-back" onClick={goBack} aria-label="Go back"><span aria-hidden="true">←</span> Go back</button>
       </div>
       <header className="progress-library-header">
         <div className="progress-library-kicker"><span aria-hidden="true" /> SURI&apos;S PLAYGROUND <span aria-hidden="true" /></div>
         <h1>Your <em>Playground</em></h1>
+        {view !== "topics" && node && <p>{node.label}{difficulty ? ` · ${DIFFICULTY_LABELS[difficulty]}` : ""}</p>}
       </header>
+
+      <main className={styles.content}>
+        {view !== "problem" && !topics && !loadError && (
+          <div className={styles.panel} aria-busy="true">
+            <div className={styles.skeletonLine} /><div className={styles.skeletonLine} /><div className={styles.skeletonLine} />
+          </div>
+        )}
+        {view !== "problem" && loadError && !topics && (
+          <div className={styles.panel} role="alert">
+            <p className={styles.errorText}>{loadError}</p>
+            <button type="button" className={styles.primaryButton} onClick={() => setAttempt((a) => a + 1)}>Try again</button>
+          </div>
+        )}
+
+        {view === "topics" && topics && topics.chains.map((chain) => (
+          <section key={chain.entry_node_id} className={styles.chain} aria-label={`${chain.label} path`}>
+            <h2 className={styles.chainTitle}>{chain.label} path</h2>
+            <div className={styles.cardGrid}>
+              {chain.nodes.map((n) => {
+                const totals = nodeTotals(n);
+                return (
+                  <button key={n.node_id} type="button" className={styles.card} onClick={() => router.push(`/playground?topic=${n.node_id}`)}>
+                    <span className={styles.cardGrade}>Grade {n.grade}</span>
+                    <span className={styles.cardTitle}>{n.label}</span>
+                    <span className={styles.cardCount}>{totals.solved} / {totals.total} solved</span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        {view === "difficulty" && topics && !node && (
+          <div className={styles.panel}>
+            <p className={styles.mutedText}>We couldn&apos;t find that topic.</p>
+            <button type="button" className={styles.secondaryButton} onClick={goTopics}>Back to topics</button>
+          </div>
+        )}
+        {view === "difficulty" && node && (
+          <div className={styles.cardGrid}>
+            {DIFFICULTIES.map((d) => {
+              const c = node.difficulties[d];
+              const empty = c.total === 0;
+              return (
+                <button key={d} type="button" className={styles.card} disabled={empty} onClick={() => router.push(`/playground?topic=${node.node_id}&difficulty=${d}`)}>
+                  <span className={styles.cardTitle}>{DIFFICULTY_LABELS[d]}</span>
+                  <span className={styles.cardCount}>{empty ? "Coming soon" : `${c.solved} / ${c.total} solved`}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {view === "problem" && topic && difficulty && (
+          <ProblemRunner
+            key={`${topic}-${difficulty}`}
+            nodeId={topic}
+            nodeLabel={node?.label ?? topic}
+            difficulty={difficulty}
+            onOtherDifficulty={goDifficulty}
+            onTopics={goTopics}
+          />
+        )}
+      </main>
     </div>
   </MainPage>;
+}
+
+export default function PlaygroundPage() {
+  return <Suspense fallback={null}><PlaygroundInner /></Suspense>;
 }

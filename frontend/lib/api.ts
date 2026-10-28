@@ -684,3 +684,96 @@ export function finishQuiz(body: {
 }
 
 
+// ─── Playground ──────────────────────────────────────
+// Shapes match knowledge_base/playground/API_SPEC.md exactly.
+
+export type PlaygroundDifficulty = "easy" | "medium" | "hard";
+export type PlaygroundStyle = "word" | "plain";
+export type PlaygroundAnswerType = "number" | "expression" | "equation" | "solution_set" | "ordered_pair";
+export type PlaygroundCheckReason = "correct" | "not_equivalent" | "wrong_form" | "unparseable" | "empty";
+
+export interface PlaygroundDifficultyCount {
+  total: number;
+  solved: number;
+}
+
+export interface PlaygroundNode {
+  node_id: string;
+  label: string;
+  grade: number;
+  difficulties: Record<PlaygroundDifficulty, PlaygroundDifficultyCount>;
+}
+
+export interface PlaygroundChain {
+  entry_node_id: string;
+  label: string;
+  nodes: PlaygroundNode[];
+}
+
+export interface PlaygroundTopics {
+  chains: PlaygroundChain[];
+}
+
+export interface PlaygroundProblem {
+  id: string;
+  style: PlaygroundStyle;
+  prompt: string;
+  answer_type: PlaygroundAnswerType;
+  required_form: string;
+  unit: string | null;
+  solved: boolean;
+}
+
+export interface PlaygroundSitting {
+  node_id: string;
+  difficulty: PlaygroundDifficulty;
+  problems: PlaygroundProblem[];
+}
+
+export interface PlaygroundCheckResult {
+  correct: boolean;
+  reason: PlaygroundCheckReason;
+  message: string;
+  solved: boolean;
+}
+
+export interface PlaygroundSolutionStep {
+  explanation: string;
+  latex: string;
+}
+
+export interface PlaygroundReveal {
+  answer: string;
+  unit: string | null;
+  solution_steps: PlaygroundSolutionStep[];
+}
+
+export function getPlaygroundTopics(): Promise<PlaygroundTopics> {
+  return request<PlaygroundTopics>("/api/playground/topics");
+}
+
+export function getPlaygroundSitting(
+  nodeId: string,
+  difficulty: PlaygroundDifficulty
+): Promise<PlaygroundSitting> {
+  const query = new URLSearchParams({ node_id: nodeId, difficulty });
+  return request<PlaygroundSitting>(`/api/playground/sitting?${query.toString()}`);
+}
+
+export function checkPlaygroundAnswer(
+  problemId: string,
+  answerLatex: string
+): Promise<PlaygroundCheckResult> {
+  return request<PlaygroundCheckResult>("/api/playground/check", {
+    method: "POST",
+    body: JSON.stringify({ problem_id: problemId, answer_latex: answerLatex }),
+  });
+}
+
+export function revealPlaygroundAnswer(problemId: string): Promise<PlaygroundReveal> {
+  return request<PlaygroundReveal>("/api/playground/reveal", {
+    method: "POST",
+    body: JSON.stringify({ problem_id: problemId }),
+  });
+}
+
