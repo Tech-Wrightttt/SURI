@@ -10,11 +10,10 @@ mock client.
 
 **Out of scope:** scores, mastery writes, and the Mistakes view. Nothing is written there.
 
-**Current drop: hard** (`MANIFEST.json` has `"drop": "hard"` and `"complete": false`). It has 350 problems
-for all 14 topics: easy (5 per topic, ids `<NODE>-E-01..05`), medium (10 per topic, `<NODE>-M-01..10`) and hard
-(10 per topic, `<NODE>-H-01..10`). Medium and hard are already seeded in the shared database; re-running
-`seed_playground.sql` only inserts rows that are missing. Easy slots 06-10 are the only part still to come, and
-they use the same format.
+**Current drop: complete** (`MANIFEST.json` has `"drop": 2` and `"complete": true`). It has 420 problems:
+14 topics x 3 difficulties x 10 problems (5 plain + 5 word), ids `<NODE>-E|M|H-01..10`. All of it is already
+seeded in the shared database, so no action is needed. If you rebuild a database from scratch, run `schema.sql`
+then `seed_playground.sql`. `/topics` reports `total: 10` for every topic and difficulty.
 
 ## 2. Setup
 

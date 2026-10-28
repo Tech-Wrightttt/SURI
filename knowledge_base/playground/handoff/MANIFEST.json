@@ -1,14 +1,14 @@
 {
-  "drop": "hard",
+  "drop": 2,
   "sample": false,
-  "complete": false,
-  "generated_at": "2026-10-28T23:12:52.758770+00:00",
+  "complete": true,
+  "generated_at": "2026-10-28T23:17:34.954040+00:00",
   "counts": {
     "QE": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -23,9 +23,9 @@
     },
     "FP": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -40,9 +40,9 @@
     },
     "SP": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -57,9 +57,9 @@
     },
     "LE": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -74,9 +74,9 @@
     },
     "OI": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -91,9 +91,9 @@
     },
     "FD": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -108,9 +108,9 @@
     },
     "SLE": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -125,9 +125,9 @@
     },
     "L2V": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -142,9 +142,9 @@
     },
     "L1V": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -159,9 +159,9 @@
     },
     "AE": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -176,9 +176,9 @@
     },
     "RPP": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -193,9 +193,9 @@
     },
     "RER": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -210,9 +210,9 @@
     },
     "PE": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -227,9 +227,9 @@
     },
     "PO": {
       "easy": {
-        "word": 2,
-        "plain": 3,
-        "total": 5
+        "word": 5,
+        "plain": 5,
+        "total": 10
       },
       "medium": {
         "word": 5,
@@ -244,20 +244,20 @@
     }
   },
   "totals": {
-    "problems": 350,
-    "word": 168,
-    "plain": 182
+    "problems": 420,
+    "word": 210,
+    "plain": 210
   },
   "validator": {
-    "validated": 334,
+    "validated": 400,
     "blind_resolve": 0,
-    "approved": 16,
+    "approved": 20,
     "hand_verified": 0,
-    "rejected": 5,
+    "rejected": 6,
     "needs_review_remaining": 0
   },
-  "content_sha256": "16d5097f635e8f4faa42bbfbf76ba8d93e337c7307b6f37b1213079a6fe8e34f",
+  "content_sha256": "07e391c2d2328b9075d74c7f6d7f718b89879b872ae92f4ea2681d9e052828b8",
   "changed_ids": [
-    "PE-H-02"
+    "L2V-E-04"
   ]
 }
