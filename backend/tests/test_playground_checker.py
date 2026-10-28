@@ -182,6 +182,15 @@ class ExpressionTests(CheckerCase):
         self.bad("x^2\\cdot x^3", q, "wrong_form")
         self.ok("x^{5}", q)
 
+    def test_positive_exponents_rejects_undistributed_powers(self):
+        p = prob("27x^3y^6", "expression", form="positive_exponents")
+        self.ok("27x^3y^6", p)
+        self.bad("(3xy^2)^3", p, "wrong_form")
+        q = prob("\\frac{x^9}{y^{15}}", "expression", form="positive_exponents")
+        self.ok("\\frac{x^9}{y^{15}}", q)
+        self.bad("\\left(\\frac{x^3}{y^5}\\right)^3", q, "wrong_form")
+        self.bad("(x^3)^3y^{-15}", q, "wrong_form")
+
     def test_rational_exponents(self):
         p = prob("4", "expression")
         self.ok("8^{\\frac{2}{3}}", p)

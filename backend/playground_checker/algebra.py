@@ -611,8 +611,10 @@ def _term_bases(node, out):
             return False
         if ev <= 0:
             return False
+        if node[1][0] in ("mul", "div", "pow"):
+            return False  # a power of a product, quotient or power still has to be distributed
         out.append(repr(node[1]))
-        return _term_bases(node[1], []) if node[1][0] in ("mul", "div", "add") else True
+        return _term_bases(node[1], []) if node[1][0] == "add" else True
     if tag == "var":
         out.append(repr(node))
         return True
