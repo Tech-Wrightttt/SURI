@@ -4,10 +4,12 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { LogOut } from "lucide-react";
 
-export default function LogoutConfirmModal({ opener, onClose, onConfirm }: {
+export default function LogoutConfirmModal({ opener, onClose, onConfirm, busy = false, error }: {
   opener: HTMLElement | null;
   onClose: () => void;
   onConfirm: () => void;
+  busy?: boolean;
+  error?: string | null;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -20,9 +22,11 @@ export default function LogoutConfirmModal({ opener, onClose, onConfirm }: {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        if (!busy) onClose();
+        return;
       }
       if (event.key !== "Tab" || !dialogRef.current) return;
+      if (busy) { event.preventDefault(); return; }
       const buttons = Array.from(dialogRef.current.querySelectorAll<HTMLButtonElement>("button:not([disabled])"));
       const first = buttons[0];
       const last = buttons[buttons.length - 1];
@@ -41,22 +45,23 @@ export default function LogoutConfirmModal({ opener, onClose, onConfirm }: {
       document.removeEventListener("keydown", handleKeyDown);
       opener?.focus();
     };
-  }, [onClose, opener]);
+  }, [busy, onClose, opener]);
 
   return createPortal(
     <div className="suri-logout-overlay" onClick={(event) => {
-      if (event.target === event.currentTarget) onClose();
+      if (event.target === event.currentTarget && !busy) onClose();
     }}>
-      <div ref={dialogRef} className="suri-logout-modal" role="dialog" aria-modal="true" aria-labelledby="suri-logout-title" aria-describedby="suri-logout-description">
+      <div ref={dialogRef} className="suri-logout-modal" role="dialog" aria-modal="true" aria-busy={busy} aria-labelledby="suri-logout-title" aria-describedby="suri-logout-description">
         <div className="suri-logout-header" aria-hidden="true" />
         <div className="suri-logout-content">
           <span className="suri-logout-icon" aria-hidden="true"><LogOut size={28} strokeWidth={2.5} /></span>
           <h2 id="suri-logout-title">Are You Logging Out?</h2>
           <p id="suri-logout-description">You can always log back in at any time.</p>
+          {error && <p className="suri-logout-error" role="alert">{error}</p>}
         </div>
         <footer className="suri-logout-actions">
-          <button ref={cancelRef} type="button" className="suri-logout-button" onClick={onClose}>Cancel</button>
-          <button type="button" className="suri-logout-button suri-logout-confirm" onClick={onConfirm}>Log out</button>
+          <button ref={cancelRef} type="button" className="suri-logout-button" onClick={onClose} disabled={busy}>Cancel</button>
+          <button type="button" className="suri-logout-button suri-logout-confirm" onClick={onConfirm} disabled={busy}>{busy ? "Logging out…" : "Log out"}</button>
         </footer>
       </div>
     </div>,

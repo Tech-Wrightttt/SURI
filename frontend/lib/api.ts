@@ -367,10 +367,11 @@ export function getMe(): Promise<MeResponse> {
 }
 
 export async function logout(): Promise<{ message: string }> {
-  removeStoredToken();
-  return request<{ message: string }>("/api/auth/logout", {
+  const response = await request<{ message: string }>("/api/auth/logout", {
     method: "POST",
   });
+  removeStoredToken();
+  return response;
 }
 
 // ─── Topics ──────────────────────────────────────────
