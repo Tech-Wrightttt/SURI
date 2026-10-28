@@ -10,7 +10,6 @@ import type { PlaygroundDifficulty, PlaygroundNode, PlaygroundTopics } from "@/l
 import styles from "./playground.module.css";
 
 const DIFFICULTIES: PlaygroundDifficulty[] = ["easy", "medium", "hard"];
-const TIER_SHORT: Record<PlaygroundDifficulty, string> = { easy: "Easy", medium: "Med", hard: "Hard" };
 const DIFFICULTY_LABELS: Record<PlaygroundDifficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" };
 
 function isDifficulty(value: string | null): value is PlaygroundDifficulty {
@@ -129,25 +128,25 @@ function PlaygroundInner() {
                       >
                         <span className={styles.topicHead}>
                           <span className={styles.stepBadge} aria-hidden="true">{done ? "✓" : i + 1}</span>
-                          <span className={styles.topicMeta}>
-                            Grade {n.grade}{isGoal ? " · Goal" : ""}
-                          </span>
+                          {isGoal && <span className={styles.goalTag}>Goal</span>}
                         </span>
                         <span className={styles.topicTitle}>{n.label}</span>
-                        <span className={styles.topicBody}>
-                          <span className={styles.tierRow}>
-                            {DIFFICULTIES.map((d) => {
-                              const c = n.difficulties[d];
-                              const state = c.total === 0 ? "soon" : c.solved === c.total ? "done" : c.solved > 0 ? "part" : "open";
-                              return (
-                                <span key={d} className={styles.tier} data-state={state} title={c.total === 0 ? `${DIFFICULTY_LABELS[d]}: coming soon` : `${DIFFICULTY_LABELS[d]}: ${c.solved}/${c.total} solved`}>
-                                  <span className={styles.tierName}>{TIER_SHORT[d]}</span>
-                                  <span className={styles.tierCount}>{c.total === 0 ? "Soon" : `${c.solved}/${c.total}`}</span>
-                                  <ProgressBar solved={c.solved} total={c.total} />
+                        <span className={styles.tierList}>
+                          {DIFFICULTIES.map((d) => {
+                            const c = n.difficulties[d];
+                            const soon = c.total === 0;
+                            return (
+                              <span key={d} className={styles.tierLine} data-tier={d} data-soon={soon} data-done={!soon && c.solved === c.total} title={soon ? `${DIFFICULTY_LABELS[d]}: coming soon` : `${DIFFICULTY_LABELS[d]}: ${c.solved} of ${c.total} solved`}>
+                                <span className={styles.tierLabel}>{DIFFICULTY_LABELS[d]}</span>
+                                <span className={styles.segments} aria-hidden="true">
+                                  {soon ? <span className={styles.segSoon} /> : Array.from({ length: c.total }, (_, k) => (
+                                    <span key={k} className={styles.seg} data-on={k < c.solved} />
+                                  ))}
                                 </span>
-                              );
-                            })}
-                          </span>
+                                <span className={styles.tierNum}>{soon ? "Soon" : `${c.solved}/${c.total}`}</span>
+                              </span>
+                            );
+                          })}
                         </span>
                       </button>
                     </li>

@@ -103,18 +103,21 @@
 }
 .topicCard[data-done="true"] .stepBadge { background: #2d6a2d; border-color: #1b3f1b; }
 .topicHead { display: flex; align-items: center; gap: .55rem; }
-.topicBody { display: block; margin-top: auto; }
 .topicMeta { font: 900 .64rem/1 "Nunito", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #1d528d; }
 .topicTitle { min-height: 2.4em; font: 900 1.05rem/1.2 "Bree Serif", Georgia, serif; }
-.tierRow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; }
-.tier { display: flex; flex-direction: column; gap: .15rem; min-width: 0; padding: .4rem .5rem .45rem; border: 2px solid rgba(75, 36, 17, .4); border-radius: 6px; background: rgba(255, 255, 255, .4); }
-.tierName { font: 900 .62rem/1 "Nunito", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #5a3517; }
-.tierCount { font: 900 .85rem/1.1 "Bree Serif", Georgia, serif; }
-.tier .bar { height: .35rem; margin-top: .15rem; }
-.tier[data-state="part"] { background: #fff0b8; border-color: #b9851f; }
-.tier[data-state="done"] { background: #c8ecb0; border-color: #2d6a2d; color: #1f5a1f; }
-.tier[data-state="soon"] { opacity: .55; border-style: dashed; }
-.tier[data-state="soon"] .bar { visibility: hidden; }
+.goalTag { padding: .2rem .5rem; border: 2px solid #4b2411; border-radius: 999px; background: #fff6d6; font: 900 .62rem/1 "Nunito", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #4b2411; }
+.tierList { display: flex; flex-direction: column; gap: .35rem; margin-top: auto; padding: .5rem .55rem; border-radius: 6px; background: rgba(255, 255, 255, .42); box-shadow: inset 0 0 0 2px rgba(75, 36, 17, .18); }
+.tierLine { display: grid; grid-template-columns: 3.6rem 1fr 2.3rem; align-items: center; gap: .5rem; }
+.tierLabel { font: 900 .72rem/1 "Nunito", sans-serif; color: #4b2411; }
+.segments { display: flex; gap: 2px; height: .55rem; }
+.seg { flex: 1; min-width: 0; border-radius: 2px; background: rgba(75, 36, 17, .2); }
+.seg[data-on="true"] { background: #2d8a3a; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+.tierLine[data-tier="medium"] .seg[data-on="true"] { background: #c98410; }
+.tierLine[data-tier="hard"] .seg[data-on="true"] { background: #b4432a; }
+.segSoon { flex: 1; border-radius: 2px; border: 1px dashed rgba(75, 36, 17, .45); }
+.tierNum { text-align: right; font: 900 .78rem/1 "Bree Serif", Georgia, serif; font-variant-numeric: tabular-nums; }
+.tierLine[data-soon="true"] { opacity: .6; }
+.tierLine[data-done="true"] .tierNum { color: #1f5a1f; }
 .cardGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: .9rem; }
 .card {
   display: flex;
