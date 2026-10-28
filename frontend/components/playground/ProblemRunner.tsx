@@ -257,16 +257,18 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
         </div>
       )}
 
-      <div className={styles.buttonRow}>
+      <div className={styles.actionBar}>
         {locked ? (
-          <button type="button" className={styles.primaryButton} onClick={() => dispatch({ type: "NEXT" })}>
-            {isLast ? "See summary" : "Next"}
+          <button type="button" className={`${styles.primaryButton} ${styles.mainAction}`} onClick={() => dispatch({ type: "NEXT" })}>
+            {isLast ? "See summary" : "Next"} <span aria-hidden="true">→</span>
           </button>
         ) : (
           <>
-            <button type="button" className={styles.primaryButton} onClick={check} disabled={busy}>Check</button>
-            <button type="button" className={styles.secondaryButton} onClick={reveal} disabled={busy}>Reveal answer</button>
-            <button type="button" className={styles.secondaryButton} onClick={() => dispatch({ type: "SKIP" })} disabled={busy}>Skip</button>
+            <div className={styles.sideActions}>
+              <button type="button" className={styles.linkButton} onClick={reveal} disabled={busy}>Reveal answer</button>
+              <button type="button" className={styles.linkButton} onClick={() => dispatch({ type: "SKIP" })} disabled={busy}>Skip</button>
+            </div>
+            <button type="button" className={`${styles.primaryButton} ${styles.mainAction}`} onClick={check} disabled={busy}>Check</button>
           </>
         )}
       </div>

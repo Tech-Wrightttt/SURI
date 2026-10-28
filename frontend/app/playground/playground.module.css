@@ -104,11 +104,15 @@
 .topicBody { display: flex; flex-direction: column; gap: .4rem; min-width: 0; flex: 1; }
 .topicMeta { font: 900 .64rem/1 "Nunito", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #1d528d; }
 .topicTitle { font: 900 1.05rem/1.2 "Bree Serif", Georgia, serif; }
-.tierRow { display: flex; flex-wrap: wrap; gap: .3rem; }
-.tier { padding: .18rem .45rem; border-radius: 999px; border: 2px solid rgba(75, 36, 17, .5); background: rgba(255, 255, 255, .45); font: 900 .66rem/1 "Nunito", sans-serif; white-space: nowrap; }
+.tierRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; margin-top: .2rem; }
+.tier { display: flex; flex-direction: column; gap: .15rem; min-width: 0; padding: .35rem .45rem .4rem; border: 2px solid rgba(75, 36, 17, .4); border-radius: 6px; background: rgba(255, 255, 255, .4); }
+.tierName { font: 900 .6rem/1 "Nunito", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #5a3517; }
+.tierCount { font: 900 .85rem/1.1 "Bree Serif", Georgia, serif; }
+.tier .bar { height: .35rem; margin-top: .15rem; }
 .tier[data-state="part"] { background: #fff0b8; border-color: #b9851f; }
 .tier[data-state="done"] { background: #c8ecb0; border-color: #2d6a2d; color: #1f5a1f; }
 .tier[data-state="soon"] { opacity: .55; border-style: dashed; }
+.tier[data-state="soon"] .bar { visibility: hidden; }
 .cardGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: .9rem; }
 .card {
   display: flex;
@@ -177,6 +181,14 @@
 }
 .primaryButton { color: #321008; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 5px 0 #4b2411; }
 .secondaryButton { color: #3a2111; background: linear-gradient(180deg, #fff6d6, #e6cf96); box-shadow: 0 5px 0 #7a5a33; }
+/* answering page: low-emphasis actions on the left, the one main action on the right */
+.actionBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; padding-top: 1.1rem; border-top: 2px dashed rgba(109, 65, 28, .35); }
+.sideActions { display: flex; gap: 1.1rem; flex-wrap: wrap; }
+.mainAction { margin-left: auto; min-width: 9rem; }
+.linkButton { padding: .3rem 0; border: 0; background: none; color: #5a3517; font: 900 .9rem/1 "Nunito", sans-serif; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.linkButton:hover:not(:disabled) { color: #1d528d; }
+.linkButton:disabled { opacity: .5; cursor: not-allowed; }
+
 .primaryButton:hover:not(:disabled), .secondaryButton:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-2px); }
 .primaryButton:disabled, .secondaryButton:disabled { opacity: .55; cursor: not-allowed; }
 
@@ -215,4 +227,7 @@
   .answerRow { flex-direction: column; align-items: stretch; }
   .unit { align-self: flex-end; }
   .cardGrid { grid-template-columns: 1fr 1fr; }
+  .actionBar { flex-direction: column-reverse; align-items: stretch; }
+  .mainAction { margin-left: 0; width: 100%; }
+  .sideActions { justify-content: center; }
 }

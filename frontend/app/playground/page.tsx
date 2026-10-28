@@ -135,14 +135,16 @@ function PlaygroundInner() {
                           <span className={styles.tierRow}>
                             {DIFFICULTIES.map((d) => {
                               const c = n.difficulties[d];
+                              const state = c.total === 0 ? "soon" : c.solved === c.total ? "done" : c.solved > 0 ? "part" : "open";
                               return (
-                                <span key={d} className={styles.tier} data-state={c.total === 0 ? "soon" : c.solved === c.total ? "done" : c.solved > 0 ? "part" : "open"} title={c.total === 0 ? `${DIFFICULTY_LABELS[d]}: coming soon` : `${DIFFICULTY_LABELS[d]}: ${c.solved}/${c.total} solved`}>
-                                  {DIFFICULTY_LABELS[d]}{c.total > 0 ? ` ${c.solved}/${c.total}` : ""}
+                                <span key={d} className={styles.tier} data-state={state} title={c.total === 0 ? `${DIFFICULTY_LABELS[d]}: coming soon` : `${DIFFICULTY_LABELS[d]}: ${c.solved}/${c.total} solved`}>
+                                  <span className={styles.tierName}>{DIFFICULTY_LABELS[d]}</span>
+                                  <span className={styles.tierCount}>{c.total === 0 ? "Soon" : `${c.solved}/${c.total}`}</span>
+                                  <ProgressBar solved={c.solved} total={c.total} />
                                 </span>
                               );
                             })}
                           </span>
-                          <ProgressBar solved={totals.solved} total={totals.total} />
                         </span>
                       </button>
                     </li>
