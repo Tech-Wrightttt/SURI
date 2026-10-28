@@ -265,8 +265,8 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
         ) : (
           <>
             <div className={styles.sideActions}>
-              <button type="button" className={styles.linkButton} onClick={reveal} disabled={busy}>Reveal answer</button>
-              <button type="button" className={styles.linkButton} onClick={() => dispatch({ type: "SKIP" })} disabled={busy}>Skip</button>
+              <button type="button" className={styles.secondaryButton} onClick={reveal} disabled={busy}>Reveal answer</button>
+              <button type="button" className={styles.secondaryButton} onClick={() => dispatch({ type: "SKIP" })} disabled={busy}>Skip</button>
             </div>
             <button type="button" className={`${styles.primaryButton} ${styles.mainAction}`} onClick={check} disabled={busy}>Check</button>
           </>

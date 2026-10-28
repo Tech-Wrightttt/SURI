@@ -70,8 +70,9 @@
 .trailItem { display: flex; position: relative; }
 .topicCard {
   display: flex;
-  align-items: flex-start;
-  gap: .75rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .55rem;
   width: 100%;
   padding: .85rem .9rem;
   border: 3px solid #6d411c;
@@ -92,21 +93,22 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.7rem;
+  height: 1.7rem;
   border: 2px solid #4b2411;
   border-radius: 50%;
   color: #fff6d6;
   background: #6d411c;
-  font: 900 .95rem/1 "Bree Serif", Georgia, serif;
+  font: 900 .85rem/1 "Bree Serif", Georgia, serif;
 }
 .topicCard[data-done="true"] .stepBadge { background: #2d6a2d; border-color: #1b3f1b; }
-.topicBody { display: flex; flex-direction: column; gap: .4rem; min-width: 0; flex: 1; }
+.topicHead { display: flex; align-items: center; gap: .55rem; }
+.topicBody { display: block; margin-top: auto; }
 .topicMeta { font: 900 .64rem/1 "Nunito", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #1d528d; }
-.topicTitle { font: 900 1.05rem/1.2 "Bree Serif", Georgia, serif; }
-.tierRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; margin-top: .2rem; }
-.tier { display: flex; flex-direction: column; gap: .15rem; min-width: 0; padding: .35rem .45rem .4rem; border: 2px solid rgba(75, 36, 17, .4); border-radius: 6px; background: rgba(255, 255, 255, .4); }
-.tierName { font: 900 .6rem/1 "Nunito", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #5a3517; }
+.topicTitle { min-height: 2.4em; font: 900 1.05rem/1.2 "Bree Serif", Georgia, serif; }
+.tierRow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; }
+.tier { display: flex; flex-direction: column; gap: .15rem; min-width: 0; padding: .4rem .5rem .45rem; border: 2px solid rgba(75, 36, 17, .4); border-radius: 6px; background: rgba(255, 255, 255, .4); }
+.tierName { font: 900 .62rem/1 "Nunito", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #5a3517; }
 .tierCount { font: 900 .85rem/1.1 "Bree Serif", Georgia, serif; }
 .tier .bar { height: .35rem; margin-top: .15rem; }
 .tier[data-state="part"] { background: #fff0b8; border-color: #b9851f; }
@@ -183,11 +185,8 @@
 .secondaryButton { color: #3a2111; background: linear-gradient(180deg, #fff6d6, #e6cf96); box-shadow: 0 5px 0 #7a5a33; }
 /* answering page: low-emphasis actions on the left, the one main action on the right */
 .actionBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; padding-top: 1.1rem; border-top: 2px dashed rgba(109, 65, 28, .35); }
-.sideActions { display: flex; gap: 1.1rem; flex-wrap: wrap; }
+.sideActions { display: flex; gap: .7rem; flex-wrap: wrap; }
 .mainAction { margin-left: auto; min-width: 9rem; }
-.linkButton { padding: .3rem 0; border: 0; background: none; color: #5a3517; font: 900 .9rem/1 "Nunito", sans-serif; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.linkButton:hover:not(:disabled) { color: #1d528d; }
-.linkButton:disabled { opacity: .5; cursor: not-allowed; }
 
 .primaryButton:hover:not(:disabled), .secondaryButton:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-2px); }
 .primaryButton:disabled, .secondaryButton:disabled { opacity: .55; cursor: not-allowed; }
@@ -229,5 +228,6 @@
   .cardGrid { grid-template-columns: 1fr 1fr; }
   .actionBar { flex-direction: column-reverse; align-items: stretch; }
   .mainAction { margin-left: 0; width: 100%; }
-  .sideActions { justify-content: center; }
+  .sideActions { justify-content: stretch; }
+  .sideActions > button { flex: 1; }
 }
