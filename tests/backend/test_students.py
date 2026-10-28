@@ -44,10 +44,11 @@ async def test_TC74_own_progress_aggregates_sessions_and_misconceptions(client, 
     await set_status(db, student["id"], "PE", "mastered", "implied")
     attempt_id = (await add_attempts(db, active, "OI", [0]))[0]
     problem_id = await db.fetchval("SELECT problem_id FROM practice_attempts WHERE id = $1", attempt_id)
+    log_id = str(uuid.uuid4())
     await db.execute(
         "INSERT INTO misconception_logs (id, session_id, practice_attempt_id, problem_id, step_index, "
         "step_description, mapped_node_id, logged_at) VALUES ($1, $2, $3, $4, 0, 'Sign rules', 'OI', $5)",
-        str(uuid.uuid4()), active, attempt_id, problem_id, now_iso(),
+        log_id, active, attempt_id, problem_id, now_iso(),
     )
 
     res = await client.get(f"/api/students/{student['id']}/progress", headers=student["headers"])
@@ -62,6 +63,6 @@ async def test_TC74_own_progress_aggregates_sessions_and_misconceptions(client, 
     [pe] = body["completed_sessions"]
     assert pe["id"] == done and pe["completion_percentage"] == 100.0 and pe["practice_count"] == 2
     assert body["misconception_history"] == [{
-        "node_id": "OI", "node_label": "Operations on Integers",
+        "id": log_id, "node_id": "OI", "node_label": "Operations on Integers",
         "step_description": "Sign rules", "logged_at": body["misconception_history"][0]["logged_at"],
     }]
