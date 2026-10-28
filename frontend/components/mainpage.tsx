@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { HelpCircle, LogOut, UserRound } from "lucide-react";
-import { logout } from "@/lib/api";
-import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
+import { usePathname } from "next/navigation";
+import { HelpCircle, UserRound } from "lucide-react";
+import { useLearningData } from "@/components/navigation/LearningShell";
 import HelpModal, { getHelpPage } from "@/components/navigation/HelpModal";
-import LogoutConfirmModal from "@/components/navigation/LogoutConfirmModal";
+const AccountSettingsModal = dynamic(() => import("@/components/WorldMap/AccountSettingsModal"), { ssr: false });
 
 export default function MainPage({
   children,
@@ -16,26 +16,14 @@ export default function MainPage({
   children: React.ReactNode;
   immersive?: boolean;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const {clearSession} = useWorldNavigation();
   const {data} = useLearningData();
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [helpOpener, setHelpOpener] = useState<HTMLButtonElement | null>(null);
-  const [logoutOpener, setLogoutOpener] = useState<HTMLButtonElement | null>(null);
-  const closeLogoutConfirm = useCallback(() => setShowLogoutConfirm(false), []);
+  const [accountOpener, setAccountOpener] = useState<HTMLButtonElement | null>(null);
+  const closeAccountSettings = useCallback(() => setShowAccountSettings(false), []);
   const helpPage = getHelpPage(pathname);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      clearSession();
-      router.push("/login");
-    } catch {
-      // ignore
-    }
-  };
 
   return (
     <div className={immersive ? "min-h-screen bg-transparent text-white" : "min-h-screen bg-[#DBD4C7] text-[#191c1e]"}>
@@ -48,29 +36,13 @@ export default function MainPage({
           <div className="suri-app-bar-actions">
             <button
               onClick={(event) => { setHelpOpener(event.currentTarget); setShowHelp(true); }}
-              aria-label={helpPage ? `Open ${helpPage === "error-history" ? "Error History" : helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
+              aria-label={helpPage ? `Open ${helpPage[0].toUpperCase() + helpPage.slice(1)} help` : "Open help"}
               className="suri-app-control"
             >
               <HelpCircle className="h-5 w-5" /><span className="suri-app-control-label">Help</span>
             </button>
-            <div className="suri-app-control suri-app-account-control" aria-label={`Signed in as ${data?.me.name || "Student"}`}>
+            <button type="button" className="suri-app-control suri-app-account-control" aria-label={`Open account settings for ${data?.me.name || "Student"}`} aria-haspopup="dialog" onClick={(event) => { setAccountOpener(event.currentTarget); setShowAccountSettings(true); }}>
               <UserRound className="h-5 w-5 shrink-0" /><span className="truncate">{data?.me.name || "Student"}</span>
-            </div>
-            <button
-              type="button"
-              onClick={(event) => { setLogoutOpener(event.currentTarget); setShowLogoutConfirm(true); }}
-              aria-label="Log out"
-              className="suri-app-control suri-app-logout-control"
-              style={{
-                background: "linear-gradient(180deg, #d74b42, #a8211c)",
-                color: "#fff4d5",
-                boxShadow: "0 6px 0 #59100e, 0 13px 23px rgba(0,0,0,.26), inset 0 0 0 3px rgba(255,237,218,.16)",
-                inlineSize: "4.1rem",
-                blockSize: "4.1rem",
-                padding: 0,
-              }}
-            >
-              <LogOut className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -82,9 +54,7 @@ export default function MainPage({
 
       {showHelp && helpPage && <HelpModal page={helpPage} opener={helpOpener} onClose={() => setShowHelp(false)} />}
 
-      {showLogoutConfirm && (
-        <LogoutConfirmModal opener={logoutOpener} onClose={closeLogoutConfirm} onConfirm={handleLogout} />
-      )}
+      {showAccountSettings && <AccountSettingsModal me={data?.me} opener={accountOpener} onClose={closeAccountSettings} />}
     </div>
   );
 }

@@ -1,0 +1,9 @@
+.page {
+  padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem;
+  font-family: "Nunito", "Manrope", sans-serif;
+}
+
+.page :global(.progress-library-header),
+.page :global(.progress-library-back-row) {
+  width: 100%;
+}
