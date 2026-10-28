@@ -328,6 +328,7 @@ export interface ActiveSessionProgress {
 }
 
 export interface MisconceptionHistoryItem {
+  id?: string;
   node_id: string;
   node_label: string;
   step_description: string;
@@ -338,6 +339,16 @@ export interface StudentProgress {
   active_sessions: ActiveSessionProgress[];
   completed_sessions: ActiveSessionProgress[];
   misconception_history: MisconceptionHistoryItem[];
+  misconception_next_offset?: number | null;
+}
+
+export interface MistakeHistoryPage {
+  items: MisconceptionHistoryItem[];
+  next_offset: number | null;
+}
+
+export function getStudentMistakes(studentId: string, offset: number): Promise<MistakeHistoryPage> {
+  return request<MistakeHistoryPage>(`/api/students/${encodeURIComponent(studentId)}/mistakes?offset=${offset}`);
 }
 
 export interface DiagnosticSubmitAnswer {
@@ -405,10 +416,11 @@ export function getMe(): Promise<MeResponse> {
 }
 
 export async function logout(): Promise<{ message: string }> {
-  removeStoredToken();
-  return request<{ message: string }>("/api/auth/logout", {
+  const response = await request<{ message: string }>("/api/auth/logout", {
     method: "POST",
   });
+  removeStoredToken();
+  return response;
 }
 
 // ─── Topics ──────────────────────────────────────────

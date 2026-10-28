@@ -1,0 +1,23 @@
+#!/bin/sh
+# Enforces the team commit format on the subject line:
+#   CU-<clickup id>[<status>] <type>(<scope>)?: <description>
+#   e.g. CU-14ypx6209r9[fixed] docs: update README
+# Enable locally once per clone: git config core.hooksPath .githooks
+# CI runs this same script on every PR commit (.github/workflows/commit-format.yml).
+
+subject=$(head -n1 "$1" | tr -d '\r')
+
+case "$subject" in
+  "Merge "*|"Revert \""*) exit 0 ;;
+esac
+
+pattern='^CU-[0-9a-z]+\[[a-z]+\] (feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?!?: .+'
+
+if echo "$subject" | grep -Eq "$pattern"; then
+  exit 0
+fi
+
+echo "Invalid commit message: $subject" >&2
+echo "Expected: CU-<clickup id>[<status>] <type>(<scope>)?: <description>" >&2
+echo "Example:  CU-14ypx6209r9[fixed] docs: update README" >&2
+exit 1

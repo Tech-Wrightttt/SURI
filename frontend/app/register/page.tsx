@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, ShieldAlert, User } from "lucide-react";
+import { Eye, EyeOff, GraduationCap, Lock, Mail, ShieldAlert, User } from "lucide-react";
 import { register } from "@/lib/api";
 
 const REGISTER_CSS = `
@@ -351,6 +351,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [gradeLevel, setGradeLevel] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -366,7 +367,7 @@ export default function RegisterPage() {
         name,
         email,
         password,
-        grade_level: 1,
+        grade_level: Number(gradeLevel),
       });
       router.push("/dashboard");
     } catch (err: unknown) {
@@ -439,6 +440,24 @@ export default function RegisterPage() {
                   placeholder="Email"
                   autoComplete="email"
                 />
+              </label>
+
+              <label className="quest-input-row" htmlFor="register-grade">
+                <span className="quest-input-icon" aria-hidden="true">
+                  <GraduationCap className="h-8 w-8" />
+                </span>
+                <select
+                  id="register-grade"
+                  value={gradeLevel}
+                  onChange={(e) => setGradeLevel(e.target.value)}
+                  required
+                  className="quest-input"
+                >
+                  <option value="" disabled>Grade level</option>
+                  {[7, 8, 9, 10].map((g) => (
+                    <option key={g} value={g}>Grade {g}</option>
+                  ))}
+                </select>
               </label>
 
               <label className="quest-input-row" htmlFor="register-password">
