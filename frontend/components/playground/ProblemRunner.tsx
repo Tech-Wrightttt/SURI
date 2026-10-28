@@ -249,7 +249,7 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
           <ol className={styles.steps}>
             {fb.reveal.solution_steps.map((s, i) => (
               <li key={i}>
-                <span>{s.explanation}</span>
+                <PromptText text={s.explanation} className={styles.stepText} />
                 <PromptText text={`$$${s.latex}$$`} />
               </li>
             ))}
