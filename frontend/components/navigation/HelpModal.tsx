@@ -45,7 +45,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
         icon: Compass,
         items: [
           "Choose a landmark to open Topics, Progress, Calculator, or Playground. Mistake review is in Progress.",
-          "Open SURI Keep to view your student overview, account details, and learning totals.",
+          "Open SURI Keep or select your username to view account details, find audio settings, or log out.",
           "Return to an active learning session from the area where you started it.",
         ],
       },
