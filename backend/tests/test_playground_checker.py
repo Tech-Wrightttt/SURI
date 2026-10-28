@@ -182,6 +182,14 @@ class ExpressionTests(CheckerCase):
         self.bad("x^2\\cdot x^3", q, "wrong_form")
         self.ok("x^{5}", q)
 
+    def test_factored_rejects_multivariate_sum_with_hidden_common_factor(self):
+        p = prob("(x+2)(y+3)", "expression", form="factored")
+        self.ok("(x+2)(y+3)", p)
+        self.bad("xy+3x+2y+6", p, "wrong_form")
+        q = prob("(x+y)(x+z)", "expression", form="factored")
+        self.ok("(x+y)(x+z)", q)
+        self.bad("x^2+xy+xz+yz", q, "wrong_form")
+
     def test_positive_exponents_rejects_undistributed_powers(self):
         p = prob("27x^3y^6", "expression", form="positive_exponents")
         self.ok("27x^3y^6", p)

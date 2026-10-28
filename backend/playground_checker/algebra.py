@@ -365,23 +365,41 @@ def poly_irreducible(poly) -> bool:
         common = s if common is None else common & s
     if common:
         return False
-    # Hilbert-style check: substitute integers for all but one variable
-    for v in vs:
-        others = [o for o in vs if o != v]
-        for vals in product([1, 2, 3, 5], repeat=len(others)):
-            env = dict(zip(others, vals))
-            degv = max(dict(m).get(v, 0) for m in poly)
-            coeffs = [Fraction(0)] * (degv + 1)
-            for m, c in poly.items():
-                d = dict(m)
-                term = c
-                for o in others:
-                    term *= Fraction(env[o]) ** d.get(o, 0)
-                coeffs[d.get(v, 0)] += term
-            if len(coeffs) - 1 == degv and coeffs[-1] != 0 and univariate_irreducible(coeffs):
-                return True
-        # no substitution kept the degree irreducible for this variable
+    # Restrict to lines v_i = a_i + t*b_i. A nontrivial factorisation f = g*h restricts to one on every line whose
+    # direction keeps the full degree, so an irreducible, full-degree restriction proves f irreducible. This also
+    # catches a common factor in the other variables, which fixing all but one variable would miss.
+    for a_pt, b_dir in _line_samples(len(vs)):
+        coeffs = _restrict_to_line(poly, vs, a_pt, b_dir)
+        if len(coeffs) - 1 == total and coeffs[-1] != 0 and univariate_irreducible(coeffs):
+            return True
     return False
+
+
+def _line_samples(n):
+    seeds = [1, 2, 3, 5, 7, -1, -2, 4]
+    for i in range(48):
+        a_pt = [seeds[(i * (k + 2) + k) % len(seeds)] for k in range(n)]
+        b_dir = [seeds[(i + 3 * k + 1) % len(seeds)] for k in range(n)]
+        yield a_pt, b_dir
+
+
+def _restrict_to_line(poly, vs, a_pt, b_dir):
+    """Coefficients (low to high) of f(a + t*b) as a polynomial in t."""
+    total = max(sum(e for _, e in m) for m in poly)
+    out = [Fraction(0)] * (total + 1)
+    for m, c in poly.items():
+        d = dict(m)
+        term = [Fraction(c)]
+        for v, a_i, b_i in zip(vs, a_pt, b_dir):
+            for _ in range(d.get(v, 0)):
+                nxt = [Fraction(0)] * (len(term) + 1)
+                for k, x in enumerate(term):
+                    nxt[k] += x * a_i
+                    nxt[k + 1] += x * b_i
+                term = nxt
+        for k, x in enumerate(term):
+            out[k] += x
+    return out
 
 
 # --- monomials and form predicates ----------------------------------------------------
