@@ -3,6 +3,7 @@ Build the Playground hand-off package for the backend.
 
 Usage (from project root):
   python knowledge_base/playground/build_handoff.py --sample   # Drop 1: 15 hand-verified samples
+  python knowledge_base/playground/build_handoff.py --slice    # early slice: 14 topics x easy x 5
   python knowledge_base/playground/build_handoff.py            # Drop 2: full 420-problem bank
 
 Reads  samples/playground_sample.json  (--sample)
@@ -214,6 +215,27 @@ def status_of(p: dict, sample: bool, report: dict, decisions: dict) -> str:
     return entry.get("status", "missing")
 
 
+def check_slice_coverage(problems: list) -> list:
+    """Early slice: every node, easy only, exactly 5 problems (3 plain + 2 word), slots 01..05."""
+    errs = []
+    for p in problems:
+        if p["node_id"] == "PD":
+            errs.append(f"{p['id']}: PD is not part of the playground")
+        elif p["difficulty"] != "easy":
+            errs.append(f"{p['id']}: slice contains only easy problems")
+    for node in NODES:
+        group = [p for p in problems if p["node_id"] == node and p["difficulty"] == "easy"]
+        word = sum(1 for p in group if p["style"] == "word")
+        plain = sum(1 for p in group if p["style"] == "plain")
+        if len(group) != 5 or word != 2 or plain != 3:
+            errs.append(f"{node}/easy: expected 5 problems (3 plain + 2 word), "
+                        f"got {len(group)} ({word} word + {plain} plain)")
+        for p in group:
+            if int(p["id"].split("-")[2]) > 5:
+                errs.append(f"{p['id']}: slice uses slots 01..05 only")
+    return errs
+
+
 def check_coverage(problems: list) -> list:
     errs = []
     for p in problems:
@@ -232,7 +254,8 @@ def check_coverage(problems: list) -> list:
 
 def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
           source_path: str = None, report_path: str = REPORT_PATH,
-          decisions_path: str = DECISIONS_PATH, checker=None, allow_missing_checker: bool = None) -> dict:
+          decisions_path: str = DECISIONS_PATH, checker=None, allow_missing_checker: bool = None,
+          slice_mode: bool = False) -> dict:
     """Build the hand-off. Raises BuildError listing every problem found."""
     source_path = source_path or (SAMPLE_PATH if sample else FULL_PATH)
     if not os.path.exists(source_path):
@@ -282,7 +305,9 @@ def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
                 if not checker(v, p).correct:
                     errors.append(f"{p['id']}: accepted variant '{v}' is not accepted by the checker")
 
-    if not sample:
+    if slice_mode:
+        errors.extend(check_slice_coverage(problems))
+    elif not sample:
         errors.extend(check_coverage(problems))
     if errors:
         raise BuildError("\n".join(errors))
@@ -309,8 +334,9 @@ def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
         c["total"] += 1
     statuses = [status_of(p, sample, report, decisions) for p in problems]
     manifest = {
-        "drop": 1 if sample else 2,
+        "drop": "slice" if slice_mode else (1 if sample else 2),
         "sample": sample,
+        "complete": not (sample or slice_mode),
         "generated_at": generated_at,
         "counts": counts,
         "totals": {"problems": len(public), "word": sum(1 for p in public if p["style"] == "word"),
@@ -361,9 +387,12 @@ def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sample", action="store_true", help="build Drop 1 from the 15 sample problems")
+    ap.add_argument("--slice", action="store_true", help="build the early slice (14 topics x easy x 5)")
     args = ap.parse_args()
+    if args.sample and args.slice:
+        ap.error("--sample and --slice are mutually exclusive")
     try:
-        manifest = build(args.sample)
+        manifest = build(args.sample, slice_mode=args.slice)
     except BuildError as e:
         print("BUILD REFUSED:\n" + str(e), file=sys.stderr)
         sys.exit(1)

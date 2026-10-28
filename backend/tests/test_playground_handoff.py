@@ -123,6 +123,36 @@ class HandoffTests(unittest.TestCase):
         with open(os.path.join(self.out, "update_playground.sql"), encoding="utf-8") as f:
             self.assertIn("ON CONFLICT (id) DO UPDATE SET", f.read())
 
+    def test_slice_requires_easy_five_per_node(self):
+        def slice_set(n_per_node=5):
+            out = []
+            for node in bh.NODES:
+                for i in range(1, n_per_node + 1):
+                    out.append(self._fake(node, "easy", i, "word" if i <= 2 else "plain"))
+            return out
+
+        report = lambda ps: {p["id"]: {"status": "validated", "method": "x"} for p in ps}
+
+        def run(ps):
+            rpath = os.path.join(self.tmp.name, "r.json")
+            with open(rpath, "w", encoding="utf-8") as f:
+                json.dump(report(ps), f)
+            return bh.build(False, out_dir=self.out, mock_path=self.mock, source_path=self._write(ps),
+                            checker=_always_correct, report_path=rpath,
+                            decisions_path=os.path.join(self.tmp.name, "d.json"), slice_mode=True)
+
+        manifest = run(slice_set())
+        self.assertEqual(manifest["drop"], "slice")
+        self.assertFalse(manifest["complete"])
+        self.assertEqual(manifest["totals"]["problems"], 70)
+        short = slice_set()[:-1]
+        with self.assertRaises(bh.BuildError):
+            run(short)
+        hard = slice_set()
+        hard[0] = self._fake("QE", "hard", 1, "word")
+        with self.assertRaises(bh.BuildError):
+            run(hard)
+
     # -- helpers for full-mode tests -------------------------------------------------
     def _fake(self, node, diff, i, style):
         return {
