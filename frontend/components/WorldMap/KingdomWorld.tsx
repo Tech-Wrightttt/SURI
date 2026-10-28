@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import type { CameraCommand } from "@/lib/worldMap/navigation";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import type { ActiveSessionProgress, MeResponse, MisconceptionHistoryItem } from "@/lib/api";
+import type { MeResponse } from "@/lib/api";
 import { Landscape } from "./Landscape";
 import { MapCamera, CAMERA_POSITION } from "./MapCamera";
 import { LandmarkArchitecture } from "./Architecture";
@@ -17,8 +17,8 @@ import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
 import { configureWorldRenderer } from "@/lib/three/renderer";
 
-const loadStudentOverview = () => import("./StudentOverviewModal");
-const StudentOverviewModal = lazy(loadStudentOverview);
+const loadAccountSettings = () => import("./AccountSettingsModal");
+const AccountSettingsModal = lazy(loadAccountSettings);
 
 type Point3 = [number, number, number];
 const COLORS = { gold: "#dfc188", purple: "#a99bd1" };
@@ -27,9 +27,9 @@ type DashboardLandmark = "keep" | "topics" | "records" | "champions" | "calculat
 type LandmarkElements = Partial<Record<DashboardLandmark, HTMLDivElement | null>>;
 
 const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href?: string; description: string }> = [
-  { kind: "keep", title: "Castle Keep", description: "Your kingdom's welcome hall and student overview." },
+  { kind: "keep", title: "SURI Keep", description: "View your account details, audio settings, or log out." },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics", description: "Explore the Learning Grove and choose your next topic." },
-  { kind: "records", title: "Error History · Hall of Records", href: "/error-history", description: "Revisit misconceptions in the Hall of Records." },
+  { kind: "records", title: "Playground", href: "/playground", description: "Open your Playground." },
   { kind: "champions", title: "Progress · Hall of Champions", href: "/progress", description: "Track your mastery in the Hall of Champions." },
   { kind: "calculator", title: "Calculator · Arcane Tower", href: "/calculator", description: "Solve equations step by step in the Arcane Tower." },
 ];
@@ -64,7 +64,7 @@ function Landmark({ position, kind, onClick, onIntent, accent, selected=false, h
 }
 
 type WorldProps = {
-  me?: MeResponse; active?: ActiveSessionProgress[]; completed?: ActiveSessionProgress[]; errors?: MisconceptionHistoryItem[];
+  me?: MeResponse;
   progress: { mastered: number; total: number; pct: number; dewdrops: number; rank: string };
   topicProgress: { completed: number; total: number | null };
   command: CameraCommand | null; visible: boolean; labelsVisible: boolean; preserveCameraOnActivate?: boolean; busy: boolean; navigate: (href: string) => void; preloadRoute?: (href: string) => void;
@@ -130,9 +130,9 @@ function CoastalWorld({ command, navigate, preloadRoute, busy, visible, preserve
         <Ocean lowDetail={lowPower} />
         <Landscape lowDetail={lowPower} />
 
-        <Landmark position={sitePosition("keep")} accent={COLORS.gold} kind="keep" onClick={openOverview} onIntent={() => { void loadStudentOverview(); }} hovered={hoveredLandmark === "keep"} onHoverChange={setHoveredLandmark} />
+        <Landmark position={sitePosition("keep")} accent={COLORS.gold} kind="keep" onClick={openOverview} onIntent={() => { void loadAccountSettings(); }} hovered={hoveredLandmark === "keep"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("topics")} onClick={() => visit("topics", "/topics")} onIntent={() => preloadRoute?.("/topics")} kind="topics" selected={selectedSite === "topics"} hovered={hoveredLandmark === "topics"} onHoverChange={setHoveredLandmark} />
-        <Landmark position={sitePosition("records")} onClick={() => visit("records", "/error-history")} onIntent={() => preloadRoute?.("/error-history")} kind="records" selected={selectedSite === "records"} hovered={hoveredLandmark === "records"} onHoverChange={setHoveredLandmark} />
+        <Landmark position={sitePosition("records")} onClick={() => visit("records", "/playground")} onIntent={() => preloadRoute?.("/playground")} kind="records" selected={selectedSite === "records"} hovered={hoveredLandmark === "records"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("champions")} onClick={() => visit("champions", "/progress")} onIntent={() => preloadRoute?.("/progress")} kind="champions" selected={selectedSite === "champions"} hovered={hoveredLandmark === "champions"} onHoverChange={setHoveredLandmark} />
         <Landmark position={sitePosition("calculator")} onClick={() => visit("calculator", "/calculator")} onIntent={() => preloadRoute?.("/calculator")} kind="calculator" selected={selectedSite === "calculator"} hovered={hoveredLandmark === "calculator"} onHoverChange={setHoveredLandmark} />
       </group>
@@ -212,13 +212,13 @@ function DashboardWorld(props: WorldProps) {
         {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} data-visible={props.labelsVisible && !overviewOpen} inert={!props.labelsVisible || overviewOpen} hidden={!props.visible || overviewOpen} aria-hidden={!props.labelsVisible || overviewOpen}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
             const subtitle = kind === "records"
-              ? `${props.errors?.length ?? 0} misconception records`
+              ? "Your creative space"
               : kind === "champions"
                 ? `${props.progress.mastered}/${props.progress.total} skills mastered`
                 : kind === "topics"
                   ? `${props.topicProgress.completed}${props.topicProgress.total === null ? "" : `/${props.topicProgress.total}`} topics completed`
                   : kind === "keep"
-                    ? props.progress.rank
+                    ? "Account settings"
                     : "Step-by-step equation solver";
             const label = title.split(" · ")[0];
             const hovered = hoveredLandmark === kind;
@@ -232,11 +232,11 @@ function DashboardWorld(props: WorldProps) {
                 <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
                 <span className={styles.markerSubtitle}>{subtitle}</span>
                 <span className={styles.markerDetail}>{description}</span>
-              </button> : <button ref={keepTriggerRef} type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${subtitle}. Open your student progress and account overview`}
+              </button> : <button ref={keepTriggerRef} type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: Open your account settings`}
                 onClick={openOverview}
-                onMouseEnter={() => { void loadStudentOverview(); setHoveredLandmark(kind); }}
+                onMouseEnter={() => { void loadAccountSettings(); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}
-                onFocus={() => { void loadStudentOverview(); setHoveredLandmark(kind); }}
+                onFocus={() => { void loadAccountSettings(); setHoveredLandmark(kind); }}
                 onBlur={() => setHoveredLandmark(null)}>
                 <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
                 <span className={styles.markerSubtitle}>{subtitle}</span>
@@ -246,8 +246,8 @@ function DashboardWorld(props: WorldProps) {
           })}
         </div>, document.body)}
       </div>
-      {overviewOpen && <Suspense fallback={<div className="suri-overview-overlay" role="status"><div className="suri-overview-loading">Opening your student overview…</div></div>}>
-        <StudentOverviewModal me={props.me} active={props.active} completed={props.completed} errors={props.errors} progress={props.progress} opener={overviewOpener} onClose={() => setOverviewOpen(false)} />
+      {overviewOpen && <Suspense fallback={<div className="suri-overview-overlay" role="status"><div className="suri-overview-loading">Opening your account settings…</div></div>}>
+        <AccountSettingsModal me={props.me} opener={overviewOpener} onClose={() => setOverviewOpen(false)} />
       </Suspense>}
     </div>
   );

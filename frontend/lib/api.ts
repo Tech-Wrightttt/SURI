@@ -282,6 +282,7 @@ export interface ActiveSessionProgress {
 }
 
 export interface MisconceptionHistoryItem {
+  id?: string;
   node_id: string;
   node_label: string;
   step_description: string;
@@ -292,6 +293,16 @@ export interface StudentProgress {
   active_sessions: ActiveSessionProgress[];
   completed_sessions: ActiveSessionProgress[];
   misconception_history: MisconceptionHistoryItem[];
+  misconception_next_offset?: number | null;
+}
+
+export interface MistakeHistoryPage {
+  items: MisconceptionHistoryItem[];
+  next_offset: number | null;
+}
+
+export function getStudentMistakes(studentId: string, offset: number): Promise<MistakeHistoryPage> {
+  return request<MistakeHistoryPage>(`/api/students/${encodeURIComponent(studentId)}/mistakes?offset=${offset}`);
 }
 
 export interface DiagnosticSubmitAnswer {
@@ -359,10 +370,11 @@ export function getMe(): Promise<MeResponse> {
 }
 
 export async function logout(): Promise<{ message: string }> {
-  removeStoredToken();
-  return request<{ message: string }>("/api/auth/logout", {
+  const response = await request<{ message: string }>("/api/auth/logout", {
     method: "POST",
   });
+  removeStoredToken();
+  return response;
 }
 
 // ─── Topics ──────────────────────────────────────────
@@ -675,4 +687,97 @@ export function finishQuiz(body: {
   });
 }
 
+
+// ─── Playground ──────────────────────────────────────
+// Shapes match knowledge_base/playground/API_SPEC.md exactly.
+
+export type PlaygroundDifficulty = "easy" | "medium" | "hard";
+export type PlaygroundStyle = "word" | "plain";
+export type PlaygroundAnswerType = "number" | "expression" | "equation" | "solution_set" | "ordered_pair";
+export type PlaygroundCheckReason = "correct" | "not_equivalent" | "wrong_form" | "unparseable" | "empty";
+
+export interface PlaygroundDifficultyCount {
+  total: number;
+  solved: number;
+}
+
+export interface PlaygroundNode {
+  node_id: string;
+  label: string;
+  grade: number;
+  difficulties: Record<PlaygroundDifficulty, PlaygroundDifficultyCount>;
+}
+
+export interface PlaygroundChain {
+  entry_node_id: string;
+  label: string;
+  nodes: PlaygroundNode[];
+}
+
+export interface PlaygroundTopics {
+  chains: PlaygroundChain[];
+}
+
+export interface PlaygroundProblem {
+  id: string;
+  style: PlaygroundStyle;
+  prompt: string;
+  answer_type: PlaygroundAnswerType;
+  required_form: string;
+  unit: string | null;
+  solved: boolean;
+}
+
+export interface PlaygroundSitting {
+  node_id: string;
+  difficulty: PlaygroundDifficulty;
+  problems: PlaygroundProblem[];
+}
+
+export interface PlaygroundCheckResult {
+  correct: boolean;
+  reason: PlaygroundCheckReason;
+  message: string;
+  solved: boolean;
+}
+
+export interface PlaygroundSolutionStep {
+  explanation: string;
+  latex: string;
+}
+
+export interface PlaygroundReveal {
+  answer: string;
+  unit: string | null;
+  solution_steps: PlaygroundSolutionStep[];
+}
+
+export function getPlaygroundTopics(): Promise<PlaygroundTopics> {
+  return request<PlaygroundTopics>("/api/playground/topics");
+}
+
+export function getPlaygroundSitting(
+  nodeId: string,
+  difficulty: PlaygroundDifficulty
+): Promise<PlaygroundSitting> {
+  const query = new URLSearchParams({ node_id: nodeId, difficulty });
+  return request<PlaygroundSitting>(`/api/playground/sitting?${query.toString()}`);
+}
+
+export function checkPlaygroundAnswer(
+  problemId: string,
+  answerLatex: string
+): Promise<PlaygroundCheckResult> {
+  return request<PlaygroundCheckResult>("/api/playground/check", {
+    method: "POST",
+    body: JSON.stringify({ problem_id: problemId, answer_latex: answerLatex }),
+  });
+}
+
+export function revealPlaygroundAnswer(problemId: string): Promise<PlaygroundReveal> {
+  return request<PlaygroundReveal>("/api/playground/reveal", {
+    method: "POST",
+    body: JSON.stringify({ problem_id: problemId }),
+  });
+}
 

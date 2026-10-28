@@ -1,0 +1,16 @@
+export const REVIEW_TIPS: Record<string, string> = {
+  QE: "Quadratic equations require isolating variables or factoring trinomials. Remember that quadratics can have up to two solutions. If factoring is difficult, try using the Quadratic Formula.",
+  FP: "Factoring polynomials is about breaking complex expressions down into simpler multiplying components. Always check if there is a Greatest Common Factor (GCF) you can factor out first.",
+  SP: "Polynomial multiplication relies heavily on distribution. When multiplying binomials, use FOIL (First, Outer, Inner, Last) and watch exponent addition rules carefully.",
+  LE: "When working with exponents, remember: when multiplying like bases, add the powers ($x^a \\cdot x^b = x^{a+b}$). When raising a power to a power, multiply them ($(x^a)^b = x^{ab}$).",
+  OI: "Be extra mindful of negative signs! Subtracting a negative is equivalent to adding a positive value ($a - (-b) = a + b$). Re-verify sign distributions at each intermediate step.",
+  FD: "Fractions and decimals require common denominators before adding or subtracting. When dividing fractions, remember the reciprocal rule: multiply by the flipped second term.",
+  SLE: "Systems of Linear Equations find the common point where two equations overlap. You can systematically solve them using substitution, elimination, or graphing.",
+  L2V: "When graphing linear equations in two variables, identify the y-intercept first to plot your starting point, then use the slope (rise over run) to locate your second coordinate.",
+  L1V: "Linear equations in one variable require isolating the variable on one side. Whatever algebraic operations you apply to the left side must also be applied identically to the right side.",
+  AE: "Evaluating algebraic expressions simply means substituting given constant numbers in place of the variables. Complete calculations following strict order of operations (PEMDAS).",
+  RER: "Rational exponents can be rewritten directly as radicals: $x^{a/b} = \\sqrt[b]{x^a}$. Radical terms can only be combined if they share identical base radicands.",
+  PE: "Higher-degree polynomial equations require finding roots. Try grouping terms or utilizing the Factor Theorem to find at least one linear divisor.",
+  PD: "Polynomial division can be solved using long division or synthetic division. Keep placeholder terms (like $0x^2$) visible so columns align correctly.",
+  PO: "When combining polynomials, remember you can only add or subtract like terms. Terms with different variable degrees (like $x^3$ and $x^2$) cannot be merged.",
+};

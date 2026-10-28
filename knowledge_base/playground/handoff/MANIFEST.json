@@ -1,0 +1,263 @@
+{
+  "drop": 2,
+  "sample": false,
+  "complete": true,
+  "generated_at": "2026-10-28T23:17:34.954040+00:00",
+  "counts": {
+    "QE": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "FP": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "SP": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "LE": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "OI": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "FD": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "SLE": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "L2V": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "L1V": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "AE": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "RPP": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "RER": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "PE": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    },
+    "PO": {
+      "easy": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "medium": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      },
+      "hard": {
+        "word": 5,
+        "plain": 5,
+        "total": 10
+      }
+    }
+  },
+  "totals": {
+    "problems": 420,
+    "word": 210,
+    "plain": 210
+  },
+  "validator": {
+    "validated": 400,
+    "blind_resolve": 0,
+    "approved": 20,
+    "hand_verified": 0,
+    "rejected": 6,
+    "needs_review_remaining": 0
+  },
+  "content_sha256": "07e391c2d2328b9075d74c7f6d7f718b89879b872ae92f4ea2681d9e052828b8",
+  "changed_ids": [
+    "L2V-E-04"
+  ]
+}
