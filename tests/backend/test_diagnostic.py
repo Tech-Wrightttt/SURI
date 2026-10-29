@@ -12,6 +12,10 @@ def correct_option(node_id, probe_index):
     return PROBES[node_id][probe_index]["correct_option_index"]
 
 
+def wrong_option(node_id, probe_index):
+    return (correct_option(node_id, probe_index) + 1) % 4
+
+
 async def answer(client, student, session_id, node_id, option):
     return await client.post(
         f"/api/diagnostic/{session_id}/answer",
@@ -126,16 +130,72 @@ async def test_TC22_fourth_probe_passing_score_advances(client, db):
     assert row["current_node"] == "OI" and row["current_probe_index"] is None
 
 
-async def test_TC23_fourth_probe_failing_score_still_moves_forward(client, db):
+async def test_TC23_second_wrong_answer_fails_node_and_stops(client, db):
     student = await make_student(db)
     session_id = await make_session(db, student["id"], topic="QE", current_node="SP", probe_index=0)
-    await add_diagnostic_logs(db, session_id, "SP", [1, 0, 0])
+    await add_diagnostic_logs(db, session_id, "SP", [1, 0])
 
-    res = await answer(client, student, session_id, "SP", correct_option("SP", 0))
+    res = await answer(client, student, session_id, "SP", wrong_option("SP", 0))
 
     body = res.json()
-    assert body["node_complete"] is True and body["node_passed"] is False
-    assert body["correct_count"] == 2 and body["next_node_id"] == "FP"
+    assert body["correct"] is False
+    assert body["next_action"] == "complete" and body["node_complete"] is True
+    assert body["node_passed"] is False
+    assert body["correct_count"] == 1 and body["wrong_count"] == 2
+    assert body["questions_answered"] == 3
+    assert body["next_node_id"] is None and body["identified_node_id"] == "SP"
+    assert body["prerequisite_path"][0] == "SP" and body["prerequisite_path"][-1] == "QE"
+    assert await db.fetchval("SELECT current_node FROM sessions WHERE id = $1", session_id) == "SP"
+
+
+async def test_TC75_third_correct_answer_passes_node_early(client, db):
+    student = await make_student(db)
+    session_id = await make_session(db, student["id"], topic="QE", current_node="FD", probe_index=0)
+    await add_diagnostic_logs(db, session_id, "FD", [1, 1])
+
+    res = await answer(client, student, session_id, "FD", correct_option("FD", 0))
+
+    body = res.json()
+    assert body["next_action"] == "next_probe" and body["node_complete"] is True
+    assert body["node_passed"] is True and body["questions_answered"] == 3
+    assert body["correct_count"] == 3 and body["wrong_count"] == 0
+    assert body["next_node_id"] == "OI"
+
+
+async def test_TC76_one_wrong_answer_keeps_node_open(client, db):
+    student = await make_student(db)
+    session_id = await make_session(db, student["id"], topic="QE", current_node="FD", probe_index=0)
+    await add_diagnostic_logs(db, session_id, "FD", [1, 1])
+
+    res = await answer(client, student, session_id, "FD", wrong_option("FD", 0))
+
+    body = res.json()
+    assert body["next_action"] == "next_probe" and body["node_complete"] is False
+    assert body["correct_count"] == 2 and body["wrong_count"] == 1
+    assert body["questions_answered"] == 3 and body["next_node_id"] == "FD"
+
+
+async def test_TC77_probe_on_decided_node_returns_complete(client, db):
+    student = await make_student(db)
+    failed = await make_session(db, student["id"], topic="QE", current_node="SP")
+    passed = await make_session(db, student["id"], topic="QE", current_node="FD")
+    open_node = await make_session(db, student["id"], topic="QE", current_node="OI")
+    await add_diagnostic_logs(db, failed, "SP", [1, 0, 0])
+    await add_diagnostic_logs(db, passed, "FD", [1, 1, 1])
+    await add_diagnostic_logs(db, open_node, "OI", [1, 0])
+
+    res_failed = await client.get(f"/api/diagnostic/{failed}/probe", headers=student["headers"])
+    res_passed = await client.get(f"/api/diagnostic/{passed}/probe", headers=student["headers"])
+    res_open = await client.get(f"/api/diagnostic/{open_node}/probe", headers=student["headers"])
+
+    for res in (res_failed, res_passed):
+        body = res.json()
+        assert res.status_code == 200
+        assert body["next_action"] == "complete" and body["options"] == []
+    assert res_failed.json()["wrong_count"] == 2
+    assert res_passed.json()["correct_count"] == 3
+    assert res_open.json().get("next_action") is None and len(res_open.json()["options"]) == 4
+    assert res_open.json()["correct_count"] == 1 and res_open.json()["wrong_count"] == 1
 
 
 async def test_TC24_fourth_probe_at_entry_node_completes(client, db):
@@ -220,7 +280,7 @@ async def test_TC57_submit_with_every_node_mastered_completes_topic(client, db):
                                 headers=student["headers"])
 
     assert res.status_code == 200
-    assert res.json()["all_mastered"] is True and res.json()["redirect"] == "/dashboard"
+    assert res.json()["all_mastered"] is True and res.json()["redirect"] == f"/session/{session_id}/gap-result"
     row = await db.fetchrow("SELECT completed, completion_percentage FROM sessions WHERE id = $1",
                             session_id)
     assert row["completed"] == 1 and row["completion_percentage"] == 100.0

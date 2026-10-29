@@ -213,6 +213,9 @@ async def test_TC71_finish_quiz_runs_progression_once(client, db):
     assert await db.fetchval("SELECT COUNT(*) FROM practice_attempts WHERE session_id = $1",
                              session_id) == 5
     assert again.status_code == 400 and again.json()["detail"] == "Quiz session already finished"
+    logs = await db.fetch("SELECT problem_id, step_index, mapped_node_id FROM misconception_logs "
+                          "WHERE session_id = $1", session_id)
+    assert [tuple(r) for r in logs] == [(problem_ids[0], 1, "FD")]
 
 
 async def test_TC71b_finish_quiz_failing_round_remediates(client, db):
@@ -232,6 +235,8 @@ async def test_TC71b_finish_quiz_failing_round_remediates(client, db):
     assert progression["decision"] == "remediate" and progression["mastery_score"] == 0.6
     assert progression["go_deeper_node"] == {"node_id": "LE", "node_label": "Laws of Exponents"}
     assert tuple(await get_status(db, student["id"], "SP")) == ("unresolved", "practice")
+    assert await db.fetchval("SELECT COUNT(*) FROM misconception_logs WHERE session_id = $1",
+                             session_id) == 2
 
 
 def test_TC72_calculate_points_floor_and_ceiling():
@@ -242,3 +247,23 @@ def test_TC72_calculate_points_floor_and_ceiling():
     assert calculate_points(10_000, 0) == MIN_POINTS
     assert check_correct("2.004", "2") is True
     assert check_correct(r"\frac{1}{2}", "1/2") is True
+
+
+async def test_TC80_quiz_rejects_another_students_session(client, db):
+    intruder = await make_student(db)
+    _, session_id, problem_id, quiz_id = await setup_quiz(db, total_points=1000)
+    await make_problems(db, "FD", 10)
+    base = {"quiz_session_id": quiz_id, "problem_id": problem_id, "step_index": 0}
+
+    start = await client.post("/api/quiz/start", json={"session_id": session_id, "node_id": "FD"},
+                              headers=intruder["headers"])
+    skip = await client.post("/api/quiz/skip-step", json=base, headers=intruder["headers"])
+    hint = await client.post("/api/quiz/use-hint", json=base, headers=intruder["headers"])
+    finish = await client.post("/api/quiz/finish", json={"quiz_session_id": quiz_id},
+                               headers=intruder["headers"])
+    scored = await submit(client, intruder, quiz_id, problem_id, "6")
+
+    assert {start.status_code, skip.status_code, hint.status_code,
+            finish.status_code, scored.status_code} == {404}
+    assert await db.fetchval("SELECT total_points FROM quiz_sessions WHERE id = $1", quiz_id) == 1000
+    assert await db.fetchval("SELECT completed_at FROM quiz_sessions WHERE id = $1", quiz_id) is None
