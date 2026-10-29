@@ -79,7 +79,7 @@ function Book({
     const focus = emphasis.current;
     const hover = hoverLift.current;
     const worldAngle = angle + carouselRotation.current;
-    const elapsed = state.clock.getElapsed();
+    const elapsed = state.clock.elapsedTime;
     const bob = reducedMotion ? 0 : Math.sin(elapsed * .95 + phase) * (.10 + index * .008);
     // The book at the far side rises above the foreground volume instead of
     // disappearing directly behind it, so all four positions stay legible.
