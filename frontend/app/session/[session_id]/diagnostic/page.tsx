@@ -1386,7 +1386,7 @@ export default function DiagnosticPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: GAME_CSS }} />
-      <div className={`battle-body${shaking ? " screen-shake" : ""}${phase === "intro" ? " diagnostic-before" : ""}`}>
+      <div data-tutorial-scope={`diagnostic-${phase}`} className={`battle-body${shaking ? " screen-shake" : ""}${phase === "intro" ? " diagnostic-before" : ""}`}>
         <ArenaBackground />
         
         {phase !== "intro" && (

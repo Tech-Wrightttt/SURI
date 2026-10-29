@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLearningSnapshot, staleLearningData, subscribeLearningData } from "@/lib/learningData";
 import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
 import DashboardWorldBoundary from "@/components/WorldMap/DashboardWorldBoundary";
+import TutorialProvider from "@/components/tutorial/TutorialProvider";
 
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
 const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
@@ -194,7 +195,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   useEffect(() => () => clearRevealTimers(), [clearRevealTimers]);
 
   useEffect(() => {
-    if (!managed) return;
+    if (!managed && !pathname.startsWith("/session/")) return;
     void ensureLearningData({ curriculum: routeNeedsCurriculum(pathname) }).catch(() => {});
   }, [managed, pathname]);
 
@@ -384,7 +385,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       ? `learning-route-content focused-route-content ${activeFocusedRoute.contentClass} ${activeFocusedRoute.key}-transition-${focusedTransitions[activeFocusedRoute.key]}`
       : "learning-route-content";
 
-  return <NavigationContext.Provider value={context}>
+  return <NavigationContext.Provider value={context}><TutorialProvider userId={data?.me.student_id} identityReady={Boolean(data || dataError)}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
         <DashboardWorld visible={dashboardActive} labelsVisible={overview && !busy} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}
@@ -404,5 +405,5 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       <div className="playground-background" />
     </div>}
     <div className={contentClass}>{children}</div>
-  </NavigationContext.Provider>;
+  </TutorialProvider></NavigationContext.Provider>;
 }
