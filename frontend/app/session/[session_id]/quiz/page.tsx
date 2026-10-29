@@ -412,6 +412,23 @@ const QUIZ_CSS = `
     padding: clamp(14px, 2vw, 22px);
   }
 
+  .quiz-step-instruction {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(15px, 1.6vw, 18px);
+    font-weight: 700;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .quiz-instruction-label {
+    margin: 0 0 6px;
+    color: #81511f;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+  }
+
   .quiz-expression {
     display: flex;
     justify-content: center;
@@ -2101,6 +2118,13 @@ export default function QuizPage() {
                     ? "Rune Active"
                     : "Rune Expired"}
                 </span>
+              </div>
+
+              {/* Current step directions must be visible before answering. */}
+
+              <div className="quiz-scroll quiz-step-instruction markdown-content mt-3" id="quiz-step-instruction">
+                <h2 className="quiz-instruction-label">Instructions</h2>
+                {renderMath(currentStep.instruction)}
               </div>
 
               {/* Expression */}
