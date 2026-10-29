@@ -22,7 +22,7 @@ const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
 
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
-const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground"] as const;
+const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground", "history"] as const;
 type FocusedRouteKey = typeof FOCUSED_ROUTE_KEYS[number];
 type FocusedTransition = "idle" | "entering" | "revealing" | "visible" | "leaving" | "zooming-out";
 type FocusedTransitionMap = Record<FocusedRouteKey, FocusedTransition>;
@@ -37,6 +37,7 @@ const FOCUSED_ROUTES = {
   "/progress": { key: "progress", site: "champions", load: loadProgressWorld, contentClass: "progress-route-content" },
   "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
   "/playground": { key: "playground", site: "records", load: null, contentClass: "playground-route-content" },
+  "/history-logs": { key: "history", site: "keep", load: null, contentClass: "history-route-content" },
 } as const;
 
 // Route canvases and foreground pages deliberately overlap for a little
@@ -100,6 +101,7 @@ function createTransitionMap(pathname: string): FocusedTransitionMap {
     progress: route?.key === "progress" ? "visible" : "idle",
     calculator: route?.key === "calculator" ? "visible" : "idle",
     playground: route?.key === "playground" ? "visible" : "idle",
+    history: route?.key === "history" ? "visible" : "idle",
   };
 }
 
@@ -110,6 +112,7 @@ function createWorldMap(pathname: string): FocusedWorldMap {
     progress: route?.key === "progress",
     calculator: route?.key === "calculator",
     playground: route?.key === "playground",
+    history: route?.key === "history",
   };
 }
 
@@ -150,7 +153,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     setFocusedTransitions(current => current[key] === stage ? current : { ...current, [key]: stage });
   }, []);
   const resetFocusedStages = useCallback(() => {
-    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle" };
+    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle", history: "idle" };
     focusedTransitionsRef.current = idle;
     setFocusedTransitions(idle);
   }, []);
@@ -186,9 +189,10 @@ export default function LearningShell({ children }: { children: React.ReactNode 
   }, [pathname, setFocusedStage, unlock]);
 
   useEffect(() => {
-    if (pathname !== "/playground") return;
+    const route = getFocusedRoute(pathname);
+    if (!route || route.load) return;
     // The static background is ready as soon as the route has painted.
-    const frame = window.requestAnimationFrame(() => revealFocusedContent("playground"));
+    const frame = window.requestAnimationFrame(() => revealFocusedContent(route.key));
     return () => window.cancelAnimationFrame(frame);
   }, [pathname, revealFocusedContent]);
 
@@ -403,6 +407,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     </div>}
     {(focusedWorldMounted.playground || pathname === "/playground") && <div className={`playground-background-shell playground-transition-${focusedTransitions.playground}`} aria-hidden="true" style={{ visibility: pathname === "/playground" ? "visible" : "hidden" }}>
       <div className="playground-background" />
+    </div>}
+    {(focusedWorldMounted.history || pathname === "/history-logs") && <div className={`history-background-shell history-transition-${focusedTransitions.history}`} aria-hidden="true" style={{ visibility: pathname === "/history-logs" ? "visible" : "hidden" }}>
+      <div className="history-background" />
     </div>}
     <div className={contentClass}>{children}</div>
   </TutorialProvider></NavigationContext.Provider>;

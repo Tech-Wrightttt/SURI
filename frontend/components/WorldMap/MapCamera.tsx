@@ -5,12 +5,12 @@ import * as THREE from "three";
 import { CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
 import { SITES, sitePosition } from "@/lib/worldMap/landscape";
-import { cameraEase, islandCameraPose, RETURN_DURATION, TOPICS_APPROACH_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
+import { cameraEase, islandCameraPose, ISLAND_ROUTES, RETURN_DURATION, TOPICS_APPROACH_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
 import { CAMERA_RESPONSE, responsiveCamera } from "@/lib/worldMap/responsiveCamera";
 export { CAMERA_POSITION } from "@/lib/worldMap/framing";
 
 function isFocusedIsland(site?: string) {
-  return site === "topics" || site === "records" || site === "champions" || site === "calculator";
+  return Object.values(ISLAND_ROUTES).some(destination => destination === site);
 }
 
 export function MapCamera({ command, active = true, preserveCameraOnActivate = false, controlsEnabled = true, headerInset = 0 }: { command: CameraCommand | null; active?: boolean; preserveCameraOnActivate?: boolean; controlsEnabled?: boolean; headerInset?: number }) {
