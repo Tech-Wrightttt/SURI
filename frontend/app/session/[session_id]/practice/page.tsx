@@ -1746,7 +1746,7 @@ export default function PracticePage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: GAME_CSS }} />
-      <div className={`battle-body${shaking ? " screen-shake" : ""}${phase === "intro" ? " diagnostic-before" : ""}`}>
+      <div data-tutorial-scope={`practice-${phase}`} className={`battle-body${shaking ? " screen-shake" : ""}${phase === "intro" ? " diagnostic-before" : ""}`}>
         <ArenaBackground />
 
         {/* Loading popup between practice items */}

@@ -58,7 +58,7 @@
 .labelLayer { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 1; transition: opacity .36s ease; }
 .labelLayer[data-visible="false"] { opacity: 0; transition-duration: .24s; }
 .labelLayer:has(.anchor:hover, .anchor:focus-within, .anchor[data-active="true"]) { z-index: 50; }
-.labelLayer[hidden], :global(body:has([role="dialog"])) .labelLayer { display: none; }
+.labelLayer[hidden], :global(body:has([role="dialog"]:not([data-tutorial-dialog]))) .labelLayer { display: none; }
 .labelLayer .anchor { position: absolute; pointer-events: none; }
 .labelLayer .anchor:hover, .labelLayer .anchor:focus-within, .labelLayer .anchor[data-active="true"] { z-index: 10; }
 .labelLayer .marker { pointer-events: auto; }
