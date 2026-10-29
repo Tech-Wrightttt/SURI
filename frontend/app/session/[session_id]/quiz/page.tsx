@@ -14,6 +14,7 @@ import {
   ApiError,
 } from "../../../../lib/api";
 import PointsNotice, { type PointsNoticeData } from "@/components/quiz/PointsNotice";
+import { useTutorial } from "@/components/tutorial/TutorialProvider";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -1408,6 +1409,8 @@ function OutcomeIcon({ outcome }: { outcome: RuneOutcome }) {
 }
 
 export default function QuizPage() {
+  const { active: tutorialActive, isPending: isTutorialPending } = useTutorial();
+  const tutorialPaused = tutorialActive || isTutorialPending("quiz-step");
   const router = useRouter();
   const params = useParams();
   const sessionId = params.session_id as string;
@@ -1483,7 +1486,7 @@ export default function QuizPage() {
   }, []);
 
   useEffect(() => {
-    if (state !== "STEP" || pointsNotice) {
+    if (state !== "STEP" || pointsNotice || tutorialPaused) {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -1518,7 +1521,7 @@ export default function QuizPage() {
         timerRef.current = null;
       }
     };
-  }, [state, pointsNotice]);
+  }, [state, pointsNotice, tutorialPaused]);
 
   useEffect(() => {
     if (
@@ -1526,11 +1529,12 @@ export default function QuizPage() {
       timeRemainingMs <= 0 &&
       !isSubmitting &&
       !pointsNotice &&
+      !tutorialPaused &&
       !timedOut
     ) {
       handleTimeout();
     }
-  }, [state, timeRemainingMs, isSubmitting, timedOut, pointsNotice]);
+  }, [state, timeRemainingMs, isSubmitting, timedOut, pointsNotice, tutorialPaused]);
 
   const currentProblem = problems[currentProblemIndex];
   const currentStep = currentProblem?.steps[currentStepIndex];
@@ -2055,7 +2059,7 @@ export default function QuizPage() {
 
           {/* MAIN */}
 
-          <main className="quiz-main">
+          <main className="quiz-main" data-tutorial-scope="quiz-step">
 
             {/* Quest Context */}
 
@@ -2365,7 +2369,7 @@ export default function QuizPage() {
                   Quest Complete
                 </span>
 
-                <h1 className="quiz-summary-title mt-4">
+                <h1 className="quiz-summary-title mt-4" data-tutorial-scope="quiz-summary">
                   Quiz Complete!
                 </h1>
 

@@ -223,7 +223,7 @@ function DashboardWorld(props: WorldProps) {
             const label = title.split(" · ")[0];
             const hovered = hoveredLandmark === kind;
             return <div key={kind} ref={(element) => { labelElementsRef.current[kind] = element; }} className={styles.anchor} data-landmark={kind} data-active={hovered || (props.command?.kind === "island" && props.command.site === kind)} style={{ visibility: "hidden" }}>
-              {href ? <button type="button" className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${subtitle}. ${description}`}
+              {href ? <button type="button" data-tutorial={`map-${kind}`} className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${subtitle}. ${description}`}
                 onClick={() => { if (!props.busy) props.navigate(href); }}
                 onMouseEnter={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}

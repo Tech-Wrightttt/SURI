@@ -115,7 +115,14 @@ body {
 .suri-app-control:hover { filter: brightness(1.06); box-shadow: 0 8px 0 #160b07, 0 15px 24px rgba(0,0,0,.26), inset 0 0 0 3px rgba(111,61,28,.16); transform: translateY(-2px); }
 .suri-app-control:focus-visible { outline: 3px solid #fff3a3; outline-offset: 3px; }
 .suri-app-account-control { max-width: 14rem; }
-@media (max-width: 540px) { .suri-app-bar { padding: .48rem; }.suri-app-bar-frame { gap: .45rem; }.suri-app-brand, .suri-app-control { min-height: 3.35rem; border-width: 3px; box-shadow: 0 4px 0 #160b07, 0 9px 16px rgba(0,0,0,.23), inset 0 0 0 2px rgba(111,61,28,.16); }.suri-app-brand::after, .suri-app-control::after { inset: .26rem; border-width: 1px; }.suri-app-brand { min-width: 0; padding: .34rem .52rem; }.suri-app-brand-logo { height: 1.55rem; }.suri-app-bar-actions { gap: .34rem; }.suri-app-control { padding: .42rem .58rem; }.suri-app-control-label { display: none; }.suri-app-account-control { max-width: 9rem; }}
+@media (max-width: 760px) {
+  .suri-app-bar-frame, .suri-app-bar-actions, .suri-app-account-control { min-width: 0; }
+  .suri-app-brand { flex-shrink: 0; }
+  .suri-app-control { min-width: 44px; min-height: 44px; }
+  .suri-app-control-label { display: none; }
+  .suri-app-account-control { max-width: max(44px, calc(100vw - 225px)); }
+}
+@media (max-width: 540px) { .suri-app-bar { padding: .48rem; }.suri-app-bar-frame { gap: .45rem; }.suri-app-brand, .suri-app-control { min-height: 3.35rem; border-width: 3px; box-shadow: 0 4px 0 #160b07, 0 9px 16px rgba(0,0,0,.23), inset 0 0 0 2px rgba(111,61,28,.16); }.suri-app-brand::after, .suri-app-control::after { inset: .26rem; border-width: 1px; }.suri-app-brand { min-width: 0; padding: .34rem .52rem; }.suri-app-brand-logo { height: 1.55rem; }.suri-app-bar-actions { gap: .34rem; }.suri-app-control { padding: .42rem .58rem; }.suri-app-control-label { display: none; }.suri-app-account-control { max-width: min(9rem, max(44px, calc(100vw - 225px))); }}
 
 /* Logout confirmation follows the parchment cards and raised archive controls. */
 .suri-logout-overlay {
