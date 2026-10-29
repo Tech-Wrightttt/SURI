@@ -450,7 +450,7 @@ graph LR
     end
 
     subgraph Grade10["Grade 10 Mastery"]
-        PD["PD: Polynomial Division"]
+        PD["PD: Polynomial Division (not used in any chain)"]
         PE["🎯 PE: Polynomial Equations"]
     end
 
@@ -468,10 +468,7 @@ graph LR
 
     LE --> RER
 
-    PO --> FP
-    PO --> PD
-    FP --> PE
-    PD --> PE
+    PO --> PE
 
     classDef entry fill:#4F46E5,stroke:#312E81,stroke-width:2px,color:#fff;
     class QE,SLE,RER,PE entry;
@@ -516,7 +513,7 @@ All backend routes are served under the `/api` prefix on `http://localhost:8000`
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/diagnostic/{session_id}/probe` | Retrieves the next diagnostic question for the session. |
-| `POST` | `/api/diagnostic/{session_id}/answer` | Submits an answer to a diagnostic probe and assesses competency gaps. |
+| `POST` | `/api/diagnostic/{session_id}/answer` | Submits an answer to a diagnostic probe. A node ends at 3 correct (pass) or 2 wrong (fail); a failed node stops the diagnostic. |
 | `POST` | `/api/diagnostic/{session_id}/submit` | Submits complete batch diagnostic assessment. |
 | `POST` | `/api/diagnostic/skip` | Skips diagnostic assessment and immediately routes student to targeted learning. |
 

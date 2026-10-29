@@ -555,6 +555,7 @@ export default function GapResultPage() {
   };
 
   const allImproved = chain.length > 0 && chain.every((id) => nodeStatuses[id]?.status === "mastered");
+  const startNode = allImproved ? null : gapNode;
   const resultSummary = allImproved
     ? "All checked topics improved. No starting gap was found."
     : "Some topics still need improvement. Start with the first topic marked below.";
@@ -609,7 +610,7 @@ export default function GapResultPage() {
                   <div className="node-list">
                     {chain.map((nodeId) => {
                       const label = NODE_LABELS[nodeId] || nodeId;
-                      const isGapNode = nodeId === gapNode;
+                      const isGapNode = nodeId === startNode;
                       const status = nodeStatuses[nodeId]?.status;
                       const badge = getStatusBadge(status, isGapNode);
 
@@ -643,18 +644,20 @@ export default function GapResultPage() {
               )}
 
               <div className="button-row">
-                <div className="quest-button-wrap">
-                  <button type="button" onClick={handleStartRemediation} className="quest-button">
-                    <span>Start Practice</span>
-                    <ArrowRight className="h-6 w-6" />
-                  </button>
-                </div>
+                {!allImproved && (
+                  <div className="quest-button-wrap">
+                    <button type="button" onClick={handleStartRemediation} className="quest-button">
+                      <span>Start Practice</span>
+                      <ArrowRight className="h-6 w-6" />
+                    </button>
+                  </div>
+                )}
 
                 <div className="quest-button-wrap">
                   <button
                     type="button"
                     onClick={() => router.push("/dashboard")}
-                    className="quest-button secondary"
+                    className={allImproved ? "quest-button" : "quest-button secondary"}
                   >
                     <span>Dashboard</span>
                   </button>

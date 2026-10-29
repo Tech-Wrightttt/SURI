@@ -131,6 +131,13 @@ async def start_quiz(body: QuizStartRequest, student=Depends(get_current_student
 
     conn = await get_db()
     try:
+        owned = await conn.fetchrow(
+            "SELECT id FROM sessions WHERE id = $1 AND student_id = $2",
+            session_id, student_id,
+        )
+        if not owned:
+            raise HTTPException(status_code=404, detail="Session not found")
+
         rows = await conn.fetch(
             "SELECT id, node_id, problem_expr, steps_json, word_problem_text, step_extras_json "
             "FROM practice_problems WHERE node_id = $1",
@@ -217,8 +224,8 @@ async def submit_step(body: QuizSubmitStepRequest, student=Depends(get_current_s
     conn = await get_db()
     try:
         qs = await conn.fetchrow(
-            "SELECT id, total_points, node_id, step_errors_json, current_streak FROM quiz_sessions WHERE id = $1",
-            body.quiz_session_id,
+            "SELECT id, total_points, node_id, step_errors_json, current_streak FROM quiz_sessions WHERE id = $1 AND student_id = $2",
+            body.quiz_session_id, student["id"],
         )
         if not qs:
             raise HTTPException(status_code=404, detail="Quiz session not found")
@@ -300,6 +307,13 @@ async def skip_step(body: QuizSkipStepRequest, student=Depends(get_current_stude
     """No cost, no error logged. Just returns correct_value so student can see it."""
     conn = await get_db()
     try:
+        owned = await conn.fetchrow(
+            "SELECT id FROM quiz_sessions WHERE id = $1 AND student_id = $2",
+            body.quiz_session_id, student["id"],
+        )
+        if not owned:
+            raise HTTPException(status_code=404, detail="Quiz session not found")
+
         prob = await conn.fetchrow(
             "SELECT steps_json FROM practice_problems WHERE id = $1",
             body.problem_id,
@@ -324,8 +338,8 @@ async def use_hint(body: QuizUseHintRequest, student=Depends(get_current_student
     conn = await get_db()
     try:
         qs = await conn.fetchrow(
-            "SELECT id, total_points FROM quiz_sessions WHERE id = $1",
-            body.quiz_session_id,
+            "SELECT id, total_points FROM quiz_sessions WHERE id = $1 AND student_id = $2",
+            body.quiz_session_id, student["id"],
         )
         if not qs:
             raise HTTPException(status_code=404, detail="Quiz session not found")
@@ -404,8 +418,8 @@ async def finish_quiz(body: QuizFinishRequest, student=Depends(get_current_stude
         qs = await conn.fetchrow(
             "SELECT id, session_id, node_id, student_id, total_points, "
             "problems_json, step_errors_json, completed_at "
-            "FROM quiz_sessions WHERE id = $1",
-            body.quiz_session_id,
+            "FROM quiz_sessions WHERE id = $1 AND student_id = $2",
+            body.quiz_session_id, student["id"],
         )
         if not qs:
             raise HTTPException(status_code=404, detail="Quiz session not found")
@@ -470,15 +484,37 @@ async def finish_quiz(body: QuizFinishRequest, student=Depends(get_current_stude
                 score = int((correct_count / n_steps) * 100) if n_steps > 0 else 0
                 is_passed = 1 if correct_count == n_steps else 0
 
+                attempt_id = str(uuid.uuid4())
                 await conn.execute(
                     """
                     INSERT INTO practice_attempts
                         (id, session_id, node_id, problem_id, student_steps_json, score, passed, attempted_at)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                     """,
-                    str(uuid.uuid4()), session_id, node_id, pid,
+                    attempt_id, session_id, node_id, pid,
                     json.dumps([]), score, is_passed, now_iso,
                 )
+
+                # Misconception history: log the first wrong step of the problem
+                if wrong_indices:
+                    first_wrong = min(wrong_indices)
+                    wrong_step = next(
+                        (st for st in steps if st.get("step_index") == first_wrong), {}
+                    )
+                    mapped_node = wrong_step.get("mapped_node_id", node_id)
+                    if mapped_node not in GRAPH:
+                        mapped_node = node_id
+                    await conn.execute(
+                        """
+                        INSERT INTO misconception_logs (
+                            id, session_id, practice_attempt_id, problem_id, step_index,
+                            step_description, mapped_node_id, logged_at
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                        """,
+                        str(uuid.uuid4()), session_id, attempt_id, pid, first_wrong,
+                        wrong_step.get("operation_description", "Operation"),
+                        mapped_node, now_iso,
+                    )
 
         # ── 3. AI feedback (one call, not stored) ────────────────────────────
         feedback_text = await _generate_feedback(node_id, step_errors, passed)

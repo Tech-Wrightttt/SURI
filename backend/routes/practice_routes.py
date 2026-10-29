@@ -227,6 +227,13 @@ async def start_practice(body: PracticeStartRequest, student=Depends(get_current
     
     conn = await get_db()
     try:
+        owned = await conn.fetchrow(
+            "SELECT id FROM sessions WHERE id = $1 AND student_id = $2",
+            session_id, student["id"],
+        )
+        if not owned:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+
         existing_rows = await conn.fetch(
             "SELECT id, node_id, problem_expr, steps_json, word_problem_text FROM practice_problems WHERE node_id = $1",
             node_id,
@@ -252,8 +259,8 @@ async def start_practice(body: PracticeStartRequest, student=Depends(get_current
         
         now_iso = datetime.now(timezone.utc).isoformat()
         await conn.execute(
-            "UPDATE sessions SET last_active_at = $1 WHERE id = $2",
-            now_iso, session_id,
+            "UPDATE sessions SET last_active_at = $1 WHERE id = $2 AND student_id = $3",
+            now_iso, session_id, student["id"],
         )
 
         return {"problems": sampled}
@@ -271,6 +278,13 @@ async def submit_step(body: PracticeSubmitStepRequest, student=Depends(get_curre
 
     conn = await get_db()
     try:
+        owned = await conn.fetchrow(
+            "SELECT id FROM sessions WHERE id = $1 AND student_id = $2",
+            session_id, student["id"],
+        )
+        if not owned:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+
         problem_row = await conn.fetchrow(
             "SELECT steps_json, problem_expr FROM practice_problems WHERE id = $1",
             problem_id,
@@ -279,7 +293,11 @@ async def submit_step(body: PracticeSubmitStepRequest, student=Depends(get_curre
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Problem not found")
 
         parsed_steps = normalize_practice_steps(json.loads(problem_row["steps_json"]))
-        student_submission_dict = {s.step_index: s.submitted_value for s in student_steps}
+        # Score the first attempt per step: later values for the same step
+        # (retries) never overwrite it.
+        student_submission_dict: dict[int, str] = {}
+        for s in student_steps:
+            student_submission_dict.setdefault(s.step_index, s.submitted_value)
 
         step_results = []
         misconception_found = False
@@ -389,8 +407,8 @@ No math formatting."""
                     feedback_text = f"Keep practicing! It seems you had some trouble with {mapped_node_label}. Review this topic to strengthen your understanding."
 
             await conn.execute(
-                "UPDATE sessions SET last_active_at = $1 WHERE id = $2",
-                now_iso, session_id,
+                "UPDATE sessions SET last_active_at = $1 WHERE id = $2 AND student_id = $3",
+                now_iso, session_id, student["id"],
             )
 
         return {
