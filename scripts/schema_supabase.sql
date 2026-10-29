@@ -1,12 +1,14 @@
 -- SURI PostgreSQL Schema for Supabase
 -- Run this in the Supabase SQL Editor before importing data.
+-- Mirrors the live database used by the backend (email, quiz_sessions, step_extras_json included).
 
 CREATE TABLE IF NOT EXISTS students (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     grade_level INTEGER NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    email VARCHAR UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -57,7 +59,8 @@ CREATE TABLE IF NOT EXISTS practice_problems (
     problem_expr TEXT NOT NULL,
     steps_json TEXT NOT NULL,
     word_problem_text TEXT,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    step_extras_json TEXT
 );
 
 CREATE TABLE IF NOT EXISTS practice_attempts (
@@ -90,3 +93,18 @@ CREATE TABLE IF NOT EXISTS progression_logs (
     decision TEXT NOT NULL CHECK(decision IN ('advance', 'remediate')),
     logged_at TEXT NOT NULL
 );
+
+-- Gamified quiz attempts (one row per "Quiz Me!" run)
+CREATE TABLE IF NOT EXISTS quiz_sessions (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    node_id TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    total_points INTEGER DEFAULT 0,
+    problems_json TEXT NOT NULL,
+    step_errors_json TEXT DEFAULT '[]',
+    started_at TEXT NOT NULL,
+    completed_at TEXT,
+    current_streak INTEGER NOT NULL DEFAULT 0
+);
+

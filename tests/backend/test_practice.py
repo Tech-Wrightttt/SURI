@@ -131,3 +131,38 @@ async def test_TC63_float_answer_at_negative_tolerance_boundary_is_correct(clien
 def test_TC64_latex_and_spacing_normalization(submitted, key):
     assert normalize_val(submitted) == normalize_val(key)
 
+
+async def test_TC78_retry_of_a_step_does_not_overwrite_first_attempt(client, db):
+    student = await make_student(db)
+    session_id = await make_session(db, student["id"], current_node="FD")
+    problem_id = await make_problem(db, "FD", steps=[step(0, "6")])
+
+    res = await client.post(
+        "/api/practice/submit-step",
+        json={"session_id": session_id, "node_id": "FD", "problem_id": problem_id,
+              "student_steps": [{"step_index": 0, "submitted_value": "5"},
+                                {"step_index": 0, "submitted_value": "6"}]},
+        headers=student["headers"],
+    )
+
+    body = res.json()
+    assert res.status_code == 200
+    assert [r["correct"] for r in body["step_results"]] == [False]
+    assert body["misconception_found"] is True
+
+
+async def test_TC79_practice_rejects_another_students_session(client, db):
+    owner = await make_student(db)
+    intruder = await make_student(db)
+    session_id = await make_session(db, owner["id"], current_node="FD")
+    problem_id = await make_problem(db, "FD", steps=[step(0, "6")])
+    await make_problems(db, "FD", 10)
+
+    start = await client.post("/api/practice/start", json={"session_id": session_id, "node_id": "FD"},
+                              headers=intruder["headers"])
+    submitted = await submit(client, intruder, session_id, problem_id, ["5"])
+
+    assert start.status_code == 404 and start.json()["detail"] == "Session not found"
+    assert submitted.status_code == 404 and submitted.json()["detail"] == "Session not found"
+    assert await db.fetchval("SELECT COUNT(*) FROM practice_attempts WHERE session_id = $1",
+                             session_id) == 0

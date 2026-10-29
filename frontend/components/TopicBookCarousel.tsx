@@ -79,7 +79,9 @@ function Book({
     const focus = emphasis.current;
     const hover = hoverLift.current;
     const worldAngle = angle + carouselRotation.current;
-    const elapsed = state.clock.getElapsed();
+    // R3F 9.8.1 exposes a Clock (elapsedTime), 9.8.2+ a Timer (getElapsed()).
+    const clock = state.clock as unknown as { elapsedTime?: number; getElapsed?: () => number };
+    const elapsed = clock.getElapsed ? clock.getElapsed() : (clock.elapsedTime ?? 0);
     const bob = reducedMotion ? 0 : Math.sin(elapsed * .95 + phase) * (.10 + index * .008);
     // The book at the far side rises above the foreground volume instead of
     // disappearing directly behind it, so all four positions stay legible.
