@@ -50,12 +50,12 @@ PASS_THRESHOLD = 4          # must pass ≥ 4 problems to advance (75%)
 BASE_POINTS = 500          # max points for fastest correct answer
 MIN_POINTS = 100            # floor for any correct answer
 
-# Timer durations returned to frontend (ms)
+# One minute per step, shared by the frontend countdown and point calculation.
 TIMER_MS = {
-    "variable_identification": 20_000,
-    "algebra": 30_000,
+    "variable_identification": 60_000,
+    "algebra": 60_000,
 }
-DEFAULT_TIMER_MS = 30_000
+DEFAULT_TIMER_MS = 60_000
 
 
 # ── Normalization (copied from practice_routes for isolation) ────────────────
