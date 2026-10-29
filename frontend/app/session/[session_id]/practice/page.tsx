@@ -1,7 +1,7 @@
 "use client";
 
 import "mathlive";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import confetti from "canvas-confetti";
@@ -1531,7 +1531,7 @@ export default function PracticePage() {
 
     // Send each step's first attempt to the backend for scoring
     try {
-      const firstAttempts = firstAttemptsRef.current[currentProblemIdx] || {};
+      const firstAttempts: Record<number, string> = firstAttemptsRef.current[currentProblemIdx] || {};
       const report = await submitPracticeStep({
         session_id: sessionId,
         node_id: nodeId,
