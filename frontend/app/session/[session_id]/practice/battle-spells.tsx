@@ -9,11 +9,9 @@ export const SPELLS = [
   { id: "bloom", name: "Healing Bloom", icon: Flower2, description: "Restore one lost heart.", active: "One heart restored" },
 ] as const;
 
-export type SpellInfo = { id: PracticeSpell; name: string; icon: typeof Flame; description: string; active: string };
-
 export const FLAME_FLIGHT_MS = 680;
 
-export function BattleSpells({ state, disabled, failedAction, onCast, muted, onToggleMuted, maxHearts = 3, spells = SPELLS }: {
+export function BattleSpells({ state, disabled, failedAction, onCast, muted, onToggleMuted, maxHearts = 3 }: {
   state: PracticeBattleState | null;
   disabled: boolean;
   failedAction: PracticeSpell | "answer" | null;
@@ -21,7 +19,6 @@ export function BattleSpells({ state, disabled, failedAction, onCast, muted, onT
   muted: boolean;
   onToggleMuted: () => void;
   maxHearts?: number;
-  spells?: readonly SpellInfo[];
 }) {
   return (
     <section className="spellbook" aria-label="Battle powerups">
@@ -34,7 +31,7 @@ export function BattleSpells({ state, disabled, failedAction, onCast, muted, onT
         </button>
       </div>
       <div className="spellbook-grid">
-        {spells.map(({ id, name, icon: Icon, description, active }) => {
+        {SPELLS.map(({ id, name, icon: Icon, description, active }) => {
           const armed = id === "flame" ? state?.flame_ready : id === "ward" && state?.ward_ready;
           const used = state?.used.includes(id);
           const full = id === "bloom" && (state?.hearts ?? maxHearts) >= maxHearts;
@@ -52,18 +49,18 @@ export function BattleSpells({ state, disabled, failedAction, onCast, muted, onT
       </div>
       <div className="spellbook-status" role="status">
         {failedAction ? "Cast not confirmed. Retry the same action to reconnect safely."
-          : state?.flame_ready || state?.ward_ready ? [state.flame_ready && "Flame Strike armed", state.ward_ready && "Aegis Ward armed"].filter(Boolean).join(" · ")
+          : state?.flame_ready || state?.ward_ready ? [state.flame_ready && "Flame Strike armed", state.ward_ready && "Aegis Ward protecting Suri"].filter(Boolean).join(" · ")
           : "One charge each. Refills with the next enemy."}
       </div>
       <details className="spellbook-guide">
         <summary>Spell effects</summary>
-        <ul>{spells.map(({ id, name, description }) => <li key={id}><strong>{name}:</strong> {description}</li>)}</ul>
+        <ul>{SPELLS.map(({ id, name, description }) => <li key={id}><strong>{name}:</strong> {description}</li>)}</ul>
       </details>
     </section>
   );
 }
 
-export function ArmedSpellBubble({ flameReady, wardReady, wardText = "Suri will block the next incoming hit." }: { flameReady: boolean; wardReady: boolean; wardText?: string }) {
+export function ArmedSpellBubble({ flameReady, wardReady }: { flameReady: boolean; wardReady: boolean }) {
   if (!flameReady && !wardReady) return null;
   return (
     <div className="armed-spell-bubble" role="status">
@@ -74,7 +71,7 @@ export function ArmedSpellBubble({ flameReady, wardReady, wardText = "Suri will 
       </div>}
       {wardReady && <div className="armed-spell-row armed-ward">
         <Shield size={27} aria-hidden="true" />
-        <div><strong>Aegis Ward active</strong><span>{wardText}</span></div>
+        <div><strong>Aegis Ward active</strong><span>Suri will block the next incoming hit.</span></div>
       </div>}
     </div>
   );

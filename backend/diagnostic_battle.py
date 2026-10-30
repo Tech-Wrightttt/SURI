@@ -1,6 +1,4 @@
-"""Diagnostic battle rewards; hearts mirror the graded node counts, so spells never change assessment."""
-
-from fastapi import HTTPException
+"""Diagnostic battle rewards; spells change Suri's hearts and score, never the graded logs."""
 
 from backend.practice_battle import cast_spell, resolve_spell_hit
 
@@ -13,9 +11,6 @@ CREATE TABLE IF NOT EXISTS diagnostic_battles (
     last_response_json TEXT
 )
 """
-
-# Bloom is left out: Suri's hearts are the node's remaining allowed misses, which a spell cannot restore.
-DIAGNOSTIC_SPELLS = ("flame", "ward")
 
 
 def new_diagnostic_battle(enemy_hearts, hearts):
@@ -34,25 +29,18 @@ def battle_snapshot(state, correct=None, blocked=False, bonus=0):
     }
 
 
-def resolve_diagnostic_spell(state, spell):
-    if spell not in DIAGNOSTIC_SPELLS:
-        raise HTTPException(status_code=409, detail="This spell is not available in the diagnostic.")
-    cast_spell(state, spell, state["hearts"])
+def resolve_diagnostic_spell(state, spell, suri_max):
+    cast_spell(state, spell, suri_max)
     return battle_snapshot(state)
 
 
 def resolve_diagnostic_hit(state, grading, enemy_max, suri_max):
-    """Apply score rewards, then copy hearts from the graded result of this node."""
-    streak = state["streak"]
+    """Apply spell rewards to Suri's hearts; the enemy's hearts follow the graded correct count."""
     blocked, bonus = resolve_spell_hit(state, grading["correct"])
-    if blocked:
-        # Ward cannot undo a graded miss; it keeps the streak instead.
-        state["streak"] = streak
     state["enemy_hearts"] = max(0, enemy_max - grading["correct_count"])
-    state["hearts"] = max(0, suri_max - grading["wrong_count"])
     result = battle_snapshot(state, grading["correct"], blocked, bonus)
     state["finished"] = grading["next_action"] == "complete"
     if grading["node_complete"] and not state["finished"]:
-        # The node passed: the next node brings a fresh enemy and full spell charges.
+        # The node passed: the next node brings a fresh enemy, full hearts and spell charges.
         state.update(enemy_hearts=enemy_max, hearts=suri_max, used=[], flame_ready=False, ward_ready=False)
     return result

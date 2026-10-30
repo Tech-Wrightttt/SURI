@@ -386,7 +386,7 @@ async def cast_diagnostic_spell(session_id: str, body: DiagnosticSpellRequest, s
                 raise HTTPException(status_code=409, detail="This battle has ended.")
             if row["current_probe_index"] is None:
                 raise HTTPException(status_code=409, detail="Fetch the next question before casting.")
-            result = resolve_diagnostic_spell(state, body.spell)
+            result = resolve_diagnostic_spell(state, body.spell, FAIL_WRONG_LIMIT)
             await _save_battle(conn, body.battle_id, state, body.request_id, result)
             return result
     finally:

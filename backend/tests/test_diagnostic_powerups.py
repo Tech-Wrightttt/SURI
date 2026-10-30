@@ -1,4 +1,4 @@
-"""Diagnostic spells cannot change grading; hearts follow graded counts; retries cannot add extra logs."""
+"""Diagnostic spells cannot change grading; retries cannot add extra assessment logs."""
 
 import json
 import unittest
@@ -90,18 +90,18 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["next_action"], "next_probe")
         self.assertEqual(self.db.logs, [1])
 
-    async def test_ward_keeps_streak_but_graded_miss_still_costs_a_heart(self):
-        await self.answer(True)
-        self.db.session["current_probe_index"] = 0
+    async def test_blocked_wrong_answer_keeps_heart_but_is_still_logged_incorrect(self):
         await self.cast("ward")
-        result = await self.answer(False, "miss")
+        result = await self.answer(False)
         self.assertFalse(result["correct"])
         self.assertTrue(result["battle"]["blocked"])
-        self.assertEqual(result["battle"]["hearts"], 1)
-        self.assertEqual(self.db.logs, [1, 0])
+        self.assertEqual((result["battle"]["hearts"], result["battle"]["score"]), (2, 0))
+        self.assertEqual(self.db.logs, [0])
         self.db.session["current_probe_index"] = 0
-        streak_kept = await self.answer(True, "after-miss")
-        self.assertEqual(streak_kept["battle"]["score"], 10 + 15)
+        next_result = await self.answer(False, "second")
+        self.assertEqual(next_result["battle"]["hearts"], 1)
+        # Grading still fails the node at 2 wrong, whatever Ward saved.
+        self.assertEqual(next_result["next_action"], "complete")
 
     async def test_cast_and_answer_retries_are_idempotent_even_after_probe_clears(self):
         first = await self.cast("flame")
@@ -112,13 +112,16 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.db.logs, [1])
         self.assertEqual(json.loads(self.db.battle["state_json"])["score"], 35)
 
-    async def test_bloom_is_not_available_because_hearts_are_graded(self):
+    async def test_full_health_does_not_spend_heal_and_healing_uses_two_heart_cap(self):
+        with self.assertRaises(HTTPException):
+            await self.cast("bloom")
+        self.assertEqual(json.loads(self.db.battle["state_json"])["used"], [])
         await self.answer(False)
         self.db.session["current_probe_index"] = 0
-        with self.assertRaises(HTTPException) as error:
-            await self.cast("bloom")
-        self.assertEqual(error.exception.status_code, 409)
-        self.assertEqual(json.loads(self.db.battle["state_json"])["used"], [])
+        self.assertEqual((await self.cast("bloom"))["hearts"], 2)
+        with self.assertRaises(HTTPException):
+            await self.cast("bloom", "second-heal")
+        self.assertEqual(self.db.logs, [0])
 
     async def test_three_correct_answers_pass_the_node_and_end_a_single_node_chain(self):
         for i in range(3):
@@ -168,8 +171,8 @@ class DiagnosticEnemyCycleTests(unittest.TestCase):
     def test_passed_node_brings_fresh_enemy_hearts_and_spells_and_keeps_score(self):
         state = new_diagnostic_battle(3, 2)
         resolve_diagnostic_hit(state, self.grading(False, 0, 1), 3, 2)
-        resolve_diagnostic_spell(state, "flame")
-        resolve_diagnostic_spell(state, "ward")
+        resolve_diagnostic_spell(state, "flame", 2)
+        resolve_diagnostic_spell(state, "ward", 2)
         resolve_diagnostic_hit(state, self.grading(True, 1, 1), 3, 2)
         resolve_diagnostic_hit(state, self.grading(True, 2, 1), 3, 2)
         result = resolve_diagnostic_hit(state, self.grading(True, 3, 1, node_complete=True), 3, 2)
@@ -181,7 +184,7 @@ class DiagnosticEnemyCycleTests(unittest.TestCase):
 
     def test_failed_node_finishes_without_refilling_spells(self):
         state = new_diagnostic_battle(3, 2)
-        resolve_diagnostic_spell(state, "flame")
+        resolve_diagnostic_spell(state, "flame", 2)
         resolve_diagnostic_hit(state, self.grading(False, 0, 1), 3, 2)
         result = resolve_diagnostic_hit(state, self.grading(False, 0, 2, "complete", True), 3, 2)
         self.assertEqual(result["hearts"], 0)

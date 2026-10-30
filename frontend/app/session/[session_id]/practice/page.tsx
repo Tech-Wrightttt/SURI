@@ -305,6 +305,7 @@ const GAME_CSS = `
   .hearts-bar {
     margin-top: 4px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 4px;
     padding: 0;
@@ -1562,6 +1563,8 @@ export default function PracticePage() {
   const currentProblem = problems[currentProblemIdx];
   const currentStep = currentProblem?.steps[currentStepIdx];
   const currentEnemy = ENEMY_ROSTER[currentProblemIdx % ENEMY_ROSTER.length];
+  // One shield per step, so every correct rune visibly breaks one.
+  const enemyMaxShields = currentProblem?.steps.length || MAX_HEARTS;
 
   const performBattleAction = async (action: PracticeSpell | "answer") => {
     if (!battleId) return null;
@@ -2090,9 +2093,9 @@ export default function PracticePage() {
                     <div>
                       <span className="combatant-name">{currentEnemy.name}</span>
                       <span className="combatant-subtitle">{currentEnemy.title}</span>
-                      <div className="hearts-bar" aria-label="Enemy shields">
-                        {Array.from({ length: MAX_HEARTS }, (_, i) => {
-                          const hi = MAX_HEARTS - 1 - i;
+                      <div className="hearts-bar" aria-label={`Enemy shields: ${enemyShields} of ${enemyMaxShields}`}>
+                        {Array.from({ length: enemyMaxShields }, (_, i) => {
+                          const hi = enemyMaxShields - 1 - i;
                           return <HeartIcon key={hi} full={hi < enemyShields} breaking={enemyAnimState === "hit" && hi === enemyShields - 1} />;
                         })}
                       </div>

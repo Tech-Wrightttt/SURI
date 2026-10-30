@@ -8,7 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { BattleSpells, ArmedSpellBubble, SpellEffect, FLAME_FLIGHT_MS, SPELLS } from "../practice/battle-spells";
+import { BattleSpells, ArmedSpellBubble, SpellEffect, FLAME_FLIGHT_MS } from "../practice/battle-spells";
 import { CombatImpact, type CombatHit } from "../practice/battle-impact";
 import { useBattleAudio } from "../practice/battle-audio";
 
@@ -1049,13 +1049,6 @@ const GAME_CSS = `
 // 2 wrong answers make 3/4 unreachable, so Suri only has 2 hearts per node.
 const ENEMY_HEARTS = 3;
 const SURI_HEARTS = 2;
-// Hearts are the graded node counts, so Ward keeps the streak instead of blocking and Bloom is left out.
-const DIAGNOSTIC_WARD = {
-  ...SPELLS[1],
-  description: "Keep your streak through the next miss. The heart is still lost.",
-  active: "Suri's streak survives the next miss.",
-};
-const DIAGNOSTIC_SPELLS = [SPELLS[0], DIAGNOSTIC_WARD];
 const LABELS = ["A", "B", "C", "D"];
 
 function ArenaBackground() {
@@ -1304,13 +1297,13 @@ export default function DiagnosticPage() {
         const started = await startDiagnosticBattle(sessionId);
         battleId.current = started.battle_id;
         setBattleState(started.battle);
+        setSuriHearts(started.battle.hearts);
       }
       const data = await getDiagnosticProbe(sessionId);
       if (data.next_action === "complete") { await finalize(); return; }
       setProbe(data); setPhase("battle"); setTileKey(k => k + 1);
       setAnsweredCount(data.questions_answered ?? 0);
       setEnemyHearts(ENEMY_HEARTS - (data.correct_count ?? 0));
-      setSuriHearts(SURI_HEARTS - (data.wrong_count ?? 0));
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load question.");
     } finally { setLoading(false); setLocked(false); busy.current = false; }
@@ -1364,15 +1357,14 @@ export default function DiagnosticPage() {
     setEnemyAnimState("attack");
     playSound("enemyAttack");
     schedule(() => {
-      // Graded misses always cost a heart; Ward only keeps the streak.
-      setSuriDmg("-1");
+      setSuriDmg(battle.blocked ? "BLOCKED" : "-1");
       schedule(() => setSuriDmg(null), 900);
-      setSuriState("hit");
+      setSuriState(battle.blocked ? "idle" : "hit");
       setSuriHearts(battle.hearts);
-      setSuriBreaking(battle.hearts);
-      showCombatImpact("suri", "hurt");
+      setSuriBreaking(battle.blocked ? null : battle.hearts);
+      showCombatImpact("suri", battle.blocked ? "blocked" : "hurt");
       playSound(battle.blocked ? "blocked" : "hurt");
-      if (battle.blocked) showSpellEffect("ward", "Aegis Ward · streak saved");
+      if (battle.blocked) showSpellEffect("ward", "Aegis Ward · hit blocked");
       schedule(() => {
         setSuriBreaking(null); setEnemyAnimState("idle");
         if (battle.hearts === 0) {
@@ -1431,8 +1423,8 @@ export default function DiagnosticPage() {
         setStreak(s => s + 1); toast.success("Direct hit!");
         triggerEnemyHit(nextAction, res.battle);
       } else {
-        if (!res.battle.blocked) setStreak(0);
-        if (res.battle.blocked) toast("Aegis Ward saved your streak!", { icon: "🛡️" });
+        setStreak(0);
+        if (res.battle.blocked) toast("Aegis Ward blocked the hit!", { icon: "🛡️" });
         else toast.error("The enemy counters!");
         triggerSuriHit(nextAction, res.battle);
       }
@@ -1572,10 +1564,10 @@ export default function DiagnosticPage() {
               </div>
               <div className="reaction-space" aria-live="polite">
                 {battleState?.flame_ready || battleState?.ward_ready ? (
-                  <ArmedSpellBubble flameReady={!!battleState.flame_ready} wardReady={!!battleState.ward_ready} wardText={DIAGNOSTIC_WARD.active} />
+                  <ArmedSpellBubble flameReady={!!battleState.flame_ready} wardReady={!!battleState.ward_ready} />
                 ) : feedback ? (
                   <div className="speech-bubble">
-                    {feedback.correct ? "Correct!" : feedback.blocked ? "Streak saved!" : "Nice Try!"}
+                    {feedback.correct ? "Correct!" : feedback.blocked ? "Ward blocked the hit!" : "Nice Try!"}
                   </div>
                 ) : null}
               </div>
@@ -1678,7 +1670,7 @@ export default function DiagnosticPage() {
                 <aside className="diagnostic-support" aria-label="Battle support">
                   <BattleSpells state={battleState} disabled={locked || loading || submitting || !probe}
                     failedAction={failedAction} onCast={spell => void handleCastPowerup(spell)}
-                    muted={muted} onToggleMuted={toggleMuted} spells={DIAGNOSTIC_SPELLS} />
+                    muted={muted} onToggleMuted={toggleMuted} maxHearts={SURI_HEARTS} />
                   <section className="side-panel lore-panel" aria-label="Enemy lore">
                   <h2 className="panel-title">Villain Lore</h2>
                   <div className="lore-box">
