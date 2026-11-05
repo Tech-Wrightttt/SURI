@@ -11,6 +11,7 @@ import "katex/dist/katex.min.css";
 import { BattleSpells, ArmedSpellBubble, SpellEffect, FLAME_FLIGHT_MS } from "../practice/battle-spells";
 import { CombatImpact, type CombatHit } from "../practice/battle-impact";
 import { useBattleAudio } from "../practice/battle-audio";
+import DebugAnswer from "@/components/debug/DebugAnswer";
 
 import {
   getSession,
@@ -1633,6 +1634,14 @@ export default function DiagnosticPage() {
                           );
                         })}
                       </div>
+                      {probe.debug_correct_option_index !== undefined && (
+                        <DebugAnswer>
+                          {LABELS[probe.debug_correct_option_index]} ·{" "}
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
+                            {probe.options[probe.debug_correct_option_index]}
+                          </ReactMarkdown>
+                        </DebugAnswer>
+                      )}
                       {feedback && (
                         <div className={`feedback-banner ${feedback.correct ? "correct" : "wrong"}`} role="status">
                           <img src={feedback.correct ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} alt={feedback.correct ? "Suri happy" : "Suri sad"} className={`feedback-suri${feedback.correct ? " feedback-excited" : ""}`} />

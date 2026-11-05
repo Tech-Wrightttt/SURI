@@ -18,7 +18,7 @@ import asyncio
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from backend.auth import get_current_student
+from backend.auth import get_current_student, is_debug_student
 from backend.database import get_db, release_db
 from backend.graph import GRAPH
 from backend.competency_utils import (
@@ -155,6 +155,7 @@ async def start_quiz(body: QuizStartRequest, student=Depends(get_current_student
     session_id = body.session_id
     node_id = body.node_id
     student_id = student["id"]
+    debug = is_debug_student(student)
 
     if node_id not in GRAPH:
         raise HTTPException(status_code=400, detail=f"Invalid node_id: '{node_id}'")
@@ -211,6 +212,7 @@ async def start_quiz(body: QuizStartRequest, student=Depends(get_current_student
                     "mapped_node_id": step.get("mapped_node_id", node_id),
                     "choices": choices,
                     "timer_ms": step_timer_ms(step_type, r.get("difficulty", "standard")),
+                    "debug_correct_value": step["correct_value"] if debug else None,
                 })
 
             problems_out.append({

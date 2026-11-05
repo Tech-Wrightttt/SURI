@@ -147,6 +147,7 @@ export interface DiagnosticProbe {
   correct_count?: number;
   wrong_count?: number;
   next_action?: string;
+  debug_correct_option_index?: number;
 }
 
 export interface DiagnosticAnswer {
@@ -302,6 +303,8 @@ export interface MeResponse {
   email: string | null;
   grade_level?: number;
   created_at?: string;
+  /** Server-granted tester mode: answers are shown and every node opens. */
+  is_debug?: boolean;
 }
 
 export interface CompetencyNodeSummary {
@@ -644,6 +647,7 @@ export interface QuizStepWithChoices {
   choices: string[];
   correct_value: string;
   timer_ms: number;
+  debug_correct_value?: string | null;
 }
 
 export interface QuizProblem {
@@ -867,6 +871,7 @@ export interface PlaygroundProblem {
   required_form: string;
   unit: string | null;
   solved: boolean;
+  debug_answer?: string;
 }
 
 export interface PlaygroundSitting {

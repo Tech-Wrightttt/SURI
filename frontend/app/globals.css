@@ -1422,3 +1422,9 @@ main:has(> .topics-library-page) { min-height: 0; }
   .calculator-final-answer { grid-template-columns: 1fr; gap: .85rem; }
   .calculator-final-badge { justify-self: center; }
 }
+
+/* Debug accounts only: tester readout, deliberately styled as tooling rather than game UI. */
+.debug-answer { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: .75rem 0; padding: .55rem .8rem; border: 2px dashed #e879f9; border-radius: 6px; color: #fae8ff; background: #2a0f33; font: 600 .9rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: left; }
+.debug-answer-tag { padding: .15rem .45rem; border-radius: 4px; color: #2a0f33; background: #f0abfc; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.debug-answer-value { min-width: 0; overflow-wrap: anywhere; }
+.debug-answer-value .katex { color: inherit; }

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import MathField from "../math/MathField";
 import PromptText from "./PromptText";
+import DebugAnswer from "../debug/DebugAnswer";
 import { playground } from "../../lib/playground/client";
 import type {
   PlaygroundAnswerType,
@@ -244,6 +245,12 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
         {problem.unit && <span className={styles.unit}>{problem.unit}</span>}
       </div>
       {hint && <p className={styles.hint}>{hint}</p>}
+      {problem.debug_answer && (
+        <DebugAnswer>
+          <PromptText text={`$${problem.debug_answer}$`} className={styles.inlineMath} />
+          {problem.unit ? ` ${problem.unit}` : ""}
+        </DebugAnswer>
+      )}
 
       {fb && fb.kind !== "revealed" && (
         <p className={`${styles.feedback} ${fb.kind === "correct" ? styles.feedbackGood : styles.feedbackBad}`} role="status">
