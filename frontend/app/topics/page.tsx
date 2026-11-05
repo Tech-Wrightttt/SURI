@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MainPage from "@/components/mainpage";
 import TopicBookCarousel, { type CarouselBook } from "@/components/TopicBookCarousel";
 import { useLearningData, useWorldNavigation } from "@/components/navigation/LearningShell";
+import { useSoundEffect } from "@/lib/soundEffects";
 import styles from "./topics.module.css";
 
 export default function TopicsPage() {
@@ -14,6 +15,7 @@ export default function TopicsPage() {
   const router = useRouter();
   const { navigate } = useWorldNavigation();
   const { data, error: loadError } = useLearningData();
+  const { audioRef: bookSwapAudioRef, play: playBookSwap } = useSoundEffect();
   const topics = useMemo(() => data?.topics ?? [], [data]);
   const activeTopics = useMemo(() => Object.fromEntries((data?.progress.active_sessions ?? []).map(session => [session.topic_entry_node, session.id])), [data]);
   const completedTopics = useMemo(() => new Set((data?.progress.completed_sessions ?? []).map(session => session.topic_entry_node)), [data]);
@@ -78,10 +80,15 @@ export default function TopicsPage() {
     syncSpacing();
     return () => observer.disconnect();
   }, [hasSelectedBook]);
+  const selectBook = useCallback((nodeId: string) => {
+    if (nodeId === resolvedSelectedNodeId) return;
+    playBookSwap();
+    setSelectedNodeId(nodeId);
+  }, [playBookSwap, resolvedSelectedNodeId]);
   const moveSelection = (direction: -1 | 1) => {
     if (!carouselBooks.length) return;
     const nextIndex = (selectedIndex + direction + carouselBooks.length) % carouselBooks.length;
-    setSelectedNodeId(carouselBooks[nextIndex].nodeId);
+    selectBook(carouselBooks[nextIndex].nodeId);
   };
   const preloadTopic = useCallback((nodeId?: string) => {
     if (!nodeId) return;
@@ -97,10 +104,11 @@ export default function TopicsPage() {
     const book = carouselBooks[index];
     if (!book) return;
     if (book.nodeId === resolvedSelectedNodeId) enterTopic(book.nodeId);
-    else setSelectedNodeId(book.nodeId);
-  }, [carouselBooks, enterTopic, resolvedSelectedNodeId]);
+    else selectBook(book.nodeId);
+  }, [carouselBooks, enterTopic, resolvedSelectedNodeId, selectBook]);
   const handleBookIntent = useCallback((index: number) => preloadTopic(carouselBooks[index]?.nodeId), [carouselBooks, preloadTopic]);
   return <MainPage immersive>
+    <audio ref={bookSwapAudioRef} src="/sounds/sfx/book_carousel.mp3" preload="auto" hidden aria-hidden="true" />
     <div ref={pageRef} className="topics-library-page">
       <div className="topics-library-back-row">
         <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
