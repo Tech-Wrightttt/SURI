@@ -110,7 +110,7 @@ export default function TopicsPage() {
   return <MainPage immersive>
     <audio ref={bookSwapAudioRef} src="/sounds/sfx/book_carousel.mp3" preload="auto" hidden aria-hidden="true" />
     <div ref={pageRef} className="topics-library-page">
-      <div className="topics-library-back-row">
+      <div className={`topics-library-back-row ${styles.contentWidth}`}>
         <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
       </div>
       <header className={`topics-library-header ${styles.contentWidth}`}>

@@ -14,6 +14,7 @@ import {
   ApiError,
 } from "../../../../lib/api";
 import PointsNotice, { type PointsNoticeData } from "@/components/quiz/PointsNotice";
+import DebugAnswer from "@/components/debug/DebugAnswer";
 import { useTutorial } from "@/components/tutorial/TutorialProvider";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
@@ -2182,6 +2183,10 @@ export default function QuizPage() {
                   );
                 })}
               </div>
+
+              {currentStep.debug_correct_value && (
+                <DebugAnswer>{renderMath(currentStep.debug_correct_value, true)}</DebugAnswer>
+              )}
 
               <div className="quiz-submit-row">
                 <button

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from backend.auth import get_current_student
+from backend.auth import get_current_student, is_debug_student
 from backend.competency_utils import get_chain
 from backend.database import get_db, release_db
 from backend.graph import ENTRY_NODES, GRAPH
@@ -129,6 +129,7 @@ async def get_playground_sitting(
                 p.answer_type,
                 p.required_form,
                 p.unit,
+                p.answer,
                 (s.problem_id IS NOT NULL) AS solved
             FROM playground_problems p
             LEFT JOIN playground_solved s
@@ -144,7 +145,14 @@ async def get_playground_sitting(
     finally:
         await release_db(conn)
 
-    problems = [dict(row) for row in rows]
+    debug = is_debug_student(student)
+    problems = []
+    for row in rows:
+        problem = dict(row)
+        answer = problem.pop("answer")
+        if debug:
+            problem["debug_answer"] = answer
+        problems.append(problem)
     random.shuffle(problems)
 
     return {

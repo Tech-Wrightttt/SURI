@@ -13,6 +13,7 @@ from backend.auth import (
     verify_password,
     create_access_token,
     get_current_student,
+    is_debug_student,
 )
 from backend.database import get_db, release_db
 from backend.models.schemas import RegisterRequest, LoginRequest, AuthResponse
@@ -125,4 +126,5 @@ async def get_me(student=Depends(get_current_student)):
         "email": student["email"],
         "grade_level": student["grade_level"],
         "created_at": student["created_at"],
+        "is_debug": is_debug_student(student),
     }

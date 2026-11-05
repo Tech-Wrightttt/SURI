@@ -28,7 +28,8 @@ export default function ProgressPage() {
   const errorRef = useRef<HTMLDivElement>(null);
   const alignedReviewLink = useRef(false);
 
-  const analytics = useMemo(() => buildProgressAnalytics(data ?? EMPTY_DATA), [data]);
+  const debug = data?.me.is_debug === true;
+  const analytics = useMemo(() => buildProgressAnalytics(data ?? EMPTY_DATA, debug), [data, debug]);
   const activeSessions = data?.progress.active_sessions ?? [];
   const loading = !data?.curriculumReady && !loadError;
   const coreLoading = !data && !loadError;

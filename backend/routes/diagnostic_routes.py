@@ -5,7 +5,7 @@ import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
-from backend.auth import get_current_student
+from backend.auth import get_current_student, is_debug_student
 from backend.database import get_db, release_db
 from backend.models.schemas import (
     DiagnosticAnswerRequest,
@@ -323,7 +323,7 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
             probe_idx, datetime.now(timezone.utc).isoformat(), session_id,
         )
 
-        return {
+        response = {
             "node_id": current_node,
             "node_label": GRAPH[current_node]["label"],
             "question_text": selected_probe["question_text"],
@@ -333,6 +333,9 @@ async def get_diagnostic_probe(session_id: str, student=Depends(get_current_stud
             "correct_count": correct_so_far,
             "wrong_count": wrong_so_far,
         }
+        if is_debug_student(student):
+            response["debug_correct_option_index"] = selected_probe["correct_option_index"]
+        return response
     finally:
         await release_db(conn)
 

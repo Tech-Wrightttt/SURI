@@ -17,6 +17,19 @@ JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-in-production")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_DAYS = 7
 
+# Comma-separated emails of tester accounts that may see answers and open every
+# node. Read on the server only, so a client can never grant itself debug mode.
+DEBUG_ACCOUNT_EMAILS = frozenset(
+    email.strip().lower()
+    for email in os.getenv("DEBUG_ACCOUNT_EMAILS", "").split(",")
+    if email.strip()
+)
+
+
+def is_debug_student(student: dict) -> bool:
+    """True when the student's email is on the DEBUG_ACCOUNT_EMAILS allowlist."""
+    return (student.get("email") or "").lower() in DEBUG_ACCOUNT_EMAILS
+
 
 def hash_password(password: str) -> str:
     """Hash a plaintext password."""

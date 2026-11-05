@@ -26,6 +26,7 @@ import {
   PracticeSubmitStepResponse,
 } from "../../../../lib/api";
 import MathField from "../../../../components/math/MathField";
+import DebugAnswer from "@/components/debug/DebugAnswer";
 
 /* String & Math normalization functions for client-side step checking */
 function normalizeVal(val: string): string {
@@ -2238,6 +2239,8 @@ export default function PracticePage() {
                         );
                       })()}
                     </div>
+
+                    <DebugAnswer><MathInline text={currentStep.correct_value} isValue /></DebugAnswer>
 
                     {/* Feedback Banner */}
                     {checkpointNotice ? (

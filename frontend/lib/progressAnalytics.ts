@@ -21,7 +21,8 @@ export type ProgressConcept = {
 
 // Preserve the original first-path order and prerequisite gate while counting
 // a shared competency only once in the curriculum and grade summaries.
-export function buildProgressAnalytics(data: Pick<LearningData, "topics" | "chains" | "statuses">) {
+// Debug accounts skip the gate so any node can be opened for testing.
+export function buildProgressAnalytics(data: Pick<LearningData, "topics" | "chains" | "statuses">, unlockAll = false) {
   const seen = new Set<string>();
   const concepts: ProgressConcept[] = [];
   const topics = data.topics.map(topic => {
@@ -36,7 +37,7 @@ export function buildProgressAnalytics(data: Pick<LearningData, "topics" | "chai
       concepts.push({
         node, topicId: topic.node_id, topicLabel: topic.label, topicMastery: mastery,
         priorNodeIds, previousLabel: index ? chain[index - 1].node_label : null,
-        status, canOpen: status === "mastered" || priorNodeIds.every(id => data.statuses[id] === "mastered"),
+        status, canOpen: unlockAll || status === "mastered" || priorNodeIds.every(id => data.statuses[id] === "mastered"),
       });
     });
     return { ...topic, mastered, total: chain.length, mastery, nodeIds: new Set(chain.map(node => node.node_id)) };

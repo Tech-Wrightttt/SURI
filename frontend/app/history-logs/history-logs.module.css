@@ -8,3 +8,9 @@
     width: 100%;
   }
 }
+
+/* Keep the Go back button on the header's left edge. */
+.page > :global(.progress-library-back-row) {
+  width: 85%;
+  margin-inline: auto;
+}

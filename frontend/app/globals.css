@@ -854,7 +854,7 @@ main:has(> .topics-library-page) { min-height: 0; }
   padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) var(--topics-bottom-gap, calc(.75rem + 1.25rem + 1rem));
   color: #fff;
 }
-.topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: 100%; margin: 1rem auto var(--archive-section-gap); }
+.topics-library-back-row { position: relative; z-index: 2; display: flex; justify-content: flex-start; width: 100%; margin: 1rem auto var(--archive-section-gap); }
 .topics-library-header { position: relative; z-index: 2; width: 100%; margin: 0 auto; padding: calc(clamp(1rem, 2vw, 1.3rem) + .5rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .topics-library-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
 .topics-library-back { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.75rem; padding: .58rem .9rem; border: 3px solid #6d411c; border-radius: 8px; color: #321008; background: linear-gradient(180deg, #ffe79b, #d99c3a); box-shadow: 0 5px 0 #4b2411, inset 0 1px 0 rgba(255,255,255,.55); font: 900 .76rem/1 "Bree Serif", Georgia, serif; letter-spacing: .055em; cursor: pointer; transition: transform .2s, filter .2s, box-shadow .2s; }.topics-library-back:hover { filter: brightness(1.08); box-shadow: 0 7px 0 #4b2411; transform: translateY(-2px); }.topics-library-back span { color: inherit; font-size: 1rem; }
@@ -1195,7 +1195,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 /* Progress: a spellbook-focused companion to the Topics library. The visual
    framing is shared, while the body reveals the chosen book's competency trail. */
 .progress-library-page { position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(1rem, 5vw, 5rem) 2.3rem; color: #fff; }
-.progress-library-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: min(69.3rem, 100%); margin: 1rem auto var(--archive-section-gap); }
+.progress-library-back-row { position: relative; z-index: 2; display: flex; justify-content: flex-start; width: min(69.3rem, 100%); margin: 1rem auto var(--archive-section-gap); }
 .progress-library-header { position: relative; z-index: 2; width: min(69.3rem, 100%); margin: 0 auto; padding: calc(clamp(1rem, 2vw, 1.3rem) + .5rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .progress-library-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
 .progress-library-kicker { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: .7rem; color: #1d528d; font: 900 .66rem/1 "Nunito", sans-serif; letter-spacing: .18em; }
@@ -1314,7 +1314,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 }
 
 .calculator-route-page { --calculator-section-gap: clamp(1.5rem, 3vw, 2rem); position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem; color: #fff4d5; font-family: "Nunito", "Manrope", sans-serif; }
-.calculator-route-back-row { position: relative; z-index: 2; display: flex; justify-content: center; width: 100%; margin: 1rem auto var(--calculator-section-gap); }
+.calculator-route-back-row { position: relative; z-index: 2; display: flex; justify-content: flex-start; width: 100%; margin: 1rem auto var(--calculator-section-gap); }
 /* Extra vertical space makes the workshop header about 10% taller. */
 .calculator-route-header { position: relative; z-index: 2; width: 100%; margin: 0 auto; padding: calc(clamp(1rem, 2vw, 1.3rem) + .5rem) clamp(1rem, 4vw, 4rem); border: 5px solid #5e3619; color: #3a2111; background: radial-gradient(circle at 50% 0, rgba(255,255,255,.38), transparent 37%), linear-gradient(180deg, #fff0bf, #dec07b); box-shadow: 0 9px 0 #160b07, 0 18px 32px rgba(0,0,0,.24), inset 0 0 0 3px rgba(111,61,28,.16); text-align: center; text-shadow: none; }
 .calculator-route-header::after { content: ""; position: absolute; inset: .5rem; border: 2px solid rgba(111,61,28,.18); pointer-events: none; }
@@ -1362,7 +1362,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 
 .calculator-results { display: grid; gap: var(--calculator-section-gap); width: 100%; margin: var(--calculator-section-gap) auto 0; }
 .calculator-results > .calculator-route-collection { width: 100%; margin: 0; }
-.calculator-route-page > :is(.calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results) { width: 85%; }
+.calculator-route-page > :is(.calculator-route-back-row, .calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results) { width: 85%; }
 .calculator-result-overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, .8fr); gap: 1rem; align-items: center; }
 .calculator-result-copy { padding: .25rem .2rem; }
 .calculator-result-copy small, .calculator-final-answer small { display: block; color: #1d528d; font: 900 .6rem/1 "Nunito", sans-serif; letter-spacing: .15em; text-transform: uppercase; }
@@ -1406,7 +1406,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 }
 @media (max-width: 640px) {
   .calculator-route-page { --calculator-section-gap: 1.25rem; }
-  .calculator-route-page > :is(.calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results) { width: 100%; }
+  .calculator-route-page > :is(.calculator-route-back-row, .calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results) { width: 100%; }
   .calculator-route-back-row { margin-bottom: var(--calculator-section-gap); }
   .calculator-route-header { padding: 1.7rem .85rem; }
   .calculator-route-header h1 { font-size: 2.45rem; }
@@ -1422,3 +1422,9 @@ main:has(> .topics-library-page) { min-height: 0; }
   .calculator-final-answer { grid-template-columns: 1fr; gap: .85rem; }
   .calculator-final-badge { justify-self: center; }
 }
+
+/* Debug accounts only: tester readout, deliberately styled as tooling rather than game UI. */
+.debug-answer { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: .75rem 0; padding: .55rem .8rem; border: 2px dashed #e879f9; border-radius: 6px; color: #fae8ff; background: #2a0f33; font: 600 .9rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: left; }
+.debug-answer-tag { padding: .15rem .45rem; border-radius: 4px; color: #2a0f33; background: #f0abfc; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.debug-answer-value { min-width: 0; overflow-wrap: anywhere; }
+.debug-answer-value .katex { color: inherit; }
