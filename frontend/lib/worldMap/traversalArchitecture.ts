@@ -1,12 +1,17 @@
 import { ArchitectureBuilder } from "./architecture";
 import { WORLD_PALETTE as P } from "./worldPalette";
-import { terrainHeight } from "./landscape";
+import { segmentDistance, terrainHeight } from "./landscape";
 import { TRAVERSAL, bridgeDeck } from "./traversal";
 
 /** Offline modular assembly. Bridges have full barrel vaults and seabed piers,
  * never a road strip suspended between two decorative posts. */
 export function makeTraversalArchitecture(){
   const b=new ArchitectureBuilder();
+  // Retaining walls and kerbs must leave intersecting paths and bridge aprons
+  // open. A wall belonging to one approach cannot block another walking aisle.
+  const junctionOpen=(x:number,z:number,pathId:string)=>
+    TRAVERSAL.paths.some(p=>p.id!==pathId&&p.points.some((point,j)=>j>0&&segmentDistance(x,z,[p.points[j-1][0],p.points[j-1][2]],[point[0],point[2]])<p.width/2+.3))||
+    TRAVERSAL.bridges.some(bridge=>segmentDistance(x,z,[bridge.a[0],bridge.a[2]],[bridge.b[0],bridge.b[2]])<bridge.width/2+.3);
   for(const bridge of TRAVERSAL.bridges){
     const dx=bridge.b[0]-bridge.a[0],dz=bridge.b[2]-bridge.a[2],angle=Math.atan2(dx,dz),L=bridge.length,W=bridge.width;
     b.at(bridge.a[0],0,bridge.a[2],1,angle,()=>{
@@ -80,9 +85,10 @@ export function makeTraversalArchitecture(){
       if(run<.01)continue;
       const x=(a.p[0]+c.p[0])/2,z=(a.p[2]+c.p[2])/2,top=Math.max(a.p[1],c.p[1])+.015;
       if(rise/run>.3){const ground=Math.min(a.ground,c.ground);b.part("box","road","#c0b59d",x,(top+ground)/2,z,path.width,Math.max(.15,top-ground),run+.025,0,angle);}
-      if(Math.floor(distance/.3)%3===0)for(const side of [-1,1]){
-        const px=x+side*Math.cos(angle)*(path.width/2+.1),pz=z-side*Math.sin(angle)*(path.width/2+.1),base=terrainHeight(px,pz)-.12,h=Math.max(.18,top+.1-base);
-        b.part("box","stone",P.lightStone,px,top+.1-h/2,pz,.14,h,Math.min(.78,length-distance)+.04,0,angle);
+      if(path.island==="hub"||Math.floor(distance/.3)%3===0)for(const side of [-1,1]){
+        const px=x+side*Math.cos(angle)*(path.width/2+.1),pz=z-side*Math.sin(angle)*(path.width/2+.1),base=terrainHeight(px,pz)-.12,h=path.island==="hub"?.18:Math.max(.18,top+.1-base);
+        if(junctionOpen(px,pz,path.id))continue;
+        b.part("box","stone",P.lightStone,px,top+.1-h/2,pz,.14,h,(path.island==="hub"?run:Math.min(.78,length-distance))+.04,0,angle);
       }
     }
     for(let j=1;j<path.points.length;j++){
@@ -93,10 +99,11 @@ export function makeTraversalArchitecture(){
         const x=(a[0]+c[0])/2,z=(a[2]+c[2])/2,y=(a[1]+c[1])/2,ground=Math.min(path.ground[j-1],path.ground[j]);
         if(y-ground>.3)b.part("box","stone","#aaa997",x,(ground+y-.025)/2,z,path.width,Math.max(.16,y-ground-.025),run+.025,0,Math.atan2(dx,dz));
       }
-      if(j%4===0&&steep){
+      if(j%4===0&&steep&&path.island!=="hub"){
         const angle=Math.atan2(dx,dz),x=(a[0]+c[0])/2,z=(a[2]+c[2])/2,y=Math.max(a[1],c[1]);
         for(const side of [-1,1]){
           const px=x+side*Math.cos(angle)*(path.width/2+.18),pz=z-side*Math.sin(angle)*(path.width/2+.18),ground=terrainHeight(px,pz)-.15;
+          if(junctionOpen(px,pz,path.id))continue;
           b.part("box","stone","#969e8e",px,(ground+y+.35)/2,pz,.26,Math.max(.3,y+.35-ground),run*4+.12,0,angle);
           b.part("box","stone","#b4b19a",px,y+.4,pz,.32,.1,run*4+.15,0,angle);
         }

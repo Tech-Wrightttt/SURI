@@ -17,14 +17,14 @@ const loadCalculatorWorld = () => import("@/components/WorldMap/CalculatorTowerW
 const loadTopicCarousel = () => import("@/components/TopicBookCarousel");
 const DashboardWorld = dynamic(loadWorld, {
   ssr: false,
-  loading: () => <div className="world-loading" role="status"><span className="world-loader" aria-hidden="true" /><span>Preparing your learning kingdom…</span></div>,
+  loading: () => <div className="world-loading" role="status"><span className="world-loader" aria-hidden="true" /><span>Preparing your learning kingdomâ€¦</span></div>,
 });
 const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
 const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
 
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
-const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground", "history"] as const;
+const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground", "history", "leaderboard"] as const;
 type FocusedRouteKey = typeof FOCUSED_ROUTE_KEYS[number];
 type FocusedTransition = "idle" | "entering" | "revealing" | "visible" | "leaving" | "zooming-out";
 type FocusedTransitionMap = Record<FocusedRouteKey, FocusedTransition>;
@@ -40,6 +40,7 @@ const FOCUSED_ROUTES = {
   "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
   "/playground": { key: "playground", site: "records", load: null, contentClass: "playground-route-content" },
   "/history-logs": { key: "history", site: "keep", load: null, contentClass: "history-route-content" },
+  "/leaderboard": { key: "leaderboard", site: "watchtower", load: null, contentClass: "leaderboard-route-content" },
 } as const;
 
 // Route canvases and foreground pages deliberately overlap for a little
@@ -104,6 +105,7 @@ function createTransitionMap(pathname: string): FocusedTransitionMap {
     calculator: route?.key === "calculator" ? "visible" : "idle",
     playground: route?.key === "playground" ? "visible" : "idle",
     history: route?.key === "history" ? "visible" : "idle",
+    leaderboard: route?.key === "leaderboard" ? "visible" : "idle",
   };
 }
 
@@ -115,6 +117,7 @@ function createWorldMap(pathname: string): FocusedWorldMap {
     calculator: route?.key === "calculator",
     playground: route?.key === "playground",
     history: route?.key === "history",
+    leaderboard: route?.key === "leaderboard",
   };
 }
 
@@ -155,7 +158,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     setFocusedTransitions(current => current[key] === stage ? current : { ...current, [key]: stage });
   }, []);
   const resetFocusedStages = useCallback(() => {
-    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle", history: "idle" };
+    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle", history: "idle", leaderboard: "idle" };
     focusedTransitionsRef.current = idle;
     setFocusedTransitions(idle);
   }, []);
@@ -421,6 +424,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     {(focusedWorldMounted.history || pathname === "/history-logs") && <div className={`history-background-shell history-transition-${focusedTransitions.history}`} aria-hidden="true" style={{ visibility: pathname === "/history-logs" ? "visible" : "hidden" }}>
       <div className="history-background" />
     </div>}
-    <div className={contentClass}>{children}</div>
+    {(focusedWorldMounted.leaderboard || pathname === "/leaderboard") && <div className={`leaderboard-background-shell leaderboard-transition-${focusedTransitions.leaderboard}`} aria-hidden="true" style={{ visibility: pathname === "/leaderboard" ? "visible" : "hidden" }}>
+      <div className="leaderboard-background" />
+    </div>}
+    <div className={contentClass} data-transition={activeFocusedRoute ? focusedTransitions[activeFocusedRoute.key] : undefined}>{children}</div>
   </TutorialProvider></NavigationContext.Provider>;
 }

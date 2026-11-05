@@ -1,10 +1,10 @@
 {
   "version": "purple-afternoon-v2",
-  "sourceHash": "4c2c44fe502bdfd4dcfd7b530ccac0707543f098bd5e45c912125188027e89c8",
+  "sourceHash": "3a801acf7158ebe1480a3829431262e08a8872ee70102c1ec6c53db12c2e610c",
   "probes": [
     {
-      "x": 0,
-      "z": -3,
+      "x": -5.7,
+      "z": 6,
       "coast": 12.237977375889233
     },
     {
@@ -35,7 +35,7 @@
     {
       "x": 0,
       "z": 18,
-      "coast": -5.794318004209572
+      "coast": 2.8549138708692867
     },
     {
       "x": -25,
@@ -45,7 +45,7 @@
     {
       "x": 5,
       "z": -18,
-      "coast": -5.6037128898770785
+      "coast": -5.578447231674988
     }
   ],
   "sunLocal": [
@@ -83,9 +83,9 @@
     "afternoon-sky.webp": 7068,
     "architecture-reliefs.webp": 11274,
     "architecture-surface.webp": 243286,
-    "coast-depth.png": 229982,
+    "coast-depth.png": 233896,
     "coastal-cloud.webp": 43034,
-    "lighting-mask.webp": 162778,
+    "lighting-mask.webp": 166758,
     "terrain-albedo.webp": 42726,
     "terrain-normal.webp": 848870,
     "terrain-rma.webp": 765632,
