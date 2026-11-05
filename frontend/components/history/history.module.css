@@ -1,4 +1,8 @@
-.card { width: min(860px, 100%); margin: 24px auto 0; padding: 18px 20px 20px; border: 3px solid #6d411c; border-radius: 14px; color: #3a2111; font-family: "Nunito", "Manrope", sans-serif; background: radial-gradient(circle at 80% 0, #fff8df, transparent 55%), linear-gradient(180deg, #fff0bf, #e5c789); box-shadow: 0 6px 0 #29150e, 0 20px 60px #0006, inset 0 0 0 2px #fff3c5; }
+.card { width: 85%; margin: 24px auto 0; padding: 18px 20px 20px; border: 3px solid #6d411c; border-radius: 14px; color: #3a2111; font-family: "Nunito", "Manrope", sans-serif; background: radial-gradient(circle at 80% 0, #fff8df, transparent 55%), linear-gradient(180deg, #fff0bf, #e5c789); box-shadow: 0 6px 0 #29150e, 0 20px 60px #0006, inset 0 0 0 2px #fff3c5; }
+
+@media (max-width: 640px) {
+  .card { width: 100%; }
+}
 .summary { margin: 0 0 14px; font-size: 13px; font-weight: 800; line-height: 1.5; color: #725036; text-align: center; overflow-wrap: anywhere; }
 
 .tabs { display: flex; gap: 6px; padding-bottom: 0; border-bottom: 3px solid #6d411c; }

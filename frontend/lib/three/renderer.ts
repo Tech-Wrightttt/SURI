@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { installWorldShaderDiagnostics } from "./shaderDiagnostics";
 
 let assetCacheEnabled = false;
 
@@ -10,6 +11,7 @@ let assetCacheEnabled = false;
  * owns a separate WebGLRenderer while it is mounted.
  */
 export function configureWorldRenderer(renderer: THREE.WebGLRenderer) {
+  installWorldShaderDiagnostics();
   if (!assetCacheEnabled) {
     THREE.Cache.enabled = true;
     assetCacheEnabled = true;
