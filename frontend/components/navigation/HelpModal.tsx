@@ -26,7 +26,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
     summary: "Choose a learning destination from the map, resume a quest, or open your account from your username.", icon: Map,
     sections: [
       { id: "guide", title: "Explore the map", icon: ListChecks, items: [
-        { title: "Choose a landmark", description: "Hover or focus to preview, then select History Logs, Topics, Playground, Progress, or Calculator." },
+        { title: "Choose a landmark", description: "Hover or focus to preview, then select History Logs, Topics, Playground, Progress, Calculator, or Leaderboard." },
         { title: "Resume a quest", description: "In Topics, select Resume quest on an active spellbook to continue its lesson." },
         { title: "Return to the map", description: "Select Go back from any destination page." },
       ] },
@@ -34,6 +34,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
         { title: "Topics & Progress", description: "Browse learning paths in Topics; check mastery, lessons, and mistakes in Progress." },
         { title: "Calculator", description: "Simplify algebra and follow each explained step." },
         { title: "History Logs", description: "The central castle opens the History Logs page." },
+        { title: "Leaderboard", description: "The watchtower above the central island opens quiz scores and kingdom rankings." },
         { title: "Account & audio", description: "Select your username in the main header for account details, master/music/sound effects volume, credits, and logout." },
       ] },
     ],

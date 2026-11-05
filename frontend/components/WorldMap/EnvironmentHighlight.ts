@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
-export const HIGHLIGHT_KINDS=["keep","topics","records","champions","calculator"] as const;
+import { DASHBOARD_SITE_KEYS } from "@/lib/worldMap/landscape";
+export const HIGHLIGHT_KINDS=DASHBOARD_SITE_KEYS;
 export const ENVIRONMENT_HIGHLIGHT={
   zones:{value:HIGHLIGHT_KINDS.map(()=>new THREE.Vector4(0,0,1,0))},
   strengths:{value:new Float32Array(HIGHLIGHT_KINDS.length)},
@@ -22,9 +23,9 @@ export function finishEnvironmentHighlight<T extends THREE.Material>(material:T)
       #endif
       vHighlightPosition=highlightPoint.xz;
       #include <project_vertex>`);
-    shader.fragmentShader="uniform vec4 landmarkZones[5];uniform float landmarkStrengths[5];varying vec2 vHighlightPosition;\n"+shader.fragmentShader;
+    shader.fragmentShader=`uniform vec4 landmarkZones[${HIGHLIGHT_KINDS.length}];uniform float landmarkStrengths[${HIGHLIGHT_KINDS.length}];varying vec2 vHighlightPosition;\n`+shader.fragmentShader;
     shader.fragmentShader=shader.fragmentShader.replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
-      for(int zone=0;zone<5;zone++){
+      for(int zone=0;zone<${HIGHLIGHT_KINDS.length};zone++){
         if(landmarkStrengths[zone]>.001){
           float radius=max(.01,landmarkZones[zone].z);
           float distanceToCenter=length(vHighlightPosition-landmarkZones[zone].xy)/radius;
@@ -34,6 +35,6 @@ export function finishEnvironmentHighlight<T extends THREE.Material>(material:T)
         }
       }`);
   };
-  material.customProgramCacheKey=()=>`${cacheKey()}-environment-circle-v1`;
+  material.customProgramCacheKey=()=>`${cacheKey()}-environment-circle-v2-${HIGHLIGHT_KINDS.length}`;
   return material;
 }

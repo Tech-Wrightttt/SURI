@@ -4,11 +4,11 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),ts=require('typescript');
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText,f);
 const {ArchitectureBuilder}=require('../lib/worldMap/architecture.ts');
-const {LANDMARK_SITE_KEYS}=require('../lib/worldMap/landscape.ts');
+const {DASHBOARD_SITE_KEYS:LANDMARK_SITE_KEYS}=require('../lib/worldMap/landscape.ts');
 const {makeSupportingArchitecture,COASTAL_OUTPOSTS}=require('../lib/worldMap/supportingArchitecture.ts');
 const {makeEnvironmentDecor,makeHarborBoat}=require('../lib/worldMap/environmentDecor.ts');
 const {makeTraversalArchitecture}=require('../lib/worldMap/traversalArchitecture.ts');
-const files=['architecture.ts','outerLandmarks.ts','architecturalModules.ts','landmarkDesigns.ts','supportingArchitecture.ts','northernIslands.ts','northernArchitecture.ts','traversalArchitecture.ts','traversal.ts','generated/traversal.json','worldPalette.ts','environmentDecor.ts'];
+const files=['mapLayout.ts','framing.ts','landscape.ts','architecture.ts','outerLandmarks.ts','architecturalModules.ts','landmarkDesigns.ts','supportingArchitecture.ts','northernIslands.ts','northernArchitecture.ts','traversalArchitecture.ts','traversal.ts','generated/traversal.json','worldPalette.ts','environmentDecor.ts'];
 const hash=crypto.createHash('sha256');for(const file of files)hash.update(fs.readFileSync(path.join(__dirname,'../lib/worldMap',file),'utf8').replace(/\r\n/g,'\n'));
 const round=n=>Math.round(n*100000)/100000;
 const serialize=builder=>Array.from(builder.batches.values()).map(batch=>({shape:batch.shape,surface:batch.surface,

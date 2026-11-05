@@ -1,10 +1,11 @@
 import type { Island } from "./landscape";
+import { WATCHTOWER_OFFSET as offset, LEADERBOARD_ISLAND } from "./mapLayout";
 
-// Authored in the existing camera envelope; none of these places route.
+// The watchtower family moves together inside the existing camera envelope.
 export const NORTHERN_ISLANDS = {
-  wyrmrest: {x:25,z:-24,rx:5,rz:3.7,turn:-.38,seed:61,hill:3.6,biome:"ruins"},
-  wyrmLedge: {x:21.5,z:-27.5,rx:1.9,rz:1.1,turn:.3,seed:62,hill:1.5,biome:"stack"},
-  wyrmShoal: {x:18,z:-35,rx:1.6,rz:.75,turn:-.2,seed:63,hill:.16,biome:"reef"},
+  wyrmrest: {x:25+offset.x,z:-24+offset.z,rx:LEADERBOARD_ISLAND.rx,rz:LEADERBOARD_ISLAND.rz,turn:-.38,seed:61,hill:3.6,biome:"ruins"},
+  wyrmLedge: {x:21.5+offset.x,z:-27.5+offset.z,rx:1.9,rz:1.1,turn:.3,seed:62,hill:1.5,biome:"stack"},
+  wyrmShoal: {x:18+offset.x,z:-35+offset.z,rx:1.6,rz:.75,turn:-.2,seed:63,hill:.16,biome:"reef"},
   northwood: {x:-39,z:-38,rx:4.5,rz:2.7,turn:-.6,seed:64,hill:2.7,biome:"highlands"},
   northwoodStack: {x:-44,z:-40,rx:1.5,rz:1.1,turn:.4,seed:65,hill:3,biome:"stack"},
   northwoodShoal: {x:-42,z:-35,rx:1.8,rz:.9,turn:.3,seed:66,hill:.2,biome:"reef"},
@@ -17,4 +18,4 @@ export const NORTHERN_ISLANDS = {
   gullhavenSkerry: {x:52,z:-31,rx:1.1,rz:.7,turn:.8,seed:73,hill:2.4,biome:"stack"},
 } satisfies Record<string,Island>;
 
-export const WYRM_TOWER = {x:25,z:-24,floor:3.75,turn:.45} as const;
+export const WYRM_TOWER = {x:25+offset.x,z:-24+offset.z,floor:3.75,turn:.45} as const;

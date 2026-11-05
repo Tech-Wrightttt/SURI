@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import { drawOuterLandmark } from "./outerLandmarks";
+import { drawWatchtower } from "./northernArchitecture";
 import type { ArchitecturalShape } from "./architecturalGeometry";
 
 export type Surface = "stone" | "road" | "wood" | "plaster" | "roof" | "gold" | "window" | "magic" | "cloth" | "leaves" | "iron" | "glass" | "carving";
 export type Shape = "box" | "cylinder" | "cone" | "sphere" | "roof" | "arch" | "ring" | "crystal" | "sail" | "hull" | "broadleaf" | "conifer" | "rock" | ArchitecturalShape;
 export type Piece = { matrix: THREE.Matrix4; color: THREE.Color };
 export type Batch = { shape: Shape; surface: Surface; pieces: Piece[] };
-export type LandmarkKind = "keep" | "academy" | "records" | "champions" | "calculator" | "guild" | "topics" | "ranger" | "arena";
+export type LandmarkKind = "watchtower" | "keep" | "academy" | "records" | "champions" | "calculator" | "guild" | "topics" | "ranger" | "arena";
 
 /** All architecture is assembled into instanced batches, including its tiny trims. */
 export class ArchitectureBuilder {
@@ -111,6 +112,7 @@ export class ArchitectureBuilder {
     });
   }
   landmark(kind: LandmarkKind) {
+    if(kind==="watchtower"){drawWatchtower(this);return;}
     if(kind === "keep" || kind === "topics" || kind === "records" || kind === "champions" || kind === "calculator") {
       drawOuterLandmark(this,kind); return;
     }

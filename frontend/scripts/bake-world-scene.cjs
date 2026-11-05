@@ -6,11 +6,12 @@ const w=require('../lib/worldMap/landscape.ts'),{makeArchipelagoTerrain,makeCita
 const {makeStaticLighting}=require('../lib/worldMap/staticLighting.ts');
 const {HARBOR_BOATS}=require('../lib/worldMap/environmentDecor.ts');
 const {LANDMARK_SCALE}=require('../lib/worldMap/framing.ts');
+const {LEADERBOARD_ISLAND}=require('../lib/worldMap/mapLayout.ts');
 const {landmarkZoneRadius}=require('../lib/worldMap/landmarkInteraction.ts');
 const {WATER_LEVEL}=require('../lib/worldMap/environment.ts');
 const {createTerrainSampler}=require('../lib/worldMap/walkingPaths.ts'),{makeSettlements,makeVegetation}=require('../lib/worldMap/settlements.ts'),{geometryForShape}=require('../lib/worldMap/primitiveGeometry.ts');
 const root=path.join(__dirname,'../lib/worldMap'),out=path.join(__dirname,'../public/world-map/scene');fs.mkdirSync(out,{recursive:true});
-const sourceFiles=['landscape.ts','terrainGeometry.ts','settlements.ts','architecture.ts','architecturalGeometry.ts','primitiveGeometry.ts','foliageGeometry.ts','traversal.ts','generated/traversal.json','landmarkDesigns.ts','landmarkInteraction.ts','architecturalModules.ts','supportingArchitecture.ts','northernIslands.ts','northernArchitecture.ts','environmentDecor.ts','worldPalette.ts','environment.ts','staticLighting.ts'];
+const sourceFiles=['mapLayout.ts','framing.ts','northernIslands.ts','landscape.ts','terrainGeometry.ts','settlements.ts','architecture.ts','architecturalGeometry.ts','primitiveGeometry.ts','foliageGeometry.ts','traversal.ts','generated/traversal.json','landmarkDesigns.ts','landmarkInteraction.ts','architecturalModules.ts','supportingArchitecture.ts','northernArchitecture.ts','environmentDecor.ts','worldPalette.ts','environment.ts','staticLighting.ts'];
 const hash=crypto.createHash('sha256');for(const file of sourceFiles)hash.update(fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n'));
 const {mergeGeometries}=require('three/examples/jsm/utils/BufferGeometryUtils.js');
 const sourceHash=hash.digest('hex'),architecture=JSON.parse(fs.readFileSync(path.join(out,'../architecture/instances.json'))),paths=JSON.parse(fs.readFileSync(path.join(out,'../traversal/paths.json')));
@@ -98,11 +99,11 @@ for(const low of [false,true]){
     const full=unit(false);units[batch.shape]={full,low:['rock','broadleaf','conifer'].includes(batch.shape)?unit(true):full};
   }
   const land={},landmarkZones={};for(const [kind,batches]of Object.entries(architecture.models)){
-    if(!w.LANDMARK_SITE_KEYS.includes(kind))continue;
+    if(!w.DASHBOARD_SITE_KEYS.includes(kind))continue;
     const groups=new Map();for(const batch of batches){const mineral=batch.shape==='rock'||batch.shape==='obelisk',key=batch.surface+':'+mineral;let group=groups.get(key);if(!group){group={surface:batch.surface,mineral,pieces:[]};groups.set(key,group);}for(const values of batch.pieces)group.pieces.push({geometry:geometryForShape(batch.shape),matrix:new T.Matrix4().fromArray(values),tint:new T.Color().fromArray(values,16),wind:batch.surface==='cloth'});}
     const bounds=new T.Box3();
     land[kind]=Array.from(groups.entries()).map(([key,group])=>{const g=merge(group.pieces);if(group.surface!=='carving')g.deleteAttribute('uv');light.geometry(g,new T.Matrix4().makeTranslation(...w.sitePosition(kind)).scale(new T.Vector3().setScalar(LANDMARK_SCALE)));const id=pack.pack('landmark/'+kind+'/'+key,g);bounds.union(g.boundingBox);g.dispose();return {surface:group.surface,mineral:group.mineral,geometry:id};});
-    const center=bounds.getCenter(new T.Vector3()),size=bounds.getSize(new T.Vector3()),site=w.sitePosition(kind),radius=landmarkZoneRadius(size.x*LANDMARK_SCALE,size.z*LANDMARK_SCALE),x=site[0]+center.x*LANDMARK_SCALE,z=site[2]+center.z*LANDMARK_SCALE;
+    const center=bounds.getCenter(new T.Vector3()),size=bounds.getSize(new T.Vector3()),site=w.sitePosition(kind),radius=landmarkZoneRadius(size.x*LANDMARK_SCALE,size.z*LANDMARK_SCALE,kind==='watchtower'?LEADERBOARD_ISLAND.selectionRadius:Infinity),x=site[0]+(kind==='watchtower'?0:center.x*LANDMARK_SCALE),z=site[2]+(kind==='watchtower'?0:center.z*LANDMARK_SCALE);
     landmarkZones[kind]={x,y:site[1],z,radius,perimeter:Array.from({length:64},(_,j)=>{const a=j/64*Math.PI*2,px=x+Math.cos(a)*radius,pz=z+Math.sin(a)*radius;return [px,Math.max(WATER_LEVEL+.02,surface(px,pz)+.025),pz];})};
   }
   const compileWorld=(id,batches,baked=true)=>{

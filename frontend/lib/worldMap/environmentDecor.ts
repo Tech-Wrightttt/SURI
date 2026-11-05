@@ -1,12 +1,14 @@
 import { ArchitectureBuilder } from "./architecture";
 import { ISLANDS,SITES,LANDMARK_SITE_KEYS,islandScore,terrainHeight,terrainSlope,type RoutingSite,type MapPoint } from "./landscape";
 import { traversalClearance,TRAVERSAL } from "./traversal";
+import { HUB_ROUNDABOUT } from "./mapLayout";
 import { WORLD_PALETTE as P } from "./worldPalette";
 
-type Garden={site:RoutingSite;x:number;z:number;turn:number;kind:"fountain"|"shrine"};
+type Garden={site:RoutingSite;x:number;z:number;turn:number;kind:"fountain"|"shrine";roundabout?:boolean};
 const islandFor={keep:"hub",topics:"topics",records:"records",champions:"progress",calculator:"calculator"} as const;
 export const GARDENS:Garden[]=LANDMARK_SITE_KEYS.flatMap((site,index)=>{
-  const [sx,sz]=SITES[site],front=site==="keep"?0:Math.atan2(-sx,-sz),result:Garden[]=[];
+  if(site==="keep")return [{site,x:HUB_ROUNDABOUT.x,z:HUB_ROUNDABOUT.z,turn:0,kind:"fountain",roundabout:true}];
+  const [sx,sz]=SITES[site],front=Math.atan2(-sx,-sz),result:Garden[]=[];
   // The observatory's mountain-facing flank is intentionally left undeveloped.
   for(const side of site==="calculator"?[1]:[0,1])for(let j=0;j<24;j++){
     const angle=front+(side?1:-1)*(1.1+j*.085),r=6.8+(j%4)*.45,x=sx+Math.sin(angle)*r,z=sz+Math.cos(angle)*r;
@@ -20,6 +22,7 @@ export function decorClearance(x:number,z:number){return Math.min(...GARDENS.map
 /** Offline garden links skirt the occupied foundation, never cut through it.
  * Try direct approaches first, then contour arcs around the landmark. */
 export function gardenApproach(garden:Garden,surface=terrainHeight):MapPoint[]{
+  if(garden.roundabout)return [];
   const {site,x,z}=garden,[sx,sz]=SITES[site],island=ISLANDS[islandFor[site]];
   const endpoints=TRAVERSAL.paths.filter(p=>p.island===islandFor[site]).flatMap(p=>p.points.filter((_,j)=>j%5===0||j===p.points.length-1))
     .filter(p=>{const r=Math.hypot(p[0]-sx,p[2]-sz);return r>5.7&&r<10;});
@@ -90,7 +93,7 @@ export function makeEnvironmentDecor(surface=terrainHeight){
         b.part("crystal","magic",P.purple,0,1.61,.02,.24,.32,.24);
         b.part("inscription","carving",P.indigo,0,.45,.46,.56,.25,1);
       }
-      for(const side of [-1,1]){
+      if(!garden.roundabout)for(const side of [-1,1]){
         b.part("box","stone",P.stone,side*1.05,.16,-.7,.5,.3,.75);
         b.part("sphere","leaves",P.foliage,side*1.05,.42,-.7,.6,.35,.83);
         for(let j=0;j<3;j++)b.part("sphere","cloth",j%2?P.violet:"#cfb0e7",side*1.05+(j-1)*.13,.62,-.7,.12,.13,.13);
@@ -98,8 +101,10 @@ export function makeEnvironmentDecor(surface=terrainHeight){
         for(const leg of [-1,1])b.part("box","stone",P.stone,side*1.02+leg*.18,.2,.83,.12,.35,.36);
       }
     });
+    if(!garden.roundabout){
     banner(b,x+Math.cos(turn)*1.7,surface(x+Math.cos(turn)*1.7,z-Math.sin(turn)*1.7),z-Math.sin(turn)*1.7,turn);
     lantern(b,x-Math.cos(turn)*1.6,surface(x-Math.cos(turn)*1.6,z+Math.sin(turn)*1.6),z+Math.sin(turn)*1.6);
+    }
     // A short paved connection joins the nearest existing approach, not a
     // decorative trail that ends on a cliff or crosses a principal building.
     const approach=gardenApproach(garden,surface);
@@ -121,7 +126,7 @@ export function makeEnvironmentDecor(surface=terrainHeight){
   b.at(x+.34,deck,z-.14,.65,0,()=>b.barrel(0,0));
   lantern(b,x-.62,deck,z+.08);banner(b,x+.75,deck,z-.4,.2);
   // Ruined columns form a small archaeological corner, beside the archive garden.
-  const ruin=GARDENS.find(g=>g.site==="keep");
+  const ruin=GARDENS.find(g=>g.site==="keep"&&!g.roundabout);
   if(ruin)for(let j=0;j<3;j++){const px=ruin.x-1.2+j*.55,pz=ruin.z-2.2,y=surface(px,pz);if(traversalClearance(px,pz)<.8)continue;b.part("cylinder","stone",P.stone,px,y+.35+j*.13,pz,.28,.7+j*.26,.28);}
   return b;
 }

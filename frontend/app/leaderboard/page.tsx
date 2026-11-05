@@ -9,7 +9,7 @@ export default function LeaderboardPage() {
   const { navigate } = useWorldNavigation();
 
   return <MainPage immersive>
-    <div className={`progress-library-page history-route-page ${styles.page}`}>
+    <div className={`progress-library-page history-route-page leaderboard-route-page ${styles.page}`}>
       <div className="progress-library-back-row">
         <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Return to dashboard"><span aria-hidden="true">←</span> Go back</button>
       </div>

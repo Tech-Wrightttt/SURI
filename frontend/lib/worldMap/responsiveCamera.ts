@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, projectWorldPoint, worldFrame } from "./framing";
-import { sitePosition } from "./landscape";
+import { DASHBOARD_SITE_KEYS, sitePosition } from "./landscape";
 
 export const CAMERA_RESPONSE = {
   mobileBreakpoint: 900,
@@ -56,7 +56,7 @@ export function responsiveCamera(width: number, height: number, projected: THREE
     position.addScaledVector(up, center.y + worldTranslation.dot(up) - height * CAMERA_RESPONSE.desktopCameraDownFraction * unitsPerPixel);
     // Retain enough edge clearance for labels and the maximum parallax offset.
     const labels = new THREE.Box2();
-    for (const site of ["keep", "topics", "records", "champions", "calculator"] as const) {
+    for (const site of DASHBOARD_SITE_KEYS) {
       const point = new THREE.Vector3(...sitePosition(site));
       point.y += (LANDMARK_BOUNDS[site][1] + LANDMARK_LABEL_LIFT) * LANDMARK_SCALE;
       labels.expandByPoint(projectWorldPoint(point).multiplyScalar(frame.scale));

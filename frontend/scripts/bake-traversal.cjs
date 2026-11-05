@@ -3,6 +3,8 @@
 const fs=require('node:fs'),path=require('node:path'),ts=require('typescript'),T=require('three');
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,esModuleInterop:true,resolveJsonModule:true}}).outputText,f);
 const w=require('../lib/worldMap/landscape.ts');
+const {HUB_ROUNDABOUT:plaza}=require('../lib/worldMap/mapLayout.ts');
+const {WYRM_TOWER:tower}=require('../lib/worldMap/northernIslands.ts');
 const {makeArchipelagoTerrain}=require('../lib/worldMap/terrainGeometry.ts');
 const {createTerrainSampler,walkingRibbon}=require('../lib/worldMap/walkingPaths.ts');
 const {outpostPosition,COASTAL_OUTPOSTS}=require('../lib/worldMap/supportingArchitecture.ts');
@@ -21,6 +23,37 @@ for(const [island,site]of Object.entries(primary)){
   forecourts.push({id:`forecourt-${site}`,island,from:`entrance-${site}`,to:`court-${site}`,width:1.2,points:approach.map(p=>point(p.x,p.z))});
   plan.nodes.push({id:`court-${site}`,island,point:roots[island]});
 }
+// Four explicit circle junctions replace four independently overlapping hub
+// approaches. Westbound bridges share one trunk before their roads split.
+const hubJunctions=['court-keep','hub-circle-east','hub-circle-south','hub-circle-west'];
+const hubPoints=hubJunctions.map((_,j)=>point(plaza.x+Math.sin(j*Math.PI/2)*plaza.radius,plaza.z-Math.cos(j*Math.PI/2)*plaza.radius));
+roots.hub=hubPoints[0];
+plan.nodes.find(n=>n.id==='court-keep').point=hubPoints[0];
+for(let j=1;j<4;j++)plan.nodes.push({id:hubJunctions[j],island:'hub',point:hubPoints[j]});
+const keepEntrance=forecourts.find(p=>p.island==='hub'),[keepX,keepZ]=w.SITES.keep;
+keepEntrance.points=Array.from({length:25},(_,j)=>point(keepX,keepZ+2.4+(plaza.z-plaza.radius-keepZ-2.4)*j/24));
+for(let j=0;j<4;j++){
+  const points=Array.from({length:25},(_,k)=>{const angle=(j+k/24)*Math.PI/2;return point(plaza.x+Math.sin(angle)*plaza.radius,plaza.z-Math.cos(angle)*plaza.radius);});
+  points[0]=hubPoints[j];points[24]=hubPoints[(j+1)%4];
+  plan.paths.push({id:`hub-roundabout-${j}`,island:'hub',from:hubJunctions[j],to:hubJunctions[(j+1)%4],width:plaza.width,points});
+}
+const hubWest=point(keepX-8,keepZ+3.5),hubEast=point(keepX+8,keepZ+3.5);
+plan.nodes.push({id:'hub-west-junction',island:'hub',point:hubWest},{id:'hub-east-junction',island:'hub',point:hubEast});
+for(const [side,from,end]of [['west',3,hubWest],['east',1,hubEast]]){
+  const start=hubPoints[from],bend=new T.Vector3(end[0],0,start[2]),curve=new T.QuadraticBezierCurve3(new T.Vector3(start[0],0,start[2]),bend,new T.Vector3(end[0],0,end[2]));
+  const points=curve.getSpacedPoints(40).map(p=>point(p.x,p.z));points[0]=start;points[40]=end;
+  plan.paths.push({id:`hub-${side}-trunk`,island:'hub',from:hubJunctions[from],to:`hub-${side}-junction`,width:plaza.width,points});
+}
+// The expanded watchtower has a real arrival court at the bottom of its
+// existing stair flight. Keep the new walking aisle outside occupied masonry.
+const towerPoint=forward=>point(tower.x+Math.sin(tower.turn)*forward,tower.z+Math.cos(tower.turn)*forward);
+roots.wyrmrest=towerPoint(3.65);
+plan.nodes.push({id:'court-watchtower',island:'wyrmrest',point:roots.wyrmrest});
+plan.paths.push({id:'watchtower-entry',island:'wyrmrest',from:'entrance-watchtower',to:'court-watchtower',width:1.2,points:[3.1,3.35,3.65].map(towerPoint)});
+function towerBlocked(x,z){
+  const dx=x-tower.x,dz=z-tower.z,c=Math.cos(tower.turn),s=Math.sin(tower.turn),u=dx*c-dz*s,v=dx*s+dz*c;
+  return Math.hypot(u,v)<2.5||(u> -3.7&&u< -1.15&&v> -2.55&&v<.45)||(u>1.3&&u<3.65&&v> -1.55&&v<.35);
+}
 const house=COASTAL_OUTPOSTS.find(o=>o.id==='fisher-house'),[hx,hz]=outpostPosition(house);
 roots.lanternCove=point(hx+.6,hz+1.15);plan.nodes.push({id:'fishing-court',island:'lanternCove',point:roots.lanternCove});
 
@@ -35,11 +68,11 @@ function landing(island,toward,offset,clearance){
   }
   return result;
 }
-for(const [a,b,kind]of [['hub','topics','stone'],['hub','progress','fortified'],['hub','records','stone'],['hub','calculator','fortified'],['progress','lanternCove','timber']]){
+for(const [a,b,kind]of [['hub','topics','stone'],['hub','progress','fortified'],['hub','records','stone'],['hub','calculator','fortified'],['hub','wyrmrest','stone'],['progress','lanternCove','timber']]){
   let best;
   for(const offset of [-2,-1,0,1,2]){
     const width=kind==='timber'?1.25:kind==='fortified'?1.9:1.7;
-    const pa=landing(a,b,offset,3.1),pb=landing(b,a,-offset,b==='lanternCove'?2.3:3.1);
+    const pa=landing(a,b,offset,3.1),pb=landing(b,a,-offset,b==='lanternCove'||b==='wyrmrest'?2.3:3.1);
     if(!pa||!pb)continue;
     const length=Math.hypot(pb[0]-pa[0],pb[2]-pa[2]);
     let obstruction=0;
@@ -71,7 +104,7 @@ function gridFor(key){
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
     const x=minX+c*gridStep,z=minZ+r*gridStep,index=r*cols+c;
     heights[index]=safeSurface(x,z);
-    const blocked=w.LANDMARK_SITE_KEYS.some(site=>Math.hypot(x-w.SITES[site][0],z-w.SITES[site][1])<5.65);
+    const blocked=w.LANDMARK_SITE_KEYS.some(site=>Math.hypot(x-w.SITES[site][0],z-w.SITES[site][1])<5.65)||(key==='wyrmrest'&&towerBlocked(x,z));
     const hamlet=key==='lanternCove'&&COASTAL_OUTPOSTS.filter(o=>o.island===key).some(o=>{const [sx,sz]=outpostPosition(o);return Math.abs(x-sx)<o.scale*1.8&&Math.abs(z-sz)<o.scale*1.55;});
     valid[index]=w.islandScore(x,z,island)>1.2&&!blocked&&!hamlet?1:0;
   }
@@ -109,7 +142,7 @@ function route(island,start,end){
     const length=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(length/.25));let last;
     for(let j=0;j<=n;j++){
       const t=j/n,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;
-      if(w.islandScore(x,z,w.ISLANDS[island])<1.12||w.LANDMARK_SITE_KEYS.some(k=>Math.hypot(x-w.SITES[k][0],z-w.SITES[k][1])<5.5))return false;
+      if(w.islandScore(x,z,w.ISLANDS[island])<1.12||w.LANDMARK_SITE_KEYS.some(k=>Math.hypot(x-w.SITES[k][0],z-w.SITES[k][1])<5.5)||island==='wyrmrest'&&towerBlocked(x,z))return false;
       const h=w.terrainHeight(x,z);if(last!==undefined&&Math.abs(h-last)/(length/n)>.32)return false;last=h;
     }
     return true;
@@ -132,8 +165,17 @@ function route(island,start,end){
   return dense;
 }
 for(const bridge of plan.bridges)for(let side=0;side<2;side++){
-  const island=bridge.islands[side],start=roots[island],end=side?bridge.b:bridge.a,root=plan.nodes.find(n=>n.island===island&&n.id.startsWith(island==='lanternCove'?'fishing':'court'));
-  plan.paths.push({id:`approach-${bridge.id}-${side}`,island,from:root.id,to:side?bridge.to:bridge.from,width:bridge.kind==='timber'?1.05:1.35,points:route(island,start,end)});
+  const island=bridge.islands[side],end=side?bridge.b:bridge.a;
+  const hubRoot=bridge.id==='hub-topics'||bridge.id==='hub-progress'?'hub-west-junction':bridge.id==='hub-records'||bridge.id==='hub-wyrmrest'?'hub-east-junction':'hub-circle-east';
+  const root=island==='hub'?plan.nodes.find(n=>n.id===hubRoot):plan.nodes.find(n=>n.island===island&&n.id.startsWith(island==='lanternCove'?'fishing':'court'));
+  const start=root.point;
+  // Meet each deck on its own axis. A straight dry apron keeps the last
+  // staircase and its side walls from turning across the bridge entrance.
+  const direction=side?1:-1,dx=(bridge.b[0]-bridge.a[0])/bridge.length,dz=(bridge.b[2]-bridge.a[2])/bridge.length;
+  const apronLength=island==='wyrmrest'?.6:2;
+  const apron=point(end[0]+direction*dx*apronLength,end[2]+direction*dz*apronLength),points=route(island,start,apron);
+  for(let j=1;j<=8;j++)points.push(point(apron[0]+(end[0]-apron[0])*j/8,apron[2]+(end[2]-apron[2])*j/8));
+  plan.paths.push({id:`approach-${bridge.id}-${side}`,island,from:root.id,to:side?bridge.to:bridge.from,width:bridge.kind==='timber'?1.05:1.35,points});
 }
 
 // Pack both terrain-aligned tiers; generation and triangle lookups stop here.

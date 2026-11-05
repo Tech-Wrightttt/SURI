@@ -232,13 +232,13 @@ body {
   z-index: -1;
 }
 
-/* Diagnostic game — star float animation (used in diagnostic page sparkles) */
+/* Diagnostic game â€” star float animation (used in diagnostic page sparkles) */
 @keyframes starFloat {
   0%   { transform: translateY(0)    rotate(0deg)   scale(1);   opacity: 1; }
   100% { transform: translateY(-80px) rotate(180deg) scale(0.3); opacity: 0; }
 }
 
-/* Diagnostic game — jelly bounce (global fallback) */
+/* Diagnostic game â€” jelly bounce (global fallback) */
 @keyframes jellyBounce {
   0%,100% { transform: translateY(0) scaleX(1) scaleY(1); }
   25%      { transform: translateY(-10px) scaleX(0.95) scaleY(1.05); }
@@ -1288,6 +1288,10 @@ main:has(> .topics-library-page) { min-height: 0; }
   .progress-competency-action { width: 100%; }
 }
 
+/* The foreground fade finishes before the return camera moves. Explicitly
+   hide the page during the zoom so a delayed paint cannot leave text behind. */
+.focused-route-content[data-transition="zooming-out"] :is(.topics-library-page, .progress-library-page, .calculator-route-page, .playground-route-page, .history-route-page, .leaderboard-route-page) { visibility: hidden; opacity: 0; transition: none; }
+
 /* Calculator: the Arcane Tower uses the same retained focused-island scene and
    book-like foreground surfaces as Topics and Progress. */
 .calculator-world-shell { position: fixed; inset: 0; z-index: 0; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
@@ -1298,7 +1302,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 .playground-route-page { opacity: 1; transform: translateY(0); transition: opacity .72s cubic-bezier(.2,.8,.2,1), transform .72s cubic-bezier(.2,.8,.2,1); }
 .playground-background-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .playground-background-shell.playground-transition-entering, .playground-background-shell.playground-transition-zooming-out { opacity: 0; }
-.playground-background, .history-background { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
+.playground-background, .history-background, .leaderboard-background { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
 .playground-route-content:is(.playground-transition-entering, .playground-transition-revealing, .playground-transition-leaving, .playground-transition-zooming-out) { pointer-events: none; }
 .playground-route-content:is(.playground-transition-entering, .playground-transition-revealing) .playground-route-page { opacity: 0; transform: translateY(.8rem); transition: none; }
 .playground-route-content:is(.playground-transition-leaving, .playground-transition-zooming-out) .playground-route-page { opacity: 0; transform: translateY(-.45rem); transition-duration: .62s; }
@@ -1309,8 +1313,15 @@ main:has(> .topics-library-page) { min-height: 0; }
 .history-route-content:is(.history-transition-entering, .history-transition-revealing, .history-transition-leaving, .history-transition-zooming-out) { pointer-events: none; }
 .history-route-content:is(.history-transition-entering, .history-transition-revealing) .history-route-page { opacity: 0; transform: translateY(.8rem); transition: none; }
 .history-route-content:is(.history-transition-leaving, .history-transition-zooming-out) .history-route-page { opacity: 0; transform: translateY(-.45rem); transition-duration: .62s; }
+/* Leaderboard uses the shared static-page handoff from its watchtower. */
+.leaderboard-route-page { opacity: 1; transform: translateY(0); transition: opacity .72s cubic-bezier(.2,.8,.2,1), transform .72s cubic-bezier(.2,.8,.2,1); }
+.leaderboard-background-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
+.leaderboard-background-shell:is(.leaderboard-transition-entering, .leaderboard-transition-zooming-out) { opacity: 0; }
+.leaderboard-route-content:is(.leaderboard-transition-entering, .leaderboard-transition-revealing, .leaderboard-transition-leaving, .leaderboard-transition-zooming-out) { pointer-events: none; }
+.leaderboard-route-content:is(.leaderboard-transition-entering, .leaderboard-transition-revealing) .leaderboard-route-page { opacity: 0; transform: translateY(.8rem); transition: none; }
+.leaderboard-route-content:is(.leaderboard-transition-leaving, .leaderboard-transition-zooming-out) .leaderboard-route-page { opacity: 0; transform: translateY(-.45rem); transition-duration: .62s; }
 @media (prefers-reduced-motion: reduce) {
-  .playground-background-shell, .playground-route-content, .playground-route-page, .history-background-shell, .history-route-content, .history-route-page { transition: none; }
+  .leaderboard-background-shell, .leaderboard-route-page, .playground-background-shell, .playground-route-content, .playground-route-page, .history-background-shell, .history-route-content, .history-route-page { transition: none; }
 }
 
 .calculator-route-page { --calculator-section-gap: clamp(1.5rem, 3vw, 2rem); position: relative; z-index: 3; min-height: 100vh; padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem; color: #fff4d5; font-family: "Nunito", "Manrope", sans-serif; }

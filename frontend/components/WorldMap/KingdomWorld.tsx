@@ -11,7 +11,7 @@ import { MapCamera, CAMERA_POSITION } from "./MapCamera";
 import { LandmarkArchitecture } from "./Architecture";
 import { LandmarkGlow, type LandmarkFeedback } from "./LandmarkGlow";
 import { PROJECTED_LANDMARKS, type DashboardLandmark } from "@/lib/worldMap/landmarkInteraction";
-import { sitePosition } from "@/lib/worldMap/landscape";
+import { DASHBOARD_SITE_KEYS, sitePosition } from "@/lib/worldMap/landscape";
 import styles from "./landmarks.module.css";
 import { Ocean } from "@/components/ReferenceVoxel/Ocean";
 import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
@@ -29,11 +29,12 @@ type Point3 = [number, number, number];
 // MapCamera owns the original frustum. Adaptive DPR resizes the drawing buffer
 // without allowing Fiber to substitute its automatic pixel-sized frustum.
 const DASHBOARD_CAMERA={manual:true,position:[...CAMERA_POSITION] as Point3,near:.5,far:650};
-const LANDMARK_POSITIONS=Object.fromEntries(["keep","topics","records","champions","calculator"].map(kind=>[kind,sitePosition(kind as DashboardLandmark)])) as Record<DashboardLandmark,Point3>;
+const LANDMARK_POSITIONS=Object.fromEntries(DASHBOARD_SITE_KEYS.map(kind=>[kind,sitePosition(kind as DashboardLandmark)])) as Record<DashboardLandmark,Point3>;
 const DISABLED_EVENTS=()=>({enabled:false,priority:0});
 type LandmarkElements = Partial<Record<DashboardLandmark, HTMLDivElement | null>>;
 
 const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href: string; description: string }> = [
+  { kind: "watchtower", title: "Leaderboard", href: "/leaderboard", description: "Compare quiz scores and climb the kingdom rankings." },
   { kind: "keep", title: "History Logs", href: "/history-logs", description: "Open your History Logs." },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics", description: "Explore the Learning Grove and choose your next topic." },
   { kind: "records", title: "Playground", href: "/playground", description: "Open your Playground." },
@@ -236,7 +237,9 @@ function DashboardWorld(props: WorldProps) {
         </div>
         {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} data-visible={props.labelsVisible} inert={!props.labelsVisible} hidden={!props.visible} aria-hidden={!props.labelsVisible}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
-            const subtitle = kind === "records"
+            const subtitle = kind === "watchtower"
+              ? "Quiz scores & rankings"
+              : kind === "records"
               ? "Your creative space"
               : kind === "champions"
                 ? `${props.progress.mastered}/${props.progress.total} skills mastered`
