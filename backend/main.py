@@ -43,6 +43,7 @@ from backend.routes.graph_routes import router as graph_router
 from backend.routes.quiz_routes import router as quiz_router
 from backend.routes.playground_routes import router as playground_router
 from backend.routes.history_routes import router as history_router
+from backend.routes.leaderboard_routes import router as leaderboard_router
 
 
 @asynccontextmanager
@@ -124,6 +125,7 @@ app.include_router(student_router)
 app.include_router(graph_router)
 app.include_router(quiz_router)
 app.include_router(history_router)
+app.include_router(leaderboard_router)
 
 
 @app.get("/")

@@ -759,7 +759,7 @@ export function finishQuiz(body: {
 }
 
 
-// ─── History / Topic checks ──────────────────────────
+// ─── Topic checks ──────────────────────────
 
 export type TopicPageKey = "concept" | "example" | "explanation";
 
@@ -830,6 +830,33 @@ export function getHistory(params: { kind?: HistoryKind; limit?: number; offset?
 
 export function getHistorySummary(): Promise<HistorySummary> {
   return request<HistorySummary>("/api/history/summary");
+}
+
+
+// ---- Leaderboard ----
+
+export interface LeaderboardEntry {
+  rank: number;
+  name: string;
+  points: number;
+  topics_done: number;
+  is_me: boolean;
+}
+
+export interface LeaderboardResponse {
+  node_id: string | null;
+  entries: LeaderboardEntry[];
+  me: LeaderboardEntry | null;
+  total_ranked: number;
+}
+
+export async function getLeaderboard(
+  limit: number = 10,
+  nodeId?: string
+): Promise<LeaderboardResponse> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (nodeId) params.set("node_id", nodeId);
+  return request<LeaderboardResponse>(`/api/leaderboard?${params.toString()}`);
 }
 
 
