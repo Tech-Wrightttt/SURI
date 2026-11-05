@@ -7,6 +7,8 @@ import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLe
 import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
 import DashboardWorldBoundary from "@/components/WorldMap/DashboardWorldBoundary";
 import TutorialProvider from "@/components/tutorial/TutorialProvider";
+import BackgroundMusic from "@/components/audio/BackgroundMusic";
+import { isBackgroundMusicRoute, isLessonMusicRoute, isQuizMusicRoute, isPracticeMusicRoute, isDiagnosticMusicRoute, isResultsMusicRoute } from "@/lib/backgroundMusic";
 
 const loadWorld = () => import("@/components/WorldMap/KingdomWorld");
 const loadTopicsWorld = () => import("@/components/WorldMap/TopicsLibraryWorld");
@@ -389,7 +391,15 @@ export default function LearningShell({ children }: { children: React.ReactNode 
       ? `learning-route-content focused-route-content ${activeFocusedRoute.contentClass} ${activeFocusedRoute.key}-transition-${focusedTransitions[activeFocusedRoute.key]}`
       : "learning-route-content";
 
-  return <NavigationContext.Provider value={context}><TutorialProvider userId={data?.me.student_id} identityReady={Boolean(data || dataError)}>
+  return <NavigationContext.Provider value={context}>
+    {/* Keep each track mounted so switching sections preserves its playhead. */}
+    <BackgroundMusic active={isBackgroundMusicRoute(pathname)} src="/sounds/music/TempleOfWater_MainBG.mp3" />
+    <BackgroundMusic active={isLessonMusicRoute(pathname)} src="/sounds/music/Underworld_LessonBG.mp3" />
+    <BackgroundMusic active={isQuizMusicRoute(pathname)} src="/sounds/music/Suspicion_QuizBG.mp3" />
+    <BackgroundMusic active={isPracticeMusicRoute(pathname)} src="/sounds/music/Observatory_PracticeBG.mp3" />
+    <BackgroundMusic active={isDiagnosticMusicRoute(pathname)} src="/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.mp3" />
+    <BackgroundMusic active={isResultsMusicRoute(pathname)} src="/sounds/music/Legend_ResultsBG.mp3" />
+    <TutorialProvider userId={data?.me.student_id} identityReady={Boolean(data || dataError)}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
         <DashboardWorld visible={dashboardActive} labelsVisible={overview && !busy} preserveCameraOnActivate={!overview && focusedTransition !== "idle"} command={command} navigate={navigate} preloadRoute={preloadDashboardRoute} busy={busy}

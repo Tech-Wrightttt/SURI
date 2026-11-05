@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { getEffectiveAudioVolume, subscribeAudioSettings } from "@/lib/audioPreferences";
 
 export type BattleSound = "attack" | "enemyAttack" | "hit" | "hurt" | "flameCharge" | "flameLaunch" | "explosion" | "ward" | "blocked" | "heal" | "victory";
 
@@ -31,11 +32,12 @@ export class BattleAudio {
   private noiseBuffer: AudioBuffer;
   private voices = new Set<AudioScheduledSourceNode>();
   private muted = false;
+  private unsubscribeVolume: () => void;
 
   constructor(context: AudioContext) {
     this.context = context;
     this.master = context.createGain();
-    this.master.gain.value = .24;
+    this.master.gain.value = .24 * getEffectiveAudioVolume("effects");
     const limiter = context.createDynamicsCompressor();
     limiter.threshold.value = -18;
     limiter.knee.value = 12;
@@ -51,6 +53,7 @@ export class BattleAudio {
       seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
       samples[i] = (seed / 4294967296) * 2 - 1;
     }
+    this.unsubscribeVolume = subscribeAudioSettings(() => this.updateVolume());
   }
 
   unlock() {
@@ -59,8 +62,13 @@ export class BattleAudio {
 
   setMuted(muted: boolean) {
     this.muted = muted;
-    this.master.gain.setValueAtTime(muted ? 0 : .24, this.context.currentTime);
-    if (muted) this.stopVoices();
+    this.updateVolume();
+  }
+
+  private updateVolume() {
+    const volume = this.muted ? 0 : .24 * getEffectiveAudioVolume("effects");
+    this.master.gain.setValueAtTime(volume, this.context.currentTime);
+    if (volume === 0) this.stopVoices();
   }
 
   private stopVoices() {
@@ -116,7 +124,7 @@ export class BattleAudio {
   }
 
   play(sound: BattleSound) {
-    if (this.muted || this.context.state !== "running" || this.voices.size > 24) return;
+    if (this.muted || getEffectiveAudioVolume("effects") === 0 || this.context.state !== "running" || this.voices.size > 24) return;
     switch (sound) {
       case "attack":
       case "enemyAttack":
@@ -160,6 +168,7 @@ export class BattleAudio {
   }
 
   dispose() {
+    this.unsubscribeVolume();
     this.stopVoices();
     void this.context.close().catch(() => {});
   }

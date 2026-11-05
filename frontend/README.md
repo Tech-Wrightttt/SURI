@@ -4,6 +4,9 @@ This document explains frontend behavior, dashboard rendering, and world asset
 authoring. Setup, startup, and deployment instructions are in the
 [repository README](../README.md).
 
+For the soundtrack inventory, playback behavior, and audio credits, see
+[MUSIC AND SOUNDTRACK](MUSIC.md).
+
 ## Guided tutorials
 
 First visits show a skippable guide for the dashboard, topic library and overview,

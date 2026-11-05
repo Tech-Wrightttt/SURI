@@ -1,0 +1,10 @@
+.page > header.header {
+  width: 85%;
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .page > header.header {
+    width: 100%;
+  }
+}

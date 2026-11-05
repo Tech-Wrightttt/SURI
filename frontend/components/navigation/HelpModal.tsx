@@ -34,7 +34,7 @@ const HELP_CONTENT: Record<HelpPage, HelpContent> = {
         { title: "Topics & Progress", description: "Browse learning paths in Topics; check mastery, lessons, and mistakes in Progress." },
         { title: "Calculator", description: "Simplify algebra and follow each explained step." },
         { title: "History Logs", description: "The central castle opens the History Logs page." },
-        { title: "Account & audio", description: "Select your username in the main header for account details and logout. Audio is coming soon." },
+        { title: "Account & audio", description: "Select your username in the main header for account details, master/music/sound effects volume, credits, and logout." },
       ] },
     ],
   },

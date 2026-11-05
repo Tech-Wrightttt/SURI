@@ -625,7 +625,18 @@ html::-webkit-scrollbar {
 .suri-settings-audio-channel > span { display: flex; align-items: center; gap: .45rem; color: #345b7c; }
 .suri-settings-audio-channel strong { color: #513819; font-size: .78rem; }
 .suri-settings-audio-channel small { margin-left: auto; color: #6f5a36; font-size: .62rem; }
-.suri-settings-audio-channel input { width: 100%; min-width: 0; margin: 0; accent-color: #245b90; opacity: .5; cursor: not-allowed; }
+.suri-settings-audio-channel input { width: 100%; min-width: 0; margin: 0; accent-color: #245b90; cursor: pointer; }
+.suri-settings-audio-channel input:disabled { opacity: .5; cursor: not-allowed; }
+.suri-settings-audio-channel input:focus-visible { outline: 3px solid #2c80d0; outline-offset: 3px; }
+.suri-settings-credits { display: grid; gap: .7rem; margin: 0; padding: 0; list-style: none; }
+.suri-settings-panel.suri-settings-panel-credits { display: grid; grid-template-rows: minmax(0, 1fr); align-self: stretch; overflow: hidden; padding: 0 4px 4px 0; }
+.suri-settings-card.suri-settings-card-credits { min-height: 0; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
+.suri-settings-card-credits .suri-settings-credits { min-height: 0; align-content: start; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable; padding: .25rem; }
+.suri-settings-credits:focus-visible { outline: 3px solid #2c80d0; outline-offset: -3px; }
+.suri-settings-credits li { padding: .75rem; border: 1px solid #a8803d70; border-radius: 4px; background: #ffffff4a; font-size: .85rem; line-height: 1.7; overflow-wrap: anywhere; }
+.suri-settings-credits a { color: #245282; font-weight: 800; text-decoration: underline; text-underline-offset: .18em; }
+.suri-settings-credits a:hover { color: #163a61; }
+.suri-settings-credits a:focus-visible { outline: 3px solid #2c80d0; outline-offset: 3px; border-radius: 2px; }
 .suri-settings-logout { box-sizing: border-box; display: inline-flex; flex-shrink: 0; justify-content: center; align-items: center; gap: .7rem; width: 100%; height: var(--suri-settings-control-height); margin-top: auto; padding: .6rem .65rem; border: 2px solid #6d2821; border-radius: 5px; color: #fff4d5; background: linear-gradient(180deg, #ce5245, #9c2f28); box-shadow: 0 3px 0 #481511; font: 900 .85rem/1.2 "Nunito", sans-serif; cursor: pointer; }
 .suri-settings-logout:hover { filter: brightness(1.1); }
 .suri-settings-nav button:focus-visible, .suri-settings-logout:focus-visible { outline: 3px solid #4c9fe6; outline-offset: 3px; }
@@ -646,7 +657,7 @@ html::-webkit-scrollbar {
   .suri-overview-close { width: 2.3rem; height: 2.3rem; }
   .suri-settings-layout { --suri-settings-control-height: 2.8rem; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: .7rem; padding: .75rem .85rem .85rem; }
   .suri-settings-sidebar { display: contents; }
-  .suri-settings-nav { grid-row: 1; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+  .suri-settings-nav { grid-row: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; }
   .suri-settings-nav button { justify-content: center; gap: .35rem; padding: .5rem .25rem; }
   .suri-settings-nav button > span { flex: initial; }
   .suri-settings-nav b { font-size: .73rem; }
@@ -1292,7 +1303,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 .playground-route-content:is(.playground-transition-entering, .playground-transition-revealing) .playground-route-page { opacity: 0; transform: translateY(.8rem); transition: none; }
 .playground-route-content:is(.playground-transition-leaving, .playground-transition-zooming-out) .playground-route-page { opacity: 0; transform: translateY(-.45rem); transition-duration: .62s; }
 .history-route-page { padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem; font-family: "Nunito", "Manrope", sans-serif; }
-.history-route-page .progress-library-header, .history-route-page .progress-library-back-row { width: 100%; }
+.history-route-page .progress-library-back-row { width: 100%; }
 .history-background-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .history-background-shell:is(.history-transition-entering, .history-transition-zooming-out) { opacity: 0; }
 .history-route-content:is(.history-transition-entering, .history-transition-revealing, .history-transition-leaving, .history-transition-zooming-out) { pointer-events: none; }
