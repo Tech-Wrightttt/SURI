@@ -5,7 +5,8 @@ import * as THREE from "three";
 import { CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
 import { playableProjectionBounds } from "@/lib/worldMap/worldBounds";
 import { SITES, sitePosition } from "@/lib/worldMap/landscape";
-import { cameraEase, islandCameraPose, ISLAND_ROUTES, RETURN_DURATION, TOPICS_APPROACH_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigation";
+import { cameraEase, islandCameraPose } from "@/lib/worldMap/navigation";
+import { ISLAND_ROUTES, RETURN_DURATION, TOPICS_APPROACH_DURATION, ZOOM_DURATION, type CameraCommand } from "@/lib/worldMap/navigationConfig";
 import { applyOverviewPose, CAMERA_RESPONSE, responsiveCamera } from "@/lib/worldMap/responsiveCamera";
 export { CAMERA_POSITION } from "@/lib/worldMap/framing";
 
@@ -49,8 +50,7 @@ export function MapCamera({ command, active = true, preserveCameraOnActivate = f
     camera.near=0.5;camera.far=650;camera.updateProjectionMatrix();
     offset.current.set(0, 0); targetOffset.current.set(0, 0);
     if (overview.current && !animation.current) {
-      camera.position.copy(response.position); camera.quaternion.copy(response.quaternion); camera.zoom=response.zoom;
-      camera.updateProjectionMatrix();
+      applyOverviewPose(camera,response,offset.current);
     }
     invalidate();
   },[getThree,size.width,size.height,response,invalidate,active]);
@@ -61,10 +61,7 @@ export function MapCamera({ command, active = true, preserveCameraOnActivate = f
       // selected just before navigation.
       overview.current = true;
       offset.current.set(0, 0); targetOffset.current.set(0, 0);
-      camera.position.copy(response.position);
-      camera.quaternion.copy(response.quaternion);
-      camera.zoom = response.zoom;
-      camera.updateProjectionMatrix();
+      applyOverviewPose(camera,response,offset.current);
       invalidate();
     }
     wasActive.current = active;
@@ -204,9 +201,11 @@ export function MapCamera({ command, active = true, preserveCameraOnActivate = f
     if (!motion) {
       if (!active || !overview.current || !controlsEnabled) return;
       offset.current.lerp(targetOffset.current, reduced.current ? 1 : 1 - Math.exp(-CAMERA_RESPONSE.damping * delta));
+      const moving = offset.current.distanceToSquared(targetOffset.current) > 0.000001;
+      if (!moving) offset.current.copy(targetOffset.current);
       const {camera}=getThree();
       applyOverviewPose(camera,response,offset.current);
-      if (offset.current.distanceToSquared(targetOffset.current) > 0.000001) invalidate();
+      if (moving) invalidate();
       return;
     }
     if(!active)return;

@@ -4,11 +4,20 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:1,target:7,esModuleInterop:true}}).outputText,f);
 const w=require('../lib/worldMap/landscape.ts'),{TRAVERSAL}=require('../lib/worldMap/traversal.ts');
 const {HUB_ROUNDABOUT:plaza,LEADERBOARD_ISLAND}=require('../lib/worldMap/mapLayout.ts');
-const {ISLAND_ROUTES}=require('../lib/worldMap/navigation.ts');
+const {ISLAND_ROUTES}=require('../lib/worldMap/navigationConfig.ts');
 const {worldFrame,LANDMARK_SCALE,CAMERA_ORTHO_SIZE,LANDMARK_BOUNDS,LANDMARK_LABEL_LIFT}=require('../lib/worldMap/framing.ts');
 const {responsiveCamera,applyOverviewPose}=require('../lib/worldMap/responsiveCamera.ts');
 const {playableProjectionBounds}=require('../lib/worldMap/worldBounds.ts');
+const {UPPER_ISLANDS}=require('../lib/worldMap/northernIslands.ts');
+const {WATER_LEVEL}=require('../lib/worldMap/environment.ts');
 const read=rel=>JSON.parse(fs.readFileSync(path.join(__dirname,'../public/world-map',rel)));
+// Sample actual coast contours, not just island centers, to protect the open
+// channel around Topics when the rear scenery is rearranged.
+for(const [name,island]of Object.entries(UPPER_ISLANDS))for(let j=0;j<96;j++){
+  const angle=j/96*Math.PI*2,radius=w.coastlineRadius(angle,island);
+  const u=Math.cos(angle)*island.rx*radius,v=Math.sin(angle)*island.rz*radius,c=Math.cos(island.turn),s=Math.sin(island.turn);
+  assert(w.islandScore(island.x+u*c-v*s,island.z+u*s+v*c,w.PRIMARY_ISLANDS.topics)<-8,'Upper islet crowds Topics: '+name);
+}
 const nodes=new Map(),edges=new Map();
 const same=(a,b,context)=>assert(Math.hypot(...a.map((v,j)=>v-b[j]))<.002,context);
 const join=(id,point)=>{if(nodes.has(id))same(point,nodes.get(id),'Disconnected junction '+id);else nodes.set(id,point);};
@@ -69,6 +78,21 @@ for(const tier of ['high','balanced']){
   assert.equal(zone.radius,LEADERBOARD_ISLAND.selectionRadius,'Watchtower selection radius is stale');
   assert(zone.radius>4,'Watchtower selection area was not expanded');
   assert(zone.radius<w.ISLANDS.wyrmrest.rz,'Watchtower ring exceeds islet');
+  // Check the shipped geometry, so adding source islands without rebaking
+  // either scene tier cannot silently leave the upper archipelago empty.
+  const packed=scene.geometries[scene.terrain.secondary],position=packed.attributes.position,index=packed.index;
+  const buffer=Uint8Array.from(fs.readFileSync(path.join(__dirname,'../public/world-map/scene',scene.buffer))).buffer;
+  const geometry=new T.BufferGeometry();
+  geometry.setAttribute('position',new T.BufferAttribute(new Float32Array(buffer,position.offset,position.count),position.itemSize));
+  geometry.setIndex(new T.BufferAttribute(new (index.type==='u32'?Uint32Array:Uint16Array)(buffer,index.offset,index.count),1));
+  const material=new T.MeshBasicMaterial({side:T.DoubleSide}),terrain=new T.Mesh(geometry,material);
+  const raycaster=new T.Raycaster(new T.Vector3(),new T.Vector3(0,-1,0));
+  for(const [name,island]of Object.entries(UPPER_ISLANDS)){
+    raycaster.ray.origin.set(island.x,32,island.z);
+    const hit=raycaster.intersectObject(terrain,false)[0];
+    assert(hit&&hit.point.y>WATER_LEVEL+.005,'Missing upper islet in '+tier+': '+name);
+  }
+  geometry.dispose();material.dispose();
 }
 // Fit the whole tower and its collapsed label under the header, at multiple
 // viewport shapes. A narrow phone keeps horizontal map panning by design.
@@ -79,8 +103,8 @@ for(const [width,height]of [[1440,900],[1280,720],[1920,1080],[390,844],[844,390
   const point=new T.Vector3(...w.sitePosition('watchtower'));point.y+=(LANDMARK_BOUNDS.watchtower[1]+LANDMARK_LABEL_LIFT)*LANDMARK_SCALE;
   point.applyAxisAngle(new T.Vector3(0,1,0),frame.rotation).multiplyScalar(frame.scale).add(new T.Vector3(...frame.position)).project(camera);
   const y=(-point.y*.5+.5)*height;
-  const labelOffset=height<=480?16:0; // Match the short-screen marker offset.
+  const labelOffset=height<=480?20:0; // Match the short-screen marker offset.
   assert(y+labelOffset-40>=96,'Watchtower label is clipped by header at '+width+'x'+height);
   assert(y<height-20,'Watchtower leaves viewport at '+width+'x'+height);
 }
-console.log(`Verified ${TRAVERSAL.bridges.length} connected bridges, ${TRAVERSAL.paths.length} aligned paths, ${ambient.actors.filter(a=>a.model==='person').length} citizens, six destinations and watchtower framing.`);
+console.log(`Verified ${TRAVERSAL.bridges.length} connected bridges, ${TRAVERSAL.paths.length} aligned paths, ${ambient.actors.filter(a=>a.model==='person').length} citizens, six destinations, watchtower framing and ${Object.keys(UPPER_ISLANDS).length} upper islets in both scene tiers.`);

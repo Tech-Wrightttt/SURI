@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLearningSnapshot, staleLearningData, subscribeLearningData } from "@/lib/learningData";
-import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
+import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigationConfig";
 import DashboardWorldBoundary from "@/components/WorldMap/DashboardWorldBoundary";
 import TutorialProvider from "@/components/tutorial/TutorialProvider";
 import BackgroundMusic from "@/components/audio/BackgroundMusic";

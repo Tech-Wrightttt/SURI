@@ -106,6 +106,8 @@ function ActorBatch({model,assets,time,shadowRef}:{model:VesselKind|"person";ass
       if(person)s.shadowRotation.setFromAxisAngle(s.axis,Math.atan2(-LOCAL_SUN[0],-LOCAL_SUN[2]));else s.shadowRotation.copy(s.quaternion);
       s.shadowRotation.multiply(s.xRotation);s.scale.set(width*a.scale,length*a.scale,1);s.matrix.compose(s.position,s.shadowRotation,s.scale);shadows.setMatrixAt(shadowIndices[i],s.matrix);shadowMotion.setXY(shadowIndices[i],person?0:1,pose.moving);changed=true;
     }
+    // Reuse the previous compaction until an actor or the camera has moved.
+    if(!changed&&!cameraChanged)return;
     let count=0,layoutChanged=false;const order=slots.current;
     if(order)for(let i=0;i<runtime.current.length;i++){
       const entry=runtime.current[i];s.sphere.copy(geometry.boundingSphere!).applyMatrix4(entry.matrix);s.sphere.set(s.sphere.center,s.sphere.radius+.2);
@@ -113,8 +115,9 @@ function ActorBatch({model,assets,time,shadowRef}:{model:VesselKind|"person";ass
       if(order[count]!==i){order[count]=i;layoutChanged=true;}count++;
     }
     if(order&&(changed||layoutChanged||mesh.count!==count)){
-      for(let j=0;j<count;j++){const i=order[j],entry=runtime.current[i];mesh.setMatrixAt(j,entry.matrix);mesh.setColorAt(j,entry.color);gait.setXY(j,person?entry.pose.gait+i*1.73:entry.actor.offset,reduced?0:entry.pose.moving);}
-      mesh.count=count;mesh.visible=count>0;mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;gait.needsUpdate=true;
+      const colorsChanged=layoutChanged||mesh.count!==count;
+      for(let j=0;j<count;j++){const i=order[j],entry=runtime.current[i];mesh.setMatrixAt(j,entry.matrix);if(colorsChanged)mesh.setColorAt(j,entry.color);gait.setXY(j,person?entry.pose.gait+i*1.73:entry.actor.offset,reduced?0:entry.pose.moving);}
+      mesh.count=count;mesh.visible=count>0;mesh.instanceMatrix.needsUpdate=true;if(colorsChanged&&mesh.instanceColor)mesh.instanceColor.needsUpdate=true;gait.needsUpdate=true;
     }
     if(changed){shadows.instanceMatrix.needsUpdate=true;shadowMotion.needsUpdate=true;}
   });

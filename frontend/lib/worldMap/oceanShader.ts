@@ -40,6 +40,11 @@ void main(){
   vec4 coast=texture2D(coastDepth,coastUv);
   float edgeDistance=min(min(coastUv.x,coastUv.y),min(1.-coastUv.x,1.-coastUv.y));
   coast.g=mix(1.,coast.g,smoothstep(-.08,.05,edgeDistance));
+  // Border texels clamp outside the baked map. Fade to open water so nearby
+  // islets cannot stretch shoreline foam and exposure into infinite bands.
+  float coastCoverage=smoothstep(0.,.015,edgeDistance);
+  coast.r=mix(0.,coast.r,coastCoverage);
+  coast.ba=mix(vec2(1.,.5),coast.ba,coastCoverage);
   coast.a=max(0.,(coast.a-.5)*2.);
   float signedShore=(coast.r-.5)*32.;
   // The visible waterline crosses the submerged skirt about half a unit
