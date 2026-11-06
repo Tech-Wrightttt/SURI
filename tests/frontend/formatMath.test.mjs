@@ -22,4 +22,6 @@ test("idempotent", () => {
 });
 test("adjacent groups multiply", () =>
   assert.equal(formatMath("(x + 1)(x + 2) / (x + 1) = ?"), "\\frac{(x + 1)(x + 2)}{x + 1} = ?"));
-test("power over power", () => assert.equal(formatMath("x^5 / x^2 = x^(?)"), "\\frac{x^5}{x^2} = x^(?)"));
+test("power over power", () => assert.equal(formatMath("x^5 / x^2 = x^(?)"), "\\frac{x^5}{x^2} = x^{?}"));
+test("mixed number is one operand", () =>
+  assert.equal(formatMath("$5 \\frac{1}{3} \\div 4$"), "$\\frac{5 \\frac{1}{3}}{4}$"));

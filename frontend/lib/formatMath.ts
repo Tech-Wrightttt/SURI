@@ -37,6 +37,10 @@ function operandStart(s: string, end: number): number {
       }
       const cmd = /\\[a-zA-Z]+$/.exec(s.slice(0, start));
       if (cmd) start -= cmd[0].length;
+      if (cmd && cmd[0] === "\\frac") { // mixed number: 5 \frac{1}{3} \div 4
+        const whole = /\d+\s*$/.exec(s.slice(0, start));
+        if (whole) start = whole.index;
+      }
     }
   } else {
     const m = new RegExp(`\\\\[a-zA-Z]+$|${TERM}$`).exec(s.slice(0, e));
@@ -99,6 +103,7 @@ function formatSpan(span: string): string {
   // \text{km/h} etc. must keep its slash
   const kept: string[] = [];
   let s = span.replace(/\\(?:text|mathrm|textbf)\{[^}]*\}/g, (m) => `${kept.push(m) - 1}`);
+  s = s.replace(/\^\(([^()]*)\)/g, "^{$1}"); // mathjs x^(2) -> KaTeX x^{2}
   let from = 0;
   for (;;) {
     const m = DIV_OP.exec(s.slice(from));
