@@ -14,7 +14,7 @@ test("prose outside math untouched", () =>
 test("bare prose untouched", () => assert.equal(formatMath("Use and/or 3/4 of the pie"), "Use and/or 3/4 of the pie"));
 test("text unit keeps slash", () => assert.equal(formatMath("$\\text{km/h} / 2$"), "$\\frac{\\text{km/h}}{2}$"));
 test("blank in denominator", () =>
-  assert.equal(formatMath(blankToBox("5/___ = 10/14")), "\\frac{5}{\\boxed{\\,?\\,}} = \\frac{10}{14}"));
+  assert.equal(formatMath(blankToBox("5/___ = 10/14")), "\\frac{5}{\\boxed{\\;?\\;}} = \\frac{10}{14}"));
 test("idempotent", () => {
   for (const x of ["10/x = 25/?", "10 ÷ x = 25 ÷ ?", "-48 \\div 6 + 3", "$a/b/c$ and 1/2", "(a+b)^2/5"]) {
     assert.equal(formatMath(formatMath(x)), formatMath(x));

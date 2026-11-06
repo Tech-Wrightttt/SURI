@@ -121,4 +121,4 @@ export function formatMath(text: string): string {
 }
 
 /** Show a blank (`___` or `?`) as a boxed question mark, wherever it sits, even inside a fraction. */
-export const blankToBox = (expr: string) => expr.replace(/_{2,}|\?/g, "\\boxed{\\,?\\,}");
+export const blankToBox = (expr: string) => expr.replace(/_{2,}|\?/g, "\\boxed{\\;?\\;}");
