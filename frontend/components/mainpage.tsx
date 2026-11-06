@@ -32,7 +32,7 @@ export default function MainPage({
       <nav className="suri-app-bar" aria-label="SURI navigation">
         <div className="suri-app-bar-frame">
           <div className="suri-app-brand">
-            <Image alt="SURI" src="/SURI1.png" width={300} height={100} className="suri-app-brand-logo" priority />
+            <Image alt="SURI" src="/SURI1.webp" width={300} height={100} className="suri-app-brand-logo" priority />
           </div>
           <div className="suri-app-bar-actions">
             <TutorialButton />

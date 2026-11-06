@@ -124,11 +124,11 @@ function MathInline({ text, isValue = false }: { text: string; isValue?: boolean
 }
 
 const ENEMY_ROSTER = [
-  { name: "Fraction Fiend", title: "Splitter of Wholes", img: "/fraction-fiend-villain.png" },
-  { name: "Variable Phantom", title: "The Unknown", img: "/variable-phantom-villan.png" },
-  { name: "Exponent Wraith", title: "Power Corruptor", img: "/exponent-wraith-villain.png" },
-  { name: "Equation Golem", title: "Balance Breaker", img: "/equation-golem-villain.png" },
-  { name: "Polynomial Hydra", title: "Many-Termed Beast", img: "/polynomial-hydra-villain.png" },
+  { name: "Fraction Fiend", title: "Splitter of Wholes", img: "/fraction-fiend-villain.webp" },
+  { name: "Variable Phantom", title: "The Unknown", img: "/variable-phantom-villan.webp" },
+  { name: "Exponent Wraith", title: "Power Corruptor", img: "/exponent-wraith-villain.webp" },
+  { name: "Equation Golem", title: "Balance Breaker", img: "/equation-golem-villain.webp" },
+  { name: "Polynomial Hydra", title: "Many-Termed Beast", img: "/polynomial-hydra-villain.webp" },
 ];
 
 function calculateStars(mistakes: number): number {
@@ -146,7 +146,7 @@ const GAME_CSS = `
   }
   * { box-sizing: border-box; }
   .battle-body { font-family: Georgia, 'Times New Roman', serif; min-height: 100dvh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; color: #fff4d5; }
-  .arena-bg { background: url('/login/arena.png') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0.85; }
+  .arena-bg { background: url('/login/arena.webp') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0.85; }
   /* Storybook diagnostic Bookworm Parchment HUD Bar */
   .hud-bar {
     position: relative;
@@ -456,7 +456,7 @@ const GAME_CSS = `
     padding: 14px clamp(14px, 3vw, 48px) 0;
     border: 4px solid #80511f;
     border-radius: 18px;
-    background: url('/login/arena.png') center bottom / cover no-repeat;
+    background: url('/login/arena.webp') center bottom / cover no-repeat;
     box-shadow:
       0 8px 0 rgba(39,18,10,0.84),
       0 16px 36px rgba(0,0,0,0.4),
@@ -811,7 +811,7 @@ const GAME_CSS = `
     justify-content: center;
     padding: clamp(16px, 3vh, 32px) 20px 20px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    background: #83c3ff url("/login/results.webp") center / cover no-repeat;
     color: #3b1766;
   }
   .diagnostic-before .arena-bg {
@@ -1400,9 +1400,9 @@ type SuriState = "idle" | "attack" | "hit" | "happy" | "sad" | "defeated";
 type EnemyAnimState = "idle" | "attack" | "hit" | "defeated" | "appear";
 
 function suriImg(s: SuriState): string {
-  if (s === "happy") return "/suri-snake-happy.png";
-  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.png";
-  return "/suri-snake-right.png";
+  if (s === "happy") return "/suri-snake-happy.webp";
+  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.webp";
+  return "/suri-snake-right.webp";
 }
 function suriAlt(s: SuriState): string {
   if (s === "happy") return "Suri celebrating";
@@ -2192,7 +2192,7 @@ export default function PracticePage() {
                     {/* Feedback Banner */}
                     {checkpointNotice ? (
                       <div className="feedback-banner checkpoint">
-                        <img src="/suri-snake-sad.png" alt="Suri recovering" className="feedback-suri" />
+                        <img src="/suri-snake-sad.webp" alt="Suri recovering" className="feedback-suri" />
                         <div>
                           <p className="feedback-title">
                             <GameIcon name="warning" /> {checkpointNotice.wasCheckpoint ? "Shields Shattered — Checkpoint Recovered!" : "Shields Shattered — Starting Over at Step 1!"}
@@ -2206,7 +2206,7 @@ export default function PracticePage() {
                       </div>
                     ) : stepFeedback && !stepFeedback.correct ? (
                       <div className="feedback-banner wrong">
-                        <img src="/suri-snake-sad.png" alt="Suri sad" className="feedback-suri" />
+                        <img src="/suri-snake-sad.webp" alt="Suri sad" className="feedback-suri" />
                         <div>
                           <p className="feedback-title"><GameIcon name="warning" /> Rune Countered!</p>
                           <div className="feedback-quote flex items-center gap-1">
@@ -2263,7 +2263,7 @@ export default function PracticePage() {
                 Suri forged every counter-spell and restored balance to the arena!
               </p>
 
-              <img src="/suri-snake-happy.png" alt="Suri Happy" className="completion-suri-img" />
+              <img src="/suri-snake-happy.webp" alt="Suri Happy" className="completion-suri-img" />
 
               <div className="completion-problem-list">
                 {problems.map((prob, idx) => {

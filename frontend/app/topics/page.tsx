@@ -119,7 +119,7 @@ export default function TopicsPage() {
         <p>Pick a volume to bring it forward, then begin its learning quest.</p>
       </header>
 
-      {error && <div className="topics-library-error" role="alert"><Image src="/suri-snake-sad.png" alt="Sad Suri" width={42} height={42} /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
+      {error && <div className="topics-library-error" role="alert"><Image src="/suri-snake-sad.webp" alt="Sad Suri" width={42} height={42} /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
 
       <section className={`topics-carousel-experience ${styles.contentWidth}`} aria-label="Topic volume carousel" style={carouselLayout === null ? undefined : { marginTop: carouselLayout.margin, "--carousel-arrow-center": `${carouselLayout.center}px` } as CSSProperties}>
         {loading ? <div className="topics-library-loading"><i /><p>Consulting the academy catalogue…</p></div> : selectedBook && <>
