@@ -126,3 +126,18 @@ export const blankToBox = (expr: string) => expr.replace(/_{2,}|\?/g, "\\boxed{\
 /** Markdown for KaTeX: formats delimited math, and wraps bare math-only strings (e.g. an option "3/4") in $...$. */
 export const mathMarkdown = (text: string) =>
   !text || text.includes("$") || isProse(text) ? formatMath(text) : `$${formatSpan(text)}$`;
+
+/** A step's blank_expression as markdown: the blank becomes a box in math, or an inline-math box inside prose. */
+export function blankEquation(expr: string): string {
+  const box = blankToBox("?");
+  if (!expr.includes("$")) {
+    return isProse(expr) ? expr.replace(/_{2,}|\?/g, `$${box}$`) : mathMarkdown(blankToBox(expr));
+  }
+  let out = "";
+  let last = 0;
+  for (const m of expr.matchAll(/\$\$[\s\S]+?\$\$|\$[^$]+?\$/g)) {
+    out += expr.slice(last, m.index).replace(/_{2,}|\?/g, `$${box}$`) + blankToBox(m[0]);
+    last = m.index + m[0].length;
+  }
+  return formatMath(out + expr.slice(last).replace(/_{2,}|\?/g, `$${box}$`));
+}

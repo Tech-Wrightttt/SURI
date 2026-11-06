@@ -8,7 +8,7 @@ import confetti from "canvas-confetti";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import { formatMath, blankToBox } from "@/lib/formatMath";
+import { formatMath, blankEquation, mathMarkdown } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 import { BattleSpells, ArmedSpellBubble, SpellEffect, SPELLS, FLAME_FLIGHT_MS } from "./battle-spells";
 import { CombatImpact, type CombatHit } from "./battle-impact";
@@ -2010,7 +2010,7 @@ export default function PracticePage() {
                           <div className="chronicle-equation-preview mt-1">
                             <div className={`chronicle-input-slot-display chronicle-filled-slot ${completed.correct ? "is-correct" : "is-wrong"} text-xs`}>
                               <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                                {asMath(st.blank_expression.replace(/_{2,}|\?/, () => `{${completed.submittedValue.replace(/\$/g, "")}}`))}
+                                {mathMarkdown(cleanMathExpr(st.blank_expression).replace(/_{2,}|\?/, () => `{${completed.submittedValue.replace(/\$/g, "")}}`))}
                               </ReactMarkdown>
                             </div>
                           </div>
@@ -2142,7 +2142,7 @@ export default function PracticePage() {
                     {/* Whole equation (blank shown as a box, even inside a fraction), input directly below */}
                     <div className="equation-display text-center">
                       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                        {asMath(blankToBox(currentStep.blank_expression))}
+                        {blankEquation(cleanMathExpr(currentStep.blank_expression))}
                       </ReactMarkdown>
                     </div>
                     <div className="equation-input-strip">
