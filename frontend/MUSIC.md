@@ -3,20 +3,19 @@
 This README documents the music and sound effects currently used by the SURI
 frontend, their source credits, and how playback is controlled.
 
-The active audio inventory contains **4 background music tracks**, **1 recorded
-sound effect**, and **11 generated battle sound cues**. Two additional music files
-are stored locally but are not assigned to any page.
+The active audio inventory contains **6 Opus background music tracks**, **1 recorded
+sound effect**, and **11 generated battle sound cues**.
 
 ## Music
 
 | File | Track and creator | Where used | Source |
 | --- | --- | --- | --- |
-| [TempleOfWater_MainBG.mp3](public/sounds/music/TempleOfWater_MainBG.mp3) | **Temple of water** by [Dummy_Daniel](https://pixabay.com/users/dummy_daniel-51999828/) | Dashboard, Topics, Progress, History Logs, Playground, Calculator | [Pixabay](https://pixabay.com/music/video-games-temple-of-water-531801/) |
-| [Underworld_LessonBG.mp3](public/sounds/music/Underworld_LessonBG.mp3) | **異界の地 Underworld** by [nojisuma](https://pixabay.com/users/nojisuma-23737290/) | Lessons | [Pixabay](https://pixabay.com/music/ambient-%E7%95%B0%E7%95%8C%E3%81%AE%E5%9C%B0-underworld-263012/) |
-| [Suspicion_QuizBG.mp3](public/sounds/music/Suspicion_QuizBG.mp3) | **疑惑 suspicion** by [nojisuma](https://pixabay.com/users/nojisuma-23737290/) | Quiz | [Pixabay](https://pixabay.com/music/upbeat-%E7%96%91%E6%83%91-suspicion-295148/) |
-| [Observatory_PracticeBG.mp3](public/sounds/music/Observatory_PracticeBG.mp3) | **展望台 Observatory** by [nojisuma](https://pixabay.com/users/nojisuma-23737290/) | Practice | [Pixabay](https://pixabay.com/music/upbeat-%E5%B1%95%E6%9C%9B%E5%8F%B0-observatory-278303/) |
-| [MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.mp3](public/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.mp3) | **Magical Overture - Classical Symphonic Loop** by [Sonican](https://pixabay.com/users/sonican-38947841/) | Diagnostic | [Pixabay](https://pixabay.com/music/modern-classical-magical-overture-classical-symphonic-loop-342008/) |
-| [Legend_ResultsBG.mp3](public/sounds/music/Legend_ResultsBG.mp3) | **Legend** by [Ebunny](https://pixabay.com/users/ebunny-22480773/) | Results, Diagnostic Gap Results | [Pixabay](https://pixabay.com/music/folk-legend-357820/) |
+| [TempleOfWater_MainBG.opus](public/sounds/music/TempleOfWater_MainBG.opus) | **Temple of water** by [Dummy_Daniel](https://pixabay.com/users/dummy_daniel-51999828/) | Dashboard, Topics, Progress, History Logs, Playground, Calculator | [Pixabay](https://pixabay.com/music/video-games-temple-of-water-531801/) |
+| [Underworld_LessonBG.opus](public/sounds/music/Underworld_LessonBG.opus) | **異界の地 Underworld** by [nojisuma](https://pixabay.com/users/nojisuma-23737290/) | Lessons | [Pixabay](https://pixabay.com/music/ambient-%E7%95%B0%E7%95%8C%E3%81%AE%E5%9C%B0-underworld-263012/) |
+| [Suspicion_QuizBG.opus](public/sounds/music/Suspicion_QuizBG.opus) | **疑惑 suspicion** by [nojisuma](https://pixabay.com/users/nojisuma-23737290/) | Quiz | [Pixabay](https://pixabay.com/music/upbeat-%E7%96%91%E6%83%91-suspicion-295148/) |
+| [Observatory_PracticeBG.opus](public/sounds/music/Observatory_PracticeBG.opus) | **展望台 Observatory** by [nojisuma](https://pixabay.com/users/nojisuma-23737290/) | Practice | [Pixabay](https://pixabay.com/music/upbeat-%E5%B1%95%E6%9C%9B%E5%8F%B0-observatory-278303/) |
+| [MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.opus](public/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.opus) | **Magical Overture - Classical Symphonic Loop** by [Sonican](https://pixabay.com/users/sonican-38947841/) | Diagnostic | [Pixabay](https://pixabay.com/music/modern-classical-magical-overture-classical-symphonic-loop-342008/) |
+| [Legend_ResultsBG.opus](public/sounds/music/Legend_ResultsBG.opus) | **Legend** by [Ebunny](https://pixabay.com/users/ebunny-22480773/) | Results, Diagnostic Gap Results | [Pixabay](https://pixabay.com/music/folk-legend-357820/) |
 
 ## Sound effects
 
