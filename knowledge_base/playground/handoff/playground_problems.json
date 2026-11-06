@@ -4802,7 +4802,7 @@
       "node_id": "FD",
       "difficulty": "hard",
       "style": "plain",
-      "prompt": "Evaluate: $\\\\left(\\\\frac{3}{4} - \\\\frac{1}{2}\\\\right) \\\\times \\\\left(\\\\frac{5}{6} + \\\\frac{1}{6}\\\\right)$",
+      "prompt": "Evaluate: $\\left(\\frac{3}{4} - \\frac{1}{2}\\right) \\times \\left(\\frac{5}{6} + \\frac{1}{6}\\right)$",
       "answer_type": "number",
       "answer": "\\frac{1}{4}",
       "accepted_variants": [],
@@ -4823,7 +4823,7 @@
         }
       ],
       "source_doc": "grade6_fractions_multiplication.pdf",
-      "content_hash": "sha256:bbc05a9af8d214ac056e2e32dba51d4627b451457f1c2374f6212ee41cfaae73"
+      "content_hash": "sha256:b9a3825dafebc42e2981074c29262cdeb68effcae2f6eba9ccf996d82fa967fd"
     },
     {
       "id": "FD-H-14",
