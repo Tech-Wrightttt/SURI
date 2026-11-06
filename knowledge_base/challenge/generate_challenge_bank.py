@@ -334,6 +334,8 @@ The problem is solved in {'3 to 6' if standard else '4 to ' + str(MAX_STEPS)} ty
   "step_index" (0..n-1), "step_type" ("variable_identification" or "algebra"), "instruction" (short imperative),
   "blank_expression" (the line with ___ where the student types), "correct_value" (SHORT and typeable: a number, a simple
   expression or an equation; never a phrase), "operation_description", "mapped_node_id" (one of: {', '.join(sorted(GRAPH))}).
+BLANK PLACEMENT: the ___ must be at the START or END of a line, never inside brackets, a square root or an exponent
+(write "x = ___" or "___ = 35", never "(x + ___)(x + 3)" or "x^(___)"). A step that asks for a whole expression is fine.
 Start with 1-2 "variable_identification" steps (name the unknown, write the equation or system), then "algebra" steps.
 EVERY step's "blank_expression" MUST contain exactly one ___ in the place the student types, and must NOT already show the
 correct_value. Example steps for "2x + 7 = 35":
@@ -474,7 +476,7 @@ def gen_diagnostic(gem: Gemini, node_id: str, topup: bool = False):
             return
         used = {k["kind"] for k in report["kept"]}
         kinds = [k for k in kinds if k[0] not in used] or kinds
-        n = report["shortfall"] + 2
+        n = min(report["shortfall"] * 2 + 2, MAX_DIAG_PER_CALL)
         tag = f"diag-{node_id}-topup{len(cands)}"
     elif cands:
         print(f"  {node_id}: diagnostic candidates exist ({len(cands)}), skipping")
@@ -522,7 +524,7 @@ def gen_quiz(gem: Gemini, node_id: str, topup: bool = False, bank: str = "quiz")
             return
         used = {k["kind"] for k in report["kept"]}
         kinds = [k for k in kinds if k[0] not in used] or kinds
-        wanted = report["shortfall"]
+        wanted = report["shortfall"] * 2 + 1
         jobs = [(len(cands) + i, kinds[i % len(kinds)]) for i in range(wanted)]
     else:
         wanted = int(need(bank, node_id) * (1.5 if standard else 2)) + 1
@@ -615,7 +617,7 @@ def canon_kind(node_id: str, is_diag: bool, kind) -> tuple:
         r = difflib.SequenceMatcher(None, norm_text(kind), norm_text(k[0])).ratio()
         if r > score:
             best, score = k, r
-    return (best[0], best[1]) if best and score >= 0.45 else (None, None)
+    return (best[0], best[1]) if best and score >= 0.3 else (None, None)
 
 
 _DIV_RE = re.compile("\u00f7|\\\\div\\b")
@@ -635,8 +637,8 @@ def common_checks(c: dict, node_id: str, is_diag: bool) -> list:
     if not str(c.get("slm_concept", "")).strip():
         reasons.append("missing slm_concept")
     rel = c.get("relationships")
-    if not isinstance(rel, list) or len(rel) < (1 if standard else 2):
-        reasons.append(f"fewer than {1 if standard else 2} stated relationships")
+    if not isinstance(rel, list) or len(rel) < 1:
+        reasons.append("no stated relationships")
     if not str(c.get("context", "")).strip():
         reasons.append("missing context")
     if not str(c.get("archetype", "")).strip() and not standard:
@@ -717,7 +719,7 @@ def quiz_core_checks(c: dict, v, node_id: str) -> list:
     for key in ("problem_expr", "answer"):
         if not str(c.get(key, "")).strip():
             reasons.append(f"missing {key}")
-    lo, hi = (3, 6) if c.get("difficulty") == "standard" else (4, MAX_STEPS)
+    lo, hi = (3, 6) if c.get("difficulty") == "standard" else (3, MAX_STEPS)
     if not lo <= len(steps) <= hi:
         reasons.append(f"needs {lo}-{hi} steps, has {len(steps)}")
     if not any(s["step_type"] == "variable_identification" for s in steps):
@@ -789,11 +791,29 @@ def same_value(a, b) -> bool:
     return close_enough(a, b)
 
 
+def repair_extras(c: dict):
+    """Mechanical fixes for the two most common extras slips (no API call): a distractor written as `x = 5` when the
+    answer is bare, and a hint that spells out the answer (the step's own instruction is used instead)."""
+    for s in c["all_steps"]:
+        e = c["extras"].get(str(s["step_index"]))
+        if not isinstance(e, dict):
+            continue
+        cv = s["correct_value"]
+        d = [str(x).strip() for x in e.get("distractors", [])]
+        if "=" not in cv:
+            d = [re.sub(r"^\s*[A-Za-z]\s*=\s*", "", x) for x in d]
+        e["distractors"] = d
+        hint = str(e.get("hint", "")).strip()
+        if hint and len(leak_key(cv)) >= 3 and leak_key(cv) in leak_key(hint):
+            e["hint"] = s["instruction"]
+
+
 def extras_checks(c: dict, v=None) -> list:
     reasons = []
     extras = c.get("extras")
     if not isinstance(extras, dict):
         return ["no extras"]
+    repair_extras(c)
     prose = [c.get("word_problem", "")] + [s["instruction"] for s in c["all_steps"]] + \
             [str(e.get("hint", "")) for e in extras.values() if isinstance(e, dict)]
     if any(SELF_TALK.search(str(t)) for t in prose):

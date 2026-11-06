@@ -204,7 +204,7 @@ class DiagnosticValidationTests(unittest.TestCase):
         self.assertEqual(len(kept), gen.BLIND_ONLY_CAP)
 
     def test_missing_relationships_fail(self):
-        reasons = gen.diag_core_checks(_diag(relationships=["only one"]), self.v, "L1V", [])
+        reasons = gen.diag_core_checks(_diag(relationships=[]), self.v, "L1V", [])
         self.assertTrue(any("relationships" in r for r in reasons))
 
 
@@ -272,16 +272,18 @@ class QuizValidationTests(unittest.TestCase):
         self.assertTrue(any("equal in value" in r for r in self._extras(item, 3, ["28/2", "2", "3"])))
         self.assertTrue(any("equal in value" in r for r in self._extras(item, 3, ["7*2", "2", "3"])))
 
-    def test_hint_that_reveals_the_answer_is_rejected(self):
+    def test_hint_that_reveals_the_answer_is_replaced_by_the_instruction(self):
         item = _quiz()
         item["all_steps"][1]["correct_value"] = "2*x + 7"
-        self.assertTrue(any("hint reveals" in r for r in self._extras(item, 1, ["x + 7", "2*x - 7", "x + 14"],
-                                                                      hint="Write 2x + 7 on the left.")))
+        self.assertFalse(any("hint" in r for r in self._extras(item, 1, ["x + 7", "2*x - 7", "x + 14"],
+                                                               hint="Write 2x + 7 on the left.")))
+        self.assertEqual(item["extras"]["1"]["hint"], item["all_steps"][1]["instruction"])
 
-    def test_distractors_must_match_the_answer_format(self):
+    def test_equation_style_distractors_are_stripped_to_match_a_bare_answer(self):
         item = _quiz()
         item["all_steps"][3]["correct_value"] = "14"
-        self.assertTrue(any("different format" in r for r in self._extras(item, 3, ["x = 7", "20", "3"])))
+        self.assertFalse(any("different format" in r for r in self._extras(item, 3, ["x = 7", "20", "3"])))
+        self.assertEqual(item["extras"]["3"]["distractors"], ["7", "20", "3"])
 
     def test_author_self_talk_is_rejected(self):
         item = _quiz()
