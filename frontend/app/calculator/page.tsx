@@ -339,7 +339,7 @@ export default function AlgebraCalculatorPage() {
       </section>
 
       {error && <section className="calculator-route-error" role="alert">
-        <Image src="/suri-snake-sad.png" alt="Sad Suri" width={45} height={45} />
+        <Image src="/suri-snake-sad.webp" alt="Sad Suri" width={45} height={45} />
         <div><strong>{error.title}</strong><p>{error.message}</p></div>
       </section>}
 
@@ -370,7 +370,7 @@ export default function AlgebraCalculatorPage() {
                     <ArrowRight className="calculator-arrow" size={24} aria-hidden="true" />
                     <div className="calculator-expression-panel calculator-expression-after"><span>Now</span><MathDisplay value={after} /></div>
                   </div>
-                  <div className="calculator-step-explanation"><Image src="/suri-snake-happy.png" alt="" width={36} height={36} /><div><b>Why this works</b><p>{copy.explanation}</p></div></div>
+                  <div className="calculator-step-explanation"><Image src="/suri-snake-happy.webp" alt="" width={36} height={36} /><div><b>Why this works</b><p>{copy.explanation}</p></div></div>
                 </article>
               </li>;
             })}

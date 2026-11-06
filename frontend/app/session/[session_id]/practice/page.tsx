@@ -8,6 +8,7 @@ import confetti from "canvas-confetti";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { formatMath, blankEquation, mathMarkdown } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 import { BattleSpells, ArmedSpellBubble, SpellEffect, SPELLS, FLAME_FLIGHT_MS } from "./battle-spells";
 import { CombatImpact, type CombatHit } from "./battle-impact";
@@ -69,16 +70,22 @@ const cleanMathExpr = (expr: string) => {
   return expr.replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2").replace(/([a-zA-Z])\s*\*\s*([a-zA-Z])/g, "$1$2");
 };
 
+/** A stored expression as a KaTeX math span with every division stacked. */
+const asMath = (expr: string) => {
+  const c = cleanMathExpr(expr);
+  return formatMath(c.startsWith("$") ? c : `$${c}$`);
+};
+
 function formatMathInText(text: string): string {
   if (!text) return "";
   // Fix double or triple underscores inside math delimiters so KaTeX doesn't throw subscript errors
-  return text.replace(/\$([^$]+)\$/g, (_match, mathContent) => {
+  return formatMath(text.replace(/\$([^$]+)\$/g, (_match, mathContent) => {
     const cleanedMath = mathContent
       .replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2")
       .replace(/([a-zA-Z])\s*\*\s*([a-zA-Z])/g, "$1$2")
       .replace(/_{2,}/g, "\\underline{\\quad\\quad}");
     return `$${cleanedMath}$`;
-  });
+  }));
 }
 
 /**
@@ -90,18 +97,16 @@ function toMathMarkdown(raw: string, isValue = false): string {
   const t = (raw ?? "").replace(/\\\\/g, "\\").trim();
   if (!t) return "";
   if (t.includes("$")) {
-    return t.replace(/\$\$?([^$]+?)\$\$?/g, (_m, inner: string) => {
+    return formatMath(t.replace(/\$\$?([^$]+?)\$\$?/g, (_m, inner: string) => {
       const math = inner
         .replace(/["“”]/g, "")
         .replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2")
-        .replace(/(\d+)\s*\/\s*(\d+)/g, "\\frac{$1}{$2}")
         .trim();
       return `$${math}$`;
-    });
+    }));
   }
   if (isValue && !requiresTextInput(t)) {
-    const math = t.replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2").replace(/(\d+)\s*\/\s*(\d+)/g, "\\frac{$1}{$2}");
-    return `$${math}$`;
+    return formatMath(`$${t.replace(/(\d)\s*\*\s*([a-zA-Z])/g, "$1$2")}$`);
   }
   return t;
 }
@@ -118,39 +123,12 @@ function MathInline({ text, isValue = false }: { text: string; isValue?: boolean
   );
 }
 
-const fixUnbalancedMath = (before: string, after: string) => {
-  let b = before;
-  let a = after;
-
-  const doubleDollarsBefore = (b.match(/\$\$/g) || []).length;
-  if (doubleDollarsBefore % 2 !== 0) {
-    b = b + "$$";
-    a = "$$" + a;
-  } else {
-    const singleBefore = b.replace(/\$\$/g, "");
-    const singleDollarsBefore = (singleBefore.match(/\$/g) || []).length;
-    if (singleDollarsBefore % 2 !== 0) {
-      b = b + "$";
-      a = "$" + a;
-    }
-  }
-
-  // Escape leading '+' or '-' if followed by space/word so markdown parser doesn't treat it as an unordered list item
-  const escapeLeadingListMarkers = (segment: string) => {
-    // If segment begins with '+' or '-' followed by space or math (e.g. "+ y = 5"),
-    // escape it with a backslash so Markdown renders a literal '+' or '-' instead of a list bullet (<ul><li>)
-    return segment.replace(/^(\s*)([\+\-])(\s+)/, "$1\\$2$3");
-  };
-
-  return { fixedBefore: escapeLeadingListMarkers(b), fixedAfter: escapeLeadingListMarkers(a) };
-};
-
 const ENEMY_ROSTER = [
-  { name: "Fraction Fiend", title: "Splitter of Wholes", img: "/fraction-fiend-villain.png" },
-  { name: "Variable Phantom", title: "The Unknown", img: "/variable-phantom-villan.png" },
-  { name: "Exponent Wraith", title: "Power Corruptor", img: "/exponent-wraith-villain.png" },
-  { name: "Equation Golem", title: "Balance Breaker", img: "/equation-golem-villain.png" },
-  { name: "Polynomial Hydra", title: "Many-Termed Beast", img: "/polynomial-hydra-villain.png" },
+  { name: "Fraction Fiend", title: "Splitter of Wholes", img: "/fraction-fiend-villain.webp" },
+  { name: "Variable Phantom", title: "The Unknown", img: "/variable-phantom-villan.webp" },
+  { name: "Exponent Wraith", title: "Power Corruptor", img: "/exponent-wraith-villain.webp" },
+  { name: "Equation Golem", title: "Balance Breaker", img: "/equation-golem-villain.webp" },
+  { name: "Polynomial Hydra", title: "Many-Termed Beast", img: "/polynomial-hydra-villain.webp" },
 ];
 
 function calculateStars(mistakes: number): number {
@@ -168,7 +146,7 @@ const GAME_CSS = `
   }
   * { box-sizing: border-box; }
   .battle-body { font-family: Georgia, 'Times New Roman', serif; min-height: 100dvh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; color: #fff4d5; }
-  .arena-bg { background: url('/login/arena.png') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0.85; }
+  .arena-bg { background: url('/login/arena.webp') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: 0.85; }
   /* Storybook diagnostic Bookworm Parchment HUD Bar */
   .hud-bar {
     position: relative;
@@ -478,7 +456,7 @@ const GAME_CSS = `
     padding: 14px clamp(14px, 3vw, 48px) 0;
     border: 4px solid #80511f;
     border-radius: 18px;
-    background: url('/login/arena.png') center bottom / cover no-repeat;
+    background: url('/login/arena.webp') center bottom / cover no-repeat;
     box-shadow:
       0 8px 0 rgba(39,18,10,0.84),
       0 16px 36px rgba(0,0,0,0.4),
@@ -676,6 +654,15 @@ const GAME_CSS = `
     color: #fff8df;
     font-weight: 700;
   }
+  .equation-display {
+    padding: 14px 20px 6px;
+    color: #fff8df;
+    font-size: 24px;
+  }
+  .step-input-label {
+    color: #f5b025;
+    font-size: 20px;
+  }
   .equation-input-strip {
     padding: 14px 20px;
     background: rgba(18,8,5,0.85);
@@ -824,7 +811,7 @@ const GAME_CSS = `
     justify-content: center;
     padding: clamp(16px, 3vh, 32px) 20px 20px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    background: #83c3ff url("/login/results.webp") center / cover no-repeat;
     color: #3b1766;
   }
   .diagnostic-before .arena-bg {
@@ -1413,9 +1400,9 @@ type SuriState = "idle" | "attack" | "hit" | "happy" | "sad" | "defeated";
 type EnemyAnimState = "idle" | "attack" | "hit" | "defeated" | "appear";
 
 function suriImg(s: SuriState): string {
-  if (s === "happy") return "/suri-snake-happy.png";
-  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.png";
-  return "/suri-snake-right.png";
+  if (s === "happy") return "/suri-snake-happy.webp";
+  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.webp";
+  return "/suri-snake-right.webp";
 }
 function suriAlt(s: SuriState): string {
   if (s === "happy") return "Suri celebrating";
@@ -1961,7 +1948,7 @@ export default function PracticePage() {
               </div>
               <div className="target-expr-scroll font-bold text-center text-lg">
                 <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                  {cleanMathExpr(currentProblem.problem_expr).startsWith("$") ? cleanMathExpr(currentProblem.problem_expr) : `$${cleanMathExpr(currentProblem.problem_expr)}$`}
+                  {asMath(currentProblem.problem_expr)}
                 </ReactMarkdown>
               </div>
 
@@ -2020,37 +2007,11 @@ export default function PracticePage() {
                         </div>
                         {completed && (
                           <div className="chronicle-equation-preview mt-1">
-                            {(() => {
-                              const cleanBlankExpr = cleanMathExpr(st.blank_expression).replace("?", "___");
-                              const exprParts = cleanBlankExpr.split("___");
-                              const rawBefore = exprParts[0];
-                              const rawAfter = exprParts[1] || "";
-                              const { fixedBefore, fixedAfter } = fixUnbalancedMath(rawBefore, rawAfter);
-
-                              return (
-                                <div className="chronicle-input-slot-display flex items-center gap-1.5 flex-wrap text-xs">
-                                  {rawBefore.trim() && (
-                                    <span className="text-amber-100 font-mono">
-                                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                                        {fixedBefore}
-                                      </ReactMarkdown>
-                                    </span>
-                                  )}
-                                  <span className={`chronicle-filled-slot ${completed.correct ? "is-correct" : "is-wrong"}`}>
-                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                                      {completed.submittedValue.startsWith("$") ? completed.submittedValue : `$${completed.submittedValue}$`}
-                                    </ReactMarkdown>
-                                  </span>
-                                  {rawAfter.trim() && (
-                                    <span className="text-amber-100 font-mono">
-                                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                                        {fixedAfter}
-                                      </ReactMarkdown>
-                                    </span>
-                                  )}
-                                </div>
-                              );
-                            })()}
+                            <div className={`chronicle-input-slot-display chronicle-filled-slot ${completed.correct ? "is-correct" : "is-wrong"} text-xs`}>
+                              <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
+                                {mathMarkdown(cleanMathExpr(st.blank_expression).replace(/_{2,}|\?/, () => `{${completed.submittedValue.replace(/\$/g, "")}}`))}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         )}
                         {isActive && <div className="text-amber-300 font-bold text-[11px] animate-pulse">In Progress...</div>}
@@ -2177,67 +2138,53 @@ export default function PracticePage() {
                       </ReactMarkdown>
                     </div>
 
-                    {/* Equation Input Slot */}
+                    {/* Whole equation (blank shown as a box, even inside a fraction), input directly below */}
+                    <div className="equation-display text-center">
+                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
+                        {blankEquation(cleanMathExpr(currentStep.blank_expression))}
+                      </ReactMarkdown>
+                    </div>
                     <div className="equation-input-strip">
-                      {(() => {
-                        const cleanBlankExpr = cleanMathExpr(currentStep.blank_expression).replace("?", "___");
-                        const exprParts = cleanBlankExpr.split("___");
-                        const rawBefore = exprParts[0];
-                        const rawAfter = exprParts[1] || "";
-                        const { fixedBefore, fixedAfter } = fixUnbalancedMath(rawBefore, rawAfter);
-
-                        return (
-                          <>
-                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                              {fixedBefore}
-                            </ReactMarkdown>
-
-                            {requiresTextInput(currentStep.correct_value) ? (
-                              <input
-                                key={`text-${currentProblemIdx}-${currentStepIdx}`}
-                                type="text"
-                                value={stepInput}
-                                onChange={(e) => setStepInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" && !locked && stepInput.trim()) {
-                                    e.preventDefault();
-                                    void handleCastStep();
-                                  }
-                                }}
-                                disabled={locked || !!failedAction}
-                                autoFocus
-                                placeholder="..."
-                                className="step-text-input"
-                              />
-                            ) : (
-                              <div
-                                className="step-math-input-wrapper"
-                                onClick={() => {
-                                  const mf = document.querySelector<HTMLElement & { focus: () => void }>(".step-math-input-wrapper math-field");
-                                  mf?.focus();
-                                }}
-                              >
-                                <MathField
-                                  key={`math-${currentProblemIdx}-${currentStepIdx}`}
-                                  value={stepInput}
-                                  onChange={setStepInput}
-                                  disabled={locked || !!failedAction}
-                                  autoFocus
-                                  onEnter={() => {
-                                    if (!locked && stepInput.trim()) {
-                                      void handleCastStep();
-                                    }
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                              {fixedAfter}
-                            </ReactMarkdown>
-                          </>
-                        );
-                      })()}
+                      <span className="step-input-label font-bold">? =</span>
+                      {requiresTextInput(currentStep.correct_value) ? (
+                      <input
+                        key={`text-${currentProblemIdx}-${currentStepIdx}`}
+                        type="text"
+                        value={stepInput}
+                        onChange={(e) => setStepInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !locked && stepInput.trim()) {
+                            e.preventDefault();
+                            void handleCastStep();
+                          }
+                        }}
+                        disabled={locked || !!failedAction}
+                        autoFocus
+                        placeholder="..."
+                        className="step-text-input"
+                      />
+                    ) : (
+                      <div
+                        className="step-math-input-wrapper"
+                        onClick={() => {
+                          const mf = document.querySelector<HTMLElement & { focus: () => void }>(".step-math-input-wrapper math-field");
+                          mf?.focus();
+                        }}
+                      >
+                        <MathField
+                          key={`math-${currentProblemIdx}-${currentStepIdx}`}
+                          value={stepInput}
+                          onChange={setStepInput}
+                          disabled={locked || !!failedAction}
+                          autoFocus
+                          onEnter={() => {
+                            if (!locked && stepInput.trim()) {
+                              void handleCastStep();
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
                     </div>
 
                     <DebugAnswer><MathInline text={currentStep.correct_value} isValue /></DebugAnswer>
@@ -2245,7 +2192,7 @@ export default function PracticePage() {
                     {/* Feedback Banner */}
                     {checkpointNotice ? (
                       <div className="feedback-banner checkpoint">
-                        <img src="/suri-snake-sad.png" alt="Suri recovering" className="feedback-suri" />
+                        <img src="/suri-snake-sad.webp" alt="Suri recovering" className="feedback-suri" />
                         <div>
                           <p className="feedback-title">
                             <GameIcon name="warning" /> {checkpointNotice.wasCheckpoint ? "Shields Shattered — Checkpoint Recovered!" : "Shields Shattered — Starting Over at Step 1!"}
@@ -2259,7 +2206,7 @@ export default function PracticePage() {
                       </div>
                     ) : stepFeedback && !stepFeedback.correct ? (
                       <div className="feedback-banner wrong">
-                        <img src="/suri-snake-sad.png" alt="Suri sad" className="feedback-suri" />
+                        <img src="/suri-snake-sad.webp" alt="Suri sad" className="feedback-suri" />
                         <div>
                           <p className="feedback-title"><GameIcon name="warning" /> Rune Countered!</p>
                           <div className="feedback-quote flex items-center gap-1">
@@ -2270,7 +2217,7 @@ export default function PracticePage() {
                                 rehypePlugins={[rehypeKatex]}
                                 components={{ p: (props) => <span {...props} /> }}
                               >
-                                {stepFeedback.correctValue.startsWith("$") ? stepFeedback.correctValue : `$${stepFeedback.correctValue}$`}
+                                {asMath(stepFeedback.correctValue)}
                               </ReactMarkdown>
                             </span>
                           </div>
@@ -2316,7 +2263,7 @@ export default function PracticePage() {
                 Suri forged every counter-spell and restored balance to the arena!
               </p>
 
-              <img src="/suri-snake-happy.png" alt="Suri Happy" className="completion-suri-img" />
+              <img src="/suri-snake-happy.webp" alt="Suri Happy" className="completion-suri-img" />
 
               <div className="completion-problem-list">
                 {problems.map((prob, idx) => {
@@ -2330,7 +2277,7 @@ export default function PracticePage() {
                           rehypePlugins={[rehypeKatex]}
                           components={{ p: (props) => <span {...props} /> }}
                         >
-                          {cleanMathExpr(prob.problem_expr).startsWith("$") ? cleanMathExpr(prob.problem_expr) : `$${cleanMathExpr(prob.problem_expr)}$`}
+                          {asMath(prob.problem_expr)}
                         </ReactMarkdown>
                       </span>
                       <div className="completion-stars">

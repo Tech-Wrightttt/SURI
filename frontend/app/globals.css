@@ -840,7 +840,7 @@ html::-webkit-scrollbar {
 .topics-world-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .topics-world-shell.topics-transition-entering { opacity: 0; }
 .topics-world-shell.topics-transition-zooming-out { opacity: 0; }
-.topics-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
+.topics-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library-blurred.webp") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
 
 .topics-library-page, .progress-library-page { --archive-section-gap: clamp(1.5rem, 3vw, 2rem); }
 main:has(> .topics-library-page) { min-height: 0; }
@@ -975,15 +975,15 @@ main:has(> .topics-library-page) { min-height: 0; }
 /* Progress: the Hall of Champions is the same focused-island experience as Topics. */
 .progress-world-shell { position: fixed; inset: 0; z-index: 0; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .progress-world-shell.progress-transition-entering, .progress-world-shell.progress-transition-zooming-out { opacity: 0; }
-.progress-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
+.progress-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library-blurred.webp") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
 
 .progress-route-page { position: relative; z-index: 3; min-height: 100vh; padding: 2.8rem clamp(1rem, 5vw, 5rem) 5rem; color: #fff; }
 .progress-route-header { width: min(52rem, 100%); margin: 0 auto 2.4rem; text-align: center; text-shadow: 2px 2px 0 rgba(19, 51, 42, .68); }
 .progress-route-back { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; inline-size: 8.25rem; margin-bottom: 2.6rem; padding: .68rem .9rem; border: 3px solid #163a31; border-radius: 999px; color: #163a31; background: #f4cd57; box-shadow: 3px 3px 0 #060b09; font: 800 .72rem/1 "Manrope", sans-serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
 .progress-route-back:hover { background: #ffe28a; transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #060b09; }
 .progress-route-back span { color: inherit; font-size: 1rem; }
-.progress-route-top, .calculator-route-top { display: flex; justify-content: center; width: min(78rem, 100%); margin: 2rem auto 0; }
-.progress-route-top .progress-route-back, .calculator-route-top .calculator-route-back { inline-size: auto; min-inline-size: 9.75rem; margin-bottom: 0; }
+.progress-route-top { display: flex; justify-content: center; width: min(78rem, 100%); margin: 2rem auto 0; }
+.progress-route-top .progress-route-back { inline-size: auto; min-inline-size: 9.75rem; margin-bottom: 0; }
 .progress-route-kicker { display: flex; align-items: center; justify-content: center; gap: .7rem; color: #ffe28a; font: 800 .75rem/1 "Manrope", sans-serif; letter-spacing: .18em; }
 .progress-route-kicker span { display: inline-block; width: 2.5rem; height: 3px; background: #f4cd57; }
 .progress-route-header h1 { margin: .55rem 0 0; color: #fff; font: 800 clamp(2.7rem, 7vw, 5.2rem)/.92 "Hanken Grotesk", sans-serif; letter-spacing: -.07em; }
@@ -1296,18 +1296,17 @@ main:has(> .topics-library-page) { min-height: 0; }
    book-like foreground surfaces as Topics and Progress. */
 .calculator-world-shell { position: fixed; inset: 0; z-index: 0; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .calculator-world-shell.calculator-transition-entering, .calculator-world-shell.calculator-transition-zooming-out { opacity: 0; }
-.calculator-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
+.calculator-world { position: absolute; inset: 0; pointer-events: none; background: url("/login/library-blurred.webp") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
 
 /* Playground follows the shared dashboard arrival and return sequence. */
 .playground-route-page { opacity: 1; transform: translateY(0); transition: opacity .72s cubic-bezier(.2,.8,.2,1), transform .72s cubic-bezier(.2,.8,.2,1); }
 .playground-background-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .playground-background-shell.playground-transition-entering, .playground-background-shell.playground-transition-zooming-out { opacity: 0; }
-.playground-background, .history-background, .leaderboard-background { position: absolute; inset: 0; pointer-events: none; background: url("/login/library.png") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
+.playground-background, .history-background, .leaderboard-background { position: absolute; inset: 0; pointer-events: none; background: url("/login/library-blurred.webp") center / cover no-repeat; filter: blur(5px) brightness(.72) saturate(.9); transform: scale(1.04); }
 .playground-route-content:is(.playground-transition-entering, .playground-transition-revealing, .playground-transition-leaving, .playground-transition-zooming-out) { pointer-events: none; }
 .playground-route-content:is(.playground-transition-entering, .playground-transition-revealing) .playground-route-page { opacity: 0; transform: translateY(.8rem); transition: none; }
 .playground-route-content:is(.playground-transition-leaving, .playground-transition-zooming-out) .playground-route-page { opacity: 0; transform: translateY(-.45rem); transition-duration: .62s; }
 .history-route-page { padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem; font-family: "Nunito", "Manrope", sans-serif; }
-.history-route-page .progress-library-back-row { width: 100%; }
 .history-background-shell { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #1b261c; opacity: 1; transition: opacity .64s cubic-bezier(.2,.75,.2,1); }
 .history-background-shell:is(.history-transition-entering, .history-transition-zooming-out) { opacity: 0; }
 .history-route-content:is(.history-transition-entering, .history-transition-revealing, .history-transition-leaving, .history-transition-zooming-out) { pointer-events: none; }
@@ -1373,7 +1372,8 @@ main:has(> .topics-library-page) { min-height: 0; }
 
 .calculator-results { display: grid; gap: var(--calculator-section-gap); width: 100%; margin: var(--calculator-section-gap) auto 0; }
 .calculator-results > .calculator-route-collection { width: 100%; margin: 0; }
-.calculator-route-page > :is(.calculator-route-back-row, .calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results) { width: 85%; }
+.calculator-route-top { display: flex; justify-content: flex-start; margin: 2rem auto 0; }
+.calculator-route-page > :is(.calculator-route-back-row, .calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results, .calculator-route-top) { width: 85%; }
 .calculator-result-overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, .8fr); gap: 1rem; align-items: center; }
 .calculator-result-copy { padding: .25rem .2rem; }
 .calculator-result-copy small, .calculator-final-answer small { display: block; color: #1d528d; font: 900 .6rem/1 "Nunito", sans-serif; letter-spacing: .15em; text-transform: uppercase; }
@@ -1417,7 +1417,7 @@ main:has(> .topics-library-page) { min-height: 0; }
 }
 @media (max-width: 640px) {
   .calculator-route-page { --calculator-section-gap: 1.25rem; }
-  .calculator-route-page > :is(.calculator-route-back-row, .calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results) { width: 100%; }
+  .calculator-route-page > :is(.calculator-route-back-row, .calculator-route-header, .calculator-route-collection, .calculator-route-error, .calculator-results, .calculator-route-top) { width: 100%; }
   .calculator-route-back-row { margin-bottom: var(--calculator-section-gap); }
   .calculator-route-header { padding: 1.7rem .85rem; }
   .calculator-route-header h1 { font-size: 2.45rem; }

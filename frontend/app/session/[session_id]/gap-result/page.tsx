@@ -39,7 +39,7 @@ const GAP_RESULT_CSS = `
     justify-content: center;
     padding: clamp(118px, 14vh, 150px) 22px 34px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    background: #83c3ff url("/login/results.webp") center / cover no-repeat;
     color: #3b1766;
   }
 
@@ -392,7 +392,7 @@ const GAP_RESULT_CSS = `
     min-height: 100vh;
     display: grid;
     place-items: center;
-    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    background: #83c3ff url("/login/results.webp") center / cover no-repeat;
   }
 
   .loading-spinner {
