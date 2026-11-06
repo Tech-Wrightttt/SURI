@@ -658,7 +658,6 @@ const GAME_CSS = `
     padding: 14px 20px 6px;
     color: #fff8df;
     font-size: 24px;
-    overflow-x: auto;
   }
   .step-input-label {
     color: #f5b025;
