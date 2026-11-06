@@ -3,12 +3,9 @@
   font-family: "Nunito", "Manrope", sans-serif;
 }
 
-.page :global(.progress-library-header) {
+.page > :global(.progress-library-header),
+.page > :global(.progress-library-back-row) {
   width: 85%;
-}
-
-.page :global(.progress-library-back-row) {
-  width: 100%;
 }
 
 .content {
@@ -229,7 +226,9 @@
 .summaryPrompt p { margin: 0; }
 
 @media (max-width: 640px) {
-  .page :global(.progress-library-header), .content { width: 100%; }
+  .page > :global(.progress-library-header),
+  .page > :global(.progress-library-back-row),
+  .content { width: 100%; }
   .answerRow { flex-direction: column; align-items: stretch; }
   .unit { align-self: flex-end; }
   .cardGrid { grid-template-columns: 1fr 1fr; }

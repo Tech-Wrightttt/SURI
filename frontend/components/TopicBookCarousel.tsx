@@ -4,6 +4,7 @@ import { PerspectiveCamera } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { getFrameElapsedTime } from "@/lib/three/frameClock";
 import { configureWorldRenderer } from "@/lib/three/renderer";
 import FantasySpellbook, { useSpellbookAssets } from "@/components/FantasySpellbook";
 import { getSpellbookLayout } from "@/lib/three/spellbookLayout";
@@ -79,9 +80,7 @@ function Book({
     const focus = emphasis.current;
     const hover = hoverLift.current;
     const worldAngle = angle + carouselRotation.current;
-    // R3F 9.8.1 exposes a Clock (elapsedTime), 9.8.2+ a Timer (getElapsed()).
-    const clock = state.clock as unknown as { elapsedTime?: number; getElapsed?: () => number };
-    const elapsed = clock.getElapsed ? clock.getElapsed() : (clock.elapsedTime ?? 0);
+    const elapsed = getFrameElapsedTime(state.clock);
     const bob = reducedMotion ? 0 : Math.sin(elapsed * .95 + phase) * (.10 + index * .008);
     // The book at the far side rises above the foreground volume instead of
     // disappearing directly behind it, so all four positions stay legible.

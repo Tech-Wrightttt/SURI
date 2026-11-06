@@ -9,8 +9,9 @@
   padding: 1.25rem clamp(.7rem, 2.5vw, 2rem) 2.3rem;
   font-family: "Nunito", "Manrope", sans-serif;
 }
-.page :global(.progress-library-header) { width: 85%; }
-.page :global(.progress-library-back-row) { width: 100%; }
+.page > :global(.progress-library-header),
+.page > :global(.progress-library-back-row),
+.backToTop { width: 85%; }
 .dashboard { display: grid; gap: 1.75rem; width: 85%; margin: 2rem auto 0; color: var(--ink); font: 800 .875rem/1.6 "Nunito", sans-serif; }
 .dashboard * { min-width: 0; }
 .dashboard h2 { margin: .35rem 0 0; font: 900 clamp(1.5rem, 2.4vw, 2rem)/1.12 "Bree Serif", Georgia, serif; letter-spacing: -.025em; }
@@ -119,7 +120,7 @@
 .guidance { margin: 1rem 0; padding: 1rem; border-left: 3px solid #2c80d0; background: #d8efff; }
 .guidance :global(.katex) { font-size: 1em; }
 .guidance :global(.katex-display) { overflow-x: auto; }
-.backToTop { display: flex; justify-content: center; margin-top: 1.75rem; }
+.backToTop { display: flex; justify-content: flex-start; margin: 1.75rem auto 0; }
 .historyMore { display: grid; justify-items: start; gap: .75rem; padding-top: 1.5rem; }
 @media (max-width: 1050px) {
   .overview { grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr); }
@@ -127,7 +128,10 @@
   .frequency ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 740px) {
-  .page :global(.progress-library-header), .dashboard { width: 100%; }
+  .page > :global(.progress-library-header),
+  .page > :global(.progress-library-back-row),
+  .dashboard,
+  .backToTop { width: 100%; }
   .overview, .conceptList { grid-template-columns: 1fr; }
   .dashboard { gap: 1.5rem; }
   .sectionHeading { align-items: start; flex-direction: column; gap: .65rem; }
