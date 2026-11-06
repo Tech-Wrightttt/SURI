@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Lock, Mail, ShieldAlert } from "lucide-react";
 import { login } from "@/lib/api";
+import AuthHomeLink from "@/components/landing/AuthHomeLink";
 
 const LOGIN_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@600;700;800;900&display=swap');
@@ -18,7 +19,7 @@ const LOGIN_CSS = `
     justify-content: center;
     padding: clamp(118px, 14vh, 150px) 22px 34px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/math-quest-academy.webp") center / cover no-repeat;
+    background: #83c3ff url("/landing/academy-desktop.webp") center / cover no-repeat;
     color: #3b1766;
   }
 
@@ -301,8 +302,9 @@ const LOGIN_CSS = `
   @media (max-width: 720px) {
     .quest-login {
       min-height: 100svh;
-      padding: 112px 12px 18px;
-      background-position: 44% center;
+      padding: 154px 12px 18px;
+      background-image: url("/landing/academy-mobile.webp");
+      background-position: center;
     }
 
     .quest-crest {
@@ -380,6 +382,7 @@ export default function LoginPage() {
 
   return (
     <main className="quest-login">
+      <AuthHomeLink />
       <style dangerouslySetInnerHTML={{ __html: LOGIN_CSS }} />
 
       <section className="quest-shell" aria-labelledby="login-heading">
