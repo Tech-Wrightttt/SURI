@@ -7,6 +7,7 @@ import confetti from "canvas-confetti";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { mathMarkdown } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 import { BattleSpells, ArmedSpellBubble, SpellEffect, FLAME_FLIGHT_MS } from "../practice/battle-spells";
 import { CombatImpact, type CombatHit } from "../practice/battle-impact";
@@ -1604,7 +1605,7 @@ export default function DiagnosticPage() {
                       <div className="question-strip">
                         <div className="question-badge"><GameIcon name="book" /> Question</div>
                         <div className="question-text" id="question-text">
-                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{probe.question_text}</ReactMarkdown>
+                          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{mathMarkdown(probe.question_text)}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
@@ -1625,7 +1626,7 @@ export default function DiagnosticPage() {
                               onClick={() => { if (!locked && !feedback && !failedAction) setSelectedIdx(idx); }} disabled={!!feedback || locked || !!failedAction}>
                               <div className="spell-label">{LABELS[idx]}</div>
                               <div className="spell-text">
-                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{opt}</ReactMarkdown>
+                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{mathMarkdown(opt)}</ReactMarkdown>
                               </div>
                               {isSelected && !feedback && <div className="spell-check"><GameIcon name="check" /></div>}
                               {isCorrect && feedback && <div className="spell-check" style={{ background: "#3dbf6e" }}><GameIcon name="check" /></div>}
@@ -1638,7 +1639,7 @@ export default function DiagnosticPage() {
                         <DebugAnswer>
                           {LABELS[probe.debug_correct_option_index]} ·{" "}
                           <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]} components={{ p: (props) => <span {...props} /> }}>
-                            {probe.options[probe.debug_correct_option_index]}
+                            {mathMarkdown(probe.options[probe.debug_correct_option_index])}
                           </ReactMarkdown>
                         </DebugAnswer>
                       )}

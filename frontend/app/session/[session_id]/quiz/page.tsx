@@ -19,6 +19,7 @@ import { useTutorial } from "@/components/tutorial/TutorialProvider";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { formatMath, blankToBox } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 
 import {
@@ -1844,7 +1845,7 @@ export default function QuizPage() {
       (_, inner) => `$${inner}$`
     );
 
-    const clean = inline
+    const clean = formatMath(inline)
       .replace(
         /(\d)\s*\*\*\s*([a-zA-Z])/g,
         "$1$2"
@@ -2132,10 +2133,7 @@ export default function QuizPage() {
 
               <div className="quiz-scroll quiz-expression markdown-content mt-3">
                 {renderMath(
-                  currentStep.blank_expression.replace(
-                    "?",
-                    "\\_\\_\\_"
-                  ),
+                  blankToBox(currentStep.blank_expression),
                   true
                 )}
               </div>
@@ -2306,7 +2304,7 @@ export default function QuizPage() {
                     const filledExpr =
                       userAnswer !== null
                         ? s.blank_expression.replace("?", userAnswer)
-                        : s.blank_expression.replace("?", "\\_\\_\\_");
+                        : blankToBox(s.blank_expression);
 
                     return (
                       <div

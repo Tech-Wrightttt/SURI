@@ -6,6 +6,7 @@ import { getSession, getContent, ContentResponse, getTopicChecks, setTopicCheck,
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { formatMath } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 import confetti from "canvas-confetti";
 import {
@@ -1137,7 +1138,7 @@ export default function LessonPage() {
                     <div className="page-columns with-visual">
                       <div className="markdown-content">
                         <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                          {lessonBody}
+                          {formatMath(lessonBody)}
                         </ReactMarkdown>
                       </div>
                       <div className="visual-aid-frame">
@@ -1156,7 +1157,7 @@ export default function LessonPage() {
                     <span className="page-badge"><Sparkles className="w-3.5 h-3.5" /> Worked Example</span>
                     <div className="markdown-content">
                       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                        {workedExample.replace(/\\n/g, "\n")}
+                        {formatMath(workedExample.replace(/\\n/g, "\n"))}
                       </ReactMarkdown>
                     </div>
                   </>
@@ -1167,7 +1168,7 @@ export default function LessonPage() {
                     <span className="page-badge"><Compass className="w-3.5 h-3.5" /> Guided Walkthrough</span>
                     <div className="markdown-content">
                       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                        {guidedExplanation.replace(/\\n/g, "\n")}
+                        {formatMath(guidedExplanation.replace(/\\n/g, "\n"))}
                       </ReactMarkdown>
                     </div>
                   </>

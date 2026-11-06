@@ -4,6 +4,7 @@ import { ArrowUpRight, ChevronDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { formatMath } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 import type { MisconceptionHistoryItem } from "@/lib/api";
 import type { NodeStatus } from "@/lib/learningData";
@@ -42,7 +43,7 @@ export default function MistakeRecord({ item, status = "not_attempted", launchin
       <div className={styles.guidance}>
         <h4>Suri&apos;s recovery note</h4>
         <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-          {REVIEW_TIPS[item.node_id] || "Review variables, factors, and coordinate signs related to this section."}
+          {formatMath(REVIEW_TIPS[item.node_id] || "Review variables, factors, and coordinate signs related to this section.")}
         </ReactMarkdown>
       </div>
       <button type="button" className={styles.primaryButton} disabled={launchingNodeId !== null} onClick={() => onReview(item.node_id)}>
