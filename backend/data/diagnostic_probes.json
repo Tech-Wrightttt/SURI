@@ -498,6 +498,30 @@
       ],
       "correct_option_index": 0,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "FP",
+      "question_text": "A student calculates the value of $52^{2} - 48^{2}$ mentally using the difference of two squares pattern $(a^{2} - b^{2}) = (a + b)(a - b)$. What is the product of the two binomial factors $(a + b)$ and $(a - b)$ used to solve this?",
+      "options": [
+        "$100 \\cdot 4$",
+        "$100 \\cdot 96$",
+        "$52 \\cdot 48$",
+        "$4 \\cdot 4$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "FP",
+      "question_text": "Which of the following trinomials cannot be factored into two binomials with integer coefficients using the standard methods?",
+      "options": [
+        "$x^{2} + 5x + 6$",
+        "$x^{2} + 7x + 12$",
+        "$x^{2} + 3x + 10$",
+        "$x^{2} + 7x + 10$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
     }
   ],
   "SP": [
@@ -760,6 +784,42 @@
       ],
       "correct_option_index": 0,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "SP",
+      "question_text": "A rectangular school garden has a length of $x + 8$ meters and a width of $x - 8$ meters. If the school decides to expand the garden such that both dimensions are increased by $2$ meters, what is the new area of the garden in square meters?",
+      "options": [
+        "$x^{2} + 4x - 60$",
+        "$x^{2} + 4x + 60$",
+        "$x^{2} - 64$",
+        "$x^{2} + 4x - 64$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SP",
+      "question_text": "Find the value of $k$ such that the expression $x^{2} + \\text{kx} + 49$ is the exact square of a binomial $(x + 7)^{2}$.",
+      "options": [
+        "$7$",
+        "$14$",
+        "$49$",
+        "$28$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SP",
+      "question_text": "A school garden is currently a square with side length $x$ meters. The principal decides to enlarge the garden by adding $6$ meters to one side and $2$ meters to the other side to make it rectangular. What is the total area of the new rectangular garden?",
+      "options": [
+        "$x^{2} + 8x + 12$",
+        "$x^{2} + 12x + 8$",
+        "$x^{2} + 8x + 8$",
+        "$x^{2} + 4x + 12$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
     }
   ],
   "LE": [
@@ -1010,6 +1070,42 @@
         "$5$"
       ],
       "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "LE",
+      "question_text": "A sari-sari store owner packs rice in small bags. Each bag weighs $3^{2}$ kilograms. If she has $3^{4}$ bags in total, and the total weight is expressed as $3^{x}$ kilograms, what is the value of $x$?",
+      "options": [
+        "$2$",
+        "$6$",
+        "$8$",
+        "$9$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "LE",
+      "question_text": "A science student compares two bacteria cultures. Culture A has a population of $2^{5} \\cdot 2^{3}$ and Culture B has a population of $4^{4}$. Which of the following is true regarding their populations?",
+      "options": [
+        "Culture A is greater than Culture B",
+        "Culture B is greater than Culture A",
+        "Culture A is equal to Culture B",
+        "Culture A is twice the size of Culture B"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "LE",
+      "question_text": "A student attempts to simplify the expression $(2x^{3})^{2}$. Look at the steps provided: \nStep 1: Apply the Power of a Product Rule to get $2^{2}(x^{3})^{2}$. \nStep 2: Evaluate $2^{2}$ as $4$. \nStep 3: Apply the Power Rule to $(x^{3})^{2}$ to get $x^{5}$. \nStep 4: Combine the results to get $4x^{5}$. \nIn which step did the student make an error?",
+      "options": [
+        "Step 1",
+        "Step 2",
+        "Step 3",
+        "Step 4"
+      ],
+      "correct_option_index": 2,
       "difficulty": "challenge"
     }
   ],
@@ -1285,6 +1381,30 @@
       ],
       "correct_option_index": 0,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "OI",
+      "question_text": "A sari-sari store owner started with some cash in her drawer. She paid 85 pesos to a supplier, then received 120 pesos from a customer, and finally paid 45 pesos for electricity. If she ended with 150 pesos, how much money was in her drawer at the start?",
+      "options": [
+        "$160$",
+        "$150$",
+        "$170$",
+        "$180$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "OI",
+      "question_text": "The temperature in a freezer was measured at 2:00 PM. By 5:00 PM, it dropped 6 degrees. By 8:00 PM, it rose 2 degrees. If the final temperature at 8:00 PM was -9 degrees Celsius, what was the temperature at 2:00 PM?",
+      "options": [
+        "$-5$",
+        "$-13$",
+        "$-11$",
+        "$-7$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
     }
   ],
   "FD": [
@@ -1523,6 +1643,66 @@
       ],
       "correct_option_index": 0,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "FD",
+      "question_text": "A sari-sari store owner has a container of rice. She sold $\\frac{2}{5}$ of the total weight on Monday, and then $\\frac{1}{3}$ of the remaining rice on Tuesday. If there are $12$ kilograms left in the container, how many kilograms of rice were there at the start?",
+      "options": [
+        "$24$",
+        "$30$",
+        "$36$",
+        "$40$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "FD",
+      "question_text": "Lito has a ribbon $6$ meters long. He cuts off $\\frac{1}{4}$ of the original length to wrap a gift, and then cuts another $\\frac{1}{2}$ meter to tie a bouquet. What is the length of the remaining ribbon in meters?",
+      "options": [
+        "$4$",
+        "$4.25$",
+        "$4.5$",
+        "$4.75$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "FD",
+      "question_text": "A recipe for a school fair requires $2 \\frac{1}{2}$ kilograms of flour for one batch. If the recipe is scaled up by $1 \\frac{1}{2}$ times and then the total is split equally into $3$ bowls, how many kilograms of flour are in each bowl?",
+      "options": [
+        "$1.25$",
+        "$1.5$",
+        "$1.75$",
+        "$2$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "FD",
+      "question_text": "Find the missing fraction that, when added to $\\frac{1}{3}$ and $\\frac{1}{4}$, results in a total of $1$?",
+      "options": [
+        "$\\frac{5}{12}$",
+        "$\\frac{7}{12}$",
+        "$\\frac{1}{6}$",
+        "$\\frac{1}{2}$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "FD",
+      "question_text": "A basket of $60$ mangoes is shared among three friends. The first friend takes $\\frac{1}{3}$ of the mangoes, and the second friend takes $\\frac{1}{2}$ of the remaining mangoes. If the third friend takes the rest, how many mangoes does the third friend get?",
+      "options": [
+        "$10$",
+        "$15$",
+        "$20$",
+        "$25$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
     }
   ],
   "SLE": [
@@ -1760,6 +1940,66 @@
         "$4$"
       ],
       "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SLE",
+      "question_text": "A sari-sari store sells small packs of snacks. 3 packs of peanuts ($x$) and 2 packs of crackers ($y$) cost 55 pesos. 2 packs of peanuts and 4 packs of crackers cost 70 pesos. What is the cost of one pack of peanuts ($x$)?",
+      "options": [
+        "$10$",
+        "$12$",
+        "$15$",
+        "$18$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SLE",
+      "question_text": "A two-digit number has a sum of digits equal to 9. If $x$ is the tens digit and $y$ is the units digit, and the value of the number is $10x + y$, the reversed number $10y + x$ is 27 less than the original number. What is the value of $x$?",
+      "options": [
+        "$4$",
+        "$5$",
+        "$6$",
+        "$7$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SLE",
+      "question_text": "A farmer has a total of 20 animals consisting of chickens ($x$) and goats ($y$). The total number of legs is 60. How many chickens ($x$) does the farmer have?",
+      "options": [
+        "$8$",
+        "$10$",
+        "$12$",
+        "$14$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SLE",
+      "question_text": "A rectangle has a perimeter of 30 cm. If the length $x$ is 3 cm more than the width $y$, what is the width ($y$) in cm?",
+      "options": [
+        "$5$",
+        "$6$",
+        "$7$",
+        "$8$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "SLE",
+      "question_text": "Machine A ($x$) and Machine B ($y$) produce different numbers of items per hour. Together they produce 50 items in one hour. Machine A produces 10 more items per hour than Machine B. How many items per hour does Machine A ($x$) produce?",
+      "options": [
+        "$20$",
+        "$25$",
+        "$30$",
+        "$35$"
+      ],
+      "correct_option_index": 2,
       "difficulty": "challenge"
     }
   ],
@@ -2035,6 +2275,30 @@
       ],
       "correct_option_index": 2,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "L2V",
+      "question_text": "A sari-sari store owner observes that the total cost $y$ in pesos for buying $x$ kilograms of rice follows the equation $40x - y = 50$. To sell rice in smaller amounts, she needs to rewrite this in slope-intercept form $y = \\text{mx} + b$. What are the values of $m$ and $b$?",
+      "options": [
+        "$m = 40, b = 50$",
+        "$m = 40, b = -50$",
+        "$m = -40, b = 50$",
+        "$m = -40, b = -50$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "L2V",
+      "question_text": "A student is saving money for a school project. At week $2$, the total savings is $150$ pesos. At week $6$, the total savings is $350$ pesos. If the savings follow a linear pattern $y = \\text{mx} + b$, what is the slope $m$ of the line representing the savings?",
+      "options": [
+        "$25$",
+        "$50$",
+        "$75$",
+        "$100$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
     }
   ],
   "L1V": [
@@ -2285,6 +2549,54 @@
       ],
       "correct_option_index": 1,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "L1V",
+      "question_text": "A teacher has a bag of 30 pens consisting of blue pens and red pens. Each blue pen costs 12 pesos and each red pen costs 8 pesos. If the total cost of all pens is 280 pesos, how many blue pens are in the bag?",
+      "options": [
+        "$10$",
+        "$15$",
+        "$20$",
+        "$25$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "L1V",
+      "question_text": "The perimeter of a rectangular garden is 48 meters. The length is 4 meters less than three times the width. What is the width of the garden in meters?",
+      "options": [
+        "$6$",
+        "$7$",
+        "$8$",
+        "$9$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "L1V",
+      "question_text": "Think of a number. Divide it by 3, add 12, then multiply the result by 2. If the final answer is 30, what is the original number?",
+      "options": [
+        "$3$",
+        "$6$",
+        "$9$",
+        "$12$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "L1V",
+      "question_text": "A monthly mobile data plan costs 450 pesos for the first 5 GB. Every extra GB costs 50 pesos. If a student paid 700 pesos this month, how many GB of data did they use in total?",
+      "options": [
+        "$7$",
+        "$8$",
+        "$9$",
+        "$10$"
+      ],
+      "correct_option_index": 3,
+      "difficulty": "challenge"
     }
   ],
   "AE": [
@@ -2498,6 +2810,42 @@
         "$290$"
       ],
       "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "Jeepney Plan A charges a base fare of $8$ pesos plus $3$ pesos per kilometer $k$. Jeepney Plan B charges a base fare of $5$ pesos plus $4$ pesos per kilometer $k$. For a trip of $4$ kilometers, what is the positive difference in pesos between the cost of Plan B and Plan A?",
+      "options": [
+        "$1$",
+        "$2$",
+        "$3$",
+        "$4$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "Juan earns $4x + 10$ pesos from selling buko juice and Pedro earns $2x + 22$ pesos from selling banana cue. For what integer value of $x$ will Juan and Pedro earn the exact same amount of money?",
+      "options": [
+        "$4$",
+        "$5$",
+        "$6$",
+        "$8$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "A school club organizes a trip. Bus company Alpha charges a fixed fee of $1000$ pesos plus $50$ pesos per student $s$. Bus company Beta charges a fixed fee of $400$ pesos plus $80$ pesos per student $s$. For how many students $s$ will both bus companies charge the exact same total amount?",
+      "options": [
+        "$15$",
+        "$20$",
+        "$25$",
+        "$30$"
+      ],
+      "correct_option_index": 1,
       "difficulty": "challenge"
     }
   ],
@@ -2773,6 +3121,30 @@
       ],
       "correct_option_index": 3,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "RPP",
+      "question_text": "A sari-sari store sells 5 packs of noodles for 60 pesos. A nearby canteen sells 3 packs of the same noodles for 45 pesos. To get the best value, how many pesos per pack does the cheaper option cost?",
+      "options": [
+        "$10$",
+        "$12$",
+        "$15$",
+        "$18$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "RPP",
+      "question_text": "A jeepney driver travels 30 km in 45 minutes, then stops to pick up passengers, and travels another 45 km in 75 minutes. What is the average speed of the jeepney in km per hour for the entire trip?",
+      "options": [
+        "$30$",
+        "$35$",
+        "$37.5$",
+        "$40$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
     }
   ],
   "RER": [
@@ -2978,6 +3350,54 @@
         "$\\frac{2x\\sqrt{2}}{3}$"
       ],
       "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "RER",
+      "question_text": "A community garden is shaped like a square with an area of $108$ square meters. A smaller decorative flower plot is shaped like a square with an area of $27$ square meters. How much longer is the side length of the garden compared to the side length of the flower plot in simplest radical form?",
+      "options": [
+        "$\\sqrt{3}$",
+        "$3\\sqrt{3}$",
+        "$9\\sqrt{3}$",
+        "$3$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "RER",
+      "question_text": "A local sari-sari store owner needs to determine the missing exponent $k$ in the expression $(x^{\\frac{2}{3}})^{k} = x^{\\frac{1}{2}}$ to calculate a bulk discount. What is the value of $k$?",
+      "options": [
+        "$\\frac{3}{4}$",
+        "$\\frac{1}{3}$",
+        "$\\frac{2}{3}$",
+        "$\\frac{4}{3}$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "RER",
+      "question_text": "A science student simplifies the expression $2\\sqrt{50} - 3\\sqrt{18} + 5\\sqrt{2}$. Which of the following is the correct simplified form?",
+      "options": [
+        "$4\\sqrt{2}$",
+        "$6\\sqrt{2}$",
+        "$7\\sqrt{2}$",
+        "$16\\sqrt{2}$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "RER",
+      "question_text": "A group of students is asked to identify the error in the following simplification: $3\\sqrt{2} + 4\\sqrt{3} = 7\\sqrt{5}$. Which statement identifies the error?",
+      "options": [
+        "They added the coefficients incorrectly.",
+        "They added the radicands incorrectly.",
+        "They failed to simplify the coefficients.",
+        "They multiplied the radicals instead of adding them."
+      ],
+      "correct_option_index": 1,
       "difficulty": "challenge"
     }
   ],
@@ -3217,6 +3637,66 @@
       ],
       "correct_option_index": 0,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "PE",
+      "question_text": "A student cuts squares of size $x$ by $x$ from the corners of a $10$ cm by $12$ cm cardboard to fold an open box. The volume is $V(x) = x(10 - 2x)(12 - 2x)$. If the volume must be $96$ cubic centimeters, what is the value of $x$ that satisfies this condition?",
+      "options": [
+        "$1$",
+        "$2$",
+        "$3$",
+        "$4$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PE",
+      "question_text": "A sari-sari store owner finds that her daily profit $P(x)$ in hundreds of pesos follows $P(x) = x^{3} - 4x^{2} + x + 6$. If one day the profit was zero and $x = 3$ was a factor, what are all possible values of $x$ (days) where the profit is zero?",
+      "options": [
+        "$-1, 2, 3$",
+        "$1, -2, 3$",
+        "$-1, -2, 3$",
+        "$1, 2, 3$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PE",
+      "question_text": "A box has dimensions $x$, $x+1$, and $x+2$. The volume is $60$ cubic units. If $x(x+1)(x+2) = 60$, what is the integer value of $x$?",
+      "options": [
+        "$1$",
+        "$2$",
+        "$3$",
+        "$4$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PE",
+      "question_text": "A student thinks of a number $x$ such that the sum of the cube and the square is $12$ times the number: $x^{3} + x^{2} - 12x = 0$. What are all the possible values for this number?",
+      "options": [
+        "$-4, 0, 3$",
+        "$-3, 0, 4$",
+        "$-4, 1, 3$",
+        "$-3, 1, 4$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PE",
+      "question_text": "The profit of a jeepney route is modeled by $P(x) = x^{3} + 2x^{2} - 9x - 18$. By grouping terms $(x^{3} + 2x^{2}) - (9x + 18) = 0$, find all the roots that represent the break-even points $x$.",
+      "options": [
+        "$-3, -2, 3$",
+        "$-3, 2, 3$",
+        "$-2, 3, 9$",
+        "$-3, 3, 9$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
     }
   ],
   "PD": [
@@ -3395,6 +3875,90 @@
         "$32$"
       ],
       "correct_option_index": 0
+    },
+    {
+      "node_id": "PD",
+      "question_text": "The volume of a rectangular box is $V(x) = x^{3} + 2x^{2} - 5x - 6$. If the height of the box is $x + 1$, what is the area of the base?",
+      "options": [
+        "$x^{2} + x - 6$",
+        "$x^{2} + 3x - 6$",
+        "$x^{2} + x + 6$",
+        "$x^{2} - x - 6$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PD",
+      "question_text": "If $P(x) = x^{3} + \\text{ax}^{2} + \\text{bx} + 2$ satisfies $P(1) = 0$ and $P(-1) = 0$, what is the value of $b$?",
+      "options": [
+        "$-3$",
+        "$-1$",
+        "$1$",
+        "$3$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PD",
+      "question_text": "Let $f(x) = x^{3} - 4x^{2} + 5x - 2$. If $f(x)$ is divided by $x - 1$, the remainder is $r_1$. If $f(x)$ is divided by $x - 2$, the remainder is $r_2$. What is $r_1 + r_2$?",
+      "options": [
+        "$-1$",
+        "$0$",
+        "$1$",
+        "$2$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PD",
+      "question_text": "Which synthetic division setup shows the correct first step for $\\frac{x^{3} - 2x^{2} + 5x - 6}{x + 2}$?",
+      "options": [
+        "$-2 | 1 -2 5 -6$",
+        "$2 | 1 -2 5 -6$",
+        "$-2 | 1 2 5 6$",
+        "$2 | 1 2 5 6$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PD",
+      "question_text": "If $P(x) = x^{3} + \\text{kx}^{2} - 9x - 18$ has $x + 3$ as a factor, find the value of $k$.",
+      "options": [
+        "$-2$",
+        "$0$",
+        "$2$",
+        "$4$"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PD",
+      "question_text": "The floor area of a rectangular room is $x^{2} + 7x + 10$ square meters. If the length is $x + 5$ meters, what is the width?",
+      "options": [
+        "$x + 2$",
+        "$x - 2$",
+        "$x + 3$",
+        "$x - 3$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PD",
+      "question_text": "When $P(x) = 3x^{3} - 4x^{2} + 2x - 1$ is divided by $x - 1$, find the remainder.",
+      "options": [
+        "$0$",
+        "$1$",
+        "$2$",
+        "$3$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
     }
   ],
   "PO": [
@@ -3666,6 +4230,30 @@
         "$4x + 1$",
         "$2x - 1$",
         "$2x + 3$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PO",
+      "question_text": "A student is asked to subtract $(4x^{2} - 3x + 5)$ from $(9x^{2} + 2x - 8)$. The student writes the following steps:\nStep 1: $(9x^{2} + 2x - 8) + (-4x^{2} + 3x - 5)$\nStep 2: $(9x^{2} - 4x^{2}) + (2x + 3x) + (-8 - 5)$\nStep 3: $5x^{2} + 5x - 3$\nWhich step contains the first error?",
+      "options": [
+        "Step 1",
+        "Step 2",
+        "Step 3",
+        "No error"
+      ],
+      "correct_option_index": 2,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "PO",
+      "question_text": "A quadrilateral park has four sides with lengths $(2x + 5)$, $(3x - 2)$, $(4x + 1)$, and $(x + 4)$. A fence is built around it, but a gate of length $(x + 6)$ is removed from the total perimeter. What is the final length of the fence?",
+      "options": [
+        "$9x + 2$",
+        "$9x + 4$",
+        "$9x + 8$",
+        "$10x + 8$"
       ],
       "correct_option_index": 0,
       "difficulty": "challenge"

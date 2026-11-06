@@ -2200,5 +2200,3487 @@
       }
     },
     "difficulty": "challenge"
+  },
+  {
+    "id": "20fb429f-89e7-5e64-94d1-139f48658154",
+    "node_id": "SLE",
+    "problem_expr": "x + y = 9, 10*y + x = (10*x + y) + 27",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Define the digit sum equation.",
+        "blank_expression": "? $= 9$",
+        "correct_value": "x + y",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the equation for the reversed digits condition.",
+        "blank_expression": "? $= 10x + y + 27$",
+        "correct_value": "10y + x",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the second equation to express $y$ in terms of $x$.",
+        "blank_expression": "$9y - 9x =$ ?",
+        "correct_value": "27",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Divide by 9 to get the relation between digits.",
+        "blank_expression": "$y - x =$ ?",
+        "correct_value": "3",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Solve for $x$ using the system.",
+        "blank_expression": "$2x =$ ?",
+        "correct_value": "6",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 5,
+        "step_type": "algebra",
+        "instruction": "Find the value of $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "3",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 6,
+        "step_type": "algebra",
+        "instruction": "Find the value of $y$.",
+        "blank_expression": "$y =$ ?",
+        "correct_value": "6",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 7,
+        "step_type": "algebra",
+        "instruction": "Calculate the original number $10x + y$.",
+        "blank_expression": "$10x + y =$ ?",
+        "correct_value": "36",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      }
+    ],
+    "word_problem_text": "At a bookstore, a clerk codes prices using a two-digit number. The sum of the digits is 9. If the digits are reversed, the new number is 27 more than the original number. Let $x$ be the tens digit and $y$ be the units digit. Find the original two-digit number, expressed as $10x + y$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x - y",
+          "xy",
+          "\\frac{x}{y}"
+        ],
+        "hint": "The problem states the sum of the digits $x$ and $y$ is 9."
+      },
+      "1": {
+        "distractors": [
+          "10x + y",
+          "10y - x",
+          "x + y"
+        ],
+        "hint": "When reversing the digits of $10x + y$, the new tens digit becomes $y$ and the new units digit becomes $x$."
+      },
+      "2": {
+        "distractors": [
+          "0",
+          "18",
+          "36"
+        ],
+        "hint": "Subtract $10x$ and $y$ from both sides of the equation $10y + x = 10x + y + 27$."
+      },
+      "3": {
+        "distractors": [
+          "2",
+          "4",
+          "243"
+        ],
+        "hint": "Divide every term in the equation $9y - 9x = 27$ by 9."
+      },
+      "4": {
+        "distractors": [
+          "12",
+          "9",
+          "0"
+        ],
+        "hint": "Add the equations $(x + y = 9)$ and $(y - x = 3)$ together to eliminate $y$ or rearrange to solve for $2x$."
+      },
+      "5": {
+        "distractors": [
+          "2",
+          "4",
+          "9"
+        ],
+        "hint": "Since $2x = 6$, divide both sides by 2."
+      },
+      "6": {
+        "distractors": [
+          "3",
+          "9",
+          "12"
+        ],
+        "hint": "Substitute $x = 3$ back into the first equation $x + y = 9$ and solve for $y$."
+      },
+      "7": {
+        "distractors": [
+          "63",
+          "39",
+          "33"
+        ],
+        "hint": "Combine the tens digit $x=3$ and units digit $y=6$ into the form $10x + y$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "9349d380-9a41-5c5c-9c25-11f22bffe513",
+    "node_id": "L2V",
+    "problem_expr": "3*x - y = -50, k*x - y = -20",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Rewrite the equation for Station A, $3x - y =$ -50, into the slope-intercept form $y =$ mx $+ b$.",
+        "blank_expression": "$y =$ ?",
+        "correct_value": "3x + 50",
+        "operation_description": "Add $y$ and 50 to both sides.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Identify the slope $m$ of Station A.",
+        "blank_expression": "$m =$ ?",
+        "correct_value": "3",
+        "operation_description": "Extract the coefficient of $x$ from the slope-intercept form.",
+        "mapped_node_id": "L2V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "variable_identification",
+        "instruction": "Rewrite the equation for Station B, $kx - y =$ -20, into the slope-intercept form $y =$ mx $+ b$.",
+        "blank_expression": "$y =$ ?",
+        "correct_value": "kx + 20",
+        "operation_description": "Add $y$ and 20 to both sides.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Set the slope of Station B equal to the slope of Station A for the lines to be parallel.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "3",
+        "operation_description": "Equate the coefficients of $x$.",
+        "mapped_node_id": "L2V"
+      }
+    ],
+    "word_problem_text": "A water refill station charges customers based on a linear model. Station A's pricing follows the equation $3x - y =$ -50. Station B offers a different pricing scheme represented by the equation $kx - y =$ -20. If the lines representing these two pricing models must be parallel to have the same rate of change, what value must $k$ have?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "3x - 50",
+          "-3x - 50",
+          "3x + 20"
+        ],
+        "hint": "To isolate $y$, add $y$ to both sides and add $50$ to both sides of the equation $3x - y = -50$."
+      },
+      "1": {
+        "distractors": [
+          "-3",
+          "50",
+          "3x"
+        ],
+        "hint": "The slope $m$ is the coefficient of the $x$ variable when the equation is written in the form $y = \\text{mx} + b$."
+      },
+      "2": {
+        "distractors": [
+          "kx - 20",
+          "-kx + 20",
+          "kx - 50"
+        ],
+        "hint": "Rearrange the equation $\\text{kx} - y = -20$ to solve for $y$ by moving $y$ to the right side and the constant to the left."
+      },
+      "3": {
+        "distractors": [
+          "-3",
+          "20",
+          "-20"
+        ],
+        "hint": "Parallel lines have the same slope. Set the coefficient of $x$ from the second equation equal to the slope found in the first equation."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "5160280a-3d89-53e2-b8fa-ea0ee7e88588",
+    "node_id": "L2V",
+    "problem_expr": "15*x + 40 = 160",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the total fare equation based on the problem.",
+        "blank_expression": "$15x + 40 =$ ?",
+        "correct_value": "160",
+        "operation_description": "Substitution of the total fare into the equation.",
+        "mapped_node_id": "L2V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Subtract the flag-down rate of 40 from both sides of the equation.",
+        "blank_expression": "$15x =$ ?",
+        "correct_value": "120",
+        "operation_description": "Additive Inverse Property",
+        "mapped_node_id": "L2V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by the rate per kilometer, which is 15.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "8",
+        "operation_description": "Multiplication Property of Equality",
+        "mapped_node_id": "L2V"
+      }
+    ],
+    "word_problem_text": "A taxi service in the city charges a fixed flag-down rate of 40 pesos and an additional 15 pesos for every kilometer traveled. The total fare $y$ (in pesos) for a distance of $x$ kilometers is given by the linear equation $y = 15x + 40$. If a passenger pays a total of 160 pesos, find the distance $x$ in kilometers that the passenger traveled.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "40",
+          "15",
+          "120"
+        ],
+        "hint": "Identify the total fare equation based on the problem."
+      },
+      "1": {
+        "distractors": [
+          "200",
+          "160",
+          "115"
+        ],
+        "hint": "To isolate the term with $x$, use the additive inverse of $40$ by subtracting it from both sides of the equation: $160 - 40$."
+      },
+      "2": {
+        "distractors": [
+          "1800",
+          "105",
+          "7"
+        ],
+        "hint": "To solve for $x$, isolate the variable by dividing both sides of $15x = 120$ by the coefficient $15$."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "277ee563-7b78-5e5a-b572-f2ec73379feb",
+    "node_id": "L1V",
+    "problem_expr": "12*t + 8*t = 150",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $t$ be the number of hours they work together. Write the combined rate equation for packing 150 bags.",
+        "blank_expression": "? $= 150$",
+        "correct_value": "12t + 8t",
+        "operation_description": "Combine the rates of Ana and Ben multiplied by time.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Simplify the expression by adding the rates.",
+        "blank_expression": "? $\\cdot t = 150$",
+        "correct_value": "20",
+        "operation_description": "Add 12 and 8.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 20 to solve for $t$.",
+        "blank_expression": "$t =$ ?",
+        "correct_value": "\\frac{150}{20}",
+        "operation_description": "Isolate $t$.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Calculate the final value of $t$.",
+        "blank_expression": "$t =$ ?",
+        "correct_value": "7.5",
+        "operation_description": "Perform division.",
+        "mapped_node_id": "L1V"
+      }
+    ],
+    "word_problem_text": "At a sari-sari store, Ana and Ben are packing snack bags for a school fair. Ana can pack 12 bags per hour, while Ben can pack 8 bags per hour. If they work together for $t$ hours to pack a total of 150 bags, how many hours will it take them to finish the job?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "12t - 8t",
+          "12 + 8 + t",
+          "12t \\cdot 8t"
+        ],
+        "hint": "Since Ana and Ben are working together, you need to add their individual rates of $12$ and $8$ and multiply the sum by the time $t$."
+      },
+      "1": {
+        "distractors": [
+          "4",
+          "96",
+          "150"
+        ],
+        "hint": "To simplify the expression $12t + 8t$, add the coefficients of $t$ together."
+      },
+      "2": {
+        "distractors": [
+          "150 - 20",
+          "150 \\cdot 20",
+          "\\frac{20}{150}"
+        ],
+        "hint": "To isolate $t$ in the equation $20t = 150$, you must perform the inverse operation of multiplication on both sides."
+      },
+      "3": {
+        "distractors": [
+          "7.0",
+          "8.5",
+          "75"
+        ],
+        "hint": "Divide $150$ by $20$ to find the value of $t$. You can simplify the fraction by dividing both numerator and denominator by $10$ first."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "e6423a3d-85e2-50ad-8a72-e6221d22b2b0",
+    "node_id": "L1V",
+    "problem_expr": "2*(6 + (6 + k)) = 30",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Define the length of the garden in terms of $k$.",
+        "blank_expression": "$\\text{length} =$ ?",
+        "correct_value": "6 + k",
+        "operation_description": "Identify the expression for length based on width 6 and parameter $k$.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the perimeter formula using the given width and the expression for length.",
+        "blank_expression": "$2(6 + 6 + k) =$ ?",
+        "correct_value": "30",
+        "operation_description": "Set up the equation for perimeter.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides of the equation by 2.",
+        "blank_expression": "$12 + k =$ ?",
+        "correct_value": "15",
+        "operation_description": "Simplify the equation by dividing by 2.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract 12 from both sides to find $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "3",
+        "operation_description": "Isolate the variable $k$.",
+        "mapped_node_id": "L1V"
+      }
+    ],
+    "word_problem_text": "Mang Juan is building a rectangular garden. He knows the width of the garden is 6 meters. He wants the total perimeter of the fence to be exactly 30 meters. The length of the garden is defined as $6 + k$ meters, where $k$ is an additional constant length. Find the value of $k$ that satisfies these conditions.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "6k",
+          "12+k",
+          "k-6"
+        ],
+        "hint": "Define the length of the garden in terms of $k$."
+      },
+      "1": {
+        "distractors": [
+          "15",
+          "60",
+          "\\frac{30}{2}"
+        ],
+        "hint": "The perimeter of a rectangle is $2 \\times (\\text{width} + \\text{length})$. Since the perimeter is 30, set the expression equal to this value."
+      },
+      "2": {
+        "distractors": [
+          "18",
+          "6",
+          "30"
+        ],
+        "hint": "Divide the perimeter $30$ by $2$ to isolate the sum of the width and length, which is $6 + (6 + k)$."
+      },
+      "3": {
+        "distractors": [
+          "27",
+          "1",
+          "9"
+        ],
+        "hint": "To isolate $k$ in the equation $12 + k = 15$, subtract the constant $12$ from both sides of the equation."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "301cb124-edde-561a-a747-5b1216c93c20",
+    "node_id": "L1V",
+    "problem_expr": "5*(20-x) + 10*x = 160",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the number of 10-peso coins. Express the number of 5-peso coins in terms of $x$.",
+        "blank_expression": "$\\text{Number of} 5-\\text{peso coins} =$ ?",
+        "correct_value": "20-x",
+        "operation_description": "Translate the total count constraint.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the equation for the total value of the coins.",
+        "blank_expression": "? $= 160$",
+        "correct_value": "5(20-x) + 10x",
+        "operation_description": "Form the linear equation.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the expression on the left side of the equation.",
+        "blank_expression": "? $+ 5x = 160$",
+        "correct_value": "100",
+        "operation_description": "Use the distributive property to multiply 5 by $(20-x)$.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract 100 from both sides of the equation.",
+        "blank_expression": "$5x =$ ?",
+        "correct_value": "60",
+        "operation_description": "Isolate the variable term.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 5 to find the number of 10-peso coins.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "12",
+        "operation_description": "Solve for $x$.",
+        "mapped_node_id": "L1V"
+      }
+    ],
+    "word_problem_text": "At the school canteen, a student has 20 coins consisting only of 5-peso and 10-peso coins. If the total value of these coins is 160 pesos, how many 10-peso coins does the student have?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "20+x",
+          "x-20",
+          "\\frac{20}{x}"
+        ],
+        "hint": "The total number of coins is 20. If $x$ coins are 10-peso coins, the remaining coins are the total minus $x$."
+      },
+      "1": {
+        "distractors": [
+          "5x + 10(20-x)",
+          "5(20+x) + 10x",
+          "5(20-x) - 10x"
+        ],
+        "hint": "The total value is the sum of the value of 5-peso coins and 10-peso coins, which is $5(20-x) + 10(x) = 160$."
+      },
+      "2": {
+        "distractors": [
+          "15",
+          "100-x",
+          "25"
+        ],
+        "hint": "Distribute the 5 across the parentheses: $5 \\times 20$ and $5 \\times (-x)$."
+      },
+      "3": {
+        "distractors": [
+          "260",
+          "60+x",
+          "10"
+        ],
+        "hint": "Subtract 100 from both sides of the equation $100 + 5x = 160$ to isolate the term with $x$."
+      },
+      "4": {
+        "distractors": [
+          "300",
+          "55",
+          "65"
+        ],
+        "hint": "Divide the total remaining value by the coefficient of $x$, which is 5, to find the number of 10-peso coins."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "d17a72f5-5c62-509a-8341-7c3b35956f28",
+    "node_id": "L1V",
+    "problem_expr": "x - 12 + 2*(x - 12) = 48",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the initial number of snacks. Write the expression for snacks left after selling 12.",
+        "blank_expression": "$\\text{Remaining} =$ ?",
+        "correct_value": "x - 12",
+        "operation_description": "Define the first state of the variable.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "The total at the end is the remainder plus twice the remainder. Write the equation.",
+        "blank_expression": "? $= 48$",
+        "correct_value": "3(x - 12)",
+        "operation_description": "Combine the original remainder and the added restock amount.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 3 to isolate the remainder.",
+        "blank_expression": "$x - 12 =$ ?",
+        "correct_value": "16",
+        "operation_description": "Perform division on the equality.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Add 12 to both sides to solve for $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "28",
+        "operation_description": "Perform addition to isolate the variable.",
+        "mapped_node_id": "L1V"
+      }
+    ],
+    "word_problem_text": "Aling Nena runs a small sari-sari store. She started her day with a certain number of snacks, $x$. In the morning, she sold 12 snacks. In the afternoon, she decided to restock her shelf by adding twice the number of snacks she had left after the morning sales. If she ended the day with 48 snacks, how many snacks did she start with?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x + 12",
+          "12 - x",
+          "x"
+        ],
+        "hint": "Since Aling Nena started with $x$ snacks and sold 12, think about the expression representing the amount removed from the original total."
+      },
+      "1": {
+        "distractors": [
+          "x - 12",
+          "2(x - 12)",
+          "4(x - 12)"
+        ],
+        "hint": "The total is the sum of the remaining snacks $(x - 12)$ and the restock amount, which is twice the remainder, giving a total of $1 + 2 = 3$ times the remainder."
+      },
+      "2": {
+        "distractors": [
+          "45",
+          "48",
+          "144"
+        ],
+        "hint": "To solve $3(x - 12) = 48$, divide 48 by 3 to find the value of the expression inside the parentheses."
+      },
+      "3": {
+        "distractors": [
+          "4",
+          "20",
+          "40"
+        ],
+        "hint": "You now have the equation $x - 12 = 16$. Add 12 to both sides to isolate $x$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "ed60fbea-8ddf-52a7-8bfa-4f2d294a1bbd",
+    "node_id": "L1V",
+    "problem_expr": "k*4 + 3 = 19",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Substitute the given solution $x = 4$ into the equation $kx + 3 = 19$.",
+        "blank_expression": "? $+ 3 = 19$",
+        "correct_value": "k \\cdot 4",
+        "operation_description": "Substitute value",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Subtract 3 from both sides of the equation.",
+        "blank_expression": "$4k =$ ?",
+        "correct_value": "16",
+        "operation_description": "Subtracting constants",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 4 to solve for $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "4",
+        "operation_description": "Division property of equality",
+        "mapped_node_id": "L1V"
+      }
+    ],
+    "word_problem_text": "At the school canteen, the total cost for a student buying $x$ snack items plus a fixed container fee of $3$ pesos is given by the equation $kx + 3 = 19$, where $k$ is the price of each snack item in pesos. If a student bought $4$ items such that $x = 4$ is the solution to this equation, find the parameter $k$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "k \\cdot 3",
+          "k + 4",
+          "19 \\cdot 4"
+        ],
+        "hint": "Replace every instance of the variable $x$ in the equation $kx + 3 = 19$ with its given value, $4$."
+      },
+      "1": {
+        "distractors": [
+          "22",
+          "19",
+          "-16"
+        ],
+        "hint": "To isolate the term with $k$, perform the inverse operation of adding $3$ on both sides of the equation: $19 - 3$."
+      },
+      "2": {
+        "distractors": [
+          "12",
+          "64",
+          "0"
+        ],
+        "hint": "Since $k$ is multiplied by $4$ in the expression $4k = 16$, divide both sides by $4$ to find the value of $k$."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "bd394d3e-0e79-5231-9231-db8f6e7d2c33",
+    "node_id": "AE",
+    "problem_expr": "500 + 150*9 - (500 + 150*4)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Define the expression for the total cost for $g$ games.",
+        "blank_expression": "$\\text{Cost} =$ ?",
+        "correct_value": "500 + 150g",
+        "operation_description": "Define the algebraic expression based on the fixed fee and rate.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Evaluate the expression for $g = 9$.",
+        "blank_expression": "$\\text{Cost}_9 = 500 + 150 \\cdot$ ?",
+        "correct_value": "9",
+        "operation_description": "Substitute 9 into the expression.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the total cost for 9 games.",
+        "blank_expression": "$\\text{Cost}_9 =$ ?",
+        "correct_value": "1850",
+        "operation_description": "Perform multiplication then addition.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Evaluate the expression for $g = 4$.",
+        "blank_expression": "$\\text{Cost}_4 = 500 + 150 \\cdot$ ?",
+        "correct_value": "4",
+        "operation_description": "Substitute 4 into the expression.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Simplify the total cost for 4 games.",
+        "blank_expression": "$\\text{Cost}_4 =$ ?",
+        "correct_value": "1100",
+        "operation_description": "Perform multiplication then addition.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 5,
+        "step_type": "algebra",
+        "instruction": "Calculate the difference between the two costs.",
+        "blank_expression": "$\\text{Difference} = 1850 - 1100 =$ ?",
+        "correct_value": "750",
+        "operation_description": "Subtract the lower cost from the higher cost.",
+        "mapped_node_id": "AE"
+      }
+    ],
+    "word_problem_text": "A local sports club charges a base membership fee of 500 pesos plus 150 pesos for every game a member plays. Let $g$ represent the number of games played. Calculate the difference in the total cost between a member who played 4 games and a member who played 9 games.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "500g + 150",
+          "650g",
+          "500 - 150g"
+        ],
+        "hint": "The total cost consists of a fixed base fee of $500$ and a variable part that depends on the number of games $g$ multiplied by the rate of $150$ per game."
+      },
+      "1": {
+        "distractors": [
+          "4",
+          "500",
+          "150"
+        ],
+        "hint": "Identify the number of games played by the first member mentioned in the problem description."
+      },
+      "2": {
+        "distractors": [
+          "5850",
+          "1350",
+          "2000"
+        ],
+        "hint": "Follow the order of operations: multiply $150 \\times 9$ first, then add the base fee of $500$."
+      },
+      "3": {
+        "distractors": [
+          "9",
+          "500",
+          "150"
+        ],
+        "hint": "Identify the number of games played by the second member mentioned in the problem description."
+      },
+      "4": {
+        "distractors": [
+          "2600",
+          "600",
+          "1700"
+        ],
+        "hint": "Follow the order of operations: multiply $150 \\times 4$ first, then add the base fee of $500$."
+      },
+      "5": {
+        "distractors": [
+          "2950",
+          "700",
+          "800"
+        ],
+        "hint": "Find the difference by subtracting the total cost of the member who played $4$ games from the total cost of the member who played $9$ games."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "1c43ebcb-e844-5b05-8367-aa17e3dfa766",
+    "node_id": "AE",
+    "problem_expr": "15*6 + 20, 20*6",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the number of snacks. Write the expression for the total cost of Plan A.",
+        "blank_expression": "$\\text{Plan} A =$ ?",
+        "correct_value": "15x + 20",
+        "operation_description": "Translate the phrase into an algebraic expression.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the expression for the total cost of Plan B.",
+        "blank_expression": "$\\text{Plan} B =$ ?",
+        "correct_value": "20x",
+        "operation_description": "Translate the phrase into an algebraic expression.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Evaluate Plan A for $x = 6$.",
+        "blank_expression": "$15(6) + 20 =$ ?",
+        "correct_value": "110",
+        "operation_description": "Substitute and simplify the numerical expression.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Evaluate Plan B for $x = 6$.",
+        "blank_expression": "$20(6) =$ ?",
+        "correct_value": "120",
+        "operation_description": "Substitute and simplify the numerical expression.",
+        "mapped_node_id": "AE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Compare the two results and state the lower cost.",
+        "blank_expression": "$\\text{Lower cost} =$ ?",
+        "correct_value": "110",
+        "operation_description": "Compare the two evaluated values.",
+        "mapped_node_id": "AE"
+      }
+    ],
+    "word_problem_text": "In the school canteen, there are two ways to pay for snacks for a class party. Plan A charges 15 pesos per snack plus a one-time 20 peso service fee. Plan B charges 20 pesos per snack with no service fee. If you need to buy 6 snacks, calculate the total cost for both plans and determine the lower total cost.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "15x - 20",
+          "20x + 15",
+          "35x"
+        ],
+        "hint": "Identify the variable amount that changes based on the number of snacks $x$ and the constant service fee that is added to the total."
+      },
+      "1": {
+        "distractors": [
+          "20+x",
+          "\\frac{20}{x}",
+          "20x + 20"
+        ],
+        "hint": "Since Plan B has no service fee, the total cost depends only on the unit price of the snack multiplied by the number of snacks $x$."
+      },
+      "2": {
+        "distractors": [
+          "105",
+          "115",
+          "210"
+        ],
+        "hint": "Follow the order of operations by performing the multiplication $15 \\times 6$ first, then adding the $20$ pesos."
+      },
+      "3": {
+        "distractors": [
+          "26",
+          "100",
+          "140"
+        ],
+        "hint": "Multiply the unit cost per snack by the quantity $6$ to find the total for Plan B."
+      },
+      "4": {
+        "distractors": [
+          "120",
+          "230",
+          "10"
+        ],
+        "hint": "Compare the two results and state the lower cost."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "d1cd5d89-eed8-5d5c-8a95-54302196c793",
+    "node_id": "RPP",
+    "problem_expr": "500 * (1 - 0.20) * (1 + 0.20)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Define the discount rate as a decimal and calculate the multiplier for the discounted price.",
+        "blank_expression": "$1 - 0.20 =$ ?",
+        "correct_value": "0.8",
+        "operation_description": "Subtract the discount percentage from 1 to find the remaining fraction of the price.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the price of the toy after the 20% discount.",
+        "blank_expression": "$500 \\cdot 0.8 =$ ?",
+        "correct_value": "400",
+        "operation_description": "Multiply the original price by the discount multiplier.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "variable_identification",
+        "instruction": "Define the markup rate as a decimal and calculate the multiplier for the final price increase.",
+        "blank_expression": "$1 + 0.20 =$ ?",
+        "correct_value": "1.2",
+        "operation_description": "Add the markup percentage to 1 to find the growth multiplier.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Calculate the final price by applying the markup to the discounted price.",
+        "blank_expression": "$400 \\cdot 1.2 =$ ?",
+        "correct_value": "480",
+        "operation_description": "Multiply the intermediate price by the markup multiplier.",
+        "mapped_node_id": "RPP"
+      }
+    ],
+    "word_problem_text": "At the school fair, a toy is sold for 500 pesos. To attract more buyers, the organizers applied a 20% discount on the item. After the event, they decided to return the remaining items to the store and marked up the discounted price by 20% to account for handling fees. Calculate the final price of the toy after the discount and the subsequent markup.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "0.2",
+          "1.2",
+          "0.82"
+        ],
+        "hint": "To find the remaining fraction after a discount, subtract the percentage expressed as a decimal from 1, or $1 - 0.20$."
+      },
+      "1": {
+        "distractors": [
+          "500",
+          "100",
+          "420"
+        ],
+        "hint": "Multiply the original price of $500$ by the discount multiplier calculated in the previous step, which is $0.8$."
+      },
+      "2": {
+        "distractors": [
+          "0.2",
+          "0.8",
+          "1.02"
+        ],
+        "hint": "When applying a markup, you increase the base value, so you add the percentage as a decimal to $1$."
+      },
+      "3": {
+        "distractors": [
+          "400",
+          "440",
+          "520"
+        ],
+        "hint": "Multiply the discounted price of $400$ by the markup multiplier, $1.2$, to find the final adjusted price."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "31b33fe2-238b-56a1-8e7f-fdd5003463c1",
+    "node_id": "RPP",
+    "problem_expr": "15*x = 30 + 12*x",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the number of glasses of juice. Write the total cost expression for Plan A.",
+        "blank_expression": "$\\text{Total cost} A =$ ?",
+        "correct_value": "15x",
+        "operation_description": "Define cost of Plan A as a function of $x$.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the total cost expression for Plan B.",
+        "blank_expression": "$\\text{Total cost} B =$ ?",
+        "correct_value": "30 + 12x",
+        "operation_description": "Define cost of Plan B as a function of $x$.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Set the two expressions equal to each other to find the break-even point.",
+        "blank_expression": "? $= 30 + 12x$",
+        "correct_value": "15x",
+        "operation_description": "Equate Plan A and Plan B costs.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract $12x$ from both sides of the equation.",
+        "blank_expression": "? $= 30$",
+        "correct_value": "3x",
+        "operation_description": "Isolate the variable term.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 3 to solve for $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "10",
+        "operation_description": "Solve for the number of glasses.",
+        "mapped_node_id": "RPP"
+      }
+    ],
+    "word_problem_text": "A school canteen offers two pricing plans for bulk orders of juice. Plan A charges 15 pesos per glass. Plan B charges a flat service fee of 30 pesos plus 12 pesos per glass. At how many glasses of juice will the total cost for Plan A be equal to the total cost for Plan B?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "15+x",
+          "15",
+          "\\frac{x}{15}"
+        ],
+        "hint": "Since each glass costs 15 pesos, the total cost is the product of the unit price and the number of glasses $x$."
+      },
+      "1": {
+        "distractors": [
+          "30x + 12",
+          "42x",
+          "30 - 12x"
+        ],
+        "hint": "The total cost includes a fixed fee of 30 pesos plus the variable cost of 12 pesos for each glass $x$."
+      },
+      "2": {
+        "distractors": [
+          "12x",
+          "30x",
+          "15+x"
+        ],
+        "hint": "Set the two expressions equal to each other to find the break-even point."
+      },
+      "3": {
+        "distractors": [
+          "27x",
+          "15x",
+          "30+x"
+        ],
+        "hint": "Move the variable terms to one side by subtracting $12x$ from both sides of the equation $15x = 30 + 12x$."
+      },
+      "4": {
+        "distractors": [
+          "90",
+          "15",
+          "2"
+        ],
+        "hint": "After simplifying the equation to $3x = 30$, divide both sides by the coefficient of $x$, which is 3."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "7e42859a-4585-5304-abcf-728bbf23104b",
+    "node_id": "RPP",
+    "problem_expr": "400*x + 600*x = 2500",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the number of hours they work together. Write the expression for the total boxes packed by both employees.",
+        "blank_expression": "? $= 2500$",
+        "correct_value": "400x + 600x",
+        "operation_description": "Define the sum of work rates multiplied by time.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Simplify the sum of the rates.",
+        "blank_expression": "? $\\cdot x = 2500$",
+        "correct_value": "1000",
+        "operation_description": "Combine like terms 400 and 600.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by the combined rate to solve for $x$.",
+        "blank_expression": "$x = 2500 /$ ?",
+        "correct_value": "1000",
+        "operation_description": "Isolate the variable $x$.",
+        "mapped_node_id": "RPP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Calculate the final value of $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "2.5",
+        "operation_description": "Perform the division.",
+        "mapped_node_id": "RPP"
+      }
+    ],
+    "word_problem_text": "In a local sari-sari store warehouse, two employees are tasked to pack goods. Employee A can pack 400 boxes in one hour, while Employee B can pack 600 boxes in one hour. If they work together at these constant rates, how many hours will it take them to fill a total of 2500 boxes?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "400x - 600x",
+          "400 + 600x",
+          "400x + 600"
+        ],
+        "hint": "Since both employees are packing boxes simultaneously, you need to add their individual rates of $400$ and $600$ and multiply the total by the number of hours $x$."
+      },
+      "1": {
+        "distractors": [
+          "200",
+          "240000",
+          "100"
+        ],
+        "hint": "Combine the coefficients of $x$ by adding $400$ and $600$ together to simplify the expression."
+      },
+      "2": {
+        "distractors": [
+          "2500 \\cdot 1000",
+          "2500 - 1000",
+          "\\frac{1000}{2500}"
+        ],
+        "hint": "To isolate $x$, perform the inverse operation of multiplication on both sides of the equation by dividing the total boxes by the combined hourly rate."
+      },
+      "3": {
+        "distractors": [
+          "2.05",
+          "25",
+          "0.25"
+        ],
+        "hint": "Divide $2500$ by $1000$ by moving the decimal point three places to the left or by cancelling out the common zeros."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "78fa3f05-3498-509b-848b-ed45c2cd6fca",
+    "node_id": "RPP",
+    "problem_expr": "x * (1 - 0.20) * (1 + 0.12) = 336",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the original price of the snack combo. Write the equation relating the original price, the 20% discount factor, and the 12% tax factor to the final total of 336 pesos.",
+        "blank_expression": "? $= 336$",
+        "correct_value": "x \\cdot 0.80 \\cdot 1.12",
+        "operation_description": "Define equation with discount and tax",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Multiply the decimal multipliers 0.80 and 1.12 together to simplify the left side coefficient.",
+        "blank_expression": "$x \\cdot$ ? $= 336$",
+        "correct_value": "0.896",
+        "operation_description": "Combine multipliers",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides of the equation by 0.896 to isolate $x$.",
+        "blank_expression": "$x =$ ? $/ 0.896$",
+        "correct_value": "336",
+        "operation_description": "Isolate variable term",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Compute the final numerical value of $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "375",
+        "operation_description": "Evaluate final value",
+        "mapped_node_id": "PE"
+      }
+    ],
+    "word_problem_text": "At the school canteen, a special snack combo is sold with a $20\\%$ discount applied to its original price $x$, followed by a $12\\%$ value-added tax on the discounted price. If Teacher Ana paid a final total amount of $336$ pesos at the counter, what was the original price of the snack combo?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x \\cdot 1.20 \\cdot 0.88",
+          "x(1 + 0.20)(1 - 0.12)",
+          "x \\cdot 0.20 \\cdot 0.12"
+        ],
+        "hint": "Remember that a $20\\%$ discount means you multiply by $1 - 0.20$, and a $12\\%$ tax means you multiply by $1 + 0.12$."
+      },
+      "1": {
+        "distractors": [
+          "1.92",
+          "0.68",
+          "0.92"
+        ],
+        "hint": "Multiply the two decimal factors carefully: $0.80 \\times 1.12$."
+      },
+      "2": {
+        "distractors": [
+          "336 \\cdot 0.896",
+          "336 + 0.896",
+          "336 - 0.896"
+        ],
+        "hint": "To undo multiplication by $0.896$, perform the inverse operation on both sides of the equation."
+      },
+      "3": {
+        "distractors": [
+          "301.06",
+          "397.44",
+          "37.5"
+        ],
+        "hint": "Divide $336$ by $0.896$ by moving the decimal places accordingly."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "09ce7e18-b272-59c7-b595-9ddf4b4e5a3d",
+    "node_id": "FD",
+    "problem_expr": "(40 - (2/5)*40) / 3",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let R be the total weight of the rice in kilograms. Write the amount used for the morning shift.",
+        "blank_expression": "$\\text{Used} =$ ?",
+        "correct_value": "(\\frac{2}{5}) \\cdot 40",
+        "operation_description": "multiplication",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the amount of rice used.",
+        "blank_expression": "$\\text{Used} =$ ?",
+        "correct_value": "16",
+        "operation_description": "multiplication",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Subtract the used rice from the total to find the remaining amount.",
+        "blank_expression": "$\\text{Remaining} = 40 -$ ?",
+        "correct_value": "16",
+        "operation_description": "subtraction",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Calculate the remaining rice.",
+        "blank_expression": "$\\text{Remaining} =$ ?",
+        "correct_value": "24",
+        "operation_description": "subtraction",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Divide the remaining rice by the 3 dispensers to find the amount per dispenser.",
+        "blank_expression": "$\\text{Amount} =$ ? $/ 3$",
+        "correct_value": "24",
+        "operation_description": "division",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 5,
+        "step_type": "algebra",
+        "instruction": "Calculate the final amount per dispenser.",
+        "blank_expression": "$\\text{Amount} =$ ?",
+        "correct_value": "8",
+        "operation_description": "division",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "A school canteen has a sack containing 40 kg of rice. The canteen cook uses $\\frac{2}{5}$ of the total rice to prepare meals for the morning shift. The remaining rice is then distributed equally into 3 large dispensers. How many kilograms of rice are put into each dispenser?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(2+5) \\cdot 40",
+          "\\frac{40}{\\frac{2}{5}}",
+          "(\\frac{5}{2}) \\cdot 40"
+        ],
+        "hint": "To find a fraction of a total quantity, multiply the fraction $\\frac{2}{5}$ by the total weight $40$."
+      },
+      "1": {
+        "distractors": [
+          "20",
+          "10",
+          "42"
+        ],
+        "hint": "Multiply the numerator $2$ by $40$ then divide the result by the denominator $5$."
+      },
+      "2": {
+        "distractors": [
+          "40 + 16",
+          "40 \\cdot 16",
+          "\\frac{40}{16}"
+        ],
+        "hint": "The amount remaining is found by subtracting the amount used from the initial $40$ kg."
+      },
+      "3": {
+        "distractors": [
+          "56",
+          "640",
+          "2.5"
+        ],
+        "hint": "Subtract the result from the previous step, $16$, from the total weight $40$."
+      },
+      "4": {
+        "distractors": [
+          "\\frac{40}{3}",
+          "\\frac{16}{3}",
+          "24 \\cdot 3"
+        ],
+        "hint": "You need to distribute the remaining $24$ kg equally into $3$ dispensers."
+      },
+      "5": {
+        "distractors": [
+          "7",
+          "9",
+          "72"
+        ],
+        "hint": "Divide the remaining rice, $24$ kg, by the number of dispensers, which is $3$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "544c8f6b-da07-5a53-b7c2-fafd1cbe7ed3",
+    "node_id": "FD",
+    "problem_expr": "800 - (3/8 * 800) - (0.2 * (800 - (3/8 * 800)))",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the amount spent on game tickets. Calculate $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "300",
+        "operation_description": "Calculate $\\frac{3}{8}$ of 800",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Find the remaining money after buying game tickets.",
+        "blank_expression": "$800 - 300 =$ ?",
+        "correct_value": "500",
+        "operation_description": "Subtract the ticket cost from the total",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Calculate the amount spent on snacks, which is 0.2 of the remaining 500 pesos.",
+        "blank_expression": "$0.2 \\cdot 500 =$ ?",
+        "correct_value": "100",
+        "operation_description": "Multiply 0.2 by the remaining balance",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract the snack cost from the previous balance to find the final amount left.",
+        "blank_expression": "$500 - 100 =$ ?",
+        "correct_value": "400",
+        "operation_description": "Final subtraction to find the remainder",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "At the school fair, Maria had a budget of 800 pesos. She spent $\\frac{3}{8}$ of her budget on game tickets. From the money she had left, she spent 0.2 of it on snacks. How many pesos does Maria have remaining?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "800",
+          "308",
+          "213"
+        ],
+        "hint": "To find the cost of tickets, multiply the total budget by the fraction $\\frac{3}{8}$."
+      },
+      "1": {
+        "distractors": [
+          "1100",
+          "800",
+          "300"
+        ],
+        "hint": "Subtract the cost of the game tickets from the initial budget of $800$ to find what remains."
+      },
+      "2": {
+        "distractors": [
+          "50",
+          "20",
+          "150"
+        ],
+        "hint": "Multiply the remaining balance of $500$ by the decimal $0.2$ to determine the snack expenses."
+      },
+      "3": {
+        "distractors": [
+          "600",
+          "500",
+          "300"
+        ],
+        "hint": "Take the balance remaining after the tickets were purchased and subtract the cost of the snacks calculated in the previous step."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "b4ab2a33-1042-5c37-85e2-81dbc9d01bbb",
+    "node_id": "FD",
+    "problem_expr": "1/4 + 1/6 = 1/t",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $t$ be the number of hours they need to finish the crate. Write the combined hourly rate as a sum of fractions.",
+        "blank_expression": "$\\frac{1}{4} + \\frac{1}{6} =$ ?",
+        "correct_value": "\\frac{1}{t}",
+        "operation_description": "Adding fractions with unlike denominators",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Find the sum of $\\frac{1}{4}$ and $\\frac{1}{6}$ by using a common denominator.",
+        "blank_expression": "? $= \\frac{1}{t}$",
+        "correct_value": "\\frac{5}{12}",
+        "operation_description": "Adding fractions",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "If $\\frac{5}{12}$ of the crate is packed per hour, take the reciprocal to find the total hours $t$.",
+        "blank_expression": "$t =$ ?",
+        "correct_value": "\\frac{12}{5}",
+        "operation_description": "Finding reciprocal of the rate",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "Aling Nena and Mang Jose are preparing crates of mangoes for the market. Aling Nena can pack $\\frac{1}{4}$ of a crate in one hour, while Mang Jose can pack $\\frac{1}{6}$ of a crate in one hour. If they work together at these constant rates, how many hours will it take them to pack exactly one whole crate of mangoes?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "\\frac{1}{10}",
+          "\\frac{t}{10}",
+          "\\frac{1}{4+6}"
+        ],
+        "hint": "Let $t$ be the number of hours they need to finish the crate. Write the combined hourly rate as a sum of fractions."
+      },
+      "1": {
+        "distractors": [
+          "\\frac{2}{10}",
+          "\\frac{1}{10}",
+          "\\frac{2}{12}"
+        ],
+        "hint": "To add fractions with unlike denominators like $\\frac{1}{4}$ and $\\frac{1}{6}$, find a common denominator, which is $12$, then convert and add them."
+      },
+      "2": {
+        "distractors": [
+          "\\frac{5}{12}",
+          "12",
+          "5"
+        ],
+        "hint": "If their combined rate is $\\frac{5}{12}$ of a crate per hour, the total time $t$ to complete 1 whole crate is the reciprocal of this rate."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "2b974bd2-f48d-5af7-a53a-4e64e0fb4bbd",
+    "node_id": "FD",
+    "problem_expr": "x * (1 - 2/5) * (1 - 1/3) = 12",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the total kilograms of flour Aling Nena had at first. Write the fraction of flour remaining after the bibingka recipe.",
+        "blank_expression": "? $= 1 - \\frac{2}{5}$",
+        "correct_value": "\\frac{3}{5}",
+        "operation_description": "Subtract the used fraction from 1",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Express the amount of flour left after the bibingka recipe in terms of $x$.",
+        "blank_expression": "? $= \\frac{12}{1 - \\frac{1}{3}}$",
+        "correct_value": "18",
+        "operation_description": "Divide the remaining flour by the fraction left after puto",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Multiply 18 by the reciprocal of $\\frac{3}{5}$ to find the original amount $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "30",
+        "operation_description": "Multiply by $\\frac{5}{3}$",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "Aling Nena prepared a large batch of flour for her native delicacies business. She used $\\frac{2}{5}$ of her total flour for a bibingka recipe. Afterward, she used $\\frac{1}{3}$ of the remaining flour for a puto recipe. If she has 12 kilograms of flour left, how many kilograms of flour did she have at first?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "\\frac{2}{5}",
+          "\\frac{7}{5}",
+          "\\frac{3}{2}"
+        ],
+        "hint": "Think of the total amount of flour as a whole represented by $1$. Subtract the fraction used for bibingka, which is $\\frac{2}{5}$."
+      },
+      "1": {
+        "distractors": [
+          "8",
+          "36",
+          "4"
+        ],
+        "hint": "Since she used $\\frac{1}{3}$ of the remaining flour, $\\frac{2}{3}$ of that remaining amount is equal to $12$. Divide $12$ by the fraction left to find the amount before the puto recipe."
+      },
+      "2": {
+        "distractors": [
+          "10",
+          "45",
+          "50"
+        ],
+        "hint": "To solve for $x$ when $\\frac{3}{5}x = 18$, multiply $18$ by the reciprocal of $\\frac{3}{5}$, which is $\\frac{5}{3}$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "7357a82e-0239-5e2a-b676-8234d6622caa",
+    "node_id": "FD",
+    "problem_expr": "12 - (1/2 * 12) - (1/4 * (12 - (1/2 * 12)))",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let R be the initial amount of rice. Write the amount used on Monday.",
+        "blank_expression": "$\\text{Monday}_\\text{use} =$ ?",
+        "correct_value": "\\frac{1}{2} \\cdot 12",
+        "operation_description": "Calculate half of 12.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the remaining rice after Monday.",
+        "blank_expression": "$\\text{Remaining}_\\text{Monday} =$ ?",
+        "correct_value": "6",
+        "operation_description": "Subtract Monday usage from total.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Calculate the amount used on Tuesday $(\\frac{1}{4}$ of the remaining rice).",
+        "blank_expression": "$\\text{Tuesday}_\\text{use} =$ ?",
+        "correct_value": "\\frac{1}{4} \\cdot 6",
+        "operation_description": "Multiply $\\frac{1}{4}$ by the remaining 6 kilograms.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract the Tuesday use from the remaining rice to find the final amount.",
+        "blank_expression": "$\\text{Final}_\\text{amount} =$ ?",
+        "correct_value": "4.5",
+        "operation_description": "Subtract 1.5 from 6.",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "A school canteen starts the week with 12 kilograms of rice in a container. On Monday, the canteen cook uses $\\frac{1}{2}$ of the total rice for lunch. On Tuesday, the cook uses $\\frac{1}{4}$ of the remaining rice for snacks. How many kilograms of rice are left in the container after Tuesday?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "\\frac{1}{2} + 12",
+          "\\frac{1}{2} / 12",
+          "12 - \\frac{1}{2}"
+        ],
+        "hint": "To find a fraction of a total amount, you need to multiply the fraction by the total, such as $\\text{fraction} \\times \\text{total}$."
+      },
+      "1": {
+        "distractors": [
+          "12",
+          "18",
+          "24"
+        ],
+        "hint": "The remaining amount is the starting amount minus the amount used on Monday, calculated as $12 - 6$."
+      },
+      "2": {
+        "distractors": [
+          "\\frac{1}{4} + 6",
+          "\\frac{1}{4} / 6",
+          "6 - \\frac{1}{4}"
+        ],
+        "hint": "The problem states the cook uses $\\frac{1}{4}$ of the remaining rice, which means you multiply the remaining kilograms by $\\frac{1}{4}$."
+      },
+      "3": {
+        "distractors": [
+          "6 + 1.5",
+          "\\frac{6}{1.5}",
+          "6 \\cdot 1.5"
+        ],
+        "hint": "To find the final amount left, subtract the Tuesday usage from the rice that was remaining after Monday, which is $6 - 1.5$."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "a5a17707-db40-5f0e-90cb-d9ef0c063968",
+    "node_id": "FD",
+    "problem_expr": "800 * (1 - 3/8) * (1 - 0.4)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Calculate the amount remaining after spending $\\frac{3}{8}$ of the 800 pesos on decorations.",
+        "blank_expression": "$800(1 - \\frac{3}{8}) =$ ?",
+        "correct_value": "500",
+        "operation_description": "Subtracting a fraction of the total.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the amount spent on snacks, which is 0.4 of the remaining 500 pesos.",
+        "blank_expression": "$500 \\cdot 0.4 =$ ?",
+        "correct_value": "200",
+        "operation_description": "Multiplying the remainder by a decimal.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Subtract the snack cost from the previous remainder to find the final amount left.",
+        "blank_expression": "$500 - 200 =$ ?",
+        "correct_value": "300",
+        "operation_description": "Subtracting the final expense.",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "For the upcoming school fair, the student council has a total budget of 800 pesos. They spent $\\frac{3}{8}$ of the total budget on decorations. From the money that was left, they spent 0.4 of it on snacks. How many pesos are left from the budget after these two expenses?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "300",
+          "800",
+          "550"
+        ],
+        "hint": "To find the remaining amount, subtract the fraction spent from the whole. Calculate $800 \\times (1 - \\frac{3}{8})$."
+      },
+      "1": {
+        "distractors": [
+          "50",
+          "20",
+          "500.4"
+        ],
+        "hint": "The snacks cost 0.4 of the remaining budget. Multiply the amount left after decorations, which is $500$, by $0.4$."
+      },
+      "2": {
+        "distractors": [
+          "700",
+          "200",
+          "800"
+        ],
+        "hint": "Subtract the cost of the snacks calculated in the previous step from the $500$ pesos that remained after buying decorations."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "02982a1c-c864-504d-bd56-1b38c2e648d7",
+    "node_id": "FD",
+    "problem_expr": "5.5 - (1.25 + 2.5)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the total length of the ribbon cut. Write an expression for the sum of the two pieces.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "1.25 + 2.5",
+        "operation_description": "Addition",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the sum of the cut pieces.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "3.75",
+        "operation_description": "Addition",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Subtract the sum of the cut pieces from the initial length of $5 \\frac{1}{2}$ meters.",
+        "blank_expression": "$5.5 - 3.75 =$ ?",
+        "correct_value": "1.75",
+        "operation_description": "Subtraction",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "At the local market, Aling Nena has a roll of ribbon that is $5 \\frac{1}{2}$ meters long. She cuts a piece measuring $1 \\frac{1}{4}$ meters for a customer and another piece measuring $2 \\frac{1}{2}$ meters for a gift wrap. How many meters of ribbon are left on the roll?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "1.25 - 2.5",
+          "5.5 - 1.25",
+          "1.25 \\cdot 2.5"
+        ],
+        "hint": "Identify the total length removed by adding the two separate pieces of ribbon together."
+      },
+      "1": {
+        "distractors": [
+          "4.75",
+          "2.75",
+          "3.25"
+        ],
+        "hint": "Ensure you align the decimal points correctly when adding $1.25$ and $2.5$."
+      },
+      "2": {
+        "distractors": [
+          "9.25",
+          "2.25",
+          "1.50"
+        ],
+        "hint": "Subtract the total length cut from the initial $5.5$ meters to find the remaining amount."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "973c6d82-596a-51f8-bed9-509c0afa63d6",
+    "node_id": "RER",
+    "problem_expr": "(8*x^9)^(2/3)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the base expression inside the parentheses to be separated.",
+        "blank_expression": "$\\text{Expression} =$ ?",
+        "correct_value": "8x^{9}",
+        "operation_description": "Identify radicand expression",
+        "mapped_node_id": "RER"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Apply the power of a product property to distribute the exponent to both factors: $(8)^{\\frac{2}{3}}$ and $(x^{9})^{\\frac{2}{3}}$. Write the separated numerical part.",
+        "blank_expression": "$8^{\\frac{2}{3}} =$ ?",
+        "correct_value": "(2^{3})^{\\frac{2}{3}}",
+        "operation_description": "Express coefficient as a power of a power",
+        "mapped_node_id": "RER"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Multiply the exponents for the numerical coefficient to find its simplified value.",
+        "blank_expression": "$\\text{Result} =$ ?",
+        "correct_value": "4",
+        "operation_description": "Evaluate power of a power",
+        "mapped_node_id": "RER"
+      }
+    ],
+    "word_problem_text": "In a science lab experiment, a Grade 9 student analyzes a chemical compound whose active mass scale is represented by the expression $(8x^{9})^{\\frac{2}{3}}$. If the student first rewrites the expression using the power of a product property to separate the numerical coefficient and the variable part, and then evaluates the numerical part, determine the simplified coefficient of the term.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "8x^{6}",
+          "2x^{3}",
+          "8x^{3}"
+        ],
+        "hint": "Look closely at the expression inside the parentheses that is affected by the exponent $\\frac{2}{3}$, without altering any coefficients or powers yet."
+      },
+      "1": {
+        "distractors": [
+          "(8)^{\\frac{3}{2}}",
+          "(2^{2})^{\\frac{2}{3}}",
+          "(4^{3})^{\\frac{2}{3}}"
+        ],
+        "hint": "Rewrite the numerical coefficient $8$ as a power with a base of $2$ before applying the outer exponent of $\\frac{2}{3}$."
+      },
+      "2": {
+        "distractors": [
+          "8",
+          "2",
+          "16"
+        ],
+        "hint": "When raising a power to a power like $(2^{3})^{\\frac{2}{3}}$, multiply the exponents $3$ and $\\frac{2}{3}$ together."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "4defb0f9-a080-540b-b923-e601f8b3612a",
+    "node_id": "LE",
+    "problem_expr": "2^n = 8^3 * 4^5",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Express the base 8 as a power of 2.",
+        "blank_expression": "$8 = 2^$ ?",
+        "correct_value": "3",
+        "operation_description": "base conversion",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Express the base 4 as a power of 2.",
+        "blank_expression": "$4 = 2^$ ?",
+        "correct_value": "2",
+        "operation_description": "base conversion",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Rewrite the total colonies $8^{3} \\cdot 4^{5}$ using base 2.",
+        "blank_expression": "$2^{9} \\cdot 2^$ ?",
+        "correct_value": "10",
+        "operation_description": "power of a power rule",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Combine the powers using the Product Rule.",
+        "blank_expression": "$2^{9} \\cdot 2^{10} = 2^$ ?",
+        "correct_value": "19",
+        "operation_description": "product rule",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "In a science lab, a researcher observes two bacteria strains. Strain A produces $8^{3}$ colonies, while Strain B produces $4^{5}$ colonies. If the total number of colonies is expressed as a single power of $2^{n}$, find the value of $n$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "2",
+          "4",
+          "6"
+        ],
+        "hint": "Recall that $8$ can be written by multiplying $2$ by itself a certain number of times, specifically $2 \\times 2 \\times 2$."
+      },
+      "1": {
+        "distractors": [
+          "1",
+          "3",
+          "8"
+        ],
+        "hint": "Think about how many times you need to multiply $2$ by itself to result in $4$."
+      },
+      "2": {
+        "distractors": [
+          "8",
+          "9",
+          "20"
+        ],
+        "hint": "Use the power of a power rule, which states that $(a^{m})^{n} = a^{m \\times n}$, to simplify $4^{5}$ as $(2^{2})^{5}$."
+      },
+      "3": {
+        "distractors": [
+          "1",
+          "90",
+          "190"
+        ],
+        "hint": "When multiplying terms with the same base, you apply the product rule by adding the exponents together, $a^{m} \\times a^{n} = a^{m+n}$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "1e2a928f-03ae-5868-a59d-5d8a5d4ec339",
+    "node_id": "LE",
+    "problem_expr": "(2^3)^2 * 2^n = 2^10",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the power of a power rule expression to simplify $(2^{3})^{2}$.",
+        "blank_expression": "$2^$ ? $= (2^{3})^{2}$",
+        "correct_value": "6",
+        "operation_description": "Multiply the exponents 3 and 2.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Rewrite the full expression using the simplified power and the product rule $(2^{6} \\cdot 2^{n} = 2^{10})$.",
+        "blank_expression": "$2^{6 + n} = 2^$ ?",
+        "correct_value": "10",
+        "operation_description": "Apply the product rule am $\\cdot$ an $=$ am+n.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Equate the exponents since the bases are the same.",
+        "blank_expression": "$6 + n =$ ?",
+        "correct_value": "10",
+        "operation_description": "Set the exponents equal to each other.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Solve for $n$ by subtracting 6 from 10.",
+        "blank_expression": "$n =$ ?",
+        "correct_value": "4",
+        "operation_description": "Subtract 6 from both sides of the equation.",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "At the school fair, the committee organizes ticket bundles for the raffle. One set of bundles is represented by the expression $(2^{3})^{2} \\cdot 2^{n}$. To ensure enough prizes for everyone, the total number of tickets must equal $2^{10}$. What is the value of the missing exponent $n$?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "5",
+          "9",
+          "8"
+        ],
+        "hint": "When you have a power raised to another power, you should multiply the exponents together using the rule $(a^{m})^{n} = a^{m \\cdot n}$."
+      },
+      "1": {
+        "distractors": [
+          "8",
+          "12",
+          "16"
+        ],
+        "hint": "When multiplying terms with the same base, you add the exponents together according to the rule $a^{m} \\cdot a^{n} = a^{m+n}$."
+      },
+      "2": {
+        "distractors": [
+          "4",
+          "16",
+          "60"
+        ],
+        "hint": "Since the bases on both sides of the equation are equal, their exponents must also be equal to one another."
+      },
+      "3": {
+        "distractors": [
+          "16",
+          "3",
+          "6"
+        ],
+        "hint": "Isolate the variable $n$ by subtracting the constant term from the other side of the equation."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "497c13c4-77a4-5586-89f6-080a21de8da2",
+    "node_id": "LE",
+    "problem_expr": "4 * 2^(h/2) = 64",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $h$ be the number of hours. Write the equation based on the growth of the weed patch.",
+        "blank_expression": "$4 \\cdot 2^{\\frac{h}{2}} =$ ?",
+        "correct_value": "64",
+        "operation_description": "setting up the exponential equation",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Divide both sides of the equation by 4 to isolate the exponential term.",
+        "blank_expression": "$2^{\\frac{h}{2}} =$ ?",
+        "correct_value": "16",
+        "operation_description": "division",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Express 16 as a power of 2 with the same base.",
+        "blank_expression": "$2^{\\frac{h}{2}} = 2^$ ?",
+        "correct_value": "4",
+        "operation_description": "rewriting the base",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Equate the exponents and solve for $h$.",
+        "blank_expression": "$\\frac{h}{2} =$ ?",
+        "correct_value": "4",
+        "operation_description": "equating exponents",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Multiply by 2 to find the total number of hours.",
+        "blank_expression": "$h =$ ?",
+        "correct_value": "8",
+        "operation_description": "multiplication",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "In Mang Cardo's garden, a patch of weeds currently covers 4 square meters. The area of this weed patch doubles every 2 hours. If the weeds continue to grow at this rate, how many hours will it take for the weed patch to reach an area of 64 square meters?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "16",
+          "256",
+          "32"
+        ],
+        "hint": "The growth follows the formula $A = P \\cdot 2^{\\frac{t}{d}}$, where $P$ is the initial amount, $t$ is time, and $d$ is the doubling period."
+      },
+      "1": {
+        "distractors": [
+          "60",
+          "256",
+          "8"
+        ],
+        "hint": "Divide the total area by the initial area to determine how many times the patch has doubled."
+      },
+      "2": {
+        "distractors": [
+          "2",
+          "8",
+          "16"
+        ],
+        "hint": "Recall that $16$ can be written as $2 \\times 2 \\times 2 \\times 2$."
+      },
+      "3": {
+        "distractors": [
+          "2",
+          "8",
+          "16"
+        ],
+        "hint": "Once the bases are the same, you can set the exponents equal to each other: $\\frac{h}{2} = \\text{exponent}$."
+      },
+      "4": {
+        "distractors": [
+          "2",
+          "4",
+          "16"
+        ],
+        "hint": "Since the exponent is $\\frac{h}{2}$, you must multiply the result by $2$ to isolate $h$."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "c41bcf97-7fe9-53e7-8173-d4448e4c9ed1",
+    "node_id": "LE",
+    "problem_expr": "3^7 / 3^3",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let L be the large area $3^{7}$ and S be the small area $3^{3}$. Write the ratio expression for how many times larger the large plot is.",
+        "blank_expression": "$\\text{Ratio} =$ ?",
+        "correct_value": "\\frac{3^{7}}{3^{3}}",
+        "operation_description": "Set up the division expression using powers of 3.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Apply the quotient rule by subtracting the exponent of the denominator from the exponent of the numerator.",
+        "blank_expression": "$3^{7 - 3} =$ ?",
+        "correct_value": "3^{4}",
+        "operation_description": "Subtract exponents in the quotient rule.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Evaluate the resulting power to find the final numerical factor.",
+        "blank_expression": "$3^{4} =$ ?",
+        "correct_value": "81",
+        "operation_description": "Evaluate the exponent expression.",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "In Mang Juan's garden, a square plot of land has an area of $3^{7}$ square meters. A smaller vegetable plot inside has an area of $3^{3}$ square meters. Using the quotient rule for exponents, determine how many times larger the area of the large plot is compared to the small plot.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "3^{7} \\cdot 3^{3}",
+          "3^{7} - 3^{3}",
+          "\\frac{3^{3}}{3^{7}}"
+        ],
+        "hint": "To find out how many times larger the large plot is compared to the small plot, set up a division expression comparing the two areas: $L / S$."
+      },
+      "1": {
+        "distractors": [
+          "3^{7 + 3}",
+          "3^{7 \\cdot 3}",
+          "3^{3 - 7}"
+        ],
+        "hint": "When dividing exponential terms with the same base, apply the quotient rule by subtracting the exponent in the denominator from the exponent in the numerator: $\\frac{a^{m}}{a^{n}} = a^{m - n}$."
+      },
+      "2": {
+        "distractors": [
+          "12",
+          "243",
+          "27"
+        ],
+        "hint": "Evaluate the power by multiplying the base by itself the number of times indicated by the exponent: $3 \\times 3 \\times 3 \\times 3$."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "a2743cf7-2289-5a9f-9230-92b26e9f6250",
+    "node_id": "OI",
+    "problem_expr": "(-4 + 6 + (-2) + 5 + x) / 5 = -1",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the score in the fifth game. Write the equation for the mean score of the five games.",
+        "blank_expression": "? $= -1$",
+        "correct_value": "((-4) + 6 + (-2) + 5 + x) / 5",
+        "operation_description": "Set up the average equation",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Multiply both sides by $5$ to eliminate the denominator.",
+        "blank_expression": "$(-4) + 6 + (-2) + 5 + x =$ ?",
+        "correct_value": "-5",
+        "operation_description": "Multiplication property of equality",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the sum of the known integers on the left side.",
+        "blank_expression": "? $+ x = -5$",
+        "correct_value": "5",
+        "operation_description": "Addition of integers",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract $5$ from both sides to solve for $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "-10",
+        "operation_description": "Subtraction of integers",
+        "mapped_node_id": "OI"
+      }
+    ],
+    "word_problem_text": "During a local basketball league tournament, a player recorded integer point differentials for the first four games as $-4$, $6$, $-2$, and $5$. To qualify for the next round, the player needs a mean (average) score of $-1$ across all five games played. Find the score the player must have obtained in the fifth game.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "((-4) + 6 + (-2) + 5 + x) / 4",
+          "((-4) + 6 + (-2) + 5) / 5",
+          "((-4) + 6 + (-2) + 5 + x) \\cdot 5"
+        ],
+        "hint": "The mean is calculated by dividing the sum of all values by the total number of items, which is $5$ here, set equal to the target average of $-1$."
+      },
+      "1": {
+        "distractors": [
+          "-1",
+          "5",
+          "1"
+        ],
+        "hint": "Multiply both sides of the equation by the denominator, $5$, to remove the fraction. Remember that $(-1) \\times 5 = -5$."
+      },
+      "2": {
+        "distractors": [
+          "-5",
+          "0",
+          "4"
+        ],
+        "hint": "Add the known integers on the left side: $-4 + 6 - 2 + 5$. Be careful with the signs when combining positive and negative numbers."
+      },
+      "3": {
+        "distractors": [
+          "0",
+          "10",
+          "-5"
+        ],
+        "hint": "To isolate $x$ in the equation $5 + x = -5$, subtract $5$ from both sides: $-5 - 5$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "d21de4ed-241d-534c-b55d-98ffafd351f4",
+    "node_id": "FP",
+    "problem_expr": "4*x^3 - 36*x = 4*x * (x^2 - 9)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let L be the length. Write the relationship between Area, Width, and Length.",
+        "blank_expression": "$4xL =$ ?",
+        "correct_value": "4x^{3} - 36x",
+        "operation_description": "setting up the area formula",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Divide both sides of the equation by $4x$ to isolate the length L.",
+        "blank_expression": "$L = (4x^{3} - 36x) /$ ?",
+        "correct_value": "4x",
+        "operation_description": "division by the GCF",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the expression for L by dividing each term by $4x$.",
+        "blank_expression": "$L =$ ?",
+        "correct_value": "x^{2} - 9",
+        "operation_description": "simplifying the polynomial",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Factor the resulting expression $x^{2} - 9$ using the difference of two squares pattern.",
+        "blank_expression": "$L =$ ?",
+        "correct_value": "(x+3)(x-3)",
+        "operation_description": "factoring difference of squares",
+        "mapped_node_id": "FP"
+      }
+    ],
+    "word_problem_text": "A student is designing a rectangular poster for a school event. The area of the poster is represented by the polynomial $4x^{3} - 36x$. If the width of the poster is $4x$, what is the expression for the length of the poster in its simplest factored form?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "4x^{3} + 36x",
+          "4x^{2} - 36",
+          "x^{3} - 9x"
+        ],
+        "hint": "The area of a rectangle is found by multiplying its width by its length, so $\\text{Area} = \\text{Width} \\times \\text{Length}$."
+      },
+      "1": {
+        "distractors": [
+          "x^{2} - 36",
+          "4x^{2} - 36x",
+          "4x^{3} - 36"
+        ],
+        "hint": "To isolate $L$ in the equation $4x \\cdot L = 4x^{3} - 36x$, you must divide the entire polynomial on the right by the width, $4x$."
+      },
+      "2": {
+        "distractors": [
+          "x^{3} - 9",
+          "x^{2} - 9x",
+          "x^{2} + 9"
+        ],
+        "hint": "When dividing $4x^{3} - 36x$ by $4x$, remember to divide both terms: $\\frac{4x^{3}}{4x}$ and $\\frac{-36x}{4x}$."
+      },
+      "3": {
+        "distractors": [
+          "(x-3)(x-3)",
+          "(x+9)(x-1)",
+          "(x+3)(x+3)"
+        ],
+        "hint": "Recall the difference of two squares pattern: $a^{2} - b^{2} = (a+b)(a-b)$. Here, $a=x$ and $b=3$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "8fcbb1e8-8aeb-50f7-80d7-fd70dc0f00e3",
+    "node_id": "FP",
+    "problem_expr": "3*x^4 - 243",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the original polynomial expression for the area of the banner.",
+        "blank_expression": "$\\text{Expression} =$ ?",
+        "correct_value": "3x^{4} - 243",
+        "operation_description": "state expression",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Factor out the greatest common monomial factor (GCMF) from the terms.",
+        "blank_expression": "?",
+        "correct_value": "3(x^{4} - 81)",
+        "operation_description": "factor GCMF",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Apply the difference of two squares pattern to the binomial factor inside the parentheses.",
+        "blank_expression": "?",
+        "correct_value": "3(x^{2} + 9)(x^{2} - 9)",
+        "operation_description": "difference of squares first stage",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Factor the remaining difference of two squares factor completely.",
+        "blank_expression": "?",
+        "correct_value": "3(x^{2} + 9)(x + 3)(x - 3)",
+        "operation_description": "complete factorization",
+        "mapped_node_id": "FP"
+      }
+    ],
+    "word_problem_text": "For the upcoming school fair in Manila, a group of Grade 8 students designs a rectangular banner whose area in square meters is given by the expression $3x^{4} - 243$. To prepare the banner for mounting, they need to express this area in its completely factored form. Help the students factor out the greatest common monomial factor first, and then apply the difference of two squares pattern completely.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "3x^{4} + 243",
+          "x^{4} - 243",
+          "3x^{3} - 243"
+        ],
+        "hint": "Identify the original polynomial expression for the area of the banner."
+      },
+      "1": {
+        "distractors": [
+          "3(x^{4} - 80)",
+          "x(3x^{3} - 243)",
+          "3(x^{4} + 81)"
+        ],
+        "hint": "Look for the greatest common factor in both terms, which is $3$, and divide each term by $3$ before writing the factored form."
+      },
+      "2": {
+        "distractors": [
+          "3(x^{2} - 9)(x^{2} - 9)",
+          "3(x^{2} + 9)(x^{2} + 9)",
+          "3(x + 9)(x - 9)"
+        ],
+        "hint": "Recall that the difference of two squares pattern is $a^{2} - b^{2} = (a + b)(a - b)$, applied here to $x^{4} - 81$."
+      },
+      "3": {
+        "distractors": [
+          "3(x + 3)(x - 3)(x + 3)(x - 3)",
+          "3(x^{2} - 9)(x + 3)(x - 3)",
+          "3(x + 9)(x - 9)(x + 3)(x - 3)"
+        ],
+        "hint": "Notice that $x^{2} - 9$ is also a difference of two squares and can be factored further, while $x^{2} + 9$ is a sum of squares and remains unchanged."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "3a7d332b-dad9-5a5e-80b6-e94397eb9758",
+    "node_id": "FP",
+    "problem_expr": "x^2 + b*x + 10",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $b$ be the middle coefficient of the trinomial $x^{2} + bx + 10$. Write the constant term as a product of two integer factors.",
+        "blank_expression": "$10 =$ ?",
+        "correct_value": "mn",
+        "operation_description": "Identify constant term factors",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "List all possible pairs of integer factors $(m, n)$ whose product is 10, considering both positive and negative integers.",
+        "blank_expression": "$\\text{Pairs} =$ ?",
+        "correct_value": "4",
+        "operation_description": "List factor pairs",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "For each factor pair $(m, n)$, compute the corresponding value of $b$ given by $b = m + n$.",
+        "blank_expression": "$b_\\text{values} =$ ?",
+        "correct_value": "{-11, -7, 7, 11}",
+        "operation_description": "Calculate sum of factor pairs",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Count the total number of distinct integer values of $b$ found.",
+        "blank_expression": "$\\text{Total} =$ ?",
+        "correct_value": "4",
+        "operation_description": "Count valid values",
+        "mapped_node_id": "FP"
+      }
+    ],
+    "word_problem_text": "At a school fair, Grade 8 students are designing a rectangular poster whose area is represented by the quadratic expression $x^{2} + bx + 10$, where $x$ is the width in centimeters and $b$ is an integer coefficient. To ensure the poster can be cleanly cut and factored using integer dimensions, the students need to determine how many possible integer values of $b$ exist such that the trinomial $x^{2} + bx + 10$ is factorable over the integers.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "m+n",
+          "m-n",
+          "\\frac{m}{n}"
+        ],
+        "hint": "Recall that a quadratic expression $x^{2} + \\text{bx} + c$ can be factored into $(x + m)(x + n)$ where the product of $m$ and $n$ equals the constant term $10$."
+      },
+      "1": {
+        "distractors": [
+          "2",
+          "6",
+          "8"
+        ],
+        "hint": "Remember to include both positive and negative integer pairs that multiply to give $10$, such as $(-1) \\times (-10)$."
+      },
+      "2": {
+        "distractors": [
+          "{-10, -1, 1, 10}",
+          "{-12, -8, 8, 12}",
+          "{-5, -2, 2, 5}"
+        ],
+        "hint": "The coefficient $b$ is equal to the sum of the two factors $m$ and $n$ from each of your factor pairs."
+      },
+      "3": {
+        "distractors": [
+          "2",
+          "8",
+          "10"
+        ],
+        "hint": "Count all the unique sum values you calculated in the previous step, remembering that some sums from negative pairs might mirror the positive pairs."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "0627a8a4-fd77-5ede-9144-90f722718d2d",
+    "node_id": "FP",
+    "problem_expr": "x^2 + k*x + 12 = (x + 3)*(x + a)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let a be the second term in the other binomial factor. Write the equation relating the constant term 12 to the factors 3 and a.",
+        "blank_expression": "$3a =$ ?",
+        "correct_value": "12",
+        "operation_description": "Identify constant factor relationship",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Solve for the value of a.",
+        "blank_expression": "$a =$ ?",
+        "correct_value": "4",
+        "operation_description": "Divide 12 by 3",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Write the sum of the two numbers 3 and a to find the middle coefficient $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "7",
+        "operation_description": "Add 3 and 4",
+        "mapped_node_id": "FP"
+      }
+    ],
+    "word_problem_text": "For the school fair, the Math Club is designing a rectangular banner whose area in square centimeters is given by $x^{2} + \\text{kx} + 12$. To ensure the banner can be factored into two linear binomial factors with integer coefficients, find the positive value of the coefficient $k$ given that the second term of one of the binomial factors is $3$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "3",
+          "9",
+          "15"
+        ],
+        "hint": "Recall that when multiplying two binomials like $(x + 3)(x + a)$, the constant term of the product is equal to the product of the two constants: $3 \\cdot a$."
+      },
+      "1": {
+        "distractors": [
+          "36",
+          "1",
+          "8"
+        ],
+        "hint": "Use the equation $3 \\cdot a = 12$ and perform the inverse operation to isolate $a$."
+      },
+      "2": {
+        "distractors": [
+          "1",
+          "12",
+          "4"
+        ],
+        "hint": "Expand $(x + 3)(x + a)$ using FOIL to see that the middle coefficient $k$ is the sum of $3$ and $a$."
+      }
+    },
+    "difficulty": "standard"
+  },
+  {
+    "id": "bb1ae216-24f4-5326-ae50-7a623ce4d776",
+    "node_id": "SP",
+    "problem_expr": "(x + k)^2 = x^2 + 12*x + 36",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the binomial expression being squared.",
+        "blank_expression": "$\\text{Let the binomial be}$ ?",
+        "correct_value": "x + k",
+        "operation_description": "Identify the input binomial",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Recall the formula for the square of a sum: $(a + b)^{2} = a^{2} +$ 2ab $+ b^{2}$. Apply this pattern to $(x + k)^{2}$ to find the middle term expression.",
+        "blank_expression": "$\\text{The middle term expression is}$ ?",
+        "correct_value": "2kx",
+        "operation_description": "Expand square of binomial middle term",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Equate the coefficient of the middle term from your expansion to the coefficient of the middle term in the given expanded expression $(12x)$.",
+        "blank_expression": "? $= 12$",
+        "correct_value": "2k",
+        "operation_description": "Set up equation for $k$",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Solve for the parameter $k$ by dividing both sides by 2.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "6",
+        "operation_description": "Solve linear equation for $k$",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "A student is designing a rectangular floor layout using square tiles. The side length of the tiled section is represented by the binomial $(x + k)$, where $k$ is an unknown integer representing an extra row and column of decorative tiles. When expanded using the square of a binomial pattern, the expression is $(x + k)^{2} = x^{2} + 12x + 36$. Find the value of the parameter $k$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x - k",
+          "x^{2} + k",
+          "x + 36"
+        ],
+        "hint": "Look closely at the left-hand side of the given equation inside the parentheses."
+      },
+      "1": {
+        "distractors": [
+          "kx",
+          "12x",
+          "k^{2}x"
+        ],
+        "hint": "Remember that the middle term of $(a + b)^{2}$ is always twice the product of the two terms, $2\\text{ab}$."
+      },
+      "2": {
+        "distractors": [
+          "k",
+          "12k",
+          "2x"
+        ],
+        "hint": "Extract just the coefficient of $x$ from your middle term expression and equate it to the coefficient in $12x$."
+      },
+      "3": {
+        "distractors": [
+          "12",
+          "36",
+          "3"
+        ],
+        "hint": "Divide both sides of the equation $2k = 12$ by the coefficient of $k$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "edf49e80-e1e4-538b-8236-0b81609d5811",
+    "node_id": "SP",
+    "problem_expr": "(3*x + k)*(3*x - 5)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let the first binomial be given with $k$ and the second with $-5$. Write the product of the two binomials using FOIL.",
+        "blank_expression": "?",
+        "correct_value": "(3x + k)(3x - 5)",
+        "operation_description": "Write out the product of the binomials",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the product using the FOIL method to get all terms.",
+        "blank_expression": "?",
+        "correct_value": "9x^{2} - 15x + 3kx - 5k",
+        "operation_description": "Apply distributive property $/$ FOIL",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Combine the terms containing $x$ to form the middle term expression.",
+        "blank_expression": "?",
+        "correct_value": "(-15 + 3k)x",
+        "operation_description": "Factor out $x$ from middle terms",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Set the coefficient of the middle term equal to zero to eliminate it.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "-15 + 3k",
+        "operation_description": "Equate middle term coefficient to zero",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Solve the resulting linear equation for $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "5",
+        "operation_description": "Isolate $k$",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "During a school fair booth design, a student plans to create a rectangular banner whose area is represented by the product of two binomials $$(3x + k)(3x - 5)$$. \\text{To achieve} a \\text{symmetric geometric pattern}, \\text{the student needs the middle term of the expanded product to be zero}. \\text{Determine the value of}$k$ that eliminates the middle term.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(3x - k)(3x + 5)",
+          "(3x + k)(3x + 5)",
+          "(3x - k)(3x - 5)"
+        ],
+        "hint": "Start by simply writing out the given binomials as a product in terms of $x$ and $k$ based on the problem statement."
+      },
+      "1": {
+        "distractors": [
+          "9x^{2} + 15x - 3kx - 5k",
+          "9x^{2} - 15x - 3kx + 5k",
+          "3x^{2} - 15x + 3kx - 5k"
+        ],
+        "hint": "Apply the distributive property or FOIL method carefully, paying close attention to the signs of each term when multiplying."
+      },
+      "2": {
+        "distractors": [
+          "(15 + 3k)x",
+          "(-15 - 3k)x",
+          "(15 - 3k)x"
+        ],
+        "hint": "Group all terms that contain the variable $x$ together and factor out $x$ to find the coefficient of the middle term."
+      },
+      "3": {
+        "distractors": [
+          "15 + 3k",
+          "-15 - 3k",
+          "9 + 3k"
+        ],
+        "hint": "To eliminate the middle term, the coefficient of $x$ must be set equal to zero. Extract only the coefficient expression."
+      },
+      "4": {
+        "distractors": [
+          "-5",
+          "3",
+          "-3"
+        ],
+        "hint": "Solve the linear equation for $k$ by isolating it on one side using inverse operations."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "5579461c-0aaf-51c3-a12f-ddf299a8ceb4",
+    "node_id": "SP",
+    "problem_expr": "(x + 6)^2 - x^2",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ represent the inner square side length. Write the expression for the area of the outer square floor using the square of a binomial.",
+        "blank_expression": "?",
+        "correct_value": "(x + 6)^{2}",
+        "operation_description": "Square the binomial for the outer dimensions.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the square of the binomial for the outer area using the pattern $(a + b)^{2} = a^{2} +$ 2ab $+ b^{2}$.",
+        "blank_expression": "?",
+        "correct_value": "x^{2} + 12x + 36",
+        "operation_description": "Apply square of a binomial rule.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "variable_identification",
+        "instruction": "Write the expression for the unpainted inner square area to be subtracted.",
+        "blank_expression": "?",
+        "correct_value": "x^{2}",
+        "operation_description": "Square the inner side length.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract the inner area from the expanded outer area expression.",
+        "blank_expression": "?",
+        "correct_value": "x^{2} + 12x + 36 - x^{2}",
+        "operation_description": "Set up the difference between outer and inner areas.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Combine the like terms to simplify the border area expression.",
+        "blank_expression": "?",
+        "correct_value": "12x + 36",
+        "operation_description": "Combine like terms $x^{2}$ and $-x^{2}$.",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "Mang Juan is laying down a decorative wooden parquet floor in a barangay hall. The total layout is a large square floor with a side length of $x + 6$ meters. In the center, a square portion with a side length of $x$ meters is designated for a carpet, leaving a border of parquet tiles around it. Using the special products rules, find the expression for the total area of the border.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x^{2} + 36",
+          "2x + 12",
+          "(x - 6)^{2}"
+        ],
+        "hint": "To find the area of a square, square its side length which is given as $x + 6$."
+      },
+      "1": {
+        "distractors": [
+          "x^{2} + 6x + 36",
+          "x^{2} + 12x + 12",
+          "x^{2} + 36"
+        ],
+        "hint": "Remember the square of a binomial formula is $(a + b)^{2} = a^{2} + 2\\text{ab} + b^{2}$, where $a = x$ and $b = 6$."
+      },
+      "2": {
+        "distractors": [
+          "2x",
+          "x^{3}",
+          "x"
+        ],
+        "hint": "The inner carpet is a square with side length $x$, so its area is just the side length squared."
+      },
+      "3": {
+        "distractors": [
+          "x^{2} + 12x + 36 + x^{2}",
+          "12x + 36 - x^{2}",
+          "x^{2} + 12x - 36"
+        ],
+        "hint": "Take the expanded outer area from the previous step and subtract the inner area expression $x^{2}$."
+      },
+      "4": {
+        "distractors": [
+          "2x^{2} + 12x + 36",
+          "12x",
+          "36"
+        ],
+        "hint": "Look for like terms like $x^{2}$ and $-x^{2}$ that cancel each other out when combined."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "d45576af-2ace-5242-bb0c-1f57bdac6280",
+    "node_id": "SP",
+    "problem_expr": "(x + 7)^2 = x^2 + 14*x + k",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the coefficient of the middle term in the trinomial $x^{2} + 14x + k$.",
+        "blank_expression": "$\\text{Middle term coefficient} =$ ?",
+        "correct_value": "14",
+        "operation_description": "Identify the middle term coefficient",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Set the middle term equal to $2\\text{ab}$, where $a = x$, to solve for $b$.",
+        "blank_expression": "$2b =$ ?",
+        "correct_value": "14",
+        "operation_description": "Equate middle term",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 2 to find the value of $b$.",
+        "blank_expression": "$b =$ ?",
+        "correct_value": "7",
+        "operation_description": "Solve for $b$",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Since $k = b^{2}$, square the value of $b$ to find $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "49",
+        "operation_description": "Square $b$ to find the missing term",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "A carpenter is designing a square picture frame whose total area is represented by the trinomial $x^{2} + 14x + k$, where $k$ is a constant. Using the pattern of the square of a binomial $(a + b)^{2} = a^{2} + 2\\text{ab} + b^{2}$, find the missing constant $k$ that makes the expression a perfect square trinomial.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "7",
+          "49",
+          "x"
+        ],
+        "hint": "Look at the coefficient attached to the linear term $x$ in the expression $x^{2} + 14x + k$."
+      },
+      "1": {
+        "distractors": [
+          "7",
+          "28",
+          "14x"
+        ],
+        "hint": "Recall the pattern for the middle term of the square of a binomial, which is $2\\text{ab}$."
+      },
+      "2": {
+        "distractors": [
+          "14",
+          "3.5",
+          "49"
+        ],
+        "hint": "Isolate $b$ in the equation $2b = 14$ by dividing both sides by 2."
+      },
+      "3": {
+        "distractors": [
+          "14",
+          "7",
+          "28"
+        ],
+        "hint": "To complete the square, the constant term $k$ is equal to $b^{2}$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "ec1735ff-1258-5a5f-86c4-f40629ebbc9f",
+    "node_id": "PE",
+    "problem_expr": "x^3 - 2*x^2 - 5*x + 6 = 0",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Set the volume function to zero to find the roots.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "x^{3} - 2x^{2} - 5x + 6",
+        "operation_description": "Setting the polynomial equal to zero.",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Perform synthetic division of the polynomial by the known factor $(x +$ 2), using -2 as the divisor.",
+        "blank_expression": "$x^{2} - 4x + 3 =$ ?",
+        "correct_value": "0",
+        "operation_description": "Dividing the cubic polynomial by the linear factor $(x +$ 2) to get a quadratic quotient.",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Factor the resulting quadratic expression $x^{2} - 4x + 3$.",
+        "blank_expression": "$(x - 1)(x - 3) =$ ?",
+        "correct_value": "0",
+        "operation_description": "Factoring the quadratic quotient.",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "List all real roots of the polynomial equation by setting each factor to zero.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "1, -2, 3",
+        "operation_description": "Solving for $x$ using the Zero Product Property.",
+        "mapped_node_id": "PE"
+      }
+    ],
+    "word_problem_text": "A local water district is designing a rectangular storage tank. The volume of the tank is modeled by the polynomial function V(x) $= x^{3} - 2x^{2} - 5x + 6$. Engineers have determined that one of the dimensions of the tank is $(x +$ 2). To determine the other dimensions, find all real values of $x$ that make the volume zero (the roots of the polynomial).",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x^{3} - 2x^{2} - 5x - 6",
+          "x^{3} + 2x^{2} + 5x + 6",
+          "x^{3} - 2x^{2} - 5x"
+        ],
+        "hint": "To find the roots of the volume function, you must set the entire expression $V(x)$ equal to $0$."
+      },
+      "1": {
+        "distractors": [
+          "x^{2} + 4x + 3",
+          "x^{2} - 4x - 3",
+          "x^{2} + 4x - 3"
+        ],
+        "hint": "When performing synthetic division by $(x + 2)$, use $-2$ as the root. Ensure you correctly carry down the coefficients and perform the additions."
+      },
+      "2": {
+        "distractors": [
+          "(x + 1)(x + 3)",
+          "(x + 1)(x - 3)",
+          "(x - 1)(x + 3)"
+        ],
+        "hint": "Look for two numbers that multiply to the constant term $3$ and add up to the coefficient of the linear term $-4$."
+      },
+      "3": {
+        "distractors": [
+          "-1, 2, -3",
+          "1, 2, 3",
+          "-1, -2, -3"
+        ],
+        "hint": "Use the Zero Product Property by setting each factor, including the known factor $(x+2)$, equal to $0$ and solving for $x$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "614307fc-d6df-5f0d-ad8e-5b62fdb7d481",
+    "node_id": "PE",
+    "problem_expr": "x*(x + 1)*(x + 2) = 120",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the smallest integer representing the height of the box. Write the algebraic expression for the volume using the three consecutive integers $x$, $x + 1$, and $x + 2$.",
+        "blank_expression": "? $= 120$",
+        "correct_value": "x(x + 1)(x + 2)",
+        "operation_description": "Formulate the polynomial equation for the volume of the rectangular box.",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the polynomial expression on the left side of the equation.",
+        "blank_expression": "? $= 120$",
+        "correct_value": "x^{3} + 3x^{2} + 2x",
+        "operation_description": "Multiply the factors to obtain a standard polynomial form.",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Transpose $120$ to the left side to write the polynomial equation in standard form equal to zero.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "x^{3} + 3x^{2} + 2x - 120",
+        "operation_description": "Rearrange the terms into a polynomial equation.",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Factor the polynomial using the Factor Theorem, testing integer factors of $120$. Write the fully factored form of the cubic equation.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "(x - 4)(x^{2} + 7x + 30)",
+        "operation_description": "Factor the cubic polynomial completely.",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Equate the linear factor to zero to solve for the positive integer dimension $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "4",
+        "operation_description": "Extract the real integer root from the linear factor.",
+        "mapped_node_id": "PE"
+      }
+    ],
+    "word_problem_text": "A student in Manila is designing a rectangular storage box for a school project whose dimensions are given by three consecutive integers representing the height, width, and length. If the volume of the box is $120$ cubic units, find the smallest dimension of the box.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x(x - 1)(x - 2)",
+          "x + (x + 1) + (x + 2)",
+          "x(x + 2)(x + 4)"
+        ],
+        "hint": "Remember that volume is found by multiplying the three dimensions together: height $\\times$ width $\\times$ length."
+      },
+      "1": {
+        "distractors": [
+          "x^{3} + 2x^{2} + x",
+          "x^{3} + 3x^{2} + 2",
+          "x^{3} + x^{2} + 2x"
+        ],
+        "hint": "Multiply the first two factors first, then distribute the third factor $x + 2$ to the resulting quadratic."
+      },
+      "2": {
+        "distractors": [
+          "x^{3} + 3x^{2} + 2x + 120",
+          "x^{3} - 3x^{2} + 2x - 120",
+          "x^{3} + 3x^{2} - 2x - 120"
+        ],
+        "hint": "When moving a positive constant $120$ from the right side to the left side of the equation, make sure to change its sign."
+      },
+      "3": {
+        "distractors": [
+          "(x + 4)(x^{2} - 7x + 30)",
+          "(x - 4)(x^{2} - 7x - 30)",
+          "(x + 4)(x^{2} + 7x - 30)"
+        ],
+        "hint": "Test positive integer divisors of $120$ such as $1, 2, 3, 4, \\dots$ in the polynomial to find which one yields a remainder of zero."
+      },
+      "4": {
+        "distractors": [
+          "-4",
+          "5",
+          "3"
+        ],
+        "hint": "Set the linear factor $x - 4$ equal to zero and solve for $x$, keeping in mind that physical dimensions must be positive integers."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "a16ad090-76c7-551d-94f1-7dd011f265a5",
+    "node_id": "PE",
+    "problem_expr": "x^3 - x^2 - 4*x + 4 = 0",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the unknown dimension. Write the given polynomial equation.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "x^{3} - x^{2} - 4x + 4",
+        "operation_description": "Identify polynomial equation",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Factor by grouping the first two terms and the last two terms: $x^{2}(x -$ 1) $- 4(x -$ 1) $= 0$.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "(x^{2} - 4)(x - 1)",
+        "operation_description": "Factor polynomial by grouping",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Express the quadratic factor $x^{2} - 4$ as a product of two binomials.",
+        "blank_expression": "? $\\cdot (x - 1) = 0$",
+        "correct_value": "(x - 2)(x + 2)",
+        "operation_description": "Factor difference of two squares",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Equate each linear factor to zero to solve for $x$. Write the solution set.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "{-2, 1, 2}",
+        "operation_description": "Find all roots of the polynomial equation",
+        "mapped_node_id": "PE"
+      }
+    ],
+    "word_problem_text": "A community gardener in Barangay San Jose designs three rectangular garden planting boxes. The height of each box is represented by an unknown integer $x$ in meters. The dimensions of the first box are $x$, $x$, and $x$, giving a volume of $x^{3}$. The second box has dimensions $x+2$, $x-1$, and $x-2$. The third box is a flat bed with a volume of $4x$. When the volumes of the first and second boxes are combined and equated to the third box adjusted by a polynomial relation, the design leads to the polynomial equation $x^{3} - x^{2} - 4x + 4 = 0$. Determine all possible integer values of $x$ that satisfy this design equation.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x^{3} + x^{2} - 4x - 4",
+          "x^{3} - x^{2} + 4x - 4",
+          "x^{3} + x^{2} + 4x + 4"
+        ],
+        "hint": "Let $x$ be the unknown dimension. Write the given polynomial equation."
+      },
+      "1": {
+        "distractors": [
+          "(x^{2} + 4)(x - 1)",
+          "(x^{2} - 4)(x + 1)",
+          "(x^{2} + 2)(x - 2)"
+        ],
+        "hint": "Look at the common binomial factor $(x - 1)$ after grouping $x^{2}(x - 1) - 4(x - 1) = 0$."
+      },
+      "2": {
+        "distractors": [
+          "(x - 4)(x + 4)",
+          "(x - 2)(x - 2)",
+          "(x + 2)(x + 2)"
+        ],
+        "hint": "Recall the difference of two squares formula $a^{2} - b^{2} = (a - b)(a + b)$ applied to $x^{2} - 4$."
+      },
+      "3": {
+        "distractors": [
+          "{-4, -1, 1}",
+          "{-2, -1, 2}",
+          "{-1, 2, 4}"
+        ],
+        "hint": "Set each factor from $(x - 2)(x + 2)(x - 1) = 0$ equal to zero to find the values for $x$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "b8923e32-01b6-5706-9617-c75652d2c14a",
+    "node_id": "PD",
+    "problem_expr": "(x+4)*(x^2-3*x+2)+5",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "State the relationship between Revenue (R), Price (D), Sold (Q), and Surplus $(r)$ using the division algorithm.",
+        "blank_expression": "$R =$ ?",
+        "correct_value": "(x+4)(x^{2}-3x+2)+5",
+        "operation_description": "",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the product of the divisor and the quotient: $(x+4)(x^{2}-3x+2)$.",
+        "blank_expression": "$x^{3} - 3x^{2} + 2x + 4x^{2} - 12x + 8 =$ ?",
+        "correct_value": "x^{3} + x^{2} - 10x + 8",
+        "operation_description": "",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Add the remainder of 5 to the expanded product to find the total revenue.",
+        "blank_expression": "$R = (x^{3} + x^{2} - 10x + 8) + 5 =$ ?",
+        "correct_value": "x^{3} + x^{2} - 10x + 13",
+        "operation_description": "",
+        "mapped_node_id": "PD"
+      }
+    ],
+    "word_problem_text": "During a school fair, the student council sold snacks. The number of snack packs sold is represented by the quotient $x^{2} - 3x + 2$, and the price per pack is $x + 4$ pesos. After accounting for all sales, there was a surplus of 5 pesos remaining in the cash box. What is the polynomial expression for the total revenue generated from the snacks?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(x-4)(x^{2}-3x+2)+5",
+          "(x+4)(x^{2}+3x+2)+5",
+          "(x+4)(x^{2}-3x-2)+5"
+        ],
+        "hint": "Recall the division algorithm relating revenue, price, quantity, and remainder: $\\text{Revenue} = (\\text{Price} \\times \\text{Quantity}) + \\text{Surplus}$."
+      },
+      "1": {
+        "distractors": [
+          "x^{3} - 3x^{2} + 2x - 4x^{2} - 12x + 8",
+          "x^{3} + 3x^{2} - 2x + 4x^{2} + 12x + 8",
+          "x^{3} - x^{2} + 10x + 8"
+        ],
+        "hint": "Use the distributive property (FOIL method) to multiply each term in $(x+4)$ by each term in $(x^{2}-3x+2)$, paying close attention to signs."
+      },
+      "2": {
+        "distractors": [
+          "x^{3} + x^{2} - 10x + 8",
+          "x^{3} + x^{2} - 10x - 13",
+          "x^{3} + x^{2} + 10x + 13"
+        ],
+        "hint": "Combine the constant term from your expanded polynomial with the surplus of $5$ by addition."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "01786755-df53-5ed5-8791-9cf2bf377951",
+    "node_id": "PD",
+    "problem_expr": "(x^3 - 3*x^2 - 9*x + 27) / (x + 3)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let P(x) be the volume polynomial and $d(x)$ be the divisor. Write P(x).",
+        "blank_expression": "$P(x) =$ ?",
+        "correct_value": "x^{3} - 3x^{2} - 9x + 27",
+        "operation_description": "Identify the dividend polynomial",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the divisor $d(x)$ representing the height.",
+        "blank_expression": "$d(x) =$ ?",
+        "correct_value": "x + 3",
+        "operation_description": "Identify the linear divisor",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Perform synthetic division or long division. Divide the leading term $x^{3}$ by $x$ to get the first term of the quotient.",
+        "blank_expression": "? $= x^{2}$",
+        "correct_value": "\\frac{x^{3}}{x}",
+        "operation_description": "Determine first term of quotient",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Complete the division process to find the full quadratic expression for the base area.",
+        "blank_expression": "$\\text{Base Area} =$ ?",
+        "correct_value": "x^{2} - 6x + 9",
+        "operation_description": "Divide polynomials to find the quotient",
+        "mapped_node_id": "PD"
+      }
+    ],
+    "word_problem_text": "For the upcoming school fair, your class is tasked with building a rectangular storage booth. The total volume of the storage space is modeled by the polynomial $P(x) = x^{3} - 3x^{2} - 9x + 27$ cubic meters. If the height of the booth is $x + 3$ meters, find the polynomial expression that represents the base area of the booth by dividing the volume polynomial by the height.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x^{3} + 3x^{2} + 9x - 27",
+          "x^{3} - 3x^{2} + 9x - 27",
+          "x^{3} + 3x^{2} - 9x + 27"
+        ],
+        "hint": "Look back at the volume polynomial $P(x)$ given in the word problem before any division takes place."
+      },
+      "1": {
+        "distractors": [
+          "x - 3",
+          "x + 9",
+          "3x + 3"
+        ],
+        "hint": "Check the word problem for the linear expression that represents the height of the booth."
+      },
+      "2": {
+        "distractors": [
+          "\\frac{x^{2}}{x}",
+          "\\frac{x^{3}}{3}",
+          "\\frac{x^{2}}{3}"
+        ],
+        "hint": "Divide the leading term of the dividend, which is $x^{3}$, by the leading term of the divisor $x$."
+      },
+      "3": {
+        "distractors": [
+          "x^{2} + 6x + 9",
+          "x^{2} - 3x + 9",
+          "x^{2} - 9x + 9"
+        ],
+        "hint": "Continue the long or synthetic division carefully, making sure to distribute the subtraction correctly at each step."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "d1c3b7cc-019a-552c-9a1a-412309e6e966",
+    "node_id": "PD",
+    "problem_expr": "(x^3 - 4*x^2 + x + 6) / (x - 2)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the value of a for the divisor $x - 2$.",
+        "blank_expression": "$a =$ ?",
+        "correct_value": "2",
+        "operation_description": "Identify root from divisor",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Substitute $x = 2$ into the polynomial P(x) $= x^{3} - 4x^{2} + x + 6$ to compute P(2).",
+        "blank_expression": "$P(2) =$ ?",
+        "correct_value": "2^{3} - 4(2^{2}) + 2 + 6",
+        "operation_description": "Polynomial evaluation",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the powers and products in the evaluation.",
+        "blank_expression": "$P(2) =$ ?",
+        "correct_value": "8 - 16 + 2 + 6",
+        "operation_description": "Simplify expression",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Perform the final arithmetic addition and subtraction to get the remainder.",
+        "blank_expression": "$r =$ ?",
+        "correct_value": "0",
+        "operation_description": "Compute final remainder",
+        "mapped_node_id": "PD"
+      }
+    ],
+    "word_problem_text": "A school crafts club is designing a rectangular storage box whose volume in cubic centimeters is modeled by the polynomial P(x) $= x^{3} - 4x^{2} + x + 6$. To fit the box into a specialized shipping slot, they need to divide the polynomial by $x - 2$ to find the remaining volume constant term. Find the remainder when P(x) is divided by $x - 2$ using the remainder theorem.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "-2",
+          "1",
+          "-1"
+        ],
+        "hint": "Set the divisor equal to zero, $i.e$., $x - 2 = 0$, and solve for $x$ to find $a$."
+      },
+      "1": {
+        "distractors": [
+          "2^{3} + 4(2^{2}) + 2 + 6",
+          "2^{3} - 4(2^{2}) - 2 + 6",
+          "2^{3} - 4(2^{2}) + 2 - 6"
+        ],
+        "hint": "Replace every instance of $x$ in the polynomial $P(x) = x^{3} - 4x^{2} + x + 6$ with the value $a = 2$."
+      },
+      "2": {
+        "distractors": [
+          "8 + 16 + 2 + 6",
+          "8 - 16 - 2 + 6",
+          "8 - 16 + 2 - 6"
+        ],
+        "hint": "Carefully compute the exponent values first, like $2^{3}$ and $2^{2}$, then multiply by the coefficients."
+      },
+      "3": {
+        "distractors": [
+          "-8",
+          "2",
+          "16"
+        ],
+        "hint": "Combine all the terms by going strictly from left to right: $8 - 16$ first, then add the rest."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "f666ae4a-39d4-53a9-b161-7c043ce3f1c6",
+    "node_id": "PD",
+    "problem_expr": "(x^3 + 2*x^2 - 5*x - 6) / (x + 3)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let P(x) be the dividend polynomial representing the volume.",
+        "blank_expression": "$P(x) =$ ?",
+        "correct_value": "x^{3} + 2x^{2} - 5x - 6",
+        "operation_description": "Identify dividend",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Let $d(x)$ be the divisor polynomial representing the known edge.",
+        "blank_expression": "$d(x) =$ ?",
+        "correct_value": "x + 3",
+        "operation_description": "Identify divisor",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide the first term of the dividend $x^{3}$ by $x$ to get the first term of the quotient.",
+        "blank_expression": "? $= x^{2}$",
+        "correct_value": "\\frac{x^{3}}{x}",
+        "operation_description": "First term of quotient",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Multiply $x^{2}$ by the divisor $(x +$ 3) and subtract it from the dividend to find the new remainder polynomial.",
+        "blank_expression": "? $= -x^{2} - 5x - 6$",
+        "correct_value": "(x^{3} + 2x^{2} - 5x - 6) - x^{2}(x + 3)",
+        "operation_description": "Subtract first product",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Continue the long division or synthetic division to find the final quotient representing the remaining dimensions.",
+        "blank_expression": "$Q(x) =$ ?",
+        "correct_value": "x^{2} - x - 2",
+        "operation_description": "Complete division",
+        "mapped_node_id": "PD"
+      }
+    ],
+    "word_problem_text": "Mang Juan is designing a rectangular garden bed in his backyard. The total volume of soil needed to fill the garden bed is represented by the polynomial P(x) $= x^{3} + 2x^{2} - 5x - 6$ cubic meters. If one of the linear dimensions (height factor) is represented by $d(x) = x + 3$ meters, determine the remaining polynomial expression representing the product of the other two dimensions by dividing P(x) by $d(x)$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x^{3} - 2x^{2} + 5x + 6",
+          "x^{3} + 2x^{2} + 5x + 6",
+          "x^{3} - 2x^{2} - 5x - 6"
+        ],
+        "hint": "Identify the full polynomial expression given in the problem statement that represents the total volume $P(x)$."
+      },
+      "1": {
+        "distractors": [
+          "x - 3",
+          "x + 2",
+          "x - 2"
+        ],
+        "hint": "Look for the expression representing the linear dimension or height factor $d(x)$ provided in the problem."
+      },
+      "2": {
+        "distractors": [
+          "\\frac{x^{2}}{x}",
+          "\\frac{x^{3}}{x^{2}}",
+          "\\frac{x^{2}}{x^{3}}"
+        ],
+        "hint": "To find the first term of the quotient, divide the leading term of the dividend by the leading term of the divisor $x$."
+      },
+      "3": {
+        "distractors": [
+          "(x^{3} + 2x^{2} - 5x - 6) + x^{2}(x + 3)",
+          "(x^{3} + 2x^{2} - 5x - 6) - x(x + 3)",
+          "(x^{3} + 2x^{2} - 5x - 6) + x(x + 3)"
+        ],
+        "hint": "Multiply the first quotient term by the divisor and subtract it from the dividend $P(x)$."
+      },
+      "4": {
+        "distractors": [
+          "x^{2} + x + 2",
+          "x^{2} - x + 2",
+          "x^{2} + x - 2"
+        ],
+        "hint": "Continue the division process for the remaining terms until you obtain the complete quotient $Q(x)$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "7028ab8f-5074-5934-b94e-e8462954ce53",
+    "node_id": "PD",
+    "problem_expr": "(x^3 - 4*x^2 + 2*x + 7) / (x - 3)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the value of 'a' from the divisor $x - 3$.",
+        "blank_expression": "$a =$ ?",
+        "correct_value": "3",
+        "operation_description": "Identify the value to substitute into the polynomial.",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Substitute $x = 3$ into P(x) $= x^{3} - 4x^{2} + 2x + 7$.",
+        "blank_expression": "$P(3) = (3)^{3} - 4(3)^{2} + 2(3) + 7 =$ ?",
+        "correct_value": "27 - 36 + 6 + 7",
+        "operation_description": "Substitute the value into the polynomial expression.",
+        "mapped_node_id": "PD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the expression to find the remainder.",
+        "blank_expression": "$P(3) =$ ?",
+        "correct_value": "4",
+        "operation_description": "Evaluate the arithmetic expression.",
+        "mapped_node_id": "PD"
+      }
+    ],
+    "word_problem_text": "You are designing a floor layout where the number of tiles required is given by the polynomial $P(x) = x^{3} - 4x^{2} + 2x + 7$. If you use a layout pattern defined by the divisor $x - 3$, what is the remaining number of tiles that do not fit into the pattern? Use the Remainder Theorem to find your answer.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "-3",
+          "0",
+          "1"
+        ],
+        "hint": "When using the Remainder Theorem for a divisor of the form $x - a$, the value to substitute is the constant $a$ such that $x - a = 0$."
+      },
+      "1": {
+        "distractors": [
+          "27 + 36 + 6 + 7",
+          "9 - 12 + 6 + 7",
+          "27 - 12 + 6 + 7"
+        ],
+        "hint": "Ensure you correctly calculate the powers of 3 first, such as $3^{3} = 27$ and $3^{2} = 9$, before multiplying by the coefficients."
+      },
+      "2": {
+        "distractors": [
+          "-4",
+          "10",
+          "76"
+        ],
+        "hint": "Perform the addition and subtraction from left to right: $27 - 36$ gives a negative result, then add $6$ and $7$ to that value."
+      }
+    },
+    "difficulty": "standard"
   }
 ]
