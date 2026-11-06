@@ -201,8 +201,8 @@ def validate_schema(p: dict) -> list:
         errs.append(f"{pid}: unit must be a string or null")
     parts = p["id"].split("-")
     if len(parts) != 3 or parts[0] != p["node_id"] or parts[1] != DIFF_CODE.get(p["difficulty"]) \
-            or not (parts[2].isdigit() and 1 <= int(parts[2]) <= 10):
-        errs.append(f"{pid}: id must look like <NODE>-<E|M|H>-<01..10> matching node_id/difficulty")
+            or not (parts[2].isdigit() and 1 <= int(parts[2])):
+        errs.append(f"{pid}: id must look like <NODE>-<E|M|H>-<NN> matching node_id/difficulty")
     return errs
 
 

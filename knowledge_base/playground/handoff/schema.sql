@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS playground_problems (
     solution_steps_json TEXT NOT NULL,
     source_doc TEXT NOT NULL,
     content_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 CREATE INDEX IF NOT EXISTS idx_playground_problems_node_diff ON playground_problems(node_id, difficulty);
 
