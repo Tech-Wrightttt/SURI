@@ -19,8 +19,8 @@ class ProbeOrderTests(unittest.TestCase):
         for n in range(30):
             order = diagnostic_routes._probe_order(f"s{n}", "FD", probes)
             kinds = [probes[i].get("difficulty", "standard") for i in order[:4]]
-            self.assertEqual(kinds.count("challenge"), 1)
-            self.assertEqual(kinds.count("standard"), 3)
+            self.assertEqual(kinds.count("challenge"), diagnostic_routes.CHALLENGE_PER_NODE)
+            self.assertEqual(kinds.count("standard"), 4 - diagnostic_routes.CHALLENGE_PER_NODE)
 
     def test_challenge_position_varies(self):
         probes = _probes()

@@ -38,7 +38,7 @@ def _load_probes() -> dict:
 PROBES: dict = _load_probes()
 
 QUESTIONS_PER_NODE = 4
-CHALLENGE_PER_NODE = 1  # of the QUESTIONS_PER_NODE, this many come from challenge probes
+CHALLENGE_PER_NODE = 2  # of the QUESTIONS_PER_NODE, this many come from challenge probes
 PASS_THRESHOLD = 3  # >= 3/4 (75%) = mastered
 FAIL_WRONG_LIMIT = QUESTIONS_PER_NODE - PASS_THRESHOLD + 1  # 2 wrong = 3/4 unreachable
 

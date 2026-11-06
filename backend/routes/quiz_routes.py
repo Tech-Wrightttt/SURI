@@ -41,7 +41,7 @@ from backend.models.schemas import (
 )
 
 from backend.history_utils import log_history
-from backend.problem_sampling import sample_mixed
+from backend.problem_sampling import recent_served_ids, sample_mixed
 
 import google.generativeai as genai
 
@@ -49,6 +49,7 @@ router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
 # ── Constants ────────────────────────────────────────────────────────────────
 PRACTICE_SET_SIZE = 5
+QUIZ_CHALLENGE_COUNT = 3  # of PRACTICE_SET_SIZE
 PASS_THRESHOLD = 4          # must pass ≥ 4 problems to advance (75%)
 BASE_POINTS = 500          # max points for fastest correct answer
 MIN_POINTS = 100            # floor for any correct answer
@@ -171,7 +172,7 @@ async def start_quiz(body: QuizStartRequest, student=Depends(get_current_student
 
         rows = await conn.fetch(
             "SELECT id, node_id, problem_expr, steps_json, word_problem_text, step_extras_json, difficulty "
-            "FROM practice_problems WHERE node_id = $1",
+            "FROM practice_problems WHERE node_id = $1 AND is_active",
             node_id,
         )
 
@@ -181,7 +182,9 @@ async def start_quiz(body: QuizStartRequest, student=Depends(get_current_student
                 detail={"error": "no_quiz_content", "node_id": node_id},
             )
 
-        sampled = sample_mixed([dict(r) for r in rows], total=PRACTICE_SET_SIZE, challenge=2)
+        seen = await recent_served_ids(conn, student_id, node_id)
+        sampled = sample_mixed([dict(r) for r in rows], total=PRACTICE_SET_SIZE, challenge=QUIZ_CHALLENGE_COUNT,
+                               exclude_ids=seen)
         problem_ids = [r["id"] for r in sampled]
 
         problems_out = []
