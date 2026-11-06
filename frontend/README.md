@@ -7,6 +7,23 @@ authoring. Setup, startup, and deployment instructions are in the
 For the soundtrack inventory, playback behavior, and audio credits, see
 [MUSIC AND SOUNDTRACK](MUSIC.md).
 
+## Optimized page images
+
+Page images use pre-generated WebP files so they work with the existing static
+image delivery across the Vercel Services gateway. To regenerate them after
+updating the original PNGs, run from the repository root:
+
+```powershell
+.venv/Scripts/python.exe frontend/scripts/optimize-images.py
+```
+
+The script requires Pillow with WebP support, preserves transparency and aspect
+ratios, and prints output sizes. Commit the generated files under `public/`.
+Mascots and battle sprites are capped at 640px, the logo at 600px, and the favicon
+at 64px. Full-screen backgrounds retain their source dimensions. Only backgrounds
+with the existing CSS blur use `login/library-blurred.webp`; the lesson page uses
+the full-resolution `login/library.webp`. Original PNGs remain as export sources.
+
 ## Guided tutorials
 
 First visits show a skippable guide for the dashboard, topic library and overview,

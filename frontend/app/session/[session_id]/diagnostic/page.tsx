@@ -39,7 +39,7 @@ const GAME_CSS = `
   }
   * { box-sizing: border-box; }
   .battle-body { font-family: 'Nunito', sans-serif; min-height: 100dvh; overflow-x: hidden; position: relative; background: #0a0010; display: flex; flex-direction: column; }
-  .arena-bg { background: url('/login/arena.png') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .arena-bg { background: url('/login/arena.webp') center bottom / cover no-repeat; position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .fog-wisp { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(40px); animation: fogDrift linear infinite; opacity: 0; }
   @keyframes fogDrift { 0% { opacity: 0; transform: translateX(-60px) scaleX(0.8); } 20% { opacity: 0.18; } 80% { opacity: 0.12; } 100% { opacity: 0; transform: translateX(80px) scaleX(1.2); } }
   .pillar { position: absolute; bottom: 32%; width: 48px; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #1c0c2e 0%, #2a1040 30%, #100618 100%); border: 1px solid rgba(155,89,182,0.2); box-shadow: inset 2px 0 6px rgba(0,0,0,0.6), inset -2px 0 6px rgba(0,0,0,0.6); }
@@ -390,7 +390,7 @@ const GAME_CSS = `
     padding: 18px clamp(16px, 4vw, 62px) 0;
     border: 3px solid rgba(245,199,93,0.34);
     border-bottom: 0;
-    background: url('/login/arena.png') center bottom / cover no-repeat;
+    background: url('/login/arena.webp') center bottom / cover no-repeat;
     box-shadow: inset 0 0 0 4px rgba(50,25,14,0.58), inset 0 -40px 70px rgba(0,0,0,0.38);
   }
   .arena-section::after {
@@ -789,7 +789,7 @@ const GAME_CSS = `
     justify-content: center;
     padding: clamp(118px, 14vh, 150px) 22px 34px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/results.png") center / cover no-repeat;
+    background: #83c3ff url("/login/results.webp") center / cover no-repeat;
     color: #3b1766;
   }
   .diagnostic-before .arena-bg {
@@ -1179,10 +1179,10 @@ type SuriState      = "idle" | "attack" | "hit" | "happy" | "sad" | "defeated";
 type EnemyAnimState = "idle" | "attack" | "hit" | "defeated" | "appear";
 
 function suriImg(s: SuriState): string {
-  if (s === "happy") return "/suri-snake-happy.png";
-  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.png";
-  if (s === "attack") return "/suri-snake-right.png";
-  return "/suri-snake-right.png";
+  if (s === "happy") return "/suri-snake-happy.webp";
+  if (s === "sad" || s === "hit" || s === "defeated") return "/suri-snake-sad.webp";
+  if (s === "attack") return "/suri-snake-right.webp";
+  return "/suri-snake-right.webp";
 }
 function suriAlt(s: SuriState): string {
   if (s === "happy")    return "Suri celebrating";
@@ -1520,7 +1520,7 @@ export default function DiagnosticPage() {
                   </div>
 
                   <div className="intro-char">
-                    <img src="/enemy-math-villain.png" alt="The Math Villain" className="intro-enemy-img" />
+                    <img src="/enemy-math-villain.webp" alt="The Math Villain" className="intro-enemy-img" />
                   </div>
 
                   <div className="intro-button-row">
@@ -1576,12 +1576,12 @@ export default function DiagnosticPage() {
                 </div>
                 <div className="sprite-frame">
                   {enemyDmg && <div className="dmg-number dmg-enemy" aria-live="assertive">{enemyDmg}</div>}
-                  <img src="/enemy-math-villain.png" alt="The Math Villain" className={enemyCls(enemyAnimState)} draggable={false} />
+                  <img src="/enemy-math-villain.webp" alt="The Math Villain" className={enemyCls(enemyAnimState)} draggable={false} />
                 </div>
               </div>
               {phase === "defeat" && (
                 <div className="outcome-overlay defeat-overlay" role="dialog" aria-label="Defeat screen">
-                  <img src="/suri-snake-sad.png" alt="Suri defeated" className="outcome-suri" />
+                  <img src="/suri-snake-sad.webp" alt="Suri defeated" className="outcome-suri" />
                   <h2 className="outcome-title defeat-title">DEFEATED!</h2>
                   <p className="outcome-subtitle">The Math Villain overpowered Suri! But every warrior learns from defeat...</p>
                   <button id="continue-btn" className="outcome-btn" style={{ background: "linear-gradient(180deg,#3dbf6e,#1a8a45)", borderColor: "#0f5430", color: "#fff", boxShadow: "0 6px 0 #0f5430" }} onClick={handleSeeResults} disabled={showingResults}>
@@ -1645,7 +1645,7 @@ export default function DiagnosticPage() {
                       )}
                       {feedback && (
                         <div className={`feedback-banner ${feedback.correct ? "correct" : "wrong"}`} role="status">
-                          <img src={feedback.correct ? "/suri-snake-happy.png" : "/suri-snake-sad.png"} alt={feedback.correct ? "Suri happy" : "Suri sad"} className={`feedback-suri${feedback.correct ? " feedback-excited" : ""}`} />
+                          <img src={feedback.correct ? "/suri-snake-happy.webp" : "/suri-snake-sad.webp"} alt={feedback.correct ? "Suri happy" : "Suri sad"} className={`feedback-suri${feedback.correct ? " feedback-excited" : ""}`} />
                           <div>
                             <p className="feedback-title"><GameIcon name={feedback.correct ? "sword" : "warning"} /> {feedback.correct ? "Direct Hit!" : feedback.blocked ? "Ward Blocked the Hit!" : "Enemy Strikes!"}</p>
                             <p className="feedback-quote">{feedback.correct ? "Excellent spell! The villain recoils in pain!" : feedback.blocked ? "Your shield held. This answer still counts as incorrect." : "That spell was not effective!"}</p>

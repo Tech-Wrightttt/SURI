@@ -98,7 +98,7 @@ const QUIZ_CSS = `
     background:
       radial-gradient(circle at 16% 22%, rgba(255,211,92,0.12), transparent 24%),
       radial-gradient(circle at 84% 18%, rgba(155,67,207,0.16), transparent 26%),
-      url('/login/arena.png') center bottom / cover no-repeat;
+      url('/login/arena.webp') center bottom / cover no-repeat;
     opacity: .38;
     mix-blend-mode: screen;
   }
@@ -1877,7 +1877,7 @@ export default function QuizPage() {
         <div className="quiz-card max-w-sm w-full text-center">
           <div className="quiz-panel">
             <img
-              src="/suri-snake-left.png"
+              src="/suri-snake-left.webp"
               alt="Suri"
               className="quiz-intro-suri"
             />
@@ -1913,7 +1913,7 @@ export default function QuizPage() {
           <header className="quiz-hud">
             <div className="quiz-title-block">
               <img
-                src="/suri-snake-left.png"
+                src="/suri-snake-left.webp"
                 alt="Suri Guide"
                 className="quiz-suri select-none shrink-0"
               />
@@ -2011,7 +2011,7 @@ export default function QuizPage() {
           <header className="quiz-hud">
             <div className="quiz-title-block">
               <img
-                src="/suri-snake-left.png"
+                src="/suri-snake-left.webp"
                 alt="Suri Guide"
                 className="quiz-suri select-none shrink-0"
               />
@@ -2268,7 +2268,7 @@ export default function QuizPage() {
             {hintText && (
               <div className="quiz-hint">
                 <img
-                  src="/suri-snake-left.png"
+                  src="/suri-snake-left.webp"
                   alt="Suri"
                 />
 
@@ -2386,7 +2386,7 @@ export default function QuizPage() {
               <div className="quiz-panel">
 
                 <img
-                  src="/suri-snake-happy.png"
+                  src="/suri-snake-happy.webp"
                   alt="Suri"
                   className="quiz-summary-suri"
                 />
@@ -2438,7 +2438,7 @@ export default function QuizPage() {
 
                 <div className="quiz-feedback">
                   <img
-                    src="/suri-snake-left.png"
+                    src="/suri-snake-left.webp"
                     alt="Suri"
                     className="h-14 w-auto object-contain shrink-0"
                   />
