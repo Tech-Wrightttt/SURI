@@ -4854,7 +4854,7 @@
       "node_id": "FD",
       "difficulty": "hard",
       "style": "plain",
-      "prompt": "Find the value of $ such that .25 + k - 1.75 = 4.5$.",
+      "prompt": "Find the value of $k$ such that $3.25 + k - 1.75 = 4.5$.",
       "answer_type": "number",
       "answer": "3",
       "accepted_variants": [],
@@ -4871,7 +4871,7 @@
         }
       ],
       "source_doc": "grade6_decimals_operations.pdf",
-      "content_hash": "sha256:e9775cb39308ebc4131956dcc5ea07cb42a01af9384b5caff914ea5e17fbda05"
+      "content_hash": "sha256:c8695ed1c6cf3a660df6a9abf22b53277566f16683e14f870a6a9fa5a7b5be1e"
     },
     {
       "id": "FD-H-16",

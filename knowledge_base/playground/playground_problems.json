@@ -5723,7 +5723,7 @@
       "node_id": "FD",
       "difficulty": "hard",
       "style": "plain",
-      "prompt": "Find the value of $ such that .25 + k - 1.75 = 4.5$.",
+      "prompt": "Find the value of $k$ such that $3.25 + k - 1.75 = 4.5$.",
       "answer_type": "number",
       "answer": "3",
       "accepted_variants": [],

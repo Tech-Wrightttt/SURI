@@ -4831,7 +4831,7 @@
         "mapped_node_id": "SP"
       }
     ],
-    "word_problem_text": "During a school fair booth design, a student plans to create a rectangular banner whose area is represented by the product of two binomials $$(3x + k)(3x - 5)$$. \\text{To achieve} a \\text{symmetric geometric pattern}, \\text{the student needs the middle term of the expanded product to be zero}. \\text{Determine the value of}$k$ that eliminates the middle term.",
+    "word_problem_text": "During a school fair booth design, a student plans to create a rectangular banner whose area is represented by the product of two binomials $(3x + k)(3x - 5)$. To achieve a symmetric geometric pattern, the student needs the middle term of the expanded product to be zero. Determine the value of $k$ that eliminates the middle term.",
     "step_extras_json": {
       "0": {
         "distractors": [
@@ -6192,7 +6192,7 @@
         "step_index": 1,
         "step_type": "algebra",
         "instruction": "Express 64 as a power of 2.",
-        "blank_expression": "$x^{6} = 2^$ ?",
+        "blank_expression": "$x^{6} = 2^{?}$",
         "correct_value": "6",
         "operation_description": "Rewrite the constant as a power.",
         "mapped_node_id": "LE"
@@ -6254,7 +6254,7 @@
         "step_index": 1,
         "step_type": "algebra",
         "instruction": "Apply the product rule for exponents $(a^{m}a^{n} = a^{m+n})$ to simplify the left side of the equation.",
-        "blank_expression": "$2^{3 + n} = 2^$ ?",
+        "blank_expression": "$2^{3 + n} = 2^{?}$",
         "correct_value": "9",
         "operation_description": "Use the product rule to combine exponents.",
         "mapped_node_id": "LE"
@@ -6324,7 +6324,7 @@
         "step_index": 0,
         "step_type": "variable_identification",
         "instruction": "Write the initial volume of the box as a power of 3.",
-        "blank_expression": "$V_\\text{initial} = 3^$ ?",
+        "blank_expression": "$V_\\text{initial} = 3^{?}$",
         "correct_value": "6",
         "operation_description": "Product Rule: $3^{4} \\cdot 3^{2} = 3^{4+2}$",
         "mapped_node_id": "LE"
@@ -6333,7 +6333,7 @@
         "step_index": 1,
         "step_type": "algebra",
         "instruction": "Represent the tripling of the volume as a multiplication by $3^{1}$.",
-        "blank_expression": "$V_\\text{new} = 3^{6} \\cdot 3^$ ?",
+        "blank_expression": "$V_\\text{new} = 3^{6} \\cdot 3^{?}$",
         "correct_value": "1",
         "operation_description": "Multiply by 3 to represent tripling",
         "mapped_node_id": "LE"
@@ -6342,7 +6342,7 @@
         "step_index": 2,
         "step_type": "algebra",
         "instruction": "Apply the product rule to combine the powers of 3.",
-        "blank_expression": "$3^{n} = 3^$ ?",
+        "blank_expression": "$3^{n} = 3^{?}$",
         "correct_value": "7",
         "operation_description": "Add exponents $6 + 1$",
         "mapped_node_id": "LE"
@@ -6403,7 +6403,7 @@
         "step_index": 0,
         "step_type": "variable_identification",
         "instruction": "Let $x$ be the exponent of the base 2 that represents the ratio of the volumes.",
-        "blank_expression": "$\\frac{2^{7}}{2^{3}} = 2^$ ?",
+        "blank_expression": "$\\frac{2^{7}}{2^{3}} = 2^{?}$",
         "correct_value": "4",
         "operation_description": "Set up the ratio using the Quotient Rule.",
         "mapped_node_id": "LE"
@@ -6412,7 +6412,7 @@
         "step_index": 1,
         "step_type": "algebra",
         "instruction": "Apply the Quotient Rule by subtracting the exponents.",
-        "blank_expression": "$2^{7-3} = 2^$ ?",
+        "blank_expression": "$2^{7-3} = 2^{?}$",
         "correct_value": "4",
         "operation_description": "Subtract the exponent of the denominator from the exponent of the numerator.",
         "mapped_node_id": "LE"
