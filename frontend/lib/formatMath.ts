@@ -122,3 +122,7 @@ export function formatMath(text: string): string {
 
 /** Show a blank (`___` or `?`) as a boxed question mark, wherever it sits, even inside a fraction. */
 export const blankToBox = (expr: string) => expr.replace(/_{2,}|\?/g, "\\boxed{\\;?\\;}");
+
+/** Markdown for KaTeX: formats delimited math, and wraps bare math-only strings (e.g. an option "3/4") in $...$. */
+export const mathMarkdown = (text: string) =>
+  !text || text.includes("$") || isProse(text) ? formatMath(text) : `$${formatSpan(text)}$`;

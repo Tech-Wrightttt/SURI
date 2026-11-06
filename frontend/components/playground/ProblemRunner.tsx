@@ -214,7 +214,7 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
               <li key={p.id} className={styles.summaryItem} data-result={result}>
                 <span className={styles.summaryIcon} aria-label={LABELS[result]}>{ICONS[result]}</span>
                 <span className={styles.summaryNumber}>{i + 1}.</span>
-                <PromptText text={p.prompt} className={styles.summaryPrompt} system />
+                <PromptText text={p.prompt} className={styles.summaryPrompt} system keepDiv={nodeId === "OI"} />
               </li>
             );
           })}
@@ -237,7 +237,7 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
         <span className={styles.chip}>{problem.style === "word" ? "Word" : "Equation"}</span>
         {problem.solved && <span className={`${styles.chip} ${styles.chipSolved}`} title="Already solved">✓ Solved before</span>}
       </div>
-      <div data-tutorial="playground-prompt"><PromptText text={problem.prompt} className={styles.prompt} system /></div>
+      <div data-tutorial="playground-prompt"><PromptText text={problem.prompt} className={styles.prompt} system keepDiv={nodeId === "OI"} /></div>
       <div className={styles.answerRow}>
         <div data-tutorial="playground-answer" className={styles.answerField}>
           <MathField key={problem.id} value={state.answer} onChange={handleChange} onEnter={check} disabled={locked || busy} />
@@ -266,8 +266,8 @@ export default function ProblemRunner({ nodeId, nodeLabel, difficulty, onOtherDi
           <ol className={styles.steps}>
             {fb.reveal.solution_steps.map((s, i) => (
               <li key={i}>
-                <PromptText text={s.explanation} className={styles.stepText} />
-                <PromptText text={`$$${s.latex}$$`} />
+                <PromptText text={s.explanation} className={styles.stepText} keepDiv={nodeId === "OI"} />
+                <PromptText text={`$$${s.latex}$$`} keepDiv={nodeId === "OI"} />
               </li>
             ))}
           </ol>
