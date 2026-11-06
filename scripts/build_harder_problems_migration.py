@@ -42,9 +42,14 @@ def main():
     new_rows = [ln for ln in read("scripts", "seed_challenge_problems.sql").splitlines()
                 if ln.startswith("INSERT INTO practice_problems")]
     new_quiz = re.findall(r"VALUES \('([^']+)'", "\n".join(new_rows))
+    # ids shipped by the first challenge release are already in the database; the rollback must not hide them
+    shipped = set(re.findall(r"VALUES \('([^']+)'", git_show("scripts/seed_challenge_problems.sql")))
+    new_quiz = [i for i in new_quiz if i not in shipped]
+    # the playground part exists only once assemble_playground.py has produced retired_ids.json
+    has_pg = os.path.exists(os.path.join(ROOT, "knowledge_base", "playground", "retired_ids.json"))
     pg_seed = [ln for ln in read("knowledge_base", "playground", "handoff", "seed_playground.sql").splitlines()
-               if ln.startswith("INSERT INTO playground_problems")]
-    retired = json.loads(read("knowledge_base", "playground", "retired_ids.json"))
+               if ln.startswith("INSERT INTO playground_problems")] if has_pg else []
+    retired = json.loads(read("knowledge_base", "playground", "retired_ids.json")) if has_pg else []
     live_pg = re.findall(r"VALUES \('([^']+)'", "\n".join(pg_seed))
 
     mig = [f"-- {NAME}: dedupe + harder quiz, diagnostic-adjacent practice rows and playground (CU-14ypx6259ur).",
@@ -55,10 +60,11 @@ def main():
            "ALTER TABLE playground_problems ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;", "",
            f"-- {len(old_quiz)} template-duplicate quiz rows",
            f"UPDATE practice_problems SET is_active = FALSE WHERE id IN ({ids_sql(old_quiz)});", "",
-           f"-- {len(new_rows)} new quiz rows (challenge + standard)", *new_rows, "",
-           f"-- {len(pg_seed)} playground rows (existing ids are skipped)", *pg_seed, "",
-           f"-- {len(retired)} playground problems replaced by harder ones",
-           f"UPDATE playground_problems SET is_active = FALSE WHERE id IN ({ids_sql(retired)});", "",
+           f"-- {len(new_rows)} quiz rows (challenge + standard; ids that already exist are skipped)", *new_rows, "",
+           *([f"-- {len(pg_seed)} playground rows (existing ids are skipped)", *pg_seed, "",
+              f"-- {len(retired)} playground problems replaced by harder ones",
+              f"UPDATE playground_problems SET is_active = FALSE WHERE id IN ({ids_sql(retired)});", ""] if has_pg else
+             ["-- playground: not part of this build (harder playground problems are not generated yet)", ""]),
            "COMMIT;", ""]
 
     old_bank = {p["id"] for p in json.loads(git_show("knowledge_base/playground/playground_problems.json"))["problems"]}
@@ -82,6 +88,11 @@ def main():
                 f"UPDATE playground_problems SET is_active = FALSE WHERE id IN ({ids_sql(new_pg)});",
                 "COMMIT;", ""]
 
+    # a statement over an empty id list is invalid SQL (the playground part may not exist yet)
+    pre = [ln for ln in pre if "IN ()" not in ln]
+    rollback = [ln for ln in rollback if "IN ()" not in ln]
+    last = max(i for i, ln in enumerate(pre) if ln.strip())
+    pre[last] = pre[last].rstrip(";") + ";"
     os.makedirs(OUT_DIR, exist_ok=True)
     for suffix, lines in (("", mig), ("_preflight", pre), ("_rollback", rollback)):
         path = os.path.join(OUT_DIR, NAME + suffix + ".sql")
