@@ -19,7 +19,7 @@ const LOGIN_CSS = `
     justify-content: center;
     padding: clamp(118px, 14vh, 150px) 22px 34px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/math-quest-academy.webp") center / cover no-repeat;
+    background: #83c3ff url("/landing/academy-desktop.webp") center / cover no-repeat;
     color: #3b1766;
   }
 
@@ -303,7 +303,8 @@ const LOGIN_CSS = `
     .quest-login {
       min-height: 100svh;
       padding: 154px 12px 18px;
-      background-position: 44% center;
+      background-image: url("/landing/academy-mobile.webp");
+      background-position: center;
     }
 
     .quest-crest {

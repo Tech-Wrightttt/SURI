@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,17 +12,17 @@ import styles from "./landing.module.css";
 
 const destinations = [
   {
-    image: "/login/library.webp", icon: BookOpen, number: "01", title: "Topic Library",
+    image: "/landing/library-card.webp", icon: BookOpen, number: "01", title: "Topic Library",
     description: "Explore algebra topics and the foundations behind each one.",
     detail: "Equations · Exponents · Polynomials", className: "library",
   },
   {
-    image: "/login/arena.webp", icon: Swords, number: "02", title: "Practice Arena",
+    image: "/landing/arena-card.webp", icon: Swords, number: "02", title: "Practice Arena",
     description: "Work through problems with feedback, hints, and math villains.",
     detail: "Guided practice · Topic quizzes", className: "arena",
   },
   {
-    image: "/login/results.webp", icon: Trophy, number: "03", title: "Progress Trail",
+    image: "/landing/results-card.webp", icon: Trophy, number: "03", title: "Progress Trail",
     description: "Review topic mastery, past attempts, and mistakes to revisit.",
     detail: "Mastery · Learning history", className: "progress",
   },
@@ -41,6 +41,30 @@ const questions = [
   { question: "What can I study?", answer: "Topics include equations, exponents, polynomials, and factoring, with supporting skills such as fractions and integers. Lesson content is grounded in DepEd curriculum materials." },
   { question: "Can I try it without an account?", answer: "You can answer the sample practice question on this page. Create an account to access lessons and save your learning progress." },
 ];
+
+function DeferredArtwork({ src }: { src: string }) {
+  const container = useRef<HTMLSpanElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = container.current;
+    if (!node) return;
+    if (!('IntersectionObserver' in window)) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setVisible(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: "160px" });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return <span ref={container} className={styles.deferredArtwork}>{visible && <Image src={src} alt="" fill sizes="(max-width: 720px) 100vw, (max-width: 1050px) 50vw, 70vw" loading="lazy" />}</span>;
+}
 
 function PracticePreview() {
   const [answer, setAnswer] = useState<number | null>(null);
@@ -84,7 +108,7 @@ export default function LandingPage() {
 
       <main id="main-content">
         <section className={styles.hero} aria-labelledby="hero-title">
-          <Image className={styles.heroArt} src="/login/math-quest-academy.webp" alt="Floating islands and a castle in SURI’s math world" fill sizes="100vw" priority />
+          <picture className={styles.heroArt}><source media="(max-width: 600px)" srcSet="/landing/academy-mobile.webp" /><img src="/landing/academy-desktop.webp" alt="Floating islands and a castle in SURI’s math world" width={1600} height={901} loading="eager" fetchPriority="high" decoding="async" /></picture>
           <div className={styles.heroInner}>
             <div className={styles.heroBoard}>
               <div className={styles.heroBoardInset}>
@@ -96,7 +120,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className={styles.heroDisplay} aria-hidden="true">
-              <div className={styles.displayImage}><Image src="/login/bookstand.webp" alt="" fill sizes="(max-width: 900px) 0px, 420px" /></div>
+              <div className={styles.displayImage}><Image src="/landing/bookstand.webp" alt="" fill sizes="(max-width: 900px) 0px, 420px" /></div>
               <div className={styles.mascot}><Image src="/suri-snake-happy.webp" alt="" width={160} height={160} /></div>
               <div className={styles.displayPlaque}><Sparkles size={17} /> LESSONS · PRACTICE · PROGRESS</div>
             </div>
@@ -106,12 +130,12 @@ export default function LandingPage() {
 
         <section id="features" className={styles.featuresSection} aria-labelledby="features-title">
           <div className={styles.sectionIntro}><span className={styles.eyebrow}>THE KINGDOM MAP</span><h2 id="features-title">Three places to learn</h2><p>Each part of the world supports a different part of your math journey.</p></div>
-          <div className={styles.destinationGrid}>{destinations.map(({ image, icon: Icon, number, title, description, detail, className }) => <article key={number} className={`${styles.destination} ${styles[className]}`}><div className={styles.destinationImage}><Image src={image} alt="" fill sizes="(max-width: 720px) 100vw, (max-width: 1050px) 50vw, 70vw" /><span className={styles.destinationNumber}>{number}</span></div><div className={styles.destinationCopy}><span className={styles.destinationIcon}><Icon size={26} /></span><div><h3>{title}</h3><p>{description}</p><span className={styles.destinationDetail}>{detail}</span></div></div></article>)}</div>
+          <div className={styles.destinationGrid}>{destinations.map(({ image, icon: Icon, number, title, description, detail, className }) => <article key={number} className={`${styles.destination} ${styles[className]}`}><div className={styles.destinationImage}><DeferredArtwork src={image} /><span className={styles.destinationNumber}>{number}</span></div><div className={styles.destinationCopy}><span className={styles.destinationIcon}><Icon size={26} /></span><div><h3>{title}</h3><p>{description}</p><span className={styles.destinationDetail}>{detail}</span></div></div></article>)}</div>
         </section>
 
         <section id="how-it-works" className={styles.howSection} aria-labelledby="how-title"><div className={styles.howInner}><div className={styles.howHeading}><span className={styles.eyebrow}>YOUR LEARNING PATH</span><h2 id="how-title">How a topic works</h2><p>One sequence takes you from your starting point to a topic review.</p></div><ol className={styles.steps}>{steps.map(({ icon: Icon, title, description }, index) => <li key={title}><span className={styles.stepNumber}>{String(index + 1).padStart(2,"0")}</span><Icon size={26} /><h3>{title}</h3><p>{description}</p></li>)}</ol></div></section>
 
-        <section id="sample-practice" className={styles.sampleSection} aria-labelledby="sample-title"><Image src="/login/arena.webp" alt="" fill sizes="100vw" className={styles.sampleBackground} /><div className={styles.sampleInner}><div className={styles.sampleInfo}><span className={styles.eyebrow}>TRY IT HERE</span><h2 id="sample-title">A quick practice question</h2><p>Answer this sample equation and see the feedback SURI gives. Your result stays on this page.</p><div className={styles.sampleMascot}><Image src="/suri-snake-happy.webp" alt="SURI’s snake companion" width={75} height={75} /><span>Try an answer. You can always try again.</span></div></div><PracticePreview /></div></section>
+        <section id="sample-practice" className={styles.sampleSection} aria-labelledby="sample-title"><Image src="/landing/arena-background.webp" alt="" fill sizes="100vw" className={styles.sampleBackground} loading="lazy" /><div className={styles.sampleInner}><div className={styles.sampleInfo}><span className={styles.eyebrow}>TRY IT HERE</span><h2 id="sample-title">A quick practice question</h2><p>Answer this sample equation and see the feedback SURI gives. Your result stays on this page.</p><div className={styles.sampleMascot}><Image src="/suri-snake-happy.webp" alt="SURI’s snake companion" width={75} height={75} /><span>Try an answer. You can always try again.</span></div></div><PracticePreview /></div></section>
 
         <section id="questions" className={styles.aboutSection} aria-labelledby="faq-title"><div className={styles.aboutInner}><div className={styles.aboutHeading}><span className={styles.eyebrow}>BEFORE YOU START</span><h2 id="faq-title">About SURI</h2><p>Answers to the most common questions.</p></div><div className={styles.faqList}>{questions.map(({ question, answer }) => <details key={question}><summary>{question}<ChevronDown size={20} /></summary><p>{answer}</p></details>)}</div></div></section>
       </main>

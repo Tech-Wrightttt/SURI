@@ -17,7 +17,8 @@
 .loginLink:hover, .menuToggle:hover { filter: brightness(1.08); }
 .menuToggle, .mobileNav { display: none; }
 .hero { position: relative; isolation: isolate; min-height: 100svh; padding: 140px 5% 118px; background: #438de0; border-bottom: 6px solid var(--wood); }
-.heroArt { z-index: 0; object-fit: cover; object-position: center; }
+.heroArt { position: absolute; inset: 0; z-index: 0; }
+.heroArt img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .hero::before, .hero::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .hero::before { background: linear-gradient(90deg, #221735b8 0%, #32204a75 33%, #30204425 64%, transparent 85%); }
 .hero::after { background: linear-gradient(0deg, #25101ac7, transparent 18%); }
@@ -58,6 +59,7 @@
 .destination { overflow: hidden; border: 5px solid var(--wood); background: var(--paper); box-shadow: 0 8px 0 #160b07, 0 18px 28px #25100d3d; }
 .destination.library { grid-row: span 2; }
 .destinationImage { position: relative; height: 195px; border-bottom: 4px solid var(--wood); overflow: hidden; }
+.deferredArtwork { position: absolute; inset: 0; }
 .library .destinationImage { height: 515px; }
 .destinationImage img { object-fit: cover; transition: transform .5s; }
 .destination:hover .destinationImage img { transform: scale(1.035); }
@@ -68,7 +70,7 @@
 .destination h3 { font-size: 25px; font-weight: 900; }
 .destination p { margin-top: 6px; color: #674933; font-size: 12px; font-weight: 800; line-height: 1.6; }
 .destinationDetail { display: inline-block; margin-top: 11px; color: #71318a; font-size: 10px; font-weight: 900; }
-.howSection { padding: 68px 5%; background: #372642 url('/login/library-blurred.webp') center / cover; border-block: 6px solid #5e3619; }
+.howSection { padding: 68px 5%; background: #372642 url('/landing/library-blurred.webp') center / cover; border-block: 6px solid #5e3619; }
 .howInner { max-width: 1160px; margin: auto; padding: 30px; border: 6px solid var(--wood); background: var(--paper); box-shadow: 0 9px 0 #160b07, 0 20px 35px #13091c80, inset 0 0 0 4px #6f3d1c29; }
 .howHeading { text-align: center; padding-bottom: 24px; border-bottom: 2px solid #8e673d55; }
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; margin: 0; padding: 27px 0 4px; }
