@@ -49,6 +49,11 @@ function operandStart(s: string, end: number): number {
     const base = operandStart(s, before);
     if (base >= 0) start = base;
   }
+  // implicit multiplication: (x+1)(x+2) / (x+1), 2(x+1) / 3
+  if (start > 0 && /[)}A-Za-z0-9]/.test(s[start - 1])) {
+    const prev = operandStart(s, start);
+    if (prev >= 0) start = prev;
+  }
   // unary minus: -48 \div 6 -> \frac{-48}{6}
   if (s[start - 1] === "-" && /(?:^|[=+\-*/(,^])\s*$/.test(s.slice(0, start - 1))) start--;
   return start;
@@ -76,6 +81,10 @@ function operandEnd(s: string, from: number): number {
   }
   if (s[end] === "^" || s[end] === "_") {
     const more = operandEnd(s, end + 1);
+    if (more >= 0) end = more;
+  }
+  if (end < s.length && /[(A-Za-z0-9\\]/.test(s[end])) {
+    const more = operandEnd(s, end);
     if (more >= 0) end = more;
   }
   return end;

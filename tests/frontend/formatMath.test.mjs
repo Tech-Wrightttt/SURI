@@ -20,3 +20,6 @@ test("idempotent", () => {
     assert.equal(formatMath(formatMath(x)), formatMath(x));
   }
 });
+test("adjacent groups multiply", () =>
+  assert.equal(formatMath("(x + 1)(x + 2) / (x + 1) = ?"), "\\frac{(x + 1)(x + 2)}{x + 1} = ?"));
+test("power over power", () => assert.equal(formatMath("x^5 / x^2 = x^(?)"), "\\frac{x^5}{x^2} = x^(?)"));
