@@ -126,6 +126,11 @@ def known_keys(node_id: str) -> set:
     return {i["key"] for i in load_items() if i["node"] == node_id}
 
 
+def known_texts(node_id: str) -> list:
+    """Display text of everything stored for a node (shown to generators so they vary the shape)."""
+    return [i["text"] for i in load_items() if i["node"] == node_id]
+
+
 # --- grouping ---------------------------------------------------------------------------------
 
 def groups(items: list, nodes=None) -> dict:

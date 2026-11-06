@@ -34,6 +34,7 @@ FULL_PATH = os.path.join(HERE, "playground_problems.json")
 REPORT_PATH = os.path.join(HERE, "work", "validation_report.json")
 DECISIONS_PATH = os.path.join(HERE, "work", "review_decisions.json")
 HANDOFF_DIR = os.path.join(HERE, "handoff")
+RETIRED_PATH = os.path.join(HERE, "retired_ids.json")
 MOCK_PATH = os.path.join(ROOT, "frontend", "lib", "playground", "mockProblems.json")
 
 NODES = ["QE", "FP", "SP", "LE", "OI", "FD", "SLE", "L2V", "L1V", "AE", "RPP", "RER", "PE", "PO"]
@@ -70,7 +71,8 @@ CREATE TABLE IF NOT EXISTS playground_problems (
     solution_steps_json TEXT NOT NULL,
     source_doc TEXT NOT NULL,
     content_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 CREATE INDEX IF NOT EXISTS idx_playground_problems_node_diff ON playground_problems(node_id, difficulty);
 
@@ -137,6 +139,18 @@ def seed_sql(problems: list, created_at: str) -> str:
             f"INSERT INTO playground_problems ({', '.join(COLUMNS)}) VALUES ({vals}) ON CONFLICT DO NOTHING;"
         )
     return "\n".join(lines) + "\n"
+
+
+def retire_sql(ids: list) -> str:
+    quoted = ", ".join(sql_quote(i) for i in ids)
+    return (
+        "-- Problems replaced by harder ones. Kept in the table (playground_solved may reference them) but hidden."
+        "\n"
+        "ALTER TABLE playground_problems ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;"
+        "\n"
+        f"UPDATE playground_problems SET is_active = FALSE WHERE id IN ({quoted});"
+        "\n"
+    )
 
 
 def update_sql(problems: list, changed_ids: list, created_at: str) -> str:
@@ -387,6 +401,12 @@ def build(sample: bool, out_dir: str = HANDOFF_DIR, mock_path: str = MOCK_PATH,
           json.dumps({"drop": manifest["drop"], "problems": public}, indent=2, ensure_ascii=False) + "\n")
     write("schema.sql", SCHEMA_SQL)
     write("seed_playground.sql", seed_sql(public, generated_at))
+    retired = load_json(RETIRED_PATH) if os.path.exists(RETIRED_PATH) else []
+    live = {p["id"] for p in public}
+    retired = [i for i in retired if i not in live]
+    if retired:
+        write("retire_playground.sql", retire_sql(retired))
+    manifest["retired_ids"] = len(retired)
     update_path = os.path.join(out_dir, "update_playground.sql")
     if changed_ids:
         write("update_playground.sql", update_sql(public, changed_ids, generated_at))

@@ -28,9 +28,14 @@ if ROOT not in sys.path:
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+CHALLENGE_DIR = os.path.join(ROOT, "knowledge_base", "challenge")
+if CHALLENGE_DIR not in sys.path:
+    sys.path.insert(0, CHALLENGE_DIR)
+
 from backend.graph import GRAPH  # noqa: E402
 from pdf_text import grounding_text  # noqa: E402
 from topic_specs import GLOBAL_RULES, load_seed, pdfs_for, spec_for  # noqa: E402
+from dedupe import known_keys, template_key  # noqa: E402
 
 RAW_DIR = os.path.join(HERE, "work", "raw")
 from pg_common import GEMINI_MODEL  # noqa: E402
@@ -109,6 +114,11 @@ def build_prompt(node_id: str, difficulty: str, n_word: int, n_plain: int) -> st
         f'  - answer_type "{t}" with required_form one of {forms}' for t, forms in spec["answer_types"].items()
     )
     excerpts = grounding_text(pdfs_for(node_id))
+    from dedupe import known_texts
+
+    shown = known_texts(node_id)[:12]
+    taken_shapes = ("EXISTING problems for this topic (do not repeat their shape or reuse their numbers):\n" +
+                    "\n".join("  - " + t[:110] for t in shown)) if shown else ""
     return f"""You are writing math practice problems for Filipino students (grade {grade}).
 Topic: {label} ({node_id}), difficulty: {difficulty}.
 
@@ -126,7 +136,7 @@ Write {n_word} WORD problems (style "word": a short real-life story that needs t
 {n_plain} PLAIN problems (style "plain": a direct math instruction such as "Solve ...", "Factor ...").
 The student types ONLY the final answer, so every problem needs exactly one well-defined final answer.
 
-Allowed problem kinds (tag each candidate with one in "kind"): {json.dumps(spec['kinds'])}
+Allowed problem kinds (tag each candidate with one in "kind"; spread them, use each kind at most twice): {json.dumps(spec['kinds'])}
 Word-problem contexts: {spec['word']}
 Allowed answer types:
 {types}
@@ -135,13 +145,14 @@ Notes: {spec['notes']}
 RULES
 {GLOBAL_RULES}
 - Prompts are Markdown with LaTeX in $...$ (inline). English only.
-- Vary the kinds across the batch and make every problem different.
-
+- Vary the kinds across the batch and make every problem different (a different shape, not the same template with new numbers).
+- Tag each candidate with a short `archetype` (2-4 words, e.g. "digit puzzle", "work and time", "break-even").
+{taken_shapes}
 {ANSWER_HELP}
 {COMPUTE_EXPR_HELP}
 OUTPUT
 Return ONLY a JSON array (no markdown fences) of {n_word + n_plain} objects with exactly these keys:
-"style", "kind", "prompt", "answer_type", "answer", "required_form", "unit" (string or null),
+"style", "kind", "archetype", "prompt", "answer_type", "answer", "required_form", "unit" (string or null),
 "solution_steps", "compute_expr".
 Because LaTeX uses backslashes, escape every backslash in the JSON (write \\\\frac for \\frac).
 """
@@ -173,6 +184,9 @@ def schema_errors(c: dict, spec: dict) -> list:
     return errs
 
 
+_DIV = re.compile("÷|\\\\div\\b")
+
+
 def norm_expr(s: str) -> str:
     return re.sub(r"\s+", "", s).lower()
 
@@ -188,20 +202,18 @@ def existing_exprs() -> set:
     return seen
 
 
-def generate_one(client, node_id: str, difficulty: str, n_word: int, n_plain: int, seen: set) -> list:
+def generate_one(client, node_id: str, difficulty: str, n_word: int, n_plain: int, seen: set,
+                 tag_suffix: str = "a") -> list:
     prompt = build_prompt(node_id, difficulty, n_word, n_plain)
     spec = spec_for(node_id, difficulty)
     from google.genai import types as gtypes
 
-    response = call_with_retry(
-        client,
-        model=GEMINI_MODEL,
-        contents=prompt,
-        config=gtypes.GenerateContentConfig(response_mime_type="application/json", temperature=0.9),
-    )
-    data = parse_gemini_json(response.text)
+    # shared limiter, daily call budget and on-disk response cache (resumable, never pays twice)
+    raw = client.call(f"pg-{node_id}-{difficulty}-{tag_suffix}", prompt, max_output_tokens=16384, temperature=0.9)
+    data = parse_gemini_json(raw)
     if isinstance(data, dict):
         data = data.get("problems") or data.get("candidates") or []
+    template_seen = known_keys(node_id)
     kept, counts = [], {"word": 0, "plain": 0}
     for c in data:
         errs = schema_errors(c, spec)
@@ -212,9 +224,17 @@ def generate_one(client, node_id: str, difficulty: str, n_word: int, n_plain: in
         if key in seen:
             print("    drop (duplicate compute_expr)")
             continue
+        if _DIV.search(json.dumps(c, ensure_ascii=False).replace("\\\\", "\\")):
+            print("    drop (uses ÷ or \\div)")
+            continue
+        tkey = template_key(c["prompt"])
+        if tkey in template_seen:
+            print("    drop (same template as an existing or earlier problem)")
+            continue
+        template_seen.add(tkey)
         seen.add(key)
         counts[c["style"]] += 1
-        c = {k: c.get(k) for k in ("style", "kind", "prompt", "answer_type", "answer", "required_form",
+        c = {k: c.get(k) for k in ("style", "kind", "archetype", "prompt", "answer_type", "answer", "required_form",
                                    "unit", "solution_steps", "compute_expr")}
         c["unit"] = c["unit"] or None
         c["node_id"] = node_id
@@ -232,8 +252,9 @@ def main():
     ap.add_argument("--difficulty", default="easy", choices=["easy", "medium", "hard"])
     ap.add_argument("--only", help="comma-separated node ids")
     ap.add_argument("--force", action="append", default=[], help="NODE-difficulty to regenerate")
-    ap.add_argument("--word", type=int, default=5, help="word candidates per call")
-    ap.add_argument("--plain", type=int, default=6, help="plain candidates per call")
+    ap.add_argument("--word", type=int, default=8, help="word candidates per call")
+    ap.add_argument("--plain", type=int, default=8, help="plain candidates per call")
+    ap.add_argument("--suffix", default="a", help="response-cache tag; use b, c ... for a top-up call")
     ap.add_argument("--dry-run", action="store_true", help="print the prompt and exit")
     args = ap.parse_args()
 
@@ -242,14 +263,9 @@ def main():
         print(build_prompt(nodes[0], args.difficulty, args.word, args.plain))
         return
 
-    from dotenv import load_dotenv
-    from google import genai
+    from gemini_pacing import Gemini, StopRun
 
-    load_dotenv(os.path.join(ROOT, ".env"))
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key:
-        sys.exit("ERROR: GEMINI_API_KEY not found in environment variables.")
-    client = genai.Client(api_key=key)
+    client = Gemini()
     os.makedirs(RAW_DIR, exist_ok=True)
     seen = existing_exprs()
 
@@ -264,12 +280,13 @@ def main():
             with open(path, encoding="utf-8") as f:
                 for c in json.load(f):
                     seen.discard(norm_expr(c["compute_expr"]))
-        if not first:
-            time.sleep(SLEEP_SECONDS)
         first = False
         print(f"generating {tag} ...")
         try:
-            kept = generate_one(client, node_id, args.difficulty, args.word, args.plain, seen)
+            kept = generate_one(client, node_id, args.difficulty, args.word, args.plain, seen, args.suffix)
+        except StopRun as stop:
+            print(f"\nSTOPPED: {stop}. Re-run the same command to resume.")
+            sys.exit(1)
         except Exception as exc:
             print(f"  FAILED {tag}: {exc}")
             continue
