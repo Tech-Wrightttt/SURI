@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Lock, Mail, ShieldAlert } from "lucide-react";
 import { login } from "@/lib/api";
+import AuthHomeLink from "@/components/landing/AuthHomeLink";
 
 const LOGIN_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@600;700;800;900&display=swap');
@@ -301,7 +302,7 @@ const LOGIN_CSS = `
   @media (max-width: 720px) {
     .quest-login {
       min-height: 100svh;
-      padding: 112px 12px 18px;
+      padding: 154px 12px 18px;
       background-position: 44% center;
     }
 
@@ -380,6 +381,7 @@ export default function LoginPage() {
 
   return (
     <main className="quest-login">
+      <AuthHomeLink />
       <style dangerouslySetInnerHTML={{ __html: LOGIN_CSS }} />
 
       <section className="quest-shell" aria-labelledby="login-heading">

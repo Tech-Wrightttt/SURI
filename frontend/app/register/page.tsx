@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, GraduationCap, Lock, Mail, ShieldAlert, User } from "lucide-react";
 import { register } from "@/lib/api";
+import AuthHomeLink from "@/components/landing/AuthHomeLink";
 
 const REGISTER_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@600;700;800;900&display=swap');
@@ -302,7 +303,7 @@ const REGISTER_CSS = `
   @media (max-width: 720px) {
     .quest-register {
       min-height: 100svh;
-      padding: 112px 12px 18px;
+      padding: 154px 12px 18px;
       background-position: 44% center;
     }
 
@@ -388,6 +389,7 @@ export default function RegisterPage() {
 
   return (
     <main className="quest-register">
+      <AuthHomeLink />
       <style dangerouslySetInnerHTML={{ __html: REGISTER_CSS }} />
 
       <section className="quest-shell" aria-labelledby="register-heading">
