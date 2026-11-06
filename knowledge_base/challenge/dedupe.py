@@ -156,6 +156,26 @@ def plan_removals(items: list) -> dict:
     return plan
 
 
+def apply_plan(plan: dict):
+    """Drop planned diagnostic probes and standard seed rows. Playground rows go in the playground rebuild."""
+    drop_q = set(plan.get("diagnostic", []))
+    with open(PROBES_PATH, encoding="utf-8") as f:
+        probes = json.load(f)
+    for node in probes:
+        probes[node] = [p for p in probes[node] if p["question_text"] not in drop_q]
+    with open(PROBES_PATH, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(probes, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    drop_ids = set(plan.get("practice", []))
+    with open(STANDARD_SQL, encoding="utf-8", newline="") as f:
+        lines = f.read().split("\n")
+    kept = [ln for ln in lines
+            if not (ln.startswith("INSERT INTO practice_problems") and _sql_values(ln)[0] in drop_ids)]
+    with open(STANDARD_SQL, "w", encoding="utf-8", newline="") as f:
+        f.write("\n".join(kept))
+    print(f"dropped {len(lines) - len(kept)} seed rows and {len(drop_q)} probes")
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -163,17 +183,20 @@ def main():
     ap.add_argument("--report", action="store_true", help="print duplicate groups per node")
     ap.add_argument("--nodes", help="comma-separated node ids")
     ap.add_argument("--plan", action="store_true", help="write dedupe_removals.json (keep the best of each group)")
+    ap.add_argument("--apply", action="store_true", help="--plan, then drop the marked probes and seed rows from the repo files")
     args = ap.parse_args()
     nodes = set(args.nodes.split(",")) if args.nodes else None
     items = load_items()
     found = groups(items, nodes)
     total = sum(len(g) for g in found.values())
-    if args.plan:
+    if args.plan or args.apply:
         plan = plan_removals(items)
         with open(REMOVALS_PATH, "w", encoding="utf-8", newline="\n") as f:
             json.dump(plan, f, indent=2, ensure_ascii=False)
             f.write("\n")
         print(f"wrote {REMOVALS_PATH}: " + ", ".join(f"{k} {len(v)}" for k, v in plan.items()))
+        if args.apply:
+            apply_plan(plan)
         return
     for node in sorted(found):
         print(f"\n== {node}: {len(found[node])} duplicate group(s)")

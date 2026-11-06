@@ -24,9 +24,9 @@ class FakeClock:
 
 
 class SpecScopeTests(unittest.TestCase):
-    def test_scope_is_the_fourteen_path_nodes(self):
-        self.assertEqual(len(IN_SCOPE), 14)
-        self.assertNotIn("PD", IN_SCOPE)
+    def test_scope_is_every_node_including_pd(self):
+        self.assertEqual(len(IN_SCOPE), 15)
+        self.assertIn("PD", IN_SCOPE)
         self.assertEqual(set(SPECS), set(IN_SCOPE))
 
     def test_age_problems_only_in_allowed_nodes(self):
