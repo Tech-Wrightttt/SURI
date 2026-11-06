@@ -147,7 +147,7 @@ def _diag(**over):
         "options": ["$14$", "$21$", "$28$", "$7$"], "correct_option_index": 0,
         "check": {"kind": "solve", "eq": "2*x + 7 = 35", "variable": "x", "roots": [14]},
         "kind": "work backwards from a think-of-a-number puzzle", "pattern": "work backwards",
-        "context": "game", "slm_concept": "solving a one-variable equation",
+        "context": "game", "archetype": "think of a number", "slm_concept": "solving a one-variable equation",
         "relationships": ["doubled", "added 7", "result 35"],
     }
     base.update(over)
@@ -225,7 +225,7 @@ def _quiz(**over):
         "cand_id": "quiz-L1V-00", "node_id": "L1V", "problem_expr": "2*x + 7 = 35", "answer": "14",
         "word_problem": "Marco thinks of a number, doubles it, and adds seven to get thirty-five. Find his number.",
         "check": {"kind": "solve", "eq": "2*x + 7 = 35", "variable": "x", "roots": [14]},
-        "kind": "work backwards from a think-of-a-number puzzle", "pattern": "work backwards", "context": "game",
+        "kind": "work backwards from a think-of-a-number puzzle", "pattern": "work backwards", "context": "game", "archetype": "think of a number",
         "slm_concept": "one-variable equations", "relationships": ["doubled", "added 7"], "all_steps": steps,
     }
     base.update(over)
@@ -326,3 +326,18 @@ class SelectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DivisionAndTemplateTests(unittest.TestCase):
+    def test_division_symbols_are_rejected(self):
+        self.assertTrue(gen.division_issue({"question_text": "Compute $12 \div 3$."}))
+        self.assertTrue(gen.division_issue({"options": ["$12 ÷ 3$"]}))
+        self.assertFalse(gen.division_issue({"question_text": "Compute $\frac{12}{3}$, 12 divided by 3."}))
+
+    def test_template_clash_masks_numbers(self):
+        from dedupe import template_key
+
+        taken = {template_key("x^2 - 9")}
+        self.assertTrue(gen.template_clash({"problem_expr": "x^2 - 16"}, taken))
+        self.assertTrue(gen.template_clash({"question_text": "$x^2 - 25$"}, taken))
+        self.assertFalse(gen.template_clash({"problem_expr": "x^2 + 16"}, taken))
