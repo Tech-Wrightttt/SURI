@@ -2,7 +2,7 @@
   "drop": 2,
   "sample": false,
   "complete": true,
-  "generated_at": "2026-11-06T22:14:33.231886+00:00",
+  "generated_at": "2026-11-06T22:42:39.074771+00:00",
   "counts": {
     "QE": {
       "easy": {
@@ -256,9 +256,11 @@
     "rejected": 6,
     "needs_review_remaining": 0
   },
-  "content_sha256": "0d584b47131ee17a887d118670433ab21de987fcf4107c57a4f146c888ea0a16",
+  "content_sha256": "37f3d2a2eaaa9d9b7dede775ea5b7a10019520b6baf6b02d864789edf022ec45",
   "changed_ids": [
-    "FD-H-15"
+    "RPP-M-13",
+    "SLE-E-06",
+    "SLE-E-08"
   ],
   "retired_ids": 306
 }

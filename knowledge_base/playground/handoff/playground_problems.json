@@ -5166,7 +5166,7 @@
       "node_id": "SLE",
       "difficulty": "easy",
       "style": "word",
-      "prompt": "A school fair sold two types of tickets: adult tickets and student tickets. Adult tickets cost \\text{₱}100 each, and student tickets cost \\text{₱}50 each. If a total of 15 tickets were sold for a total revenue of \\text{₱}1000, how many of each type of ticket were sold? Let $a$ be the number of adult tickets and $s$ be the number of student tickets. Your answer should be an ordered pair $(a, s)$.",
+      "prompt": "A school fair sold two types of tickets: adult tickets and student tickets. Adult tickets cost ₱100 each, and student tickets cost ₱50 each. If a total of 15 tickets were sold for a total revenue of ₱1000, how many of each type of ticket were sold? Let $a$ be the number of adult tickets and $s$ be the number of student tickets. Your answer should be an ordered pair $(a, s)$.",
       "answer_type": "ordered_pair",
       "answer": "(5, 10)",
       "accepted_variants": [],
@@ -5191,7 +5191,7 @@
         }
       ],
       "source_doc": "grade8_systems_equations_algebraic.pdf",
-      "content_hash": "sha256:4502509b663862049bba90c7b95d41500fefe9716402a383559603284d23b96a"
+      "content_hash": "sha256:ce7589be45a71860b40030adc0f1171c369b645bf8ac6cd8c76110ae3a6243c4"
     },
     {
       "id": "SLE-E-07",
@@ -5230,7 +5230,7 @@
       "node_id": "SLE",
       "difficulty": "easy",
       "style": "word",
-      "prompt": "Carlo has a collection of 12 coins, consisting of \\text{₱}5 coins and \\text{₱}10 coins. If the total value of the coins is \\text{₱}95, how many of each type of coin does he have? Let $f$ be the number of \\text{₱}5 coins and $t$ be the number of \\text{₱}10 coins. Your answer should be an ordered pair $(f, t)$.",
+      "prompt": "Carlo has a collection of 12 coins, consisting of ₱5 coins and ₱10 coins. If the total value of the coins is ₱95, how many of each type of coin does he have? Let $f$ be the number of ₱5 coins and $t$ be the number of ₱10 coins. Your answer should be an ordered pair $(f, t)$.",
       "answer_type": "ordered_pair",
       "answer": "(5, 7)",
       "accepted_variants": [],
@@ -5255,7 +5255,7 @@
         }
       ],
       "source_doc": "grade8_systems_equations_algebraic.pdf",
-      "content_hash": "sha256:23e027d705c4233acb50312602fb5bcae02700a459215c37ada9c1fc87b68d6b"
+      "content_hash": "sha256:f735026220d89959b8440c4707529f4d0c4ca047171560a15581b85c8211a88f"
     },
     {
       "id": "SLE-E-09",
@@ -8654,7 +8654,7 @@
       "node_id": "RPP",
       "difficulty": "medium",
       "style": "plain",
-      "prompt": "Solve for x in the following proportion: \\frac{x}{12} = \\frac{9}{18}.",
+      "prompt": "Solve for $x$ in the following proportion: $\\frac{x}{12} = \\frac{9}{18}$.",
       "answer_type": "number",
       "answer": "6",
       "accepted_variants": [],
@@ -8671,7 +8671,7 @@
         }
       ],
       "source_doc": "grade6_percent.pdf",
-      "content_hash": "sha256:11e991ec9149c1534e6f019c5c4b1bd354efa59a6bb9619c754e187b895240bb"
+      "content_hash": "sha256:c1b30473afb1910360847235305a09f8a47c69064962491b3e17f44e2a447ffc"
     },
     {
       "id": "RPP-M-14",
