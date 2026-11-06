@@ -1,6 +1,6 @@
 {
   "version": "purple-afternoon-v2",
-  "sourceHash": "3a801acf7158ebe1480a3829431262e08a8872ee70102c1ec6c53db12c2e610c",
+  "sourceHash": "4e7db00f468835642290fac90078137d3f493038871ad75e70c5a3d34994b0de",
   "probes": [
     {
       "x": -5.7,
@@ -56,10 +56,10 @@
   "bounds": {
     "minX": -70,
     "maxX": 70,
-    "minZ": -55,
+    "minZ": -68,
     "maxZ": 55
   },
-  "bakeSize": 512,
+  "bakeSize": 576,
   "atlasSize": 1024,
   "channels": {
     "lighting": [
@@ -83,9 +83,9 @@
     "afternoon-sky.webp": 7068,
     "architecture-reliefs.webp": 11274,
     "architecture-surface.webp": 243286,
-    "coast-depth.png": 233896,
+    "coast-depth.png": 286437,
     "coastal-cloud.webp": 43034,
-    "lighting-mask.webp": 166758,
+    "lighting-mask.webp": 197398,
     "terrain-albedo.webp": 42726,
     "terrain-normal.webp": 848870,
     "terrain-rma.webp": 765632,

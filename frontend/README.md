@@ -49,7 +49,7 @@ that accounts for the visible viewport and math keyboard.
 ## Dashboard navigation and interaction
 
 The five landmark IDs map to these destinations in
-[navigation.ts](lib/worldMap/navigation.ts):
+[navigationConfig.ts](lib/worldMap/navigationConfig.ts):
 
 | Landmark ID | Destination | Route |
 | --- | --- | --- |
@@ -151,6 +151,15 @@ Water requests renders at 30 Hz in all current profiles. Input, camera, and glow
 animations can invalidate at display cadence. The water timer pauses in hidden
 documents and inactive canvases. Reduced motion freezes water, cloth, and ambient
 positions. Terrain geometry, foliage placement, and baked lighting remain static.
+
+Scene geometry, ambient actors, and environment textures begin loading together
+inside the dashboard canvas. Static visibility and LOD are reused until the
+camera or viewport changes; settled camera poses skip matrix updates. Actor
+colors upload only when the visible instance order changes.
+
+The topic carousel shares its board, clasp, and primitive geometry across all
+books and disposes those buffers when the carousel unmounts. It uses Fiber's
+existing perspective camera, with the same framing and beveled book shapes.
 
 Camera controllers own their frusta (`manual: true` on Canvas). Fiber's DPR
 resize must not overwrite them, preserving POV, zoom, framing, pan constraints,
