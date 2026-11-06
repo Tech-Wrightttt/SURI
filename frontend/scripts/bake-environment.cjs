@@ -9,7 +9,8 @@ const {makeSupportingArchitecture}=require('../lib/worldMap/supportingArchitectu
 const {makeEnvironmentDecor}=require('../lib/worldMap/environmentDecor.ts');
 const {makeTraversalArchitecture}=require('../lib/worldMap/traversalArchitecture.ts');
 const {LANDMARK_SCALE}=require('../lib/worldMap/framing.ts');
-const size=512,b=e.ENVIRONMENT_BOUNDS,data=new Float32Array(size*size*2);
+// Preserve coastline texel density across the deeper northern scenery area.
+const size=576,b=e.ENVIRONMENT_BOUNDS,data=new Float32Array(size*size*2);
 for(let z=0;z<size;z++)for(let x=0;x<size;x++){
   const wx=b.minX+x/(size-1)*(b.maxX-b.minX),wz=b.minZ+z/(size-1)*(b.maxZ-b.minZ),i=(z*size+x)*2;
   const sample=w.islandAt(wx,wz);data[i]=w.islandHeight(wx,wz,sample.island,sample.coast);data[i+1]=sample.coast;

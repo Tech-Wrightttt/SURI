@@ -1,9 +1,9 @@
 "use client";
 
-import { PerspectiveCamera } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { getFrameElapsedTime } from "@/lib/three/frameClock";
 import { configureWorldRenderer } from "@/lib/three/renderer";
 import FantasySpellbook, { useSpellbookAssets } from "@/components/FantasySpellbook";
 import { getSpellbookLayout } from "@/lib/three/spellbookLayout";
@@ -79,9 +79,7 @@ function Book({
     const focus = emphasis.current;
     const hover = hoverLift.current;
     const worldAngle = angle + carouselRotation.current;
-    // R3F 9.8.1 exposes a Clock (elapsedTime), 9.8.2+ a Timer (getElapsed()).
-    const clock = state.clock as unknown as { elapsedTime?: number; getElapsed?: () => number };
-    const elapsed = clock.getElapsed ? clock.getElapsed() : (clock.elapsedTime ?? 0);
+    const elapsed = getFrameElapsedTime(state.clock);
     const bob = reducedMotion ? 0 : Math.sin(elapsed * .95 + phase) * (.10 + index * .008);
     // The book at the far side rises above the foreground volume instead of
     // disappearing directly behind it, so all four positions stay legible.
@@ -113,6 +111,7 @@ function CarouselScene({ books, activeIndex, onBookClick, onBookIntent, onPeakLa
   const assets = useSpellbookAssets();
   const invalidate = useThree(state => state.invalidate);
   const canvas = useThree(state => state.gl.domElement);
+  const camera = useThree(state => state.camera);
   const size = useThree(state => state.size);
   const carousel = useRef<THREE.Group>(null);
   const rotation = useRef(0);
@@ -126,6 +125,13 @@ function CarouselScene({ books, activeIndex, onBookClick, onBookIntent, onPeakLa
   // Fit the wider, open book without making the phone presentation too small.
   const aspect = size.width / Math.max(1, size.height);
   const cameraZ = Math.max(12.9, 6.2 / (Math.tan(THREE.MathUtils.degToRad(20)) * Math.max(.9, aspect)));
+  useLayoutEffect(() => {
+    // Fiber already owns a perspective camera and keeps its aspect up to date.
+    camera.position.set(0, .22, cameraZ);
+    camera.quaternion.identity();
+    camera.updateMatrixWorld();
+    invalidate();
+  }, [camera, cameraZ, invalidate]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -193,7 +199,6 @@ function CarouselScene({ books, activeIndex, onBookClick, onBookIntent, onPeakLa
   });
 
   return <>
-    <PerspectiveCamera makeDefault position={[0, .22, cameraZ]} fov={40} near={.1} far={100} />
     <ambientLight intensity={1.15} color="#fff5d7" />
     <hemisphereLight args={["#f8dfaa", "#211009", 1.05]} />
     <directionalLight castShadow position={[-5, 7, 8]} intensity={2.25} color="#fff0c6" shadow-mapSize-width={1024} shadow-mapSize-height={1024} />

@@ -1,8 +1,11 @@
 import { ArchitectureBuilder } from "./architecture";
-import { ISLANDS, PRIMARY_ISLANDS, SITES, WORLD_BOUNDS, insideWorld, islandAt, islandScore, roadDistance, seededRandom, siteDistance, terrainHeight, terrainSlope } from "./landscape";
+import { ISLANDS, PRIMARY_ISLANDS, SITES, WORLD_BOUNDS, insideWorld, islandAt, islandScore, roadDistance, seededRandom, siteDistance, terrainHeight, terrainSlope, type Island } from "./landscape";
+import { UPPER_ISLANDS } from "./northernIslands";
 import { decorClearance } from "./environmentDecor";
 import { outpostDistance } from "./supportingArchitecture";
 import { traversalClearance } from "./traversal";
+
+const rearScenery: ReadonlySet<Island> = new Set(Object.values(UPPER_ISLANDS));
 
 function tree(b:ArchitectureBuilder,x:number,z:number,size:number,oak:boolean,highland=false,surface=terrainHeight) {
   const y=surface(x,z);
@@ -53,6 +56,9 @@ export function makeVegetation(distant=false,surface=terrainHeight) {
   for(let z=WORLD_BOUNDS.minZ+2;z<WORLD_BOUNDS.maxZ-2;z+=spacing)for(let x=WORLD_BOUNDS.minX+2;x<WORLD_BOUNDS.maxX-2;x+=spacing){
     const px=x+random()*spacing*0.75,pz=z+random()*spacing*0.75;
     const sample=islandAt(px,pz),biome=sample.island.biome;
+    // Rear islets stay terrain-only, preserving the existing forest's random
+    // sequence even when one is repositioned inside the vegetation grid.
+    if(rearScenery.has(sample.island))continue;
     if(sample.coast<1.4||!insideWorld(px,pz)||siteDistance(px,pz)<6.3||roadDistance(px,pz)<1.25||traversalClearance(px,pz)<1.35||decorClearance(px,pz)<.8||outpostDistance(px,pz)<.7)continue;
     const slope=terrainSlope(px,pz),height=terrainHeight(px,pz);
     if(slope>0.85||height>9||biome==="reef"||biome==="stack")continue;

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, GraduationCap, Lock, Mail, ShieldAlert, User } from "lucide-react";
 import { register } from "@/lib/api";
+import AuthHomeLink from "@/components/landing/AuthHomeLink";
 
 const REGISTER_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Nunito:wght@600;700;800;900&display=swap');
@@ -18,7 +19,7 @@ const REGISTER_CSS = `
     justify-content: center;
     padding: clamp(118px, 14vh, 150px) 22px 34px;
     font-family: "Nunito", sans-serif;
-    background: #83c3ff url("/login/math-quest-academy.png") center / cover no-repeat;
+    background: #83c3ff url("/landing/academy-desktop.webp") center / cover no-repeat;
     color: #3b1766;
   }
 
@@ -302,8 +303,9 @@ const REGISTER_CSS = `
   @media (max-width: 720px) {
     .quest-register {
       min-height: 100svh;
-      padding: 112px 12px 18px;
-      background-position: 44% center;
+      padding: 154px 12px 18px;
+      background-image: url("/landing/academy-mobile.webp");
+      background-position: center;
     }
 
     .quest-crest {
@@ -388,6 +390,7 @@ export default function RegisterPage() {
 
   return (
     <main className="quest-register">
+      <AuthHomeLink />
       <style dangerouslySetInnerHTML={{ __html: REGISTER_CSS }} />
 
       <section className="quest-shell" aria-labelledby="register-heading">

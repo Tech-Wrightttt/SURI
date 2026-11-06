@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLearningSnapshot, staleLearningData, subscribeLearningData } from "@/lib/learningData";
-import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
+import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigationConfig";
 import DashboardWorldBoundary from "@/components/WorldMap/DashboardWorldBoundary";
 import TutorialProvider from "@/components/tutorial/TutorialProvider";
 import BackgroundMusic from "@/components/audio/BackgroundMusic";
@@ -396,12 +396,12 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   return <NavigationContext.Provider value={context}>
     {/* Keep each track mounted so switching sections preserves its playhead. */}
-    <BackgroundMusic active={isBackgroundMusicRoute(pathname)} src="/sounds/music/TempleOfWater_MainBG.mp3" />
-    <BackgroundMusic active={isLessonMusicRoute(pathname)} src="/sounds/music/Underworld_LessonBG.mp3" />
-    <BackgroundMusic active={isQuizMusicRoute(pathname)} src="/sounds/music/Suspicion_QuizBG.mp3" />
-    <BackgroundMusic active={isPracticeMusicRoute(pathname)} src="/sounds/music/Observatory_PracticeBG.mp3" />
-    <BackgroundMusic active={isDiagnosticMusicRoute(pathname)} src="/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.mp3" />
-    <BackgroundMusic active={isResultsMusicRoute(pathname)} src="/sounds/music/Legend_ResultsBG.mp3" />
+    <BackgroundMusic active={isBackgroundMusicRoute(pathname)} src="/sounds/music/TempleOfWater_MainBG.opus" />
+    <BackgroundMusic active={isLessonMusicRoute(pathname)} src="/sounds/music/Underworld_LessonBG.opus" />
+    <BackgroundMusic active={isQuizMusicRoute(pathname)} src="/sounds/music/Suspicion_QuizBG.opus" />
+    <BackgroundMusic active={isPracticeMusicRoute(pathname)} src="/sounds/music/Observatory_PracticeBG.opus" />
+    <BackgroundMusic active={isDiagnosticMusicRoute(pathname)} src="/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.opus" />
+    <BackgroundMusic active={isResultsMusicRoute(pathname)} src="/sounds/music/Legend_ResultsBG.opus" />
     <TutorialProvider userId={data?.me.student_id} identityReady={Boolean(data || dataError)}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>

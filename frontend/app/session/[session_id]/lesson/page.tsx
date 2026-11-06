@@ -91,7 +91,7 @@ const LESSON_CSS = `
     background:
       radial-gradient(circle at 16% 22%, rgba(255,211,92,0.12), transparent 24%),
       radial-gradient(circle at 84% 18%, rgba(155,67,207,0.16), transparent 26%),
-      url('/login/library.png') center bottom / cover no-repeat;
+      url('/login/library.webp') center bottom / cover no-repeat;
     opacity: .32;
     mix-blend-mode: screen;
   }
@@ -1066,7 +1066,7 @@ export default function LessonPage() {
         <header className="tome-hud">
           <div className="tome-title-block">
             <div className={`tome-suri-frame${chargeClass}`}>
-              <img src="/suri-snake-left.png" alt="Suri Guide" className="tome-suri select-none" />
+              <img src="/suri-snake-left.webp" alt="Suri Guide" className="tome-suri select-none" />
             </div>
             <div className="min-w-0">
               <span className="tome-eyebrow">Spellbook Study</span>
@@ -1095,7 +1095,7 @@ export default function LessonPage() {
 
         {/* ── Suri's tip balloon ── */}
         <div className="tome-speech">
-          <img src="/suri-snake-left.png" alt="Suri Guide" className="select-none" />
+          <img src="/suri-snake-left.webp" alt="Suri Guide" className="select-none" />
           <p>
             Suri says: <strong>&ldquo;{suriTip}&rdquo;</strong>
           </p>
@@ -1192,7 +1192,7 @@ export default function LessonPage() {
           <aside className="villain-watch" aria-label="Count Calculus preview">
             <h2 className="villain-title"><Flame className="w-4 h-4" /> Villain Watch</h2>
             <div className="villain-portrait">
-              <img src="/enemy-math-villain.png" alt="Count Calculus watching from afar" />
+              <img src="/enemy-math-villain.webp" alt="Count Calculus watching from afar" />
             </div>
             <div className="villain-box">
               <strong>Count Calculus</strong>
