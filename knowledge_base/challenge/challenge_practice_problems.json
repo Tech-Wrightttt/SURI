@@ -5682,5 +5682,1935 @@
       }
     },
     "difficulty": "standard"
+  },
+  {
+    "id": "b50fabf5-4e6d-5651-b31c-76bc592a9a33",
+    "node_id": "SLE",
+    "problem_expr": "2*(x + y) = 24, x - y = 2",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Write the perimeter equation as $x + y =$ ___.",
+        "blank_expression": "$x + y =$ ?",
+        "correct_value": "12",
+        "operation_description": "Divide perimeter by 2",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Add the equations $(x + y =$ 12) and $(x - y =$ 2) to eliminate $y$.",
+        "blank_expression": "$2x =$ ?",
+        "correct_value": "14",
+        "operation_description": "Addition",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Solve for the length $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "7",
+        "operation_description": "Division",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Substitute $x = 7$ into $x + y = 12$ to find the width $y$.",
+        "blank_expression": "$y =$ ?",
+        "correct_value": "5",
+        "operation_description": "Subtraction",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Calculate the area by multiplying length by width $(xy)$.",
+        "blank_expression": "$\\text{Area} =$ ?",
+        "correct_value": "35",
+        "operation_description": "Multiplication",
+        "mapped_node_id": "SLE"
+      }
+    ],
+    "word_problem_text": "A canteen manager is arranging a rectangular snack table. The perimeter of the table is 24 meters. The difference between the length $x$ and the width $y$ is 2 meters. What is the area of the table in square meters?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "24",
+          "48",
+          "6"
+        ],
+        "hint": "The perimeter of a rectangle is given by $P = 2(x + y)$. To isolate $x + y$, divide the total perimeter by $2$."
+      },
+      "1": {
+        "distractors": [
+          "10",
+          "24",
+          "144"
+        ],
+        "hint": "When you add the two equations $(x + y = 12)$ and $(x - y = 2)$, the $y$ and $-y$ terms cancel out, leaving $2x$ equal to the sum of the constants."
+      },
+      "2": {
+        "distractors": [
+          "28",
+          "12",
+          "7.5"
+        ],
+        "hint": "Since $2x = 14$, divide both sides of the equation by $2$ to find the value of $x$."
+      },
+      "3": {
+        "distractors": [
+          "19",
+          "7",
+          "17"
+        ],
+        "hint": "If $x + y = 12$ and you know $x = 7$, subtract $7$ from $12$ to isolate $y$."
+      },
+      "4": {
+        "distractors": [
+          "12",
+          "24",
+          "60"
+        ],
+        "hint": "The area of a rectangle is calculated by multiplying its length and width: $\\text{Area} = x \\times y$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "dbf0f90c-b124-5da1-96a2-6c589f89c2ac",
+    "node_id": "SLE",
+    "problem_expr": "2*x + 3*y = 12, k*x + 6*y = 10",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the coefficients of $x$ and $y$ in the first equation.",
+        "blank_expression": "$A1 = 2, B1 =$ ?",
+        "correct_value": "3",
+        "operation_description": "Identify B1",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Identify the coefficients of $x$ and $y$ in the second equation.",
+        "blank_expression": "$A2 = k, B2 =$ ?",
+        "correct_value": "6",
+        "operation_description": "Identify B2",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "For the system to have no solution, the ratio of the coefficients must be equal: A1/A2 $=$ B1/B2. Set up this ratio.",
+        "blank_expression": "$\\frac{2}{k} = 3/$ ?",
+        "correct_value": "6",
+        "operation_description": "Set up ratio",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Cross-multiply to solve for $k$.",
+        "blank_expression": "$3k =$ ?",
+        "correct_value": "12",
+        "operation_description": "Cross-multiply",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Divide by 3 to isolate $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "4",
+        "operation_description": "Division",
+        "mapped_node_id": "SLE"
+      }
+    ],
+    "word_problem_text": "At a school fair, the Math Club sells two types of snacks: $x$ (bags of popcorn) and $y$ (cups of juice). The club's financial plan is represented by the system of equations: $2x + 3y = 12$ and $kx + 6y = 10$. Find the value of $k$ such that this system has no solution.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "2",
+          "12",
+          "0"
+        ],
+        "hint": "Look at the term attached to the variable $y$ in the first equation $2x + 3y = 12$."
+      },
+      "1": {
+        "distractors": [
+          "2",
+          "10",
+          "k"
+        ],
+        "hint": "Examine the second equation $\\text{kx} + 6y = 10$ and identify the numerical coefficient for $y$."
+      },
+      "2": {
+        "distractors": [
+          "3",
+          "2",
+          "12"
+        ],
+        "hint": "For a system of equations to have no solution, the ratios of the coefficients of $x$ and $y$ must be equal: $\\frac{A1}{A2} = \\frac{B1}{B2}$."
+      },
+      "3": {
+        "distractors": [
+          "6",
+          "18",
+          "2"
+        ],
+        "hint": "Multiply the numerator of one fraction by the denominator of the other: $2 \\times 6 = k \\times 3$."
+      },
+      "4": {
+        "distractors": [
+          "36",
+          "9",
+          "3"
+        ],
+        "hint": "To isolate $k$ in the equation $3k = 12$, divide both sides of the equation by $3$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "56272b14-3bff-5857-a33e-e096183db717",
+    "node_id": "L1V",
+    "problem_expr": "x + (x + 3) + 2*x = 45",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ represent the age of the first sibling. Write the expression for the sum of the three ages.",
+        "blank_expression": "? $= 45$",
+        "correct_value": "x + (x + 3) + 2x",
+        "operation_description": "Translate the problem into an algebraic equation.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Combine the terms with $x$.",
+        "blank_expression": "? $+ 3 = 45$",
+        "correct_value": "4x",
+        "operation_description": "Simplify the left side of the equation.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Subtract 3 from both sides of the equation.",
+        "blank_expression": "$4x =$ ?",
+        "correct_value": "42",
+        "operation_description": "Isolate the variable term.",
+        "mapped_node_id": "L1V"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Divide both sides by 4 to solve for $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "10.5",
+        "operation_description": "Find the value of the variable.",
+        "mapped_node_id": "L1V"
+      }
+    ],
+    "word_problem_text": "In a family that tends a community garden, there are three siblings. The sum of their ages is 45. If the second sibling is 3 years older than the first, and the third sibling is twice the age of the first, find the age of the first sibling.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x + (x - 3) + 2x",
+          "x + (x + 3) + \\frac{x}{2}",
+          "x + 3 + 2x"
+        ],
+        "hint": "Identify the expression for each sibling based on the first sibling's age $x$. The second is $x+3$ and the third is $2x$."
+      },
+      "1": {
+        "distractors": [
+          "3x",
+          "2x",
+          "4x + 3"
+        ],
+        "hint": "Add the coefficients of all $x$ terms together: $1x + 1x + 2x$."
+      },
+      "2": {
+        "distractors": [
+          "48",
+          "45",
+          "\\frac{42}{4}"
+        ],
+        "hint": "Subtract 3 from both sides of the equation $4x + 3 = 45$ to isolate the term with the variable."
+      },
+      "3": {
+        "distractors": [
+          "14",
+          "10",
+          "168"
+        ],
+        "hint": "Divide the total on the right side by the coefficient of $x$, which is 4."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "16c864ca-bfc5-5f4e-bdb7-48f6aa022a93",
+    "node_id": "FD",
+    "problem_expr": "(12 - (1/4)*12 - (1/6)*(12 - (1/4)*12)) / 3 = x",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the remaining length of the ribbon after the first cut. Find $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "12 - (\\frac{1}{4}) \\cdot 12",
+        "operation_description": "Calculate the ribbon length after the first cut.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the length removed in the second cut $(\\frac{1}{6}$ of the remaining ribbon).",
+        "blank_expression": "? $= (\\frac{1}{6}) \\cdot 9$",
+        "correct_value": "1.5",
+        "operation_description": "Multiply the fraction by the current remaining length.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Find the final length of the ribbon remaining before sharing.",
+        "blank_expression": "? $= 9 - 1.5$",
+        "correct_value": "7.5",
+        "operation_description": "Subtract the second cut from the remaining length.",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Divide the final remaining length by 3 to find each classmate's share.",
+        "blank_expression": "? $= \\frac{7.5}{3}$",
+        "correct_value": "2.5",
+        "operation_description": "Divide the final piece of ribbon by the number of classmates.",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "Liza has a ribbon that is 12 meters long. She cuts off $\\frac{1}{4}$ of the total length to wrap a gift. Then, she cuts off $\\frac{1}{6}$ of the remaining ribbon to decorate a box. Finally, she divides the rest of the ribbon equally among 3 of her classmates. How many meters of ribbon does each classmate receive?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "12 + (\\frac{1}{4}) \\cdot 12",
+          "12(\\frac{1}{4})",
+          "(\\frac{1}{4}) \\cdot 12"
+        ],
+        "hint": "To find the remaining length after the first cut, subtract the piece removed from the total length of $12$ meters."
+      },
+      "1": {
+        "distractors": [
+          "\\frac{1}{6}",
+          "12(\\frac{1}{6})",
+          "9 + (\\frac{1}{6})"
+        ],
+        "hint": "The second cut is $\\frac{1}{6}$ of the remaining ribbon, which was calculated as $9$ meters in the previous step."
+      },
+      "2": {
+        "distractors": [
+          "9 + 1.5",
+          "9 \\cdot 1.5",
+          "12 - 1.5"
+        ],
+        "hint": "The ribbon length after the second cut is found by subtracting the length removed from the previous remaining length of $9$ meters."
+      },
+      "3": {
+        "distractors": [
+          "7.5 \\cdot 3",
+          "7.5 + 3",
+          "7.5 - 3"
+        ],
+        "hint": "To share the ribbon equally among $3$ classmates, you need to divide the final remaining length by $3$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "473da1b8-31cd-5616-ac0a-c36f496f40c3",
+    "node_id": "FD",
+    "problem_expr": "(2.5 * 3) / 6",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the total cups of flour after scaling the recipe by 3. Write the equation.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "2.5 \\cdot 3",
+        "operation_description": "multiplication of a mixed number and a whole number",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Calculate the total cups of flour.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "7.5",
+        "operation_description": "arithmetic calculation",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "variable_identification",
+        "instruction": "Let $y$ be the flour per group. Write the equation for dividing the total flour by 6.",
+        "blank_expression": "$y =$ ? $/ 6$",
+        "correct_value": "7.5",
+        "operation_description": "division setup",
+        "mapped_node_id": "FD"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Divide the total cups of flour by 6 to find the amount per group.",
+        "blank_expression": "$y =$ ?",
+        "correct_value": "1.25",
+        "operation_description": "division of decimal",
+        "mapped_node_id": "FD"
+      }
+    ],
+    "word_problem_text": "A base recipe for 4 servings of a special kakanin requires $2 \\frac{1}{2}$ cups of flour. For a class party, the teacher decides to scale up this recipe by a factor of 3. After mixing the flour, the total amount is divided equally among 6 groups of students to prepare their own portions. How many cups of flour will each group receive?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "2.5 + 3",
+          "\\frac{2.5}{3}",
+          "2.5 - 3"
+        ],
+        "hint": "Since the recipe is being scaled up by a factor of 3, you need to find the total amount by applying the operation of $3$ groups of $2.5$ cups."
+      },
+      "1": {
+        "distractors": [
+          "5.5",
+          "6.5",
+          "8.5"
+        ],
+        "hint": "Multiply the whole number $3$ by the decimal $2.5$ to find the total capacity of the mixture."
+      },
+      "2": {
+        "distractors": [
+          "2.5",
+          "3",
+          "18"
+        ],
+        "hint": "You have already calculated the total amount of flour in the previous step; use that value as the dividend to be shared among $6$ groups."
+      },
+      "3": {
+        "distractors": [
+          "0.75",
+          "1.5",
+          "45"
+        ],
+        "hint": "Divide your total from the previous step by $6$ to distribute the flour equally. Ensure your decimal placement is correct: $\\frac{7.5}{6}$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "0cc7682e-0efa-51f8-8ade-a24551bd80f0",
+    "node_id": "RER",
+    "problem_expr": "s = (54 * x^6 * y^3 * z^9)^(1/3)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Express the side length $s$ as the cube root of the volume.",
+        "blank_expression": "$s =$ ?",
+        "correct_value": "(54x^{6}y^{3}z^{9})^{\\frac{1}{3}}",
+        "operation_description": "Set up the radical expression.",
+        "mapped_node_id": "RER"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Factor 54 into a perfect cube and another number.",
+        "blank_expression": "$s = (27 \\cdot 2x^{6}y^{3}z^{9})^{\\frac{1}{3}} =$ ?",
+        "correct_value": "3(2x^{6}y^{3}z^{9})^{\\frac{1}{3}}",
+        "operation_description": "Extract the cube root of the perfect cube factor.",
+        "mapped_node_id": "RER"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Apply the power rule for rational exponents to the variables $x, y$, and $z$.",
+        "blank_expression": "$s = 3x^{\\frac{6}{3}}y^{\\frac{3}{3}}z^{\\frac{9}{3}}(2)^{\\frac{1}{3}} =$ ?",
+        "correct_value": "3x^{2}yz^{3}\\sqrt[3]{2}",
+        "operation_description": "Simplify the powers.",
+        "mapped_node_id": "RER"
+      }
+    ],
+    "word_problem_text": "A carpenter is building a cube-shaped box to store a batch of decorative floor tiles. The total volume of the box is represented by the expression V $= 54x^{6}y^{3}z^{9}$ cubic centimeters. To find the side length $s$ of the box, the carpenter needs to calculate the cube root of the volume. Simplify the expression for the side length $s$ into the form a $\\cdot x^{b}y^{c}z^{d} \\cdot$ nthRoot(k, 3).",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(54x^{6}y^{3}z^{9})^{3}",
+          "54x^{6}y^{3}z^{9}",
+          "(54x^{18}y^{9}z^{27})^{\\frac{1}{3}}"
+        ],
+        "hint": "The volume of a cube is $V = s^{3}$, so the side length is found by taking the cube root of the volume: $s = \\sqrt[3]{V}$."
+      },
+      "1": {
+        "distractors": [
+          "9(6x^{6}y^{3}z^{9})^{\\frac{1}{3}}",
+          "2(27x^{6}y^{3}z^{9})^{\\frac{1}{3}}",
+          "54(x^{6}y^{3}z^{9})^{\\frac{1}{3}}"
+        ],
+        "hint": "To simplify a cube root, look for a perfect cube factor of 54. Recall that $3^{3} = 27$."
+      },
+      "2": {
+        "distractors": [
+          "3x^{3}y^{2}z^{6}\\sqrt[3]{2}",
+          "3x^{18}y^{9}z^{27}\\sqrt[3]{2}",
+          "3x^{2}yz^{3} \\cdot 2"
+        ],
+        "hint": "When taking the cube root of a variable with an exponent, divide the exponent by 3, such as $(x^{n})^{\\frac{1}{3}} = x^{\\frac{n}{3}}$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "9b12b563-026d-53b1-a3aa-ff002b630217",
+    "node_id": "LE",
+    "problem_expr": "x^6 = 8^2",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the base of the garden's side length. Write the equation for the area.",
+        "blank_expression": "$x^{6} =$ ?",
+        "correct_value": "64",
+        "operation_description": "Evaluate 8 squared.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Express 64 as a power of 2.",
+        "blank_expression": "$x^{6} = 2^$ ?",
+        "correct_value": "6",
+        "operation_description": "Rewrite the constant as a power.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Since the exponents are equal, equate the bases.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "2",
+        "operation_description": "Solve for the base.",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "A square garden has an area that can be represented by $x^{6}$, where $x$ is the side length. If the area of the garden is also equal to $8^{2}$, find the value of the base $x$ if $x$ is a positive integer.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "16",
+          "8",
+          "640"
+        ],
+        "hint": "Calculate the area by multiplying the base $8$ by itself, which is $8 \\times 8$."
+      },
+      "1": {
+        "distractors": [
+          "3",
+          "4",
+          "5"
+        ],
+        "hint": "Recall that $2^{1}=2$, $2^{2}=4$, $2^{3}=8$, $2^{4}=16$, $2^{5}=32$, and $2^{6}=64$."
+      },
+      "2": {
+        "distractors": [
+          "4",
+          "6",
+          "8"
+        ],
+        "hint": "If the equation is in the form $x^{n} = a^{n}$, then $x$ must be equal to $a$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "f792676a-192b-5ccb-bbd0-0edffecc3ab0",
+    "node_id": "LE",
+    "problem_expr": "2^3 * 2^n = 2^9",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $n$ be the number of hours passed. Express the total population after $n$ hours as a product of the initial population and the growth factor.",
+        "blank_expression": "$2^{3} \\cdot 2^{n} =$ ?",
+        "correct_value": "2^{9}",
+        "operation_description": "Identify the exponential expression for the total population.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Apply the product rule for exponents $(a^{m}a^{n} = a^{m+n})$ to simplify the left side of the equation.",
+        "blank_expression": "$2^{3 + n} = 2^$ ?",
+        "correct_value": "9",
+        "operation_description": "Use the product rule to combine exponents.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Since the bases are the same, equate the exponents to form a linear equation.",
+        "blank_expression": "$3 + n =$ ?",
+        "correct_value": "9",
+        "operation_description": "Equate the exponents.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Solve for $n$ by subtracting 3 from both sides.",
+        "blank_expression": "$n =$ ?",
+        "correct_value": "6",
+        "operation_description": "Isolate the variable $n$.",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "In a school science lab, a researcher starts an experiment with a small bacteria culture that contains $2^{3}$ cells. The bacteria population doubles every hour. After $n$ hours, the population grows to $2^{9}$ cells. Determine the value of $n$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "2^{6}",
+          "2^{12}",
+          "2^{27}"
+        ],
+        "hint": "Let $n$ be the number of hours passed. Express the total population after $n$ hours as a product of the initial population and the growth factor."
+      },
+      "1": {
+        "distractors": [
+          "3",
+          "6",
+          "12"
+        ],
+        "hint": "When multiplying terms with the same base, you add the exponents: $a^{m}a^{n} = a^{m+n}$."
+      },
+      "2": {
+        "distractors": [
+          "0",
+          "2",
+          "27"
+        ],
+        "hint": "If the bases are identical, the exponents must also be equal to satisfy the equality $2^{x} = 2^{y}$."
+      },
+      "3": {
+        "distractors": [
+          "3",
+          "12",
+          "27"
+        ],
+        "hint": "To isolate $n$, subtract the initial exponent value of $3$ from the total exponent value of $9$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "6b772075-994a-5197-ad36-68c971166a89",
+    "node_id": "LE",
+    "problem_expr": "(3^4 * 3^2 * 3) = 3^n",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Write the initial volume of the box as a power of 3.",
+        "blank_expression": "$V_\\text{initial} = 3^$ ?",
+        "correct_value": "6",
+        "operation_description": "Product Rule: $3^{4} \\cdot 3^{2} = 3^{4+2}$",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Represent the tripling of the volume as a multiplication by $3^{1}$.",
+        "blank_expression": "$V_\\text{new} = 3^{6} \\cdot 3^$ ?",
+        "correct_value": "1",
+        "operation_description": "Multiply by 3 to represent tripling",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Apply the product rule to combine the powers of 3.",
+        "blank_expression": "$3^{n} = 3^$ ?",
+        "correct_value": "7",
+        "operation_description": "Add exponents $6 + 1$",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Identify the value of $n$.",
+        "blank_expression": "$n =$ ?",
+        "correct_value": "7",
+        "operation_description": "Equate exponents",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "For the school fair, a student crafts a rectangular display box. The base area of the box is $3^{4}$ square centimeters, and its height is $3^{2}$ centimeters. To make the display more attractive, the student decides to triple the total volume of the box. If the new volume is represented as $3^{n}$ cubic centimeters, find the value of $n$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "4",
+          "8",
+          "24"
+        ],
+        "hint": "When multiplying terms with the same base, you should add the exponents according to the rule $a^{m}a^{n} = a^{m+n}$."
+      },
+      "1": {
+        "distractors": [
+          "0",
+          "3",
+          "6"
+        ],
+        "hint": "To triple a value, you multiply it by $3$, which can be written as $3^{1}$."
+      },
+      "2": {
+        "distractors": [
+          "5",
+          "8",
+          "9"
+        ],
+        "hint": "Once you have the expression $3^{6} \\cdot 3^{1}$, remember to add the exponents to find the new power."
+      },
+      "3": {
+        "distractors": [
+          "6",
+          "8",
+          "21"
+        ],
+        "hint": "Since the bases on both sides of the equation $3^{n} = 3^{7}$ are the same, the exponents must be equal."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "4d551dab-987e-52e1-898d-eaf262030518",
+    "node_id": "LE",
+    "problem_expr": "2^7 / 2^3 = 2^x",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the exponent of the base 2 that represents the ratio of the volumes.",
+        "blank_expression": "$\\frac{2^{7}}{2^{3}} = 2^$ ?",
+        "correct_value": "4",
+        "operation_description": "Set up the ratio using the Quotient Rule.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Apply the Quotient Rule by subtracting the exponents.",
+        "blank_expression": "$2^{7-3} = 2^$ ?",
+        "correct_value": "4",
+        "operation_description": "Subtract the exponent of the denominator from the exponent of the numerator.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Evaluate the power $2^{4}$ to find the final number of times larger.",
+        "blank_expression": "$2^{4} =$ ?",
+        "correct_value": "16",
+        "operation_description": "Calculate the value of the simplified expression.",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "A logistics company in a local barangay uses two sizes of storage boxes. A small box has a volume of $2^{3}$ cubic centimeters, while a large box has a volume of $2^{7}$ cubic centimeters. How many times larger is the volume of the large box compared to the small box? Express your answer as a single power of 2.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "10",
+          "21",
+          "2.33"
+        ],
+        "hint": "When dividing exponential expressions with the same base, you subtract the exponents $\\frac{a^{m}}{a^{n}} = a^{m-n}$."
+      },
+      "1": {
+        "distractors": [
+          "10",
+          "21",
+          "7"
+        ],
+        "hint": "Ensure you are subtracting the exponent of the divisor from the exponent of the dividend, specifically $7 - 3$."
+      },
+      "2": {
+        "distractors": [
+          "8",
+          "6",
+          "32"
+        ],
+        "hint": "Recall that $2^{4}$ means multiplying the base $2$ by itself four times: $2 \\times 2 \\times 2 \\times 2$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "aaf562e7-3f78-584b-b684-3f37751dd142",
+    "node_id": "LE",
+    "problem_expr": "2^3 * 2^4",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $n$ be the total number of cells after 4 hours. Represent the initial population as a power of 2.",
+        "blank_expression": "$\\text{Initial cells} =$ ?",
+        "correct_value": "2^{3}",
+        "operation_description": "Convert 8 to a power of 2.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Represent the growth factor after 4 hours as a power of 2.",
+        "blank_expression": "$\\text{Growth factor} =$ ?",
+        "correct_value": "2^{4}",
+        "operation_description": "Define the multiplier for 4 hours.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Set up the multiplication of the initial cells and the growth factor.",
+        "blank_expression": "$\\text{Total cells} n =$ ?",
+        "correct_value": "2^{3} \\cdot 2^{4}",
+        "operation_description": "Multiply the initial population by the growth factor.",
+        "mapped_node_id": "LE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Apply the product rule for exponents to simplify the expression.",
+        "blank_expression": "$n =$ ?",
+        "correct_value": "2^{7}",
+        "operation_description": "Add the exponents 3 and 4.",
+        "mapped_node_id": "LE"
+      }
+    ],
+    "word_problem_text": "In a science lab, a culture of bacteria starts with $8$ cells. Due to a specific nutrient, the population doubles every hour. If the bacteria continue to grow at this rate for $4$ hours, how many cells will be in the dish at the end of the growth period? Express your answer as a power of $2$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "2^{2}",
+          "2^{4}",
+          "2^{6}"
+        ],
+        "hint": "Recall that $8$ is the result of multiplying $2$ by itself three times, or $2 \\times 2 \\times 2$."
+      },
+      "1": {
+        "distractors": [
+          "2^{2}",
+          "2^{3}",
+          "2^{8}"
+        ],
+        "hint": "Since the population doubles every hour for $4$ hours, the growth factor is $2$ raised to the power of the number of hours."
+      },
+      "2": {
+        "distractors": [
+          "2^{3} + 2^{4}",
+          "\\frac{2^{3}}{2^{4}}",
+          "4^{7}"
+        ],
+        "hint": "To find the total population, multiply the initial number of cells by the growth factor representing the increase over time."
+      },
+      "3": {
+        "distractors": [
+          "2^{12}",
+          "4^{7}",
+          "2^{1}"
+        ],
+        "hint": "When multiplying expressions with the same base, you keep the base and add the exponents according to the product rule $a^{m} \\cdot a^{n} = a^{m+n}$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "917ffebb-ccd0-5f63-b84a-6842625d78e0",
+    "node_id": "OI",
+    "problem_expr": "x+y = -5, x*y = 6",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ and $y$ be the two account balances. Write the equation for their sum.",
+        "blank_expression": "$x + y =$ ?",
+        "correct_value": "-5",
+        "operation_description": "Identify the sum relationship",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the equation for their product.",
+        "blank_expression": "$xy =$ ?",
+        "correct_value": "6",
+        "operation_description": "Identify the product relationship",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Express $y$ in terms of $x$ using the sum equation.",
+        "blank_expression": "$y =$ ?",
+        "correct_value": "-5 - x",
+        "operation_description": "Substitution preparation",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Substitute the expression for $y$ into the product equation.",
+        "blank_expression": "$x(-5 - x) =$ ?",
+        "correct_value": "6",
+        "operation_description": "Algebraic substitution",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Rearrange the resulting equation into a standard quadratic form.",
+        "blank_expression": "$x^{2} + 5x + 6 =$ ?",
+        "correct_value": "0",
+        "operation_description": "Simplify to standard form",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 5,
+        "step_type": "algebra",
+        "instruction": "Factor the quadratic expression.",
+        "blank_expression": "$(x + 3)(x + 2) =$ ?",
+        "correct_value": "0",
+        "operation_description": "Factoring",
+        "mapped_node_id": "OI"
+      },
+      {
+        "step_index": 6,
+        "step_type": "algebra",
+        "instruction": "Identify the lower balance value.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "-3",
+        "operation_description": "Select the smaller root",
+        "mapped_node_id": "OI"
+      }
+    ],
+    "word_problem_text": "A student monitors two separate bank accounts that have been losing money. The sum of the balances of these two accounts is -5 pesos, and the product of their balances is 6. If one account has a lower balance than the other, what is the balance of the account with the lower value?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "5",
+          "1",
+          "-6"
+        ],
+        "hint": "The problem states the sum of the two balances is $-5$. Ensure you are using the correct sign."
+      },
+      "1": {
+        "distractors": [
+          "-5",
+          "-6",
+          "5"
+        ],
+        "hint": "The product of the two values is given as $6$. Look closely at the problem statement."
+      },
+      "2": {
+        "distractors": [
+          "5 - x",
+          "-5 + x",
+          "5 + x"
+        ],
+        "hint": "To isolate $y$, subtract $x$ from both sides of the equation $x + y = -5$."
+      },
+      "3": {
+        "distractors": [
+          "-5 - x",
+          "6 - x",
+          "-5x"
+        ],
+        "hint": "Replace $y$ in the equation $xy = 6$ with the expression you found in the previous step, which is $(-5 - x)$."
+      },
+      "4": {
+        "distractors": [
+          "6",
+          "-6",
+          "1"
+        ],
+        "hint": "Distribute $x$ into $(-5 - x)$ and move all terms to one side of the equation to set it equal to $0$."
+      },
+      "5": {
+        "distractors": [
+          "(x - 3)(x - 2)",
+          "(x + 6)(x - 1)",
+          "(x - 6)(x + 1)"
+        ],
+        "hint": "Look for two numbers that multiply to $6$ and add up to $5$."
+      },
+      "6": {
+        "distractors": [
+          "-2",
+          "2",
+          "3"
+        ],
+        "hint": "After solving for $x$, you get two possible values: $-2$ and $-3$. Compare them to identify which one is lower."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "440de9a9-c1b9-533f-9a98-da9fc27a18a1",
+    "node_id": "QE",
+    "problem_expr": "-t^2 + 8*t - k = 0",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the values of a, $b$, and $c$ from the equation $-t^{2} + 8t - k = 0$.",
+        "blank_expression": "$a = -1, b = 8, c =$ ?",
+        "correct_value": "-k",
+        "operation_description": "Identify coefficients",
+        "mapped_node_id": "QE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "State the discriminant formula $b^{2} -$ 4ac for the equation to have exactly one real root.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "8^{2} - 4(-1)(-k)",
+        "operation_description": "Set discriminant to zero",
+        "mapped_node_id": "QE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Simplify the discriminant expression.",
+        "blank_expression": "$64 - 4k =$ ?",
+        "correct_value": "0",
+        "operation_description": "Simplify",
+        "mapped_node_id": "QE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Solve for $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "16",
+        "operation_description": "Solve linear equation",
+        "mapped_node_id": "QE"
+      }
+    ],
+    "word_problem_text": "At a school fair, the profit $P$ in thousands of pesos from a game booth $t$ hours after opening is modeled by the equation $P = -t^{2} + 8t - k$. The manager wants the booth to have exactly one time $t$ where the profit is zero $(a$ unique break-even point). Find the value of $k$ that satisfies this condition.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "k",
+          "1",
+          "8"
+        ],
+        "hint": "Recall that a quadratic equation is written in the form $\\text{at}^{2} + \\text{bt} + c = 0$. Compare this to $-t^{2} + 8t - k = 0$ to identify the constants."
+      },
+      "1": {
+        "distractors": [
+          "8^{2} - 4(-1)k",
+          "8^{2} + 4(-1)(-k)",
+          "8 - 4(-1)(-k)"
+        ],
+        "hint": "For a quadratic equation to have exactly one real root, the discriminant $D = b^{2} - 4\\text{ac}$ must be equal to $0$."
+      },
+      "2": {
+        "distractors": [
+          "64 + 4k",
+          "8 - 4k",
+          "64 - k"
+        ],
+        "hint": "Calculate the square of $b$ and multiply the terms $-4\\text{ac}$. Be careful with the signs of $-4$, $-1$, and $-k$."
+      },
+      "3": {
+        "distractors": [
+          "-16",
+          "60",
+          "4"
+        ],
+        "hint": "Isolate $k$ in the equation $64 - 4k = 0$ by moving the constant to the other side and dividing by the coefficient of $k$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "4c5a5ee5-b829-52bd-b7f0-9db2fb51d536",
+    "node_id": "QE",
+    "problem_expr": "80 - 5*t^2 = 0",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Set the height to 0 to represent the block hitting the floor. Write the equation.",
+        "blank_expression": "? $= 0$",
+        "correct_value": "80 - 5t^{2}",
+        "operation_description": "Set the height formula to zero.",
+        "mapped_node_id": "QE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Divide the entire equation by 5 to simplify.",
+        "blank_expression": "? $- t^{2} = 0$",
+        "correct_value": "16",
+        "operation_description": "Divide by 5.",
+        "mapped_node_id": "QE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Rewrite the equation as a difference of two squares.",
+        "blank_expression": "? $= t^{2}$",
+        "correct_value": "16",
+        "operation_description": "Isolate the squared term.",
+        "mapped_node_id": "QE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Solve for $t$, taking only the positive root as time cannot be negative.",
+        "blank_expression": "$t =$ ?",
+        "correct_value": "4",
+        "operation_description": "Take the square root of both sides.",
+        "mapped_node_id": "QE"
+      }
+    ],
+    "word_problem_text": "A heavy construction block is dropped from a height of 80 meters onto a warehouse floor. The height $h$ of the block in meters after $t$ seconds is modeled by the equation $h = 80 - 5t^{2}$. How many seconds does it take for the block to hit the floor?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "80 + 5t^{2}",
+          "80 - 5t",
+          "5t^{2} - 80"
+        ],
+        "hint": "Set the height to 0 to represent the block hitting the floor. Write the equation."
+      },
+      "1": {
+        "distractors": [
+          "80",
+          "5",
+          "75"
+        ],
+        "hint": "To simplify the equation $80 - 5t^{2} = 0$, divide both sides by the coefficient of $t^{2}$, which is $5$."
+      },
+      "2": {
+        "distractors": [
+          "80",
+          "4",
+          "12"
+        ],
+        "hint": "Isolate the term $t^{2}$ by moving the constant to the other side of the equation."
+      },
+      "3": {
+        "distractors": [
+          "2",
+          "8",
+          "256"
+        ],
+        "hint": "Find the value of $t$ by taking the square root of both sides of $16 = t^{2}$. Remember that time must be a positive value."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "b37226e1-533a-5340-a4dc-ecb57f6bb6c2",
+    "node_id": "FP",
+    "problem_expr": "x^2 - 16 = (x + 4) * w",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $w$ be the width of the garden. Write the area as a product of length and width.",
+        "blank_expression": "$x^{2} - 16 =$ ?",
+        "correct_value": "(x + 4)w",
+        "operation_description": "Translate the area formula into an equation.",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Express the area polynomial as a difference of two squares.",
+        "blank_expression": "$x^{2} - 16 =$ ?",
+        "correct_value": "x^{2} - 4^{2}",
+        "operation_description": "Identify the terms as perfect squares.",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Factor the difference of two squares.",
+        "blank_expression": "$x^{2} - 16 =$ ?",
+        "correct_value": "(x + 4)(x - 4)",
+        "operation_description": "Apply the rule $a^{2} - b^{2} = (a + b)(a - b)$.",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Solve for the width $w$ by comparing the factors.",
+        "blank_expression": "$w =$ ?",
+        "correct_value": "x - 4",
+        "operation_description": "Divide the factored area by the given length to find the width.",
+        "mapped_node_id": "FP"
+      }
+    ],
+    "word_problem_text": "A community garden is shaped like a rectangle. The total area of the garden is represented by the polynomial $x^{2} - 16$ square meters. If the length of the garden is $x + 4$ meters, what is the width of the garden in terms of $x$?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(x - 4)w",
+          "(x + 4) + w",
+          "x^{2} - 16w"
+        ],
+        "hint": "The area of a rectangle is calculated as $\\text{Area} = \\text{length} \\times \\text{width}$. Substitute the given area and length into this formula."
+      },
+      "1": {
+        "distractors": [
+          "x^{2} - 4",
+          "x^{2} + 4^{2}",
+          "(x - 4)^{2}"
+        ],
+        "hint": "Recall that a difference of two squares follows the form $a^{2} - b^{2}$, where $16$ can be rewritten as $4^{2}$."
+      },
+      "2": {
+        "distractors": [
+          "(x + 4)(x + 4)",
+          "(x - 4)(x - 4)",
+          "(x + 16)(x - 1)"
+        ],
+        "hint": "Apply the factoring rule for the difference of two squares: $a^{2} - b^{2} = (a + b)(a - b)$."
+      },
+      "3": {
+        "distractors": [
+          "x + 4",
+          "x^{2} - 4",
+          "4 - x"
+        ],
+        "hint": "Solve for the width $w$ by comparing the factors."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "5cb56f2b-bdae-5e54-a819-763f99568d4b",
+    "node_id": "FP",
+    "problem_expr": "x^2 + k*x + 12 = (x + 3)*(x + 4)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let the area be the product of the length and width. Write the expression for the area as a product.",
+        "blank_expression": "$\\text{Area} =$ ?",
+        "correct_value": "(x + 3)(x + 4)",
+        "operation_description": "Multiply the binomial factors to represent the area.",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the product of the two binomials using the FOIL method.",
+        "blank_expression": "$x^{2} + 3x + 4x + 12 =$ ?",
+        "correct_value": "x^{2} + 7x + 12",
+        "operation_description": "Distribute and combine like terms.",
+        "mapped_node_id": "FP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Compare the expanded expression to the given trinomial $x^{2} + kx + 12$ to identify the value of $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "7",
+        "operation_description": "Equate the coefficients of the middle term.",
+        "mapped_node_id": "FP"
+      }
+    ],
+    "word_problem_text": "A student is designing a rectangular poster for a school event. The area of the poster is given by the trinomial $x^{2} + \\text{kx} + 12$. If the length of the poster is $(x + 3)$ and the width is $(x + 4)$, find the value of the missing coefficient $k$ that makes this area expression correct.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(x + 7)(x + 7)",
+          "(x + 3) + (x + 4)",
+          "(x - 3)(x - 4)"
+        ],
+        "hint": "The area of a rectangle is found by multiplying its length and width, which is represented as $\\text{Area} = \\text{length} \\times \\text{width}$."
+      },
+      "1": {
+        "distractors": [
+          "x^{2} + 12x + 12",
+          "x^{2} + 7x + 7",
+          "x^{2} + x + 12"
+        ],
+        "hint": "Use the FOIL method to expand $(x + 3)(x + 4)$ by multiplying the First, Outer, Inner, and Last terms, then combine the middle terms $3x$ and $4x$."
+      },
+      "2": {
+        "distractors": [
+          "12",
+          "1",
+          "3"
+        ],
+        "hint": "After expanding the expression, compare it to $x^{2} + \\text{kx} + 12$. The coefficient $k$ is the number attached to the $x$ term."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "275c064b-a8af-58b7-bffe-f304143ff1f0",
+    "node_id": "SP",
+    "problem_expr": "(x + k)*(x - k) = x^2 - 16",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the expression for the product of the length and width.",
+        "blank_expression": "$\\text{Area} =$ ?",
+        "correct_value": "(x + k)(x - k)",
+        "operation_description": "Multiply the binomials using the difference of two squares pattern.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the product $(x + k)(x - k)$ into its simplest form.",
+        "blank_expression": "$x^{2} -$ ? $= x^{2} - 16$",
+        "correct_value": "k^{2}",
+        "operation_description": "Identify the constant term based on the difference of squares formula $(a+b)(a-b) = a^{2} - b^{2}$.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Set the constant terms equal to each other to solve for $k$.",
+        "blank_expression": "$k^{2} =$ ?",
+        "correct_value": "16",
+        "operation_description": "Equate the constant parts of the expansion to the given area value.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Find the positive value of $k$.",
+        "blank_expression": "$k =$ ?",
+        "correct_value": "4",
+        "operation_description": "Take the square root of both sides.",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "A carpenter is laying out a square-shaped area on a wooden floor. The length of the space is represented by $(x + k)$ meters and the width is represented by $(x - k)$ meters. If the area of this space is calculated as $x^{2} - 16$ square meters, what is the value of $k$?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(x + k) + (x - k)",
+          "(x + k)^{2}",
+          "x^{2} + k^{2}"
+        ],
+        "hint": "The area of a rectangle is found by multiplying its length by its width, represented as $\\text{Area} = \\text{length} \\times \\text{width}$."
+      },
+      "1": {
+        "distractors": [
+          "k",
+          "2k",
+          "16k"
+        ],
+        "hint": "Expand the product $(x + k)(x - k)$ into its simplest form."
+      },
+      "2": {
+        "distractors": [
+          "8",
+          "4",
+          "256"
+        ],
+        "hint": "By comparing the expanded form $x^{2} - k^{2}$ to the given area $x^{2} - 16$, you can equate the constant terms."
+      },
+      "3": {
+        "distractors": [
+          "2",
+          "8",
+          "256"
+        ],
+        "hint": "If $k^{2} = 16$, you need to find the number that, when multiplied by itself, results in 16."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "92a5c8bf-c23c-5f0b-9477-b577f93d0269",
+    "node_id": "SP",
+    "problem_expr": "(x+2)*(x+4) - x*(x+2)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the total area of the frame and picture as a product of binomials.",
+        "blank_expression": "$\\text{Total Area} =$ ?",
+        "correct_value": "(x+2)(x+4)",
+        "operation_description": "Multiply the outer length and width.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Expand the total area expression using the FOIL method.",
+        "blank_expression": "$\\text{Total Area} =$ ?",
+        "correct_value": "x^{2} + 6x + 8",
+        "operation_description": "Expand $(x+2)(x+4)$.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Identify the inner picture area.",
+        "blank_expression": "$\\text{Inner Area} =$ ?",
+        "correct_value": "x^{2} + 2x",
+        "operation_description": "Distribute $x$ into $(x+2)$.",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Subtract the inner area from the total area to find the frame area.",
+        "blank_expression": "$\\text{Frame Area} = (x^{2} + 6x + 8) - (x^{2} + 2x) =$ ?",
+        "correct_value": "4x + 8",
+        "operation_description": "Combine like terms.",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "A rectangular picture has a width of $x$ cm and a length of $(x + 2)$ cm. A wooden frame is placed around the picture, increasing each dimension by 2 cm (1 cm on each side). What is the area of the frame in terms of $x$?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(x+2)(x+2)",
+          "(x+1)(x+3)",
+          "(x+4)(x+6)"
+        ],
+        "hint": "The original dimensions are $x$ and $x+2$. Adding 1 cm on each side increases both the length and width by a total of 2 cm, resulting in dimensions of $(x+2)$ and $(x+4)$."
+      },
+      "1": {
+        "distractors": [
+          "x^{2} + 8x + 8",
+          "x^{2} + 6x + 6",
+          "x^{2} + 2x + 8"
+        ],
+        "hint": "Remember to multiply each term in the first binomial by each term in the second: $x \\cdot x$, $x \\cdot 4$, $2 \\cdot x$, and $2 \\cdot 4$."
+      },
+      "2": {
+        "distractors": [
+          "x^{2} + 2",
+          "2x + 2",
+          "x^{2} + x"
+        ],
+        "hint": "The area of a rectangle is calculated by multiplying its length by its width, which is $x \\cdot (x+2)$."
+      },
+      "3": {
+        "distractors": [
+          "4x + 16",
+          "8x + 8",
+          "2x^{2} + 8x + 8"
+        ],
+        "hint": "When subtracting the expression $(x^{2} + 2x)$, ensure you distribute the negative sign to both terms inside the parentheses: $-(x^{2}) - (2x)$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "6498fa0d-94b3-5a5d-9a0e-4ecddea0c592",
+    "node_id": "SP",
+    "problem_expr": "x+y=10, x-y=4",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let the system of equations for the dimensions $x$ and $y$ be given.",
+        "blank_expression": "? $= 10, x - y = 4$",
+        "correct_value": "x + y",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Add the two equations together to eliminate $y$.",
+        "blank_expression": "$2x =$ ?",
+        "correct_value": "14",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Divide by 2 to find $x$.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "7",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Substitute $x$ back into the first equation to solve for $y$.",
+        "blank_expression": "$7 + y = 10, y =$ ?",
+        "correct_value": "3",
+        "operation_description": "",
+        "mapped_node_id": "SLE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Calculate the product of $x$ and $y$ to find the area.",
+        "blank_expression": "$xy =$ ?",
+        "correct_value": "21",
+        "operation_description": "",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "A school janitor is designing a square-based section for a mosaic using ceramic tiles. He has two dimensions, $x$ and $y$, such that their sum $x + y = 10$ and their difference $x - y = 4$. If the area of the rectangular section is defined by the product $x \\cdot y$, find the total area of the section using the special product formula $(a+b)(a-b) = a^{2} - b^{2}$ by first determining $x$ and $y$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "xy",
+          "\\frac{x}{y}",
+          "x - y"
+        ],
+        "hint": "Let the system of equations for the dimensions $x$ and $y$ be given."
+      },
+      "1": {
+        "distractors": [
+          "6",
+          "10",
+          "40"
+        ],
+        "hint": "When you add the left and right sides of the equations $(x+y) + (x-y) = 10 + 4$, the $y$ terms cancel out."
+      },
+      "2": {
+        "distractors": [
+          "12",
+          "28",
+          "3.5"
+        ],
+        "hint": "Divide the result of the previous equation by 2 to isolate $x$."
+      },
+      "3": {
+        "distractors": [
+          "17",
+          "7",
+          "13"
+        ],
+        "hint": "Subtract the value of $x$ from 10 to find the value of $y$."
+      },
+      "4": {
+        "distractors": [
+          "10",
+          "4",
+          "30"
+        ],
+        "hint": "The area is the product of the two dimensions you just found, $x$ and $y$."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "e1a09904-6bc6-5b11-9c47-e034c2d2da9c",
+    "node_id": "SP",
+    "problem_expr": "(40+3)*(40-3)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the values of a and $b$ using the pattern $(a + b)(a - b)$. Let $x =$ a.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "40",
+        "operation_description": "Identify the constant base",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Apply the pattern $a^{2} - b^{2}$ to the expression (40 $+$ 3)(40 - 3).",
+        "blank_expression": "? $= 40^{2} - 3^{2}$",
+        "correct_value": "1600 - 9",
+        "operation_description": "Expand using difference of squares",
+        "mapped_node_id": "SP"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Subtract the squared values to find the total cost.",
+        "blank_expression": "$\\text{Total Cost} =$ ?",
+        "correct_value": "1591",
+        "operation_description": "Final subtraction",
+        "mapped_node_id": "SP"
+      }
+    ],
+    "word_problem_text": "At the school fair, the committee needs to calculate the total cost for two groups of vouchers. They bought 43 tickets for the game booth and 37 tickets for the food stall. To simplify the mental calculation, they expressed the product of these two quantities as (40 $+$ 3)(40 - 3). Find the total cost in pesos.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "43",
+          "37",
+          "3"
+        ],
+        "hint": "Look for the common value that is added to and subtracted from in the expression $(a + b)(a - b)$."
+      },
+      "1": {
+        "distractors": [
+          "40 - 9",
+          "1600 + 9",
+          "80 - 6"
+        ],
+        "hint": "Recall that the product of the sum and difference of two terms is given by the identity $(a+b)(a-b) = a^{2} - b^{2}$."
+      },
+      "2": {
+        "distractors": [
+          "1597",
+          "1609",
+          "1691"
+        ],
+        "hint": "Calculate the result of $1600 - 9$ by carefully performing the subtraction."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "f6d03e91-29cb-524a-8e34-08913c2d1c28",
+    "node_id": "PE",
+    "problem_expr": "x*(x-2)*(x-1) = 24",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let $x$ be the length of the box in meters. Express the width and height in terms of $x$.",
+        "blank_expression": "$\\text{width} =$ ? $, \\text{height} = x - 1$",
+        "correct_value": "x - 2",
+        "operation_description": "Define dimensions",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Write the equation for the volume of the box $V = \\text{lwh}$ using the given volume of 24.",
+        "blank_expression": "$x(x - 2)(x - 1) =$ ?",
+        "correct_value": "24",
+        "operation_description": "Set up equation",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Expand the expression $x(x-2)(x-1)$ to form a polynomial equation.",
+        "blank_expression": "$x^{3} - 3x^{2} + 2x =$ ?",
+        "correct_value": "24",
+        "operation_description": "Multiply polynomials",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Rewrite the equation in the standard form $P(x) = 0$.",
+        "blank_expression": "$x^{3} - 3x^{2} + 2x - 24 =$ ?",
+        "correct_value": "0",
+        "operation_description": "Standard form",
+        "mapped_node_id": "PE"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Find the positive integer root for the length $x$ that satisfies the equation.",
+        "blank_expression": "$x =$ ?",
+        "correct_value": "4",
+        "operation_description": "Solve for $x$",
+        "mapped_node_id": "PE"
+      }
+    ],
+    "word_problem_text": "A community garden uses rectangular wooden boxes to hold soil. The width of a box is 2 meters less than its length, and its height is 1 meter less than its length. If the total volume of the box is 24 cubic meters, find the length of the box in meters.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "x + 2",
+          "x - 1",
+          "2 - x"
+        ],
+        "hint": "The width is 2 meters less than the length $x$, so you need to subtract 2 from $x$."
+      },
+      "1": {
+        "distractors": [
+          "0",
+          "12",
+          "48"
+        ],
+        "hint": "The volume of a rectangular prism is the product of its length, width, and height, which is given as $24$ cubic meters."
+      },
+      "2": {
+        "distractors": [
+          "x^{3} - x^{2} + 2x",
+          "x^{3} - 2x^{2} + 2x",
+          "x^{3} + 3x^{2} + 2x"
+        ],
+        "hint": "Multiply the factors $(x-2)$ and $(x-1)$ first, then distribute the $x$ to all terms."
+      },
+      "3": {
+        "distractors": [
+          "x^{3} - 3x^{2} + 2x + 24",
+          "x^{3} + 3x^{2} - 2x - 24",
+          "x^{3} - 3x^{2} - 2x - 24"
+        ],
+        "hint": "To write the equation in standard form, subtract 24 from both sides so that the right side equals 0."
+      },
+      "4": {
+        "distractors": [
+          "2",
+          "3",
+          "6"
+        ],
+        "hint": "Test small positive integer values for $x$ in the equation $x(x-2)(x-1) = 24$ to see which one makes the statement true."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "c5ef8662-6210-5a8f-8924-aba64b6d36e4",
+    "node_id": "PO",
+    "problem_expr": "(5*x + 3)*(2*x + 2) - (2*x + 1)*(x + 1)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Expand the expression for the total tray area $(5x + 3)(2x +$ 2).",
+        "blank_expression": "$10x^{2} + 16x +$ ?",
+        "correct_value": "6",
+        "operation_description": "FOIL method",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 1,
+        "step_type": "variable_identification",
+        "instruction": "Expand the expression for the parchment area $(2x + 1)(x +$ 1).",
+        "blank_expression": "$2x^{2} + 3x +$ ?",
+        "correct_value": "1",
+        "operation_description": "FOIL method",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Subtract the parchment area expression from the total tray area expression, grouping like terms.",
+        "blank_expression": "$(10x^{2} - 2x^{2}) + (16x - 3x) + (6 - 1) =$ ?",
+        "correct_value": "8x^{2} + 13x + 5",
+        "operation_description": "Polynomial subtraction",
+        "mapped_node_id": "PO"
+      }
+    ],
+    "word_problem_text": "A baker has a large rectangular tray with an area of $(5x + 3)(2x + 2)$ square centimeters. She places a rectangular sheet of parchment paper on the tray, which covers an area of $(2x + 1)(x + 1)$ square centimeters. Calculate the remaining uncovered area of the tray in terms of $x$.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "10x^{2} + 11x + 6",
+          "10x^{2} + 10x + 5",
+          "7x^{2} + 16x + 6"
+        ],
+        "hint": "Use the FOIL method to multiply the binomials: $(5x + 3)(2x + 2) = 5x(2x) + 5x(2) + 3(2x) + 3(2)$."
+      },
+      "1": {
+        "distractors": [
+          "2x^{2} + 2x + 1",
+          "2x^{2} + 3x + 0",
+          "3x^{2} + 3x + 1"
+        ],
+        "hint": "Multiply each term in the first binomial by each term in the second: $(2x + 1)(x + 1) = 2x(x) + 2x(1) + 1(x) + 1(1)$."
+      },
+      "2": {
+        "distractors": [
+          "12x^{2} + 19x + 7",
+          "8x^{2} + 19x + 7",
+          "8x^{2} + 13x + 7"
+        ],
+        "hint": "Subtract the coefficients of the corresponding terms of the two polynomials, being careful to distribute the negative sign to all terms in the second expression."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "f9fbdaba-d664-5b3b-a668-6c10984b4741",
+    "node_id": "PO",
+    "problem_expr": "(2*x + 3*x + 2*x) + (4*x + 5*x)",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Identify the remaining sides of the original rectangle after removing one side of length $3x$.",
+        "blank_expression": "$\\text{Remaining rectangle sides} =$ ?",
+        "correct_value": "2x + 3x + 2x",
+        "operation_description": "Combine the three remaining sides of the rectangle.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Simplify the sum of the remaining rectangular sides.",
+        "blank_expression": "$\\text{Sum of rectangle sides} =$ ?",
+        "correct_value": "7x",
+        "operation_description": "Add like terms $2x + 3x + 2x$.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 2,
+        "step_type": "variable_identification",
+        "instruction": "Identify the sides of the triangle extension that form the new outer boundary.",
+        "blank_expression": "$\\text{Triangle sides} =$ ?",
+        "correct_value": "4x + 5x",
+        "operation_description": "Sum the two sides of the triangle that are not attached to the rectangle.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Simplify the sum of the triangle sides.",
+        "blank_expression": "$\\text{Sum of triangle sides} =$ ?",
+        "correct_value": "9x",
+        "operation_description": "Add like terms $4x + 5x$.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 4,
+        "step_type": "algebra",
+        "instruction": "Add the simplified rectangle sides to the simplified triangle sides to find the total perimeter.",
+        "blank_expression": "$\\text{Total Perimeter} =$ ?",
+        "correct_value": "16x",
+        "operation_description": "Combine the results from the previous steps.",
+        "mapped_node_id": "PO"
+      }
+    ],
+    "word_problem_text": "The local sports club has a rectangular field with dimensions $3x$ and $2x$. They decide to build an extension in the shape of a triangle with side lengths $4x$, $5x$, and $3x$ attached to the side measuring $3x$. During the construction, that specific $3x$ side of the rectangle is removed from the outer boundary. Find the total perimeter of the new composite shape.",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "2x + 2x",
+          "2x + 3x + 2x + 3x",
+          "3x + 3x"
+        ],
+        "hint": "Since one side of length $3x$ is removed from the rectangle, only the other three sides contribute to the perimeter."
+      },
+      "1": {
+        "distractors": [
+          "5x",
+          "6x",
+          "8x"
+        ],
+        "hint": "Combine the coefficients of the like terms $2x$, $3x$, and $2x$."
+      },
+      "2": {
+        "distractors": [
+          "4x + 5x + 3x",
+          "4x",
+          "5x"
+        ],
+        "hint": "Only two sides of the triangle are part of the outer boundary because one $3x$ side is attached to the rectangle."
+      },
+      "3": {
+        "distractors": [
+          "20x",
+          "1x",
+          "10x"
+        ],
+        "hint": "Add the coefficients of the sides $4x$ and $5x$ that form the outer boundary."
+      },
+      "4": {
+        "distractors": [
+          "14x",
+          "18x",
+          "25x"
+        ],
+        "hint": "Add the simplified sum of the rectangle's outer sides to the simplified sum of the triangle's outer sides."
+      }
+    },
+    "difficulty": "challenge"
+  },
+  {
+    "id": "d3b2e40a-d5ea-565b-8d3f-1610e4a992c1",
+    "node_id": "PO",
+    "problem_expr": "(15*x^2 + 8*x + 10) - (6*x^2 - 2*x + 4) = R",
+    "steps_json": [
+      {
+        "step_index": 0,
+        "step_type": "variable_identification",
+        "instruction": "Let R be the remaining area. Write the subtraction equation.",
+        "blank_expression": "$R =$ ?",
+        "correct_value": "(15x^{2} + 8x + 10) - (6x^{2} - 2x + 4)",
+        "operation_description": "Set up the subtraction of polynomials.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 1,
+        "step_type": "algebra",
+        "instruction": "Distribute the negative sign to the subtrahend.",
+        "blank_expression": "$R = 15x^{2} + 8x + 10 - 6x^{2} +$ ?",
+        "correct_value": "2x - 4",
+        "operation_description": "Remove grouping symbols by changing the sign of the subtrahend.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 2,
+        "step_type": "algebra",
+        "instruction": "Group the terms with the same literal coefficients.",
+        "blank_expression": "$R = (15x^{2} - 6x^{2}) + (8x + 2x) +$ ?",
+        "correct_value": "(10 - 4)",
+        "operation_description": "Group like terms.",
+        "mapped_node_id": "PO"
+      },
+      {
+        "step_index": 3,
+        "step_type": "algebra",
+        "instruction": "Combine the numerical coefficients and simplify.",
+        "blank_expression": "$R =$ ?",
+        "correct_value": "9x^{2} + 10x + 6",
+        "operation_description": "Simplify the final polynomial.",
+        "mapped_node_id": "PO"
+      }
+    ],
+    "word_problem_text": "A contractor is tiling a rectangular floor with a total area of $15x^{2} + 8x + 10$ square meters. If the area already covered by tiles is $6x^{2} - 2x + 4$ square meters, what polynomial represents the remaining area that still needs to be tiled?",
+    "step_extras_json": {
+      "0": {
+        "distractors": [
+          "(15x^{2} + 8x + 10) + (6x^{2} - 2x + 4)",
+          "(6x^{2} - 2x + 4) - (15x^{2} + 8x + 10)",
+          "15x^{2} + 8x + 10 - 6x^{2} - 2x + 4"
+        ],
+        "hint": "To find the remaining area, subtract the area already covered from the total area. Ensure the subtrahend is grouped correctly using parentheses."
+      },
+      "1": {
+        "distractors": [
+          "-2x + 4",
+          "2x + 4",
+          "-2x - 4"
+        ],
+        "hint": "Remember to apply the negative sign to every term inside the parentheses: $-(a - b + c) = -a + b - c$."
+      },
+      "2": {
+        "distractors": [
+          "(15x^{2} + 6x^{2}) + (8x - 2x) + (10 + 4)",
+          "(15x^{2} - 6x^{2}) + (8x - 2x) + (10 - 4)",
+          "(15x^{2} - 6x^{2}) + (8x + 2x) + (10 + 4)"
+        ],
+        "hint": "Group terms that share the same exponent for $x$, such as the $x^{2}$ terms, $x$ terms, and constant terms, while preserving their signs."
+      },
+      "3": {
+        "distractors": [
+          "21x^{2} + 6x + 14",
+          "9x^{2} + 6x + 6",
+          "9x^{2} + 10x + 14"
+        ],
+        "hint": "Combine the coefficients for each group: $(15-6)x^{2} + (8+2)x + (10-4)$. Double-check your arithmetic for each term."
+      }
+    },
+    "difficulty": "challenge"
   }
 ]

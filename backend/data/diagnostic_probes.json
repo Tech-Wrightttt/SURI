@@ -2847,6 +2847,54 @@
       ],
       "correct_option_index": 1,
       "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "A sari-sari store sells rice at $20$ pesos per kilogram. If you buy $x$ kilograms of rice and pay with a $500$ peso bill, write the expression for your change and evaluate it when $x = 12$.",
+      "options": [
+        "$240$",
+        "$260$",
+        "$280$",
+        "$300$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "Plan A for mobile load costs $10$ pesos plus $2$ pesos per minute $m$. Plan B costs $4$ pesos plus $3$ pesos per minute $m$. For a $7$-minute call, what is the positive difference in pesos between the cost of Plan B and Plan A?",
+      "options": [
+        "$1$",
+        "$2$",
+        "$3$",
+        "$4$"
+      ],
+      "correct_option_index": 0,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "A pattern of tiles for a garden path is created. The first figure uses $3$ tiles, the second uses $5$ tiles, and the third uses $7$ tiles. If the number of tiles follows the expression $2n + 1$ for the $n$-th figure, how many tiles are needed for the $15$-th figure?",
+      "options": [
+        "$29$",
+        "$31$",
+        "$33$",
+        "$35$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
+    },
+    {
+      "node_id": "AE",
+      "question_text": "Which of the following expressions is equivalent to $3(x - 2) + 4x$?",
+      "options": [
+        "$7x - 2$",
+        "$7x - 6$",
+        "$4x - 6$",
+        "$10x - 2$"
+      ],
+      "correct_option_index": 1,
+      "difficulty": "challenge"
     }
   ],
   "RPP": [
