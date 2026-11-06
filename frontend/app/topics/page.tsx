@@ -108,7 +108,7 @@ export default function TopicsPage() {
   }, [carouselBooks, enterTopic, resolvedSelectedNodeId, selectBook]);
   const handleBookIntent = useCallback((index: number) => preloadTopic(carouselBooks[index]?.nodeId), [carouselBooks, preloadTopic]);
   return <MainPage immersive>
-    <audio ref={bookSwapAudioRef} src="/sounds/sfx/book_carousel.mp3" preload="auto" hidden aria-hidden="true" />
+    <audio ref={bookSwapAudioRef} src="/sounds/sfx/book_carousel.mp3" preload="metadata" hidden aria-hidden="true" />
     <div ref={pageRef} className="topics-library-page">
       <div className={`topics-library-back-row ${styles.contentWidth}`}>
         <button type="button" className="topics-library-back" onClick={() => navigate("/dashboard")} aria-label="Go back to the previous page"><span aria-hidden="true">←</span> Go back</button>
@@ -119,7 +119,7 @@ export default function TopicsPage() {
         <p>Pick a volume to bring it forward, then begin its learning quest.</p>
       </header>
 
-      {error && <div className="topics-library-error" role="alert"><Image src="/suri-snake-sad.png" alt="Sad Suri" width={42} height={42} /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
+      {error && <div className="topics-library-error" role="alert"><Image src="/suri-snake-sad.webp" alt="Sad Suri" width={42} height={42} /><div><strong>The archive lantern has dimmed.</strong><p>{error}</p></div></div>}
 
       <section className={`topics-carousel-experience ${styles.contentWidth}`} aria-label="Topic volume carousel" style={carouselLayout === null ? undefined : { marginTop: carouselLayout.margin, "--carousel-arrow-center": `${carouselLayout.center}px` } as CSSProperties}>
         {loading ? <div className="topics-library-loading"><i /><p>Consulting the academy catalogue…</p></div> : selectedBook && <>

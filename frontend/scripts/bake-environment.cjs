@@ -9,7 +9,8 @@ const {makeSupportingArchitecture}=require('../lib/worldMap/supportingArchitectu
 const {makeEnvironmentDecor}=require('../lib/worldMap/environmentDecor.ts');
 const {makeTraversalArchitecture}=require('../lib/worldMap/traversalArchitecture.ts');
 const {LANDMARK_SCALE}=require('../lib/worldMap/framing.ts');
-const size=512,b=e.ENVIRONMENT_BOUNDS,data=new Float32Array(size*size*2);
+// Preserve coastline texel density across the deeper northern scenery area.
+const size=576,b=e.ENVIRONMENT_BOUNDS,data=new Float32Array(size*size*2);
 for(let z=0;z<size;z++)for(let x=0;x<size;x++){
   const wx=b.minX+x/(size-1)*(b.maxX-b.minX),wz=b.minZ+z/(size-1)*(b.maxZ-b.minZ),i=(z*size+x)*2;
   const sample=w.islandAt(wx,wz);data[i]=w.islandHeight(wx,wz,sample.island,sample.coast);data[i+1]=sample.coast;
@@ -26,11 +27,11 @@ function append(builder,transform=new THREE.Matrix4()){
   }
 }
 append(makeVegetation());append(makeSettlements());append(makeSupportingArchitecture());append(makeTraversalArchitecture());append(makeEnvironmentDecor());
-for(const site of w.LANDMARK_SITE_KEYS){const builder=new ArchitectureBuilder();builder.landmark(site);append(builder,new THREE.Matrix4().makeTranslation(...w.sitePosition(site)).scale(new THREE.Vector3().setScalar(LANDMARK_SCALE)));}
+for(const site of w.DASHBOARD_SITE_KEYS){const builder=new ArchitectureBuilder();builder.landmark(site);append(builder,new THREE.Matrix4().makeTranslation(...w.sitePosition(site)).scale(new THREE.Vector3().setScalar(LANDMARK_SCALE)));}
 const out=path.join(__dirname,'../.cache/environment-bake');fs.mkdirSync(out,{recursive:true});
 fs.writeFileSync(path.join(out,'height-coast.f32'),Buffer.from(data.buffer));
-const sourceFiles=['landscape.ts','settlements.ts','environment.ts','architecture.ts','outerLandmarks.ts','architecturalModules.ts','landmarkDesigns.ts','supportingArchitecture.ts','northernIslands.ts','northernArchitecture.ts','traversalArchitecture.ts','traversal.ts','generated/traversal.json','worldPalette.ts','environmentDecor.ts'];
+const sourceFiles=['mapLayout.ts','framing.ts','northernIslands.ts','landscape.ts','settlements.ts','environment.ts','architecture.ts','outerLandmarks.ts','architecturalModules.ts','landmarkDesigns.ts','supportingArchitecture.ts','northernArchitecture.ts','traversalArchitecture.ts','traversal.ts','generated/traversal.json','worldPalette.ts','environmentDecor.ts'];
 const sourceHash=crypto.createHash('sha256');for(const file of sourceFiles)sourceHash.update(fs.readFileSync(path.join(__dirname,'../lib/worldMap',file),'utf8').replace(/\r\n/g,'\n'));
-const probes=[[0,-3],[-43,-5],[-11,-35],[47,1],[16,34],[22,0],[0,18],[-25,-2],[5,-18]].map(([x,z])=>({x,z,coast:w.shoreDistance(x,z)}));
+const probes=[[...w.SITES.keep],[-43,-5],[-11,-35],[47,1],[16,34],[22,0],[0,18],[-25,-2],[5,-18]].map(([x,z])=>({x,z,coast:w.shoreDistance(x,z)}));
 fs.writeFileSync(path.join(out,'scene.json'),JSON.stringify({size,bounds:b,sun:e.LOCAL_SUN,version:e.ENVIRONMENT_ASSET_VERSION,sourceHash:sourceHash.digest('hex'),shadows,probes}));
 console.log(`Baked ${size}x${size} height/coast samples and ${shadows.length} static shadow proxies.`);

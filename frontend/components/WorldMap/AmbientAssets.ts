@@ -9,7 +9,7 @@ type PackedGeometry={attributes:Record<string,Attribute>;index:Attribute;sphere:
 type Manifest={buffer:string;compressedBuffer:string;geometries:Record<string,PackedGeometry>;models:Record<VesselKind|"person",string>;portParts:Array<{surface:Surface;geometry:string}>;routes:AmbientRoute[];actors:AmbientActor[];fountains:Array<{x:number;y:number;z:number}>};
 export type AmbientAssets=Omit<Manifest,"geometries">&{geometries:Record<string,THREE.BufferGeometry>};
 const types={f32:Float32Array,i16:Int16Array,u8:Uint8Array,u32:Uint32Array};
-class AmbientLoader extends THREE.Loader<AmbientAssets>{
+export class AmbientLoader extends THREE.Loader<AmbientAssets>{
   load(url:string,onLoad:(assets:AmbientAssets)=>void,onProgress?:(event:ProgressEvent)=>void,onError?:(error:unknown)=>void){
     new THREE.FileLoader(this.manager).load(url,text=>{
       try{

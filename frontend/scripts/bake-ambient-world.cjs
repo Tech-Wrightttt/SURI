@@ -11,7 +11,7 @@ const {makeArchipelagoTerrain}=require('../lib/worldMap/terrainGeometry.ts'),{Ar
 const {mergeGeometries}=require('three/examples/jsm/utils/BufferGeometryUtils.js');
 const {WATER_LEVEL}=require('../lib/worldMap/environment.ts');
 const out=path.join(root,'public/world-map/ambient');fs.mkdirSync(out,{recursive:true});
-const sourceFiles=['ambient.ts','ambientModels.ts','environmentDecor.ts','landscape.ts','terrainGeometry.ts','walkingPaths.ts','architecture.ts','traversal.ts','generated/traversal.json','primitiveGeometry.ts','architecturalGeometry.ts','environment.ts','worldPalette.ts','staticLighting.ts'];
+const sourceFiles=['mapLayout.ts','framing.ts','northernIslands.ts','ambient.ts','ambientModels.ts','environmentDecor.ts','landscape.ts','terrainGeometry.ts','walkingPaths.ts','architecture.ts','traversal.ts','generated/traversal.json','primitiveGeometry.ts','architecturalGeometry.ts','environment.ts','worldPalette.ts','staticLighting.ts'];
 const hash=crypto.createHash('sha256');for(const name of sourceFiles)hash.update(fs.readFileSync(path.join(root,'lib/worldMap',name),'utf8').replace(/\r\n/g,'\n'));
 hash.update(fs.readFileSync(__filename,'utf8').replace(/\r\n/g,'\n'));for(const name of ['architecture/instances.json','traversal/paths.json'])hash.update(fs.readFileSync(path.join(root,'public/world-map',name)));
 const architecture=JSON.parse(fs.readFileSync(path.join(root,'public/world-map/architecture/instances.json'))),paving=JSON.parse(fs.readFileSync(path.join(root,'public/world-map/traversal/paths.json')));
@@ -59,7 +59,7 @@ const radii={};for(const kind of Object.keys(VESSELS)){const g=makeAmbientVessel
 // Actual rendered surfaces, including stone steps and both road-mesh tiers.
 const walkMeshes=[];
 for(const tier of ['full','low'])for(const p of paving[tier]){const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(p.position,3));g.setIndex(p.index);walkMeshes.push(g);}
-for(const batches of [architecture.models.transport,architecture.models.decor,portBatches])for(const b of batches)if(b.surface==='road'||batches===portBatches&&b.surface==='wood')walkMeshes.push(batchGeometry(b));
+for(const batches of [architecture.models.transport,architecture.models.decor,portBatches])for(const b of batches)if(b.surface==='road'||b.surface==='wood'&&(batches===portBatches||batches===architecture.models.transport))walkMeshes.push(batchGeometry(b));
 for(const g of walkMeshes){for(const key of Object.keys(g.attributes))if(key!=='position')g.deleteAttribute(key);}
 const walkMesh=mergeGeometries(walkMeshes),walkSurface=createTerrainSampler(walkMesh);walkMeshes.forEach(g=>g.dispose());
 let repairedSurface;
@@ -78,13 +78,13 @@ function appendBoxes(batches,world=new T.Matrix4()){
     }
   }
 }
-for(const kind of w.LANDMARK_SITE_KEYS)appendBoxes(architecture.models[kind],new T.Matrix4().makeTranslation(...w.sitePosition(kind)).scale(new T.Vector3().setScalar(LANDMARK_SCALE)));
+for(const kind of w.DASHBOARD_SITE_KEYS)appendBoxes(architecture.models[kind],new T.Matrix4().makeTranslation(...w.sitePosition(kind)).scale(new T.Vector3().setScalar(LANDMARK_SCALE)));
 for(const b of [architecture.models.coastal,architecture.models.transport,architecture.models.decor,portBatches])appendBoxes(b);
 const probe=new T.Vector3(),closest=new T.Vector3();
-function personClear(p){
+function personClear(p,radius=.14){
   for(const id of bins.get(Math.floor(p[0])+':'+Math.floor(p[2]))??[]){const o=boxes[id],b=o.box;
-    if(p[0]<=b.min.x-.14||p[0]>=b.max.x+.14||p[2]<=b.min.z-.14||p[2]>=b.max.z+.14||p[1]+.18>=b.max.y||p[1]+.98<=b.min.y)continue;
-    for(const height of [.25,.53,.84]){probe.set(p[0],p[1]+height,p[2]);closest.copy(probe).applyMatrix4(o.inverse).clamp(o.local.min,o.local.max).applyMatrix4(o.matrix);if(closest.distanceToSquared(probe)<.14**2)return false;}
+    if(p[0]<=b.min.x-radius||p[0]>=b.max.x+radius||p[2]<=b.min.z-radius||p[2]>=b.max.z+radius||p[1]+.18>=b.max.y||p[1]+.98<=b.min.y)continue;
+    for(const height of [.25,.53,.84]){probe.set(p[0],p[1]+height,p[2]);closest.copy(probe).applyMatrix4(o.inverse).clamp(o.local.min,o.local.max).applyMatrix4(o.matrix);if(closest.distanceToSquared(probe)<radius**2)return false;}
   }
   return true;
 }
@@ -104,16 +104,34 @@ function validRuns(points){
   const runs=[];let run=[];
   // Probe between authored waypoints as well, so a thin retaining wall cannot
   // slip between two valid endpoints. Align feet to actual paving/stair tops.
-  for(const p of resample(points,.055).points){p[1]=Math.max(p[1],walkFloor(p[0],p[2])+.02);if(personClear(p)){run.push(p);}else{if(run.length>1)runs.push(run);run=[];}}
+  for(const p of resample(points,.055).points){p[1]=Math.max(p[1],walkFloor(p[0],p[2])+.02);if(personClear(p,.18)){run.push(p);}else{if(run.length>1)runs.push(run);run=[];}}
   if(run.length>1)runs.push(run);return runs.filter(r=>r.length>3&&resample(r).length>.75);
 }
+// Follow the connected hub graph to the selected bridge branch. The shared
+// trunks and circle are traversed as paved segments, never straight shortcuts.
+function hubJourney(target){
+  const distance=new Map([['court-keep',0]]),previous=new Map(),todo=new Set(['court-keep']);
+  while(todo.size){
+    const id=[...todo].sort((a,b)=>distance.get(a)-distance.get(b))[0];todo.delete(id);if(id===target)break;
+    for(const p of TRAVERSAL.paths.filter(p=>p.island==='hub'&&(p.from===id||p.to===id))){
+      const next=p.from===id?p.to:p.from,points=p.from===id?p.points:p.points.slice().reverse(),cost=distance.get(id)+resample(points).length;
+      if(cost<(distance.get(next)??Infinity)){distance.set(next,cost);previous.set(next,{id,points});todo.add(next);}
+    }
+  }
+  if(!distance.has(target))throw Error('Disconnected roundabout branch '+target);
+  const segments=[];for(let id=target;id!=='court-keep';){const step=previous.get(id);segments.unshift(step.points);id=step.id;}
+  return segments.flatMap((points,j)=>j?points.slice(1):points);
+}
+const circle=TRAVERSAL.paths.filter(p=>p.id.startsWith('hub-roundabout-')).flatMap((p,j)=>j?p.points.slice(1):p.points);
+if(circle.length){const index=route('fountain-roundabout-patrol','walk',lanePoints(circle,.1),true);citizen('roundabout-stroller',index,3);}
 // Villagers travel from court to court across each bridge, with separate lanes.
 for(const bridge of TRAVERSAL.bridges){
   const a=TRAVERSAL.paths.find(p=>p.to===bridge.from),b=TRAVERSAL.paths.find(p=>p.to===bridge.to),cross=[];
   for(let j=0;j<=Math.ceil(bridge.length/.14);j++){const t=j/Math.ceil(bridge.length/.14);cross.push([bridge.a[0]+(bridge.b[0]-bridge.a[0])*t,bridgeDeck(bridge,t)+.025,bridge.a[2]+(bridge.b[2]-bridge.a[2])*t]);}
   for(const lane of [-.19,.19]){
-    const raw=lanePoints([...a.points,...cross,...b.points.slice().reverse()],lane),runs=validRuns(raw);
-    const longest=runs.sort((a,b)=>resample(b).length-resample(a).length)[0];if(!longest)throw Error('No pedestrian crossing '+bridge.id);
+    const journey=a.island==='hub'?hubJourney(a.from):[],approach=journey.length?[...journey,...a.points.slice(1)]:a.points;
+    const raw=lanePoints([...approach,...cross,...b.points.slice().reverse()],lane),runs=validRuns(raw);
+    const longest=runs.filter(run=>[bridge.a,bridge.b].every(end=>run.some(p=>Math.hypot(p[0]-end[0],p[2]-end[2])<.6))).sort((a,b)=>resample(b).length-resample(a).length)[0];if(!longest)throw Error('Disconnected pedestrian crossing '+bridge.id+' lane '+lane);
     const index=route('crossing-'+bridge.id+'-'+lane,'walk',longest);citizen('traveler-'+actors.length,index,routes[index].length*.7+(lane>0?25:0));
   }
 }
@@ -138,7 +156,7 @@ for(const site of ['champions','calculator']){
 {
   const [sx,sz]=w.SITES.records,angle=Math.atan2(-sx,-sz),c=Math.cos(angle),s=Math.sin(angle),y=w.sitePosition('records')[1]+.39*LANDMARK_SCALE+.025,points=[];
   for(let j=0;j<=48;j++){const a=j/48*Math.PI*2,x=Math.cos(a)*1.15,z=2.4+Math.sin(a)*.65;points.push([sx+(x*c+z*s)*LANDMARK_SCALE,y,sz+(-x*s+z*c)*LANDMARK_SCALE]);}
-  if(!points.every(personClear))throw Error('Training courtyard patrol is obstructed');
+  if(!points.every(p=>personClear(p)))throw Error('Training courtyard patrol is obstructed');
   const index=route('training-courtyard-patrol','walk',points,true),citizen=actors.find(a=>a.id==='door-records');
   if(!citizen)throw Error('Missing training courtyard citizen');citizen.route=index;citizen.duration=routes[index].length/.34+1.2;citizen.pause=7;citizen.offset=3;
 }
@@ -162,6 +180,15 @@ for(const port of ports){
   const run=validRuns(raw).sort((a,b)=>b.length-a.length)[0];if(!run)throw Error('No clear quay aisle '+port.id);
   for(const side of [-.12,.12]){const lane=validRuns(lanePoints(run,side)).sort((a,b)=>b.length-a.length)[0];if(!lane)throw Error('Obstructed dock-worker lane '+port.id);const index=route(port.id+'-'+side,'walk',lane);citizen('dock-worker-'+actors.length,index,side<0?0:17);}
 }
+
+// Validate the final uniformly sampled playback, including points between
+// waypoints. Keep a small routing margin so interpolation cannot graze walls.
+let pedestrianSamples=0;
+for(const r of routes.filter(r=>r.kind==='walk'))for(const p of resample(r.points,.04).points){
+  pedestrianSamples++;
+  if(!personClear(p))throw Error('Pedestrian route intersects scenery: '+r.id+' at '+p);
+}
+console.log(`Validated ${pedestrianSamples} pedestrian collision samples.`);
 
 // Conservative water navigation: the whole vessel fits within the free disk.
 // Bridges, quays, anchored vessels and shoals are all offline obstacles.

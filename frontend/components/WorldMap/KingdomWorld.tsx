@@ -2,7 +2,7 @@
 
 import { Fragment, memo, Suspense, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
-import type { CameraCommand } from "@/lib/worldMap/navigation";
+import type { CameraCommand } from "@/lib/worldMap/navigationConfig";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { MeResponse } from "@/lib/api";
@@ -11,7 +11,7 @@ import { MapCamera, CAMERA_POSITION } from "./MapCamera";
 import { LandmarkArchitecture } from "./Architecture";
 import { LandmarkGlow, type LandmarkFeedback } from "./LandmarkGlow";
 import { PROJECTED_LANDMARKS, type DashboardLandmark } from "@/lib/worldMap/landmarkInteraction";
-import { sitePosition } from "@/lib/worldMap/landscape";
+import { DASHBOARD_SITE_KEYS, sitePosition } from "@/lib/worldMap/landscape";
 import styles from "./landmarks.module.css";
 import { Ocean } from "@/components/ReferenceVoxel/Ocean";
 import { LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, worldFrame } from "@/lib/worldMap/framing";
@@ -24,16 +24,18 @@ import { QUALITY } from "@/lib/worldMap/renderQuality";
 import { SceneWarmup } from "./SceneWarmup";
 import { WorldVisibility } from "./WorldVisibility";
 import { useBakedScene } from "./BakedScene";
+import { WorldAssetPreload } from "./WorldAssetPreload";
 
 type Point3 = [number, number, number];
 // MapCamera owns the original frustum. Adaptive DPR resizes the drawing buffer
 // without allowing Fiber to substitute its automatic pixel-sized frustum.
 const DASHBOARD_CAMERA={manual:true,position:[...CAMERA_POSITION] as Point3,near:.5,far:650};
-const LANDMARK_POSITIONS=Object.fromEntries(["keep","topics","records","champions","calculator"].map(kind=>[kind,sitePosition(kind as DashboardLandmark)])) as Record<DashboardLandmark,Point3>;
+const LANDMARK_POSITIONS=Object.fromEntries(DASHBOARD_SITE_KEYS.map(kind=>[kind,sitePosition(kind as DashboardLandmark)])) as Record<DashboardLandmark,Point3>;
 const DISABLED_EVENTS=()=>({enabled:false,priority:0});
 type LandmarkElements = Partial<Record<DashboardLandmark, HTMLDivElement | null>>;
 
 const DASHBOARD_LANDMARKS: Array<{ kind: DashboardLandmark; title: string; href: string; description: string }> = [
+  { kind: "watchtower", title: "Leaderboard", href: "/leaderboard", description: "Compare quiz scores and climb the kingdom rankings." },
   { kind: "keep", title: "History Logs", href: "/history-logs", description: "Open your History Logs." },
   { kind: "topics", title: "Topics · Learning Grove", href: "/topics", description: "Explore the Learning Grove and choose your next topic." },
   { kind: "records", title: "Playground", href: "/playground", description: "Open your Playground." },
@@ -217,6 +219,7 @@ function DashboardWorld(props: WorldProps) {
         onCreated={({ gl }) => configureWorldRenderer(gl)}
       >
         <FrameGate active={props.visible} />
+        <WorldAssetPreload tier={quality} />
         <WorldQuality tier={quality}><Suspense fallback={null}><CoastalWorld {...props} controlsEnabled={!props.busy} headerInset={headerInset} labelElementsRef={labelElementsRef} hitElementsRef={hitElementsRef} circleElementsRef={circleElementsRef} feedback={feedback} lowPower={lowPower} /></Suspense></WorldQuality>
       </Canvas>
         <div className={styles.hitLayer} data-visible={props.labelsVisible&&!props.busy} hidden={!props.visible} aria-hidden="true">
@@ -236,19 +239,10 @@ function DashboardWorld(props: WorldProps) {
         </div>
         {createPortal(<div className={`${styles.labelLayer} ${lowPower ? "is-low-power" : ""}`} data-visible={props.labelsVisible} inert={!props.labelsVisible} hidden={!props.visible} aria-hidden={!props.labelsVisible}>
           {DASHBOARD_LANDMARKS.map(({ kind, title, href, description }) => {
-            const subtitle = kind === "records"
-              ? "Your creative space"
-              : kind === "champions"
-                ? `${props.progress.mastered}/${props.progress.total} skills mastered`
-                : kind === "topics"
-                  ? `${props.topicProgress.completed}${props.topicProgress.total === null ? "" : `/${props.topicProgress.total}`} topics completed`
-                  : kind === "keep"
-                    ? "Your history archive"
-                    : "Step-by-step equation solver";
             const label = title.split(" · ")[0];
             const hovered = hoveredLandmark === kind;
             return <div key={kind} ref={(element) => { labelElementsRef.current[kind] = element; }} className={styles.anchor} data-landmark={kind} data-active={feedback[kind]!=="inactive"} data-feedback={feedback[kind]} style={{ visibility: "hidden" }}>
-              <button type="button" data-tutorial={`map-${kind}`} className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${subtitle}. ${description}`}
+              <button type="button" data-tutorial={`map-${kind}`} className={`${styles.marker} ${hovered ? styles.markerExpanded : ""}`} aria-label={`${title}: ${description}`}
                 onClick={() => { if (!props.busy) props.navigate(href); }}
                 onMouseEnter={() => { props.preloadRoute?.(href); setHoveredLandmark(kind); }}
                 onMouseLeave={() => setHoveredLandmark(null)}
@@ -262,7 +256,6 @@ function DashboardWorld(props: WorldProps) {
                   if(direction){event.preventDefault();const index=DASHBOARD_LANDMARKS.findIndex(item=>item.kind===kind),next=DASHBOARD_LANDMARKS[(index+direction+DASHBOARD_LANDMARKS.length)%DASHBOARD_LANDMARKS.length];labelElementsRef.current[next.kind]?.querySelector("button")?.focus();}
                 }}>
                 <span className={styles.markerHeading}><span className={styles.markerTitle}>{label}</span></span>
-                <span className={styles.markerSubtitle}>{subtitle}</span>
                 <span className={styles.markerDetail}>{description}</span>
               </button>
             </div>;

@@ -19,6 +19,7 @@ function ArchitectureBatch({ batch, shadows }: {batch:Batch;shadows:boolean}) {
   const unit=assets.units[batch.shape],full=assets.geometries[unit.full],low=assets.geometries[unit.low];
   const ref=useRef<THREE.InstancedMesh>(null);
   const visibility=useWorldVisibility(),revision=useRef(-1);
+  const viewportHeight=useRef(0);
   const candidates=useMemo(()=>batch.pieces.map(piece=>{
     const bounds=full.boundingBox!.clone().union(low.boundingBox!).applyMatrix4(piece.matrix).expandByScalar(.12);
     return {bounds,occluded:visibility?.terrain.hides(bounds)??false};
@@ -26,6 +27,9 @@ function ArchitectureBatch({ batch, shadows }: {batch:Batch;shadows:boolean}) {
   const slots=useRef<Int32Array|null>(null);
   const detail=useRef(true),lod=batch.shape==="rock"||batch.shape==="broadleaf"||batch.shape==="conifer";
   useFrame(({camera,size})=>{
+    // Water and hover renders do not change static visibility or geometry LOD.
+    if(visibility&&revision.current===visibility.revision&&viewportHeight.current===size.height)return;
+    viewportHeight.current=size.height;
     const mesh=ref.current,order=slots.current;
     if(mesh&&order&&visibility&&revision.current!==visibility.revision){
       revision.current=visibility.revision;

@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { clearLearningData, ensureLearningData, getLearningSnapshot, getServerLearningSnapshot, staleLearningData, subscribeLearningData } from "@/lib/learningData";
-import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigation";
+import { ISLAND_ROUTES, TOPICS_APPROACH_DURATION, type CameraCommand, type IslandRoute } from "@/lib/worldMap/navigationConfig";
 import DashboardWorldBoundary from "@/components/WorldMap/DashboardWorldBoundary";
 import TutorialProvider from "@/components/tutorial/TutorialProvider";
 import BackgroundMusic from "@/components/audio/BackgroundMusic";
@@ -17,14 +17,14 @@ const loadCalculatorWorld = () => import("@/components/WorldMap/CalculatorTowerW
 const loadTopicCarousel = () => import("@/components/TopicBookCarousel");
 const DashboardWorld = dynamic(loadWorld, {
   ssr: false,
-  loading: () => <div className="world-loading" role="status"><span className="world-loader" aria-hidden="true" /><span>Preparing your learning kingdom…</span></div>,
+  loading: () => <div className="world-loading" role="status"><span className="world-loader" aria-hidden="true" /><span>Preparing your learning kingdomâ€¦</span></div>,
 });
 const TopicsLibraryWorld = dynamic(loadTopicsWorld, { ssr: false });
 const ProgressTrailWorld = dynamic(loadProgressWorld, { ssr: false });
 const CalculatorTowerWorld = dynamic(loadCalculatorWorld, { ssr: false });
 
 const managedRoutes = ["/dashboard", ...Object.keys(ISLAND_ROUTES)];
-const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground", "history"] as const;
+const FOCUSED_ROUTE_KEYS = ["topics", "progress", "calculator", "playground", "history", "leaderboard"] as const;
 type FocusedRouteKey = typeof FOCUSED_ROUTE_KEYS[number];
 type FocusedTransition = "idle" | "entering" | "revealing" | "visible" | "leaving" | "zooming-out";
 type FocusedTransitionMap = Record<FocusedRouteKey, FocusedTransition>;
@@ -40,6 +40,7 @@ const FOCUSED_ROUTES = {
   "/calculator": { key: "calculator", site: "calculator", load: loadCalculatorWorld, contentClass: "calculator-route-content" },
   "/playground": { key: "playground", site: "records", load: null, contentClass: "playground-route-content" },
   "/history-logs": { key: "history", site: "keep", load: null, contentClass: "history-route-content" },
+  "/leaderboard": { key: "leaderboard", site: "watchtower", load: null, contentClass: "leaderboard-route-content" },
 } as const;
 
 // Route canvases and foreground pages deliberately overlap for a little
@@ -104,6 +105,7 @@ function createTransitionMap(pathname: string): FocusedTransitionMap {
     calculator: route?.key === "calculator" ? "visible" : "idle",
     playground: route?.key === "playground" ? "visible" : "idle",
     history: route?.key === "history" ? "visible" : "idle",
+    leaderboard: route?.key === "leaderboard" ? "visible" : "idle",
   };
 }
 
@@ -115,6 +117,7 @@ function createWorldMap(pathname: string): FocusedWorldMap {
     calculator: route?.key === "calculator",
     playground: route?.key === "playground",
     history: route?.key === "history",
+    leaderboard: route?.key === "leaderboard",
   };
 }
 
@@ -155,7 +158,7 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     setFocusedTransitions(current => current[key] === stage ? current : { ...current, [key]: stage });
   }, []);
   const resetFocusedStages = useCallback(() => {
-    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle", history: "idle" };
+    const idle: FocusedTransitionMap = { topics: "idle", progress: "idle", calculator: "idle", playground: "idle", history: "idle", leaderboard: "idle" };
     focusedTransitionsRef.current = idle;
     setFocusedTransitions(idle);
   }, []);
@@ -393,12 +396,12 @@ export default function LearningShell({ children }: { children: React.ReactNode 
 
   return <NavigationContext.Provider value={context}>
     {/* Keep each track mounted so switching sections preserves its playhead. */}
-    <BackgroundMusic active={isBackgroundMusicRoute(pathname)} src="/sounds/music/TempleOfWater_MainBG.mp3" />
-    <BackgroundMusic active={isLessonMusicRoute(pathname)} src="/sounds/music/Underworld_LessonBG.mp3" />
-    <BackgroundMusic active={isQuizMusicRoute(pathname)} src="/sounds/music/Suspicion_QuizBG.mp3" />
-    <BackgroundMusic active={isPracticeMusicRoute(pathname)} src="/sounds/music/Observatory_PracticeBG.mp3" />
-    <BackgroundMusic active={isDiagnosticMusicRoute(pathname)} src="/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.mp3" />
-    <BackgroundMusic active={isResultsMusicRoute(pathname)} src="/sounds/music/Legend_ResultsBG.mp3" />
+    <BackgroundMusic active={isBackgroundMusicRoute(pathname)} src="/sounds/music/TempleOfWater_MainBG.opus" />
+    <BackgroundMusic active={isLessonMusicRoute(pathname)} src="/sounds/music/Underworld_LessonBG.opus" />
+    <BackgroundMusic active={isQuizMusicRoute(pathname)} src="/sounds/music/Suspicion_QuizBG.opus" />
+    <BackgroundMusic active={isPracticeMusicRoute(pathname)} src="/sounds/music/Observatory_PracticeBG.opus" />
+    <BackgroundMusic active={isDiagnosticMusicRoute(pathname)} src="/sounds/music/MagicalOvertureClassicalSymphonicLoop_DiagnosticBG.opus" />
+    <BackgroundMusic active={isResultsMusicRoute(pathname)} src="/sounds/music/Legend_ResultsBG.opus" />
     <TutorialProvider userId={data?.me.student_id} identityReady={Boolean(data || dataError)}>
     {(dashboardWorldMounted || overview) && <div className={`dashboard-world-layer ${dashboardTransitionClass}`} aria-hidden={!overview} style={{ visibility: dashboardLayerVisible ? "visible" : "hidden" }}>
       <DashboardWorldBoundary onNavigate={navigate} resetKey={pathname}>
@@ -421,6 +424,9 @@ export default function LearningShell({ children }: { children: React.ReactNode 
     {(focusedWorldMounted.history || pathname === "/history-logs") && <div className={`history-background-shell history-transition-${focusedTransitions.history}`} aria-hidden="true" style={{ visibility: pathname === "/history-logs" ? "visible" : "hidden" }}>
       <div className="history-background" />
     </div>}
-    <div className={contentClass}>{children}</div>
+    {(focusedWorldMounted.leaderboard || pathname === "/leaderboard") && <div className={`leaderboard-background-shell leaderboard-transition-${focusedTransitions.leaderboard}`} aria-hidden="true" style={{ visibility: pathname === "/leaderboard" ? "visible" : "hidden" }}>
+      <div className="leaderboard-background" />
+    </div>}
+    <div className={contentClass} data-transition={activeFocusedRoute ? focusedTransitions[activeFocusedRoute.key] : undefined}>{children}</div>
   </TutorialProvider></NavigationContext.Provider>;
 }

@@ -1,0 +1,11 @@
+.page > header.header,
+.page > :global(.progress-library-back-row) {
+  width: 85%;
+}
+
+@media (max-width: 640px) {
+  .page > header.header,
+  .page > :global(.progress-library-back-row) {
+    width: 100%;
+  }
+}

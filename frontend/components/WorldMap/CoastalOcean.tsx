@@ -3,6 +3,7 @@
 import { memo,useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { getFrameElapsedTime } from "@/lib/three/frameClock";
 import { AFTERNOON_SUN, ENVIRONMENT_BOUNDS, WATER_LEVEL } from "@/lib/worldMap/environment";
 import { CAMERA_POSITION, CAMERA_TARGET, WORLD_ROTATION } from "@/lib/worldMap/framing";
 import { OCEAN_FRAGMENT, OCEAN_VERTEX } from "@/lib/worldMap/oceanShader";
@@ -30,7 +31,9 @@ export const CoastalOcean=memo(function CoastalOcean({}:{island?:keyof typeof IS
         deepColor:{value:new THREE.Color("#176287")},shallowColor:{value:new THREE.Color("#61c2c5")},
       }});
   },[textures,quality]);
-  useFrame(state=>{material.uniforms.waterTime.value=reduced?0:state.clock.getElapsed();});
+  useFrame(({ clock }) => {
+    material.uniforms.waterTime.value = reduced ? 0 : getFrameElapsedTime(clock);
+  });
   useEffect(()=>{
     if(reduced||frameloop==="never")return;
     let timer:ReturnType<typeof setInterval>|undefined;

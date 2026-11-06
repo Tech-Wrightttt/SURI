@@ -7,6 +7,23 @@ authoring. Setup, startup, and deployment instructions are in the
 For the soundtrack inventory, playback behavior, and audio credits, see
 [MUSIC AND SOUNDTRACK](MUSIC.md).
 
+## Optimized page images
+
+Page images use pre-generated WebP files so they work with the existing static
+image delivery across the Vercel Services gateway. To regenerate them after
+updating the original PNGs, run from the repository root:
+
+```powershell
+.venv/Scripts/python.exe frontend/scripts/optimize-images.py
+```
+
+The script requires Pillow with WebP support, preserves transparency and aspect
+ratios, and prints output sizes. Commit the generated files under `public/`.
+Mascots and battle sprites are capped at 640px, the logo at 600px, and the favicon
+at 64px. Full-screen backgrounds retain their source dimensions. Only backgrounds
+with the existing CSS blur use `login/library-blurred.webp`; the lesson page uses
+the full-resolution `login/library.webp`. Original PNGs remain as export sources.
+
 ## Guided tutorials
 
 First visits show a skippable guide for the dashboard, topic library and overview,
@@ -32,7 +49,7 @@ that accounts for the visible viewport and math keyboard.
 ## Dashboard navigation and interaction
 
 The five landmark IDs map to these destinations in
-[navigation.ts](lib/worldMap/navigation.ts):
+[navigationConfig.ts](lib/worldMap/navigationConfig.ts):
 
 | Landmark ID | Destination | Route |
 | --- | --- | --- |
@@ -134,6 +151,15 @@ Water requests renders at 30 Hz in all current profiles. Input, camera, and glow
 animations can invalidate at display cadence. The water timer pauses in hidden
 documents and inactive canvases. Reduced motion freezes water, cloth, and ambient
 positions. Terrain geometry, foliage placement, and baked lighting remain static.
+
+Scene geometry, ambient actors, and environment textures begin loading together
+inside the dashboard canvas. Static visibility and LOD are reused until the
+camera or viewport changes; settled camera poses skip matrix updates. Actor
+colors upload only when the visible instance order changes.
+
+The topic carousel shares its board, clasp, and primitive geometry across all
+books and disposes those buffers when the carousel unmounts. It uses Fiber's
+existing perspective camera, with the same framing and beveled book shapes.
 
 Camera controllers own their frusta (`manual: true` on Canvas). Fiber's DPR
 resize must not overwrite them, preserving POV, zoom, framing, pan constraints,

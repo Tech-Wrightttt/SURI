@@ -3,6 +3,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { formatMath } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 
 // A $$...$$ block that sits mid-sentence renders inline and floats beside the text, so give each one its own paragraph.
@@ -23,15 +24,17 @@ interface Props {
   className?: string;
   /** Left-align aligned blocks as a system with a brace (use for problem prompts, not worked steps). */
   system?: boolean;
+  /** Keep ÷ as written (Operations on Integers drills the ÷ operator itself). */
+  keepDiv?: boolean;
 }
 
 /** Renders Markdown with $inline$ / $$block$$ LaTeX, the format used by Playground prompts and steps. */
-export default function PromptText({ text, className, system = false }: Props) {
+export default function PromptText({ text, className, system = false, keepDiv = false }: Props) {
   const source = isolateDisplayMath(system ? asSystem(text) : text);
   return (
     <div className={className}>
       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-        {source}
+        {keepDiv ? source : formatMath(source)}
       </ReactMarkdown>
     </div>
   );

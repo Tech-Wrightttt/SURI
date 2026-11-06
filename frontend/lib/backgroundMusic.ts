@@ -3,7 +3,7 @@
 import { getEffectiveAudioVolume, subscribeAudioSettings } from "@/lib/audioPreferences";
 
 export function isBackgroundMusicRoute(pathname: string) {
-  return ["/dashboard", "/topics", "/progress", "/history-logs", "/playground", "/calculator"].includes(pathname)
+  return ["/dashboard", "/topics", "/progress", "/history-logs", "/leaderboard", "/playground", "/calculator"].includes(pathname)
     || pathname.startsWith("/topics/");
 }
 

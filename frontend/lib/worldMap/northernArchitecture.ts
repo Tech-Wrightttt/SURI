@@ -1,12 +1,12 @@
 import type { ArchitectureBuilder } from "./architecture";
 import { block, lancet, strut, MASONRY as C } from "./architecturalModules";
+import { LANDMARK_SCALE } from "./framing";
 import { WYRM_TOWER } from "./northernIslands";
 import { terrainHeight } from "./landscape";
 
-/** Offline assembly: a closed medieval tower, not a selectable destination. */
-export function drawNorthernArchitecture(b:ArchitectureBuilder) {
-  const {x,z,floor,turn}=WYRM_TOWER;
-  b.at(x,floor,z,1,turn,()=>{
+/** Preserve the original tower dimensions within the shared landmark scale. */
+export function drawWatchtower(b:ArchitectureBuilder) {
+  b.at(0,0,0,1/LANDMARK_SCALE,WYRM_TOWER.turn,()=>{
     // Rubble footing penetrates the graded bedrock, including the exposed ledge.
     b.part("cylinder","stone",C.dark,0,-1.25,0,4.1,2.8,4.1);
     b.part("cylinder","stone",C.light,0,.08,0,3.9,.3,3.9);
@@ -44,6 +44,9 @@ export function drawNorthernArchitecture(b:ArchitectureBuilder) {
     block(b,-2.35,-.25,-1.15,1.7,1.15,1.8,C.stone);
     b.part("hipRoof","roof",C.slate,-2.35,.56,-1.15,2.1,.65,2.15);
   });
+}
+
+export function drawNorthernArchitecture(b:ArchitectureBuilder) {
   for(const [px,pz,h] of [[-40.2,-38.2,1.8],[-30.5,-48.1,1.1],[32.4,-39.3,1.7]]){
     const y=terrainHeight(px,pz);
     b.part("cylinder","stone",C.dark,px,y+h*.42,pz,.45,h,.45);

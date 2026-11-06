@@ -38,7 +38,7 @@ const ENTRY_CSS = `
   isolation: isolate;
 
   background-color: #1b0e12;
-  background-image: url('/login/study.png');
+  background-image: url('/login/study.webp');
   background-position: center top;
   background-size: cover;
   background-repeat: no-repeat;
@@ -233,7 +233,7 @@ export default function TopicIntroPage() {
           <header className="topic-entry-hud">
             <div className="topic-entry-brand">
               <div className="topic-entry-suri">
-                <img src="/suri-snake-right.png" alt="SURI mascot" />
+                <img src="/suri-snake-right.webp" alt="SURI mascot" />
               </div>
               <div>
                 <span className="topic-entry-eyebrow">Your next adventure</span>
@@ -245,7 +245,7 @@ export default function TopicIntroPage() {
           </header>
 
           <div className="topic-entry-speech">
-            <img src="/suri-snake-right.png" alt="" />
+            <img src="/suri-snake-right.webp" alt="" />
             <p>Sss-ready, Ranger? Before we enter this chapter, let’s check the skills you’ve gathered along the trail. You can take a diagnostic or head straight into the lesson!</p>
           </div>
 

@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import { CAMERA_ORTHO_SIZE, CAMERA_POSITION, CAMERA_TARGET, LANDMARK_BOUNDS, LANDMARK_LABEL_LIFT, LANDMARK_SCALE, projectWorldPoint, worldFrame } from "./framing";
-import { sitePosition } from "./landscape";
+import { DASHBOARD_SITE_KEYS, sitePosition } from "./landscape";
 
 export const CAMERA_RESPONSE = {
   mobileBreakpoint: 900,
   mobileCoverage: 0.9,
   desktopZoom: 1.1,
   desktopZoomMultiplier: 1.25,
+  zoomMultiplier: 1.1,
   desktopHeaderGapPixels: 20,
   desktopCameraDownFraction: 0.3,
   desktopVerticalMarginScale: 0.7,
@@ -29,9 +30,9 @@ export function responsiveCamera(width: number, height: number, projected: THREE
   const desktopBottom = 20 + CAMERA_RESPONSE.parallaxPixels;
   const verticalParallax = CAMERA_RESPONSE.parallaxPixels * CAMERA_RESPONSE.desktopVerticalMarginScale;
   const verticalTop = headerInset + 48 + CAMERA_RESPONSE.desktopHeaderGapPixels * CAMERA_RESPONSE.desktopVerticalMarginScale + verticalParallax;
-  const zoom = mobile
+  const zoom = (mobile
     ? CAMERA_RESPONSE.mobileCoverage * 2 * CAMERA_ORTHO_SIZE * usableHeight / Math.max(height, 1) / extent.y
-    : Math.min(CAMERA_RESPONSE.desktopZoom, 2 * CAMERA_ORTHO_SIZE * Math.max(1, height - desktopTop - desktopBottom) / (Math.max(height, 1) * extent.y)) * CAMERA_RESPONSE.desktopZoomMultiplier;
+    : Math.min(CAMERA_RESPONSE.desktopZoom, 2 * CAMERA_ORTHO_SIZE * Math.max(1, height - desktopTop - desktopBottom) / (Math.max(height, 1) * extent.y)) * CAMERA_RESPONSE.desktopZoomMultiplier) * CAMERA_RESPONSE.zoomMultiplier;
   const unitsPerPixel = 2 * CAMERA_ORTHO_SIZE / (Math.max(height, 1) * zoom);
   const view = new THREE.Vector2(width, height).multiplyScalar(unitsPerPixel);
   const baseline = new THREE.PerspectiveCamera();
@@ -56,7 +57,7 @@ export function responsiveCamera(width: number, height: number, projected: THREE
     position.addScaledVector(up, center.y + worldTranslation.dot(up) - height * CAMERA_RESPONSE.desktopCameraDownFraction * unitsPerPixel);
     // Retain enough edge clearance for labels and the maximum parallax offset.
     const labels = new THREE.Box2();
-    for (const site of ["keep", "topics", "records", "champions", "calculator"] as const) {
+    for (const site of DASHBOARD_SITE_KEYS) {
       const point = new THREE.Vector3(...sitePosition(site));
       point.y += (LANDMARK_BOUNDS[site][1] + LANDMARK_LABEL_LIFT) * LANDMARK_SCALE;
       labels.expandByPoint(projectWorldPoint(point).multiplyScalar(frame.scale));
@@ -76,9 +77,12 @@ export function responsiveCamera(width: number, height: number, projected: THREE
   return { mobile, touch:mobile||coarse, zoom, position, quaternion: baseline.quaternion, right, up, limits, unitsPerPixel };
 }
 
+const overviewPosition = new THREE.Vector3();
 /** Pan translates only in the screen plane. Reject stray external zoom writes. */
 export function applyOverviewPose(camera:THREE.OrthographicCamera|THREE.PerspectiveCamera,response:ReturnType<typeof responsiveCamera>,offset:THREE.Vector2){
-  camera.position.copy(response.position).addScaledVector(response.right,offset.x).addScaledVector(response.up,offset.y);
+  overviewPosition.copy(response.position).addScaledVector(response.right,offset.x).addScaledVector(response.up,offset.y);
+  if(camera.position.equals(overviewPosition)&&camera.quaternion.equals(response.quaternion)&&camera.zoom===response.zoom)return;
+  camera.position.copy(overviewPosition);
   camera.quaternion.copy(response.quaternion);
   if(camera.zoom!==response.zoom){camera.zoom=response.zoom;camera.updateProjectionMatrix();}
   camera.updateMatrixWorld();

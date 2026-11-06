@@ -1,23 +1,11 @@
-"use client";
+import type { Metadata } from "next";
+import LandingPage from "@/components/landing/LandingPage";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getMe } from "../lib/api";
+export const metadata: Metadata = {
+  title: "SURI | Adaptive Mathematics Learning",
+  description: "Learn junior high school math with SURI. Identify learning gaps, study personalized lessons, practice step by step, and track topic mastery.",
+};
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        await getMe();
-        router.replace("/dashboard");
-      } catch {
-        router.replace("/login");
-      }
-    };
-    checkLogin();
-  }, [router]);
-
-  return null;
+  return <LandingPage />;
 }

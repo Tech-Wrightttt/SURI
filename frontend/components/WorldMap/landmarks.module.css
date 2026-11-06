@@ -27,17 +27,15 @@
 .scenic { cursor: default; }
 .markerHeading { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; width: fit-content; height: auto; gap: 6px; white-space: nowrap; }
 .markerTitle { color: inherit; font: inherit; font-size: 100%; letter-spacing: .035em; }
-.markerSubtitle { display: block; color: #513016; font-size: 14px; font-weight: 800; line-height: 1.25; letter-spacing: .01em; text-transform: none; }
-.markerDetail { display: block; align-self: stretch; min-width: 0; max-width: 13rem; color: #65421f; font-size: 11.5px; font-weight: 600; line-height: 1.45; letter-spacing: .01em; text-transform: none; }
-.markerSubtitle, .markerDetail { contain: inline-size; height: 0; max-height: 0; margin: 0; overflow: hidden; opacity: 0; transform: translateY(4px); pointer-events: none; transition: max-height .2s ease, margin-top .2s ease, opacity .2s ease, transform .2s ease; }
-.marker:is(:hover, :focus-visible, .markerExpanded) :is(.markerSubtitle, .markerDetail) { contain: none; height: auto; max-height: 8rem; margin-top: .3rem; opacity: 1; transform: translateY(0); }
+.markerDetail { display: block; align-self: stretch; min-width: 0; max-width: 13rem; color: #65421f; font-size: 12.5px; font-weight: 600; line-height: 1.45; letter-spacing: .01em; text-transform: none; }
+.markerDetail { contain: inline-size; height: 0; max-height: 0; margin: 0; overflow: hidden; opacity: 0; transform: translateY(4px); pointer-events: none; transition: max-height .2s ease, margin-top .2s ease, opacity .2s ease, transform .2s ease; }
+.marker:is(:hover, :focus-visible, .markerExpanded) .markerDetail { contain: none; height: auto; max-height: 8rem; margin-top: .3rem; opacity: 1; transform: translateY(0); }
 .marker:hover, .marker:focus-visible, .markerExpanded { --marker-background: linear-gradient(180deg, #fff5cf 0%, #ecd18c 100%); --marker-surface: #ecd18c; font-size: 20px; max-width: min(17rem, calc(100vw - 2rem)); box-shadow: 0 6px 0 #160b07, 0 13px 20px rgba(0, 0, 0, .27), inset 0 0 0 2px rgba(111, 61, 28, .18); filter: brightness(1.03); transform: translateY(-2px); }
 .marker:focus-visible { outline: 3px solid #ba8bff; outline-offset: 3px; }
 @media (max-width: 600px) {
   .marker { padding: .5rem .75rem; }
   .marker:is(:hover, :focus-visible, .markerExpanded) { font-size: 16px; }
-  .markerSubtitle { font-size: 12px; }
-  .markerDetail { font-size: 10.5px; }
+  .markerDetail { font-size: 11.5px; }
 }
 
 /* Anchor the pointer tip to the landmark. As content grows, the card grows up. */
@@ -46,7 +44,7 @@
 /* Overlap the bottom edge with a filled diamond so the two sloping borders
    continue the card outline, without a horizontal seam across the arrow. */
 .marker::after { content: ""; position: absolute; z-index: 0; left: 50%; bottom: -10px; width: 16px; height: 16px; background: var(--marker-surface); border-right: 3px solid #5e3619; border-bottom: 3px solid #5e3619; box-shadow: 3px 3px 0 #160b07; transform: translateX(-50%) rotate(45deg); pointer-events: none; }
-.markerHeading, .markerSubtitle, .markerDetail { position: relative; z-index: 1; }
+.markerHeading, .markerDetail { position: relative; z-index: 1; }
 .world { height: 100dvh; min-height: 100dvh; overflow: clip; }
 .viewport { position: absolute; inset: 0; overflow: clip; touch-action: none; }
 
@@ -59,7 +57,8 @@
 /* Render outside the scene's stacking context so an expanded label can cover
    the floating navigation without raising the canvas above the header. */
 .labelLayer { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 1; transition: opacity .36s ease; }
-.labelLayer[data-visible="false"] { opacity: 0; transition-duration: .24s; }
+/* Remove destination text before the first camera-motion frame. */
+.labelLayer[data-visible="false"] { opacity: 0; visibility: hidden; transition: none; }
 .labelLayer:has(.anchor:hover, .anchor:focus-within, .anchor[data-active="true"]) { z-index: 50; }
 .labelLayer[hidden], :global(body:has([role="dialog"]:not([data-tutorial-dialog]))) .labelLayer { display: none; }
 .labelLayer .anchor { position: absolute; pointer-events: none; }
@@ -78,4 +77,9 @@
   .anchor[data-landmark="ranger"] { --label-offset-x: 20px; }
   .anchor[data-landmark="guild"] { --label-offset-x: -9px; --label-offset-y: 10px; }
   .anchor[data-landmark="arena"] { --label-offset-x: -18px; --label-offset-y: 16px; }
+}
+
+/* Keep the tower label below the header on short landscape screens. */
+@media (max-height: 480px) {
+  .anchor[data-landmark="watchtower"] { --label-offset-y: 20px; }
 }

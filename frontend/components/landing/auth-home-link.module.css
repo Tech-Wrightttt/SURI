@@ -1,0 +1,8 @@
+.link {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  z-index: 5;
+  text-decoration: none;
+}
+@media (max-width: 540px) { .link { top: 12px; left: 12px; font-size: 11px; } }

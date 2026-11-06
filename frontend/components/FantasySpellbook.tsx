@@ -1,10 +1,10 @@
 "use client";
 
-import { RoundedBox } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { CarouselBook } from "@/components/TopicBookCarousel";
+import { createSpellbookGeometry } from "@/lib/three/spellbookGeometry";
 import {
   createBookmarkGeometry, createCoverMetalwork, createIlluminatedPage,
   createLeatherTextures, createPageEdges, createGroundShadow, createSpineHardware,
@@ -13,6 +13,7 @@ import {
 
 export function useSpellbookAssets() {
   const assets = useMemo(() => ({
+    geometry: createSpellbookGeometry(),
     ...createLeatherTextures(),
     edges: createPageEdges(),
     metalwork: createCoverMetalwork(),
@@ -23,6 +24,7 @@ export function useSpellbookAssets() {
     bookmark: createBookmarkGeometry(),
   }), []);
   useEffect(() => () => {
+    Object.values(assets.geometry).forEach(geometry => geometry.dispose());
     assets.leather.dispose();
     assets.bump.dispose();
     assets.edges.dispose();
@@ -77,35 +79,30 @@ function FantasySpellbook({ book, index, selected, angle, carouselRotation, redu
 
   return <group ref={model}>
     {/* Thick, uneven parchment and a leather back board. */}
-    <RoundedBox castShadow receiveShadow args={[2.42, 3.4, .18]} radius={.055} smoothness={3} position={[0, 0, -.43]}>
+    <mesh castShadow receiveShadow geometry={assets.geometry.board} position={[0, 0, -.43]}>
       <meshStandardMaterial color={palette.shadow} map={assets.leather} bumpMap={assets.bump} bumpScale={.045} roughness={.76} />
-    </RoundedBox>
-    <mesh castShadow receiveShadow position={[0, 0, -.07]}>
-      <boxGeometry args={[2.22, 3.15, .51]} />
+    </mesh>
+    <mesh castShadow receiveShadow geometry={assets.geometry.pageBlock} position={[0, 0, -.07]}>
       <meshStandardMaterial map={assets.edges} roughness={.94} color="#f3dfb2" />
     </mesh>
     <mesh geometry={assets.pageLayers}>
       <meshStandardMaterial color="#dec793" roughness={.9} />
     </mesh>
-    <mesh position={[0, 0, .193]}>
-      <planeGeometry args={[2.2, 3.13]} />
+    <mesh geometry={assets.geometry.page} position={[0, 0, .193]}>
       <meshStandardMaterial map={page} roughness={.92} />
     </mesh>
     {/* An inset, slightly lifted leaf makes the open page edge catch the light. */}
     <group ref={flyleaf} position={[-1.09, 0, .201]}>
-      <mesh position={[1.09, 0, 0]}>
-        <planeGeometry args={[2.18, 3.11]} />
+      <mesh geometry={assets.geometry.flyleaf} position={[1.09, 0, 0]}>
         <meshStandardMaterial map={page} roughness={.91} side={THREE.DoubleSide} />
       </mesh>
-      <mesh position={[1.09, -.11, .006]}>
-        <ringGeometry args={[.573, .581, 64]} />
+      <mesh geometry={assets.geometry.glow} position={[1.09, -.11, .006]}>
         <meshBasicMaterial ref={glow} color={palette.gem} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
 
     {/* Rolled leather spine, raised binding bands, brass studs and headcaps. */}
-    <mesh castShadow position={[-1.17, 0, -.07]}>
-      <cylinderGeometry args={[.19, .19, 3.42, 16]} />
+    <mesh castShadow geometry={assets.geometry.spine} position={[-1.17, 0, -.07]}>
       <meshStandardMaterial color={palette.shadow} map={assets.leather} bumpMap={assets.bump} bumpScale={.04} roughness={.72} />
     </mesh>
     <mesh geometry={assets.spineHardware}>
@@ -118,39 +115,34 @@ function FantasySpellbook({ book, index, selected, angle, carouselRotation, redu
     {/* All front-cover details share the hinge, including the clasps and seal. */}
     <group ref={cover} name="spellbook-cover" position={[-1.18, 0, .32]}>
       <group position={[1.18, 0, 0]}>
-        <RoundedBox castShadow receiveShadow args={[2.42, 3.4, .18]} radius={.055} smoothness={3}>
+        <mesh castShadow receiveShadow geometry={assets.geometry.board}>
           <meshStandardMaterial color={palette.leather} map={assets.leather} bumpMap={assets.bump} bumpScale={.055} roughness={.66} metalness={.04} />
-        </RoundedBox>
-        <RoundedBox args={[1.95, 2.80, .018]} radius={.035} smoothness={2} position={[0, 0, .099]}>
+        </mesh>
+        <mesh geometry={assets.geometry.inset} position={[0, 0, .099]}>
           <meshStandardMaterial color={palette.leather} map={assets.leather} bumpMap={assets.bump} bumpScale={.035} roughness={.79} />
-        </RoundedBox>
+        </mesh>
         <mesh geometry={assets.metalwork}>
           <meshStandardMaterial color={palette.metal} metalness={.78} roughness={.35} />
         </mesh>
-        <mesh position={[0, .08, .18]}>
-          <torusGeometry args={[.26, .045, 8, 40]} />
+        <mesh geometry={assets.geometry.seal} position={[0, .08, .18]}>
           <meshStandardMaterial color={palette.metal} metalness={.83} roughness={.25} />
         </mesh>
-        <mesh position={[0, .08, .216]} scale={[1, 1, .57]}>
-          <icosahedronGeometry args={[.235, 2]} />
+        <mesh geometry={assets.geometry.gem} position={[0, .08, .216]} scale={[1, 1, .57]}>
           <meshPhysicalMaterial color={palette.gem} emissive={palette.gem} emissiveIntensity={selected ? .46 : .2} roughness={.16} metalness={.22} clearcoat={1} clearcoatRoughness={.08} flatShading />
         </mesh>
-        <mesh position={[-.055, .15, .34]} scale={[1, .6, .35]}>
-          <sphereGeometry args={[.047, 10, 6]} />
+        <mesh geometry={assets.geometry.glint} position={[-.055, .15, .34]} scale={[1, .6, .35]}>
           <meshBasicMaterial color="#e4fbff" transparent opacity={.68} />
         </mesh>
-        <mesh position={[0, 0, .17]}>
-          <planeGeometry args={[2.42, 3.4]} />
+        <mesh geometry={assets.geometry.lettering} position={[0, 0, .17]}>
           <meshBasicMaterial map={lettering} transparent alphaTest={.05} depthWrite={false} toneMapped={false} />
         </mesh>
         {[-.86, .86].map(y => <group key={y} position={[1.15, y, .08]}>
-          <RoundedBox castShadow args={[.29, .27, .075]} radius={.025} smoothness={2}>
+          <mesh castShadow geometry={assets.geometry.clasp}>
             <meshStandardMaterial color={palette.shadow} roughness={.74} />
-          </RoundedBox>
+          </mesh>
         </group>)}
         {/* Inside endpaper faces the camera after the front board swings open. */}
-        <mesh position={[0, 0, -.096]} rotation={[0, Math.PI, 0]}>
-          <planeGeometry args={[2.18, 3.12]} />
+        <mesh geometry={assets.geometry.endpaper} position={[0, 0, -.096]} rotation={[0, Math.PI, 0]}>
           <meshStandardMaterial map={assets.endpaper} roughness={.94} />
         </mesh>
       </group>

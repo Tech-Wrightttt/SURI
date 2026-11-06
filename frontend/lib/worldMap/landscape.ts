@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { WORLD_BOUNDS } from "./framing";
-import { NORTHERN_ISLANDS } from "./northernIslands";
+import { HISTORY_LOGS_OFFSET as historyOffset, HUB_ROUNDABOUT } from "./mapLayout";
+import { WYRM_TOWER, NORTHERN_ISLANDS } from "./northernIslands";
 export { WORLD_BOUNDS } from "./framing";
 export type MapPoint = [number, number];
 export type Biome = "highlands" | "ruins" | "peaks" | "citadel" | "sanctuary" | "stack" | "reef";
@@ -9,10 +10,10 @@ function island(x:number,z:number,rx:number,rz:number,turn:number,seed:number,hi
   return {x,z,rx,rz,turn,seed,hill,biome};
 }
 
-// Five comparable landmasses. Landmark coordinates and foundation elevations
-// remain identical to the previous world so every camera handoff is unchanged.
+// Move the hub terrain and its landmark from the same authored offset.
+// Bridges and approaches are regenerated from these island contours.
 export const PRIMARY_ISLANDS = {
-  hub: island(1,-1,17,14.5,-0.28,1,5.3,"sanctuary"),
+  hub: island(1+historyOffset.x,-1+historyOffset.z,17,14.5,-0.28,1,5.3,"sanctuary"),
   progress: island(-39,-3,16.2,14.5,-0.48,2,5.8,"citadel"),
   topics: island(-11,-33,18,13,0.24,3,6.4,"highlands"),
   records: island(41,-1,15.8,14,0.42,4,5.1,"ruins"),
@@ -60,11 +61,16 @@ export const SECONDARY_ISLANDS = {
 export const ISLANDS = {...PRIMARY_ISLANDS,...SECONDARY_ISLANDS};
 const allIslands = Object.values(ISLANDS);
 export const SITES = {
-  keep:[0,-3], academy:[-12,-9], guild:[-12,5], ranger:[11,-4], arena:[3,12],
+  keep:[historyOffset.x,-3+historyOffset.z],
+  academy:[-12+historyOffset.x,-9+historyOffset.z], guild:[-12+historyOffset.x,5+historyOffset.z],
+  ranger:[11+historyOffset.x,-4+historyOffset.z], arena:[3+historyOffset.x,12+historyOffset.z],
+  watchtower:[WYRM_TOWER.x,WYRM_TOWER.z],
   champions:[-43,-5], topics:[-11,-35], records:[47,1], calculator:[16,34],
 } satisfies Record<string,MapPoint>;
 export const OUTER_HEIGHTS = {topics:4.8, records:3.3, champions:4.2, calculator:4.5};
 export const LANDMARK_SITE_KEYS = ["keep","topics","records","champions","calculator"] as const;
+// The watchtower shares dashboard interactions and has its own bridge approach.
+export const DASHBOARD_SITE_KEYS = [...LANDMARK_SITE_KEYS,"watchtower"] as const;
 export type RoutingSite = typeof LANDMARK_SITE_KEYS[number];
 export const SITE_ISLAND = {keep:"hub",topics:"topics",records:"records",champions:"progress",calculator:"calculator"} as const;
 export const FOUNDATION_HEIGHTS = {keep:6.15,...OUTER_HEIGHTS};
@@ -142,7 +148,17 @@ export function islandHeight(x:number,z:number,i:Island,coast=islandScore(x,z,i)
     const [sx,sz]=SITES[key],distance=Math.hypot(x-sx,z-sz);
     h=THREE.MathUtils.lerp(FOUNDATION_HEIGHTS[key],h,smooth(distance,5.25,7.8));
   }
-  if(i===NORTHERN_ISLANDS.wyrmrest)h=THREE.MathUtils.lerp(3.35,h,smooth(Math.hypot(dx,dz),2.25,4.2));
+  if(i===PRIMARY_ISLANDS.hub){
+    const distance=Math.hypot(x-HUB_ROUNDABOUT.x,z-HUB_ROUNDABOUT.z);
+    const keepDistance=Math.hypot(x-SITES.keep[0],z-SITES.keep[1]);
+    const grade=(1-smooth(distance,4.2,5.8))*smooth(keepDistance,4.4,5.4);
+    h=THREE.MathUtils.lerp(h,HUB_ROUNDABOUT.floor,grade);
+  }
+  if(i===NORTHERN_ISLANDS.wyrmrest){
+    // A broad dry court connects the tower steps and the bridge landing.
+    const blend=Math.max(smooth(Math.hypot(dx,dz),4,5.8),1-smooth(coast,.6,1.8));
+    h=THREE.MathUtils.lerp(3.35,h,blend);
+  }
   return h;
 }
 export function terrainHeight(x:number,z:number,coast?:number) {
@@ -159,7 +175,7 @@ export function terrainSlope(x:number,z:number) {
 export const ROADS = LANDMARK_SITE_KEYS.map(key=>{
   const [sx,sz]=SITES[key],angle=key==="keep"?0:Math.atan2(-sx,-sz);
   const c=Math.cos(angle),s=Math.sin(angle);
-  const points:MapPoint[]=[[0,2.4],[0,5.6],[1.6,7.2],[3.6,7.8]];
+  const points:MapPoint[]=key==="keep"?[[0,2.4],[0,4.5],[0,6.6]]:[[0,2.4],[0,5.6],[1.6,7.2],[3.6,7.8]];
   const curve=new THREE.CatmullRomCurve3(points.map(([x,z])=>new THREE.Vector3(sx+x*c+z*s,0,sz-x*s+z*c)),false,"centripetal");
   return curve.getSpacedPoints(36).filter(p=>islandScore(p.x,p.z,PRIMARY_ISLANDS[SITE_ISLAND[key]])>1.2)
     .map(p=>p.setY(terrainHeight(p.x,p.z)+0.09));
@@ -171,11 +187,11 @@ export function roadDistance(x:number,z:number) {
 }
 export function roadHeight(x:number,z:number,ground=terrainHeight(x,z)){return ground+0.09;}
 export function siteDistance(x:number,z:number){return Math.min(...LANDMARK_SITE_KEYS.map(key=>Math.hypot(x-SITES[key][0],z-SITES[key][1])));}
-export function sitePosition(site:keyof typeof SITES):[number,number,number]{const [x,z]=SITES[site];return [x,terrainHeight(x,z)+0.06,z];}
+export function sitePosition(site:keyof typeof SITES):[number,number,number]{const [x,z]=SITES[site];return [x,site==="watchtower"?WYRM_TOWER.floor:terrainHeight(x,z)+0.06,z];}
 export function seededRandom(seed:number){return()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
 export function insideWorld(x:number,z:number){return x>WORLD_BOUNDS.minX+2&&x<WORLD_BOUNDS.maxX-2&&z>WORLD_BOUNDS.minZ+2&&z<WORLD_BOUNDS.maxZ-2;}
 
 // Retained placement helpers remain available to non-dashboard callers. Harbor
 // grading no longer mutates the shared terrain after geometry has been sampled.
-export const HARBOR_PATH_ORIGIN:MapPoint=[3.6,4.8];
+export const HARBOR_PATH_ORIGIN:MapPoint=[3.6+historyOffset.x,4.8+historyOffset.z];
 export function registerHarborGrade(path:THREE.Vector3[]){for(const p of path)p.y=terrainHeight(p.x,p.z)+0.09;}
