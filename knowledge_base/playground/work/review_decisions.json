@@ -40,5 +40,11 @@
   "sha256:812ca9154161a964fcbfdd0fe579b5f21c97c3b48574a2937e2ad908dd9d65a6": "approved",
   "sha256:3390a3fa13f932a6fd87aee06f85e527a9aa7792046747f87ebc18d181c3db84": "approved",
   "sha256:1204395c725135473e19c3358d2400d8720650e4b88b479084abf21b10492932": "approved",
-  "sha256:aade817a6d6a1448bb0847f05ce7f3966c3614d6b8446603d356e17649fce3a2": "rejected"
+  "sha256:aade817a6d6a1448bb0847f05ce7f3966c3614d6b8446603d356e17649fce3a2": "rejected",
+  "OI-hard-w1": "approved",
+  "RER-hard-w6": "approved",
+  "AE-hard-w7": "approved",
+  "sha256:226395e02be59dc487c89bdceda0eb5c1c5739042d78595c8e44386445d6a7eb": "approved",
+  "sha256:237b0f2c4e99a56bfad3c7daa694c70b0128c9a16704e70fe8038affdf4f7905": "approved",
+  "sha256:ff3ec1a8ed9984a17250fdde085bbd7de3c38b748db52f4fff16ca18edbb87e2": "approved"
 }

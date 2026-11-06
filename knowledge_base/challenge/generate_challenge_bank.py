@@ -3,13 +3,15 @@ Generate, validate, review and export the challenge items for the diagnostic and
 (ClickUp CU-14ypx624mw5).
 
 Subcommands (all resumable; cached output lives in knowledge_base/challenge/work/, which is gitignored):
-  diagnostic  one Gemini call per node asking for 12 candidate MCQs (keep 8 after validation)
-  quiz        one call per candidate problem (7 per node, keep 5) plus one extras call (distractors + hints)
+  needs       print what each node still needs and the estimated Gemini calls (no API call)
+  diagnostic  one Gemini call per node asking for candidate MCQs (about twice what the node needs)
+  quiz        one call per candidate challenge problem (about twice what the node needs) plus one extras call
+  standard    like quiz, but difficulty='standard' (replaces the removed template clones)
   validate    deterministic checks, blind re-solve, and the variety rules; writes work/validated/*.json
   review      writes work/review.md for a human to read
   export      appends diagnostic items, writes the quiz JSON and seed SQL
 
-All commands take --nodes L1V,SLE (default: every in-scope node; nodes outside IN_SCOPE, such as PD, are rejected).
+All commands take --nodes L1V,SLE (default: every node, PD included).
 Run with C:\\Python314\\python.exe from the repo root.
 """
 
@@ -28,6 +30,7 @@ from datetime import datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+from dedupe import known_keys, removals, standard_rows, template_key  # noqa: E402
 from challenge_specs import (  # noqa: E402
     AGE_NODES, CHALLENGE_NOTES, GLOBAL_RULES, IN_SCOPE, SPECS, kinds_for, pdfs_for,
 )
@@ -50,10 +53,13 @@ DECISIONS = os.path.join(HERE, "review_decisions.json")
 PROBES_PATH = os.path.join(ROOT, "backend", "data", "diagnostic_probes.json")
 PRACTICE_JSON = os.path.join(HERE, "challenge_practice_problems.json")
 SEED_SQL = os.path.join(ROOT, "scripts", "seed_challenge_problems.sql")
+NEEDS_FILE = os.path.join(WORK, "needs.json")
 RUNNER_JS = os.path.join(ROOT, "mathsteps_runner", "runner.js")
 
-DIAG_CANDIDATES, DIAG_KEEP, DIAG_CAP_PER_KIND = 12, 8, 2
-QUIZ_CANDIDATES, QUIZ_KEEP, QUIZ_CAP_PER_KIND = 7, 5, 1
+# Minimum items per node after this task (CU-14ypx6259ur); a node is topped up to these.
+DIAG_CHALLENGE_MIN, QUIZ_CHALLENGE_MIN, QUIZ_STANDARD_MIN = 10, 8, 8
+DIAG_CAP_PER_KIND, QUIZ_CAP_PER_KIND, STD_CAP_PER_KIND = 2, 1, 3
+MAX_DIAG_PER_CALL = 15
 CAP_PER_CONTEXT = 2
 BLIND_ONLY_CAP = 4  # diagnostic items verified only by the blind solve (statement options, spot-the-error)
 MIN_PATTERNS = 3
@@ -61,10 +67,22 @@ MAX_STEPS = 8
 SLM_CAP = 12000
 AGE_RE = re.compile(r"\b(years? old|ages?|aged|older than|younger than)\b", re.I)
 
+DIVISION_RULE = r"""DIVISION: write division as / in every ASCII/mathjs field (problem_expr, check, answer, correct_value,
+distractors, blank_expression) and as \\frac{a}{b} inside $...$ prose. Never write the symbols ÷ or \\div in math.
+In plain words, "divided by" is fine."""
+
+REASONING_RULES = """REASONING (this is what makes the item hard):
+- The solver must reason, not just run one procedure: a multi-step setup, working backwards, a hidden constraint,
+  comparing two plans, or finding a parameter ("find k so that ...").
+- Put the problem in a Filipino everyday context where natural (jeepney fare, sari-sari store, barangay event, pesos).
+- Stay inside this node's grade and skill; use only methods from the SLM excerpt.
+- Give a short `archetype` tag (2-4 words, e.g. "digit puzzle", "work and time", "break-even") naming the problem type."""
+
 MATH_FORMAT = r"""MATH FORMATTING: wrap ALL math (variables, numbers with operators, equations) in single dollar signs for
 inline KaTeX, e.g. $x$, $3x + 2$, $\\frac{3}{4}$, $\\sqrt{50}$, $x^{3/2}$, $2^{10}$. Plain English words are never wrapped.
 Options contain ONLY the mathematical answer (a number, an expression, or a solution), with no units or words;
-put units in the question text. (Exception: kinds marked MCQ-only may use short statements as options.)"""
+put units in the question text. (Exception: kinds marked MCQ-only may use short statements as options.)
+""" + DIVISION_RULE
 
 CHECK_FORMATS = """\
 `check` is machine-checkable truth, written in mathjs syntax (explicit * for multiplication, ^ for powers, sqrt(), nthRoot(x, n)).
@@ -255,7 +273,8 @@ def common_rules(node_id: str) -> str:
             "- Use ONLY methods shown in the SLM excerpt; nothing from outside the curriculum.\n"
             "- `slm_concept` (required) names the concept from the excerpt the item uses.\n"
             "- `relationships` (required) lists the stated conditions or facts the solver must combine (at least 2).\n"
-            "- `context` (required) names the real-world setting used.\n")
+            "- `context` (required) names the real-world setting used.\n"
+            "- `archetype` (required) is the short problem-type tag.\n" + REASONING_RULES + "\n")
 
 
 def diag_prompt(node_id: str, n: int, existing: list, kinds: list, excerpt: str) -> str:
@@ -280,13 +299,23 @@ EXISTING QUESTIONS for this topic (do not write near-duplicates or reuse their n
 
 Return ONLY a JSON array of {n} objects with keys:
 "node_id": "{node_id}", "question_text", "options" (4 strings), "correct_option_index" (0-3), "difficulty": "challenge",
-"kind" (copy one kind text exactly), "pattern", "context", "slm_concept", "relationships" (array of strings), "check".
+"kind" (copy one kind text exactly), "pattern", "archetype", "context", "slm_concept", "relationships" (array of strings), "check".
 Escape every backslash in the JSON (write \\\\frac for \\frac)."""
 
 
-def quiz_prompt(node_id: str, kind: tuple, excerpt: str, context: str = "") -> str:
+STANDARD_RULES = """This is a STANDARD-difficulty problem: one clear skill from the excerpt, at most two reasoning moves, friendly
+numbers, optionally a short everyday story. The assigned kind below is only a loose style hint; it need not be hard.
+`slm_concept`, `context` and `relationships` (at least 1) are still required."""
+
+
+def quiz_prompt(node_id: str, kind: tuple, excerpt: str, context: str = "", standard: bool = False,
+                taken: list = ()) -> str:
     spec = SPECS[node_id]
-    return f"""You are an expert mathematics teacher writing ONE CHALLENGE practice problem for Filipino K-12 (DepEd) students on: {spec['label']} (Grade {spec['grade']}).
+    level = "STANDARD" if standard else "CHALLENGE"
+    shapes = ("\nEXISTING problem_expr shapes for this topic (write a different shape, not new numbers in the same shape):\n" +
+              "\n".join("- " + t for t in list(taken)[:14])) if taken else ""
+    return f"""You are an expert mathematics teacher writing ONE {level} practice problem for Filipino K-12 (DepEd) students on: {spec['label']} (Grade {spec['grade']}).
+{STANDARD_RULES if standard else ''}{shapes}
 
 SLM EXCERPT (the only source of methods you may use):
 {excerpt}
@@ -295,16 +324,18 @@ ASSIGNED KIND: {kind[0]}
 ASSIGNED PATTERN: {kind[1]}
 {('ASSIGNED CONTEXT: set the problem in this context (set `context` to it): ' + context) if context else ''}
 {spec_block(node_id, [kind])}
-{common_rules(node_id)}
+{common_rules(node_id)}{DIVISION_RULE}
 The final answer must be ONE short typeable result (a number, an expression, or a solution set / ordered pair), with no units or words.
 FORMATS: write prose (`word_problem`, each step `instruction`) with every piece of math inside single dollar signs for KaTeX,
 e.g. "Let $x$ be the width. Write $2(x + 5) = 50$." Write `blank_expression`, `correct_value`, `answer`, `problem_expr` and `check`
 in plain mathjs ASCII (explicit *, ^, /, sqrt()); they are converted to KaTeX afterwards. Use ___ for the blank.
 
-The problem is solved in 4 to {MAX_STEPS} typed steps. Each step in `all_steps` has:
+The problem is solved in {'3 to 6' if standard else '4 to ' + str(MAX_STEPS)} typed steps. Each step in `all_steps` has:
   "step_index" (0..n-1), "step_type" ("variable_identification" or "algebra"), "instruction" (short imperative),
   "blank_expression" (the line with ___ where the student types), "correct_value" (SHORT and typeable: a number, a simple
   expression or an equation; never a phrase), "operation_description", "mapped_node_id" (one of: {', '.join(sorted(GRAPH))}).
+BLANK PLACEMENT: the ___ must be at the START or END of a line, never inside brackets, a square root or an exponent
+(write "x = ___" or "___ = 35", never "(x + ___)(x + 3)" or "x^(___)"). A step that asks for a whole expression is fine.
 Start with 1-2 "variable_identification" steps (name the unknown, write the equation or system), then "algebra" steps.
 EVERY step's "blank_expression" MUST contain exactly one ___ in the place the student types, and must NOT already show the
 correct_value. Example steps for "2x + 7 = 35":
@@ -312,14 +343,14 @@ correct_value. Example steps for "2x + 7 = 35":
   {{"step_type": "algebra", "instruction": "Subtract 7 from both sides.", "blank_expression": "2*x = ___", "correct_value": "28"}}
   {{"step_type": "algebra", "instruction": "Divide both sides by 2.", "blank_expression": "x = ___", "correct_value": "14"}}
 A variable_identification step may instead use "blank_expression": "Let x = ___" with correct_value naming the quantity as a short symbol or expression.
-Use 4 to 8 steps; split the reasoning so each step has one small move.
+Use {'3 to 6' if standard else '4 to ' + str(MAX_STEPS)} steps; split the reasoning so each step has one small move.
 The LAST step's correct_value must equal `answer`. Do not put the answer or the steps in `word_problem`.
 Use plain text math in correct_value (e.g. 2*x + 3 = 11, x = 4) so it can be typed on a keyboard.
 `problem_expr` is the equation or system a student would write; for a system write "eq1, eq2".
 {CHECK_FORMATS}
 
 Return ONLY a JSON object with keys:
-"node_id": "{node_id}", "kind": "{kind[0]}", "pattern": "{kind[1]}", "context", "slm_concept", "relationships" (array of strings),
+"node_id": "{node_id}", "kind": "{kind[0]}", "pattern": "{kind[1]}", "archetype", "context", "slm_concept", "relationships" (array of strings),
 "word_problem", "problem_expr", "answer", "check", "all_steps".
 Escape every backslash in the JSON."""
 
@@ -370,7 +401,50 @@ def load_cands(bank: str, node_id: str) -> list:
 
 def existing_questions(node_id: str) -> list:
     probes = load_json(PROBES_PATH, {})
-    return [p["question_text"] for p in probes.get(node_id, []) if p.get("difficulty", "standard") != "challenge"]
+    return [p["question_text"] for p in probes.get(node_id, [])]
+
+
+def existing_exprs(node_id: str) -> list:
+    """problem_expr of every stored quiz row for the node (shown to the model so it varies the shape)."""
+    gone = removals()
+    rows = [r["problem_expr"] for r in standard_rows() if r["node_id"] == node_id and r["id"] not in gone]
+    rows += [r["problem_expr"] for r in (load_json(PRACTICE_JSON, []) or []) if r["node_id"] == node_id]
+    return rows
+
+
+def have_counts(node_id: str) -> dict:
+    """What the repo holds now for the node, after the dedupe removals."""
+    gone = removals()
+    probes = [p for p in load_json(PROBES_PATH, {}).get(node_id, []) if p["question_text"] not in gone]
+    std = [r for r in standard_rows() if r["node_id"] == node_id and r["id"] not in gone]
+    rows = [r for r in (load_json(PRACTICE_JSON, []) or []) if r["node_id"] == node_id and r["id"] not in gone]
+    return {"diag": sum(p.get("difficulty") == "challenge" for p in probes),
+            "quiz": sum(r.get("difficulty", "challenge") == "challenge" for r in rows),
+            "std": len(std) + sum(r.get("difficulty") == "standard" for r in rows)}
+
+
+def need(bank: str, node_id: str) -> int:
+    """How many more items the node needs. Fixed the first time it is asked, so a resume or an export in between
+    does not move the target."""
+    saved = load_json(NEEDS_FILE, {}) or {}
+    key = f"{bank}:{node_id}"
+    if key not in saved:
+        goal = {"diag": DIAG_CHALLENGE_MIN, "quiz": QUIZ_CHALLENGE_MIN, "std": QUIZ_STANDARD_MIN}[bank]
+        saved[key] = max(goal - have_counts(node_id)[bank], 0)
+        save_json(NEEDS_FILE, saved)
+    return saved[key]
+
+
+def print_needs(nodes: list):
+    total_c = 0
+    print("node  diag+  quiz+  std+   (new items still needed)")
+    for n in nodes:
+        d, q, st = need("diag", n), need("quiz", n), need("std", n)
+        print(f"{n:5} {d:5} {q:6} {st:5}")
+        # diag: 1 call per ~2x need items + blind; quiz/std: gen + extras per candidate (about 2x need) + blind
+        total_c += (2 + (d * 2) // 6 + 1 if d else 0) + (int(q * 2 * 1.7) + q // 3 + 1 if q else 0) + \
+            (int(st * 1.5 * 1.7) + st // 3 + 1 if st else 0)
+    print(f"estimated Gemini calls: about {total_c} (plus ~25% for retries and top-ups)")
 
 
 def parse_list(raw: str):
@@ -390,7 +464,10 @@ def kind_order(node_id: str, mcq: bool, rng_seed: str) -> list:
 
 def gen_diagnostic(gem: Gemini, node_id: str, topup: bool = False):
     cands = load_cands("diag", node_id)
-    n, tag = DIAG_CANDIDATES, f"diag-{node_id}"
+    if not topup and not need("diag", node_id):
+        print(f"  {node_id}: no diagnostic items needed")
+        return
+    n, tag = min(max(need("diag", node_id) * 2, 6), MAX_DIAG_PER_CALL), f"diag-{node_id}"
     kinds = kinds_for(node_id, True)
     if topup:
         report = load_json(os.path.join(VALID_DIR, f"diag_{node_id}.json"))
@@ -399,7 +476,7 @@ def gen_diagnostic(gem: Gemini, node_id: str, topup: bool = False):
             return
         used = {k["kind"] for k in report["kept"]}
         kinds = [k for k in kinds if k[0] not in used] or kinds
-        n = report["shortfall"] + 2
+        n = min(report["shortfall"] * 2 + 2, MAX_DIAG_PER_CALL)
         tag = f"diag-{node_id}-topup{len(cands)}"
     elif cands:
         print(f"  {node_id}: diagnostic candidates exist ({len(cands)}), skipping")
@@ -432,21 +509,26 @@ def normalize_steps(steps: list) -> list:
     return out
 
 
-def gen_quiz(gem: Gemini, node_id: str, topup: bool = False):
-    cands = load_cands("quiz", node_id)
+def gen_quiz(gem: Gemini, node_id: str, topup: bool = False, bank: str = "quiz"):
+    standard = bank == "std"
+    cands = load_cands(bank, node_id)
+    if not topup and not need(bank, node_id):
+        print(f"  {node_id}: no {bank} items needed")
+        return
     excerpt = grounding_text(pdfs_for(node_id), cap=SLM_CAP)
-    kinds = kind_order(node_id, False, node_id)
+    kinds = kind_order(node_id, False, node_id + bank)
     if topup:
-        report = load_json(os.path.join(VALID_DIR, f"quiz_{node_id}.json"))
+        report = load_json(os.path.join(VALID_DIR, f"{bank}_{node_id}.json"))
         if not report or not report.get("shortfall"):
             print(f"  {node_id}: nothing to top up")
             return
         used = {k["kind"] for k in report["kept"]}
         kinds = [k for k in kinds if k[0] not in used] or kinds
-        wanted = report["shortfall"]
+        wanted = report["shortfall"] * 2 + 1
         jobs = [(len(cands) + i, kinds[i % len(kinds)]) for i in range(wanted)]
     else:
-        jobs = [(i, kinds[i % len(kinds)]) for i in range(QUIZ_CANDIDATES) if i >= len(cands)]
+        wanted = int(need(bank, node_id) * (1.5 if standard else 2)) + 1
+        jobs = [(i, kinds[i % len(kinds)]) for i in range(wanted) if i >= len(cands)]
     v = Verifier()
     try:
         for item in cands:
@@ -460,11 +542,12 @@ def gen_quiz(gem: Gemini, node_id: str, topup: bool = False):
                     item["extras"] = parse_gemini_json(raw_x)
                 except Exception as exc:
                     item["pre_drop"] = [f"extras unparseable: {exc}"]
-                save_json(cand_path("quiz", node_id), cands)
+                save_json(cand_path(bank, node_id), cands)
+        taken = existing_exprs(node_id)
         for idx, kind in jobs:
-            cid = f"quiz-{node_id}-{idx:02d}"
+            cid = f"{bank}-{node_id}-{idx:02d}"
             contexts = SPECS[node_id]["contexts"]
-            raw = gem.call(cid, quiz_prompt(node_id, kind, excerpt, contexts[idx % len(contexts)]),
+            raw = gem.call(cid, quiz_prompt(node_id, kind, excerpt, contexts[idx % len(contexts)], standard, taken),
                            max_output_tokens=4096)
             try:
                 item = parse_gemini_json(raw)
@@ -473,9 +556,9 @@ def gen_quiz(gem: Gemini, node_id: str, topup: bool = False):
                 item["all_steps"] = normalize_steps(item.get("all_steps"))
             except Exception as exc:
                 cands.append({"cand_id": cid, "node_id": node_id, "error": f"unparseable: {exc}"})
-                save_json(cand_path("quiz", node_id), cands)
+                save_json(cand_path(bank, node_id), cands)
                 continue
-            item.update(node_id=node_id, cand_id=cid, difficulty="challenge", topup=topup)
+            item.update(node_id=node_id, cand_id=cid, difficulty="standard" if standard else "challenge", topup=topup)
             item.setdefault("kind", kind[0])
             item.setdefault("pattern", kind[1])
             reasons = quiz_core_checks(item, v, node_id)
@@ -489,7 +572,7 @@ def gen_quiz(gem: Gemini, node_id: str, topup: bool = False):
                 except Exception as exc:
                     item["pre_drop"] = [f"extras unparseable: {exc}"]
             cands.append(item)
-            save_json(cand_path("quiz", node_id), cands)
+            save_json(cand_path(bank, node_id), cands)
             print(f"  {cid}: {'dropped ' + str(item['pre_drop']) if item.get('pre_drop') else 'ok'}")
     finally:
         v.close()
@@ -534,22 +617,35 @@ def canon_kind(node_id: str, is_diag: bool, kind) -> tuple:
         r = difflib.SequenceMatcher(None, norm_text(kind), norm_text(k[0])).ratio()
         if r > score:
             best, score = k, r
-    return (best[0], best[1]) if best and score >= 0.45 else (None, None)
+    return (best[0], best[1]) if best and score >= 0.3 else (None, None)
+
+
+_DIV_RE = re.compile("\u00f7|\\\\div\\b")
+
+
+def division_issue(c: dict) -> bool:
+    """True if any text of the item writes division as the \u00f7 or \\div symbol (the rule is / and \\frac)."""
+    return bool(_DIV_RE.search(json.dumps(c, ensure_ascii=False).replace("\\\\", "\\")))
 
 
 def common_checks(c: dict, node_id: str, is_diag: bool) -> list:
     reasons = []
+    standard = c.get("difficulty") == "standard"
     kind, pattern = canon_kind(node_id, is_diag, c.get("kind", ""))
     if kind:
         c["kind"], c["pattern"] = kind, pattern  # the spec's pattern, not the model's free text
     if not str(c.get("slm_concept", "")).strip():
         reasons.append("missing slm_concept")
     rel = c.get("relationships")
-    if not isinstance(rel, list) or len(rel) < 2:
-        reasons.append("fewer than 2 stated relationships")
+    if not isinstance(rel, list) or len(rel) < 1:
+        reasons.append("no stated relationships")
     if not str(c.get("context", "")).strip():
         reasons.append("missing context")
-    if not kind:
+    if not str(c.get("archetype", "")).strip() and not standard:
+        reasons.append("missing archetype")
+    if division_issue(c):
+        reasons.append("writes division as \u00f7 or \\div (use / and \\frac)")
+    if not kind and not standard:
         reasons.append("kind is not one of the node's specs")
     text = c.get("question_text") if is_diag else c.get("word_problem")
     if not text or not english_ok(str(text)):
@@ -604,6 +700,18 @@ def diag_core_checks(c: dict, v, node_id: str, existing: list) -> list:
     return reasons
 
 
+def known_keys_without(node_id: str, mine: set) -> set:
+    from dedupe import load_items
+
+    return {i["key"] for i in load_items() if i["node"] == node_id and i["ref"] not in mine}
+
+
+def template_clash(c: dict, taken: set) -> bool:
+    """Same template (numbers masked) as something already stored for the node in ANY source."""
+    text = c.get("question_text") if c.get("question_text") else c.get("problem_expr", "")
+    return template_key(text) in taken
+
+
 def quiz_core_checks(c: dict, v, node_id: str) -> list:
     """Deterministic checks that need no extras (also run before the extras call to save budget)."""
     reasons = common_checks(c, node_id, False)
@@ -611,8 +719,9 @@ def quiz_core_checks(c: dict, v, node_id: str) -> list:
     for key in ("problem_expr", "answer"):
         if not str(c.get(key, "")).strip():
             reasons.append(f"missing {key}")
-    if not 4 <= len(steps) <= MAX_STEPS:
-        reasons.append(f"needs 4-{MAX_STEPS} steps, has {len(steps)}")
+    lo, hi = (3, 6) if c.get("difficulty") == "standard" else (3, MAX_STEPS)
+    if not lo <= len(steps) <= hi:
+        reasons.append(f"needs {lo}-{hi} steps, has {len(steps)}")
     if not any(s["step_type"] == "variable_identification" for s in steps):
         reasons.append("no variable_identification step")
     for s in steps:
@@ -682,11 +791,29 @@ def same_value(a, b) -> bool:
     return close_enough(a, b)
 
 
+def repair_extras(c: dict):
+    """Mechanical fixes for the two most common extras slips (no API call): a distractor written as `x = 5` when the
+    answer is bare, and a hint that spells out the answer (the step's own instruction is used instead)."""
+    for s in c["all_steps"]:
+        e = c["extras"].get(str(s["step_index"]))
+        if not isinstance(e, dict):
+            continue
+        cv = s["correct_value"]
+        d = [str(x).strip() for x in e.get("distractors", [])]
+        if "=" not in cv:
+            d = [re.sub(r"^\s*[A-Za-z]\s*=\s*", "", x) for x in d]
+        e["distractors"] = d
+        hint = str(e.get("hint", "")).strip()
+        if hint and len(leak_key(cv)) >= 3 and leak_key(cv) in leak_key(hint):
+            e["hint"] = s["instruction"]
+
+
 def extras_checks(c: dict, v=None) -> list:
     reasons = []
     extras = c.get("extras")
     if not isinstance(extras, dict):
         return ["no extras"]
+    repair_extras(c)
     prose = [c.get("word_problem", "")] + [s["instruction"] for s in c["all_steps"]] + \
             [str(e.get("hint", "")) for e in extras.values() if isinstance(e, dict)]
     if any(SELF_TALK.search(str(t)) for t in prose):
@@ -766,7 +893,7 @@ def blind_solve(gem: Gemini, bank: str, node_id: str, items: list) -> dict:
     return out
 
 
-def select_kept(survivors: list, target: int, kind_cap: int, node_id: str) -> tuple:
+def select_kept(survivors: list, target: int, kind_cap: int, node_id: str, taken: set = frozenset()) -> tuple:
     """Greedy pick with the variety rules; the first item of each kind is considered before repeats."""
     seen_kind, ranked = {}, []
     for c in survivors:
@@ -789,6 +916,9 @@ def select_kept(survivors: list, target: int, kind_cap: int, node_id: str) -> tu
             why = "context used twice already"
         elif is_age and ages >= 1:
             why = "second age problem"
+        elif template_clash(c, taken) or template_clash(c, {template_key(k.get("question_text") or k.get("problem_expr", ""))
+                                                              for k in kept}):
+            why = "same template as an existing or kept item"
         elif c.get("blind_only") and sum(1 for k in kept if k.get("blind_only")) >= BLIND_ONLY_CAP:
             why = f"more than {BLIND_ONLY_CAP} blind-only items"
         elif any(difflib.SequenceMatcher(None, norm_text(c.get("question_text") or c.get("word_problem")),
@@ -811,9 +941,15 @@ def validate_node(gem: Gemini, bank: str, node_id: str):
     if not cands:
         print(f"  {node_id}: no {bank} candidates (run the generator first)")
         return
-    target, cap = (DIAG_KEEP, DIAG_CAP_PER_KIND) if bank == "diag" else (QUIZ_KEEP, QUIZ_CAP_PER_KIND)
+    target = need(bank, node_id)
+    cap = {"diag": DIAG_CAP_PER_KIND, "quiz": QUIZ_CAP_PER_KIND, "std": STD_CAP_PER_KIND}[bank]
     existing = existing_questions(node_id) if bank == "diag" else []
-    sibling_questions = [c["question_text"] for c in approved("diag", node_id)] if bank == "quiz" else []
+    sibling_questions = [c["question_text"] for c in approved("diag", node_id)] if bank != "diag" else []
+    # templates already stored (any source), minus this pipeline's own approved items so a re-validate after
+    # export does not collide with itself
+    mine = {quiz_row(c)["id"] for b in ("quiz", "std") for c in approved(b, node_id)} | \
+           {final_diag(c)["question_text"] for c in approved("diag", node_id)}
+    taken = known_keys_without(node_id, mine)
     rejected = rejected_ids()
     v = Verifier()
     survivors, dropped = [], []
@@ -827,7 +963,9 @@ def validate_node(gem: Gemini, bank: str, node_id: str):
                 continue
             reasons = diag_core_checks(c, v, node_id, existing) if bank == "diag" else \
                 quiz_core_checks(c, v, node_id) + extras_checks(c, v)
-            if bank == "quiz" and not reasons:  # a quiz problem must not recycle the numbers of a diagnostic item
+            if not reasons and template_clash(c, taken):
+                reasons.append("same template as an existing item")
+            if bank != "diag" and not reasons:  # a quiz problem must not recycle the numbers of a diagnostic item
                 for q in sibling_questions:
                     if numbers_overlap(str(c["word_problem"]), q):
                         reasons.append("near-duplicate of a diagnostic item for this node")
@@ -859,11 +997,11 @@ def validate_node(gem: Gemini, bank: str, node_id: str):
                 dropped.append({"id": c["cand_id"], "reasons": [f"blind solve disagrees (got {got!r})"]})
     finally:
         v.close()
-    kept, extra_dropped = select_kept(checked, target, cap, node_id)
+    kept, extra_dropped = select_kept(checked, target, cap, node_id, taken)
     dropped += [d for d in extra_dropped if d["reasons"] != ["not needed (set is full)"]]
-    patterns = {c["pattern"] for c in kept}
+    patterns = {c["pattern"] for c in kept if c.get("pattern")}
     shortfall = max(target - len(kept), 0)
-    if len(patterns) < MIN_PATTERNS:
+    if bank != "std" and len(kept) >= 4 and len(patterns) < MIN_PATTERNS:
         shortfall = max(shortfall, 1)
     save_json(os.path.join(VALID_DIR, f"{bank}_{node_id}.json"),
               {"node_id": node_id, "bank": bank, "target": target, "kept": kept, "dropped": dropped,
@@ -995,7 +1133,7 @@ def write_review(nodes: list):
             lines += [f"- {'**' if i == c['correct_option_index'] else ''}{letters[i]}. {o}"
                       f"{'**' if i == c['correct_option_index'] else ''}" for i, o in enumerate(f["options"])]
             lines += ["", f"SLM concept: {c['slm_concept']}  |  verified by: {c.get('verified_by')}", ""]
-        for c in approved("quiz", node_id):
+        for c in approved("quiz", node_id) + approved("std", node_id):
             f = final_quiz(c)
             lines += [f"### {c['cand_id']}  ({c['kind']} / {c['pattern']} / {c['context']})", "",
                       f["word_problem_text"], "", f"Expression: `{c['problem_expr']}`  |  Answer: **`{f['answer']}`**", ""]
@@ -1017,10 +1155,12 @@ def sql_str(s) -> str:
 def quiz_row(c: dict) -> dict:
     f = final_quiz(c)
     steps, extras = f["steps"], f["extras"]
+    level = "standard" if c.get("difficulty") == "standard" else "challenge"
     return {
-        "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"suri-challenge:{c['node_id']}:{c['problem_expr']}")),
+        "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"suri-{'standard' if level == 'standard' else 'challenge'}:"
+                                                 f"{c['node_id']}:{c['problem_expr']}")),
         "node_id": c["node_id"], "problem_expr": c["problem_expr"], "steps_json": steps,
-        "word_problem_text": f["word_problem_text"], "step_extras_json": extras, "difficulty": "challenge",
+        "word_problem_text": f["word_problem_text"], "step_extras_json": extras, "difficulty": level,
     }
 
 
@@ -1031,7 +1171,8 @@ def export(nodes: list):
     probes = json.loads(before_text)
     v = Verifier()
     try:
-        problems = [(n, c, b) for n in nodes for b in ("diag", "quiz") for c in approved(b, n)]
+        problems = [(n, c, "diag" if b == "diag" else "quiz") for n in nodes for b in ("diag", "quiz", "std")
+                    for c in approved(b, n)]
         bad = [(c["cand_id"], i) for n, c, b in problems for i in check_final(v, c, b)]
     finally:
         v.close()
@@ -1047,13 +1188,12 @@ def export(nodes: list):
             probes[node_id].append(final_diag(c))
     for node_id, old in before.items():
         assert [json.dumps(p, sort_keys=True) for p in probes[node_id][:len(old)]] == old, f"{node_id} existing probes changed"
-    assert "PD" not in nodes
     with open(PROBES_PATH, "w", encoding="utf-8", newline="\n") as f:
         json.dump(probes, f, indent=2, ensure_ascii=False)
         f.write("\n")
 
     # quiz: JSON + idempotent seed SQL
-    rows = [quiz_row(c) for node_id in nodes for c in approved("quiz", node_id)]
+    rows = [quiz_row(c) for node_id in nodes for b in ("quiz", "std") for c in approved(b, node_id)]
     all_rows = {r["id"]: r for r in (load_json(PRACTICE_JSON, []) or [])}
     all_rows.update({r["id"]: r for r in rows})
     save_json(PRACTICE_JSON, list(all_rows.values()))
@@ -1066,7 +1206,7 @@ def export(nodes: list):
             "step_extras_json, difficulty, created_at) VALUES ("
             f"{sql_str(r['id'])}, {sql_str(r['node_id'])}, {sql_str(r['problem_expr'])}, "
             f"{sql_str(json.dumps(r['steps_json'], ensure_ascii=False))}, {sql_str(r['word_problem_text'])}, "
-            f"{sql_str(json.dumps(r['step_extras_json'], ensure_ascii=False))}, 'challenge', {sql_str(now)}) "
+            f"{sql_str(json.dumps(r['step_extras_json'], ensure_ascii=False))}, {sql_str(r['difficulty'])}, {sql_str(now)}) "
             "ON CONFLICT DO NOTHING;")
     with open(SEED_SQL, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(sql) + "\n")
@@ -1079,7 +1219,7 @@ def parse_nodes(arg) -> list:
     nodes = [n.strip() for n in arg.split(",")] if arg else list(IN_SCOPE)
     bad = [n for n in nodes if n not in IN_SCOPE]
     if bad:
-        sys.exit(f"ERROR: {bad} are outside the learning-path scope {IN_SCOPE}")
+        sys.exit(f"ERROR: {bad} are not nodes ({IN_SCOPE})")
     return nodes
 
 
@@ -1087,7 +1227,7 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["diagnostic", "quiz", "validate", "review", "export"])
+    ap.add_argument("command", choices=["needs", "diagnostic", "quiz", "standard", "validate", "review", "export"])
     ap.add_argument("--nodes", help="comma-separated node ids (default: all in-scope nodes)")
     ap.add_argument("--topup", action="store_true", help="generate extra candidates for nodes that validated short")
     ap.add_argument("--dry-run", action="store_true", help="print the first prompt and exit (no API call)")
@@ -1097,11 +1237,14 @@ def main():
     if args.dry_run:
         node = nodes[0]
         excerpt = grounding_text(pdfs_for(node), cap=SLM_CAP)
-        if args.command == "quiz":
-            print(quiz_prompt(node, kinds_for(node, False)[0], excerpt))
+        if args.command in ("quiz", "standard"):
+            print(quiz_prompt(node, kinds_for(node, False)[0], excerpt, standard=args.command == "standard",
+                              taken=existing_exprs(node)))
         else:
-            print(diag_prompt(node, DIAG_CANDIDATES, existing_questions(node), kinds_for(node, True), excerpt))
+            print(diag_prompt(node, 12, existing_questions(node), kinds_for(node, True), excerpt))
         return
+    if args.command == "needs":
+        return print_needs(nodes)
     if args.command == "review":
         return write_review(nodes)
     if args.command == "export":
@@ -1115,9 +1258,11 @@ def main():
                 gen_diagnostic(gem, node_id, args.topup)
             elif args.command == "quiz":
                 gen_quiz(gem, node_id, args.topup)
+            elif args.command == "standard":
+                gen_quiz(gem, node_id, args.topup, bank="std")
             else:
-                validate_node(gem, "diag", node_id)
-                validate_node(gem, "quiz", node_id)
+                for bank in ("diag", "quiz", "std"):
+                    validate_node(gem, bank, node_id)
     except StopRun as stop:
         print(f"\nSTOPPED: {stop}. Re-run the same command to resume; finished work is cached in {WORK}.")
         sys.exit(1)  # non-zero so a chained command does not carry on with missing candidates

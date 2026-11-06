@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS practice_problems (
     word_problem_text TEXT,
     created_at TEXT NOT NULL,
     step_extras_json TEXT,
-    difficulty TEXT NOT NULL DEFAULT 'standard'
+    difficulty TEXT NOT NULL DEFAULT 'standard',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS practice_attempts (

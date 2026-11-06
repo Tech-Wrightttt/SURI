@@ -2,7 +2,7 @@
   "drop": 2,
   "sample": false,
   "complete": true,
-  "generated_at": "2026-10-28T23:17:34.954040+00:00",
+  "generated_at": "2026-11-06T22:42:39.074771+00:00",
   "counts": {
     "QE": {
       "easy": {
@@ -249,15 +249,18 @@
     "plain": 210
   },
   "validator": {
-    "validated": 400,
+    "validated": 404,
     "blind_resolve": 0,
-    "approved": 20,
+    "approved": 16,
     "hand_verified": 0,
     "rejected": 6,
     "needs_review_remaining": 0
   },
-  "content_sha256": "07e391c2d2328b9075d74c7f6d7f718b89879b872ae92f4ea2681d9e052828b8",
+  "content_sha256": "37f3d2a2eaaa9d9b7dede775ea5b7a10019520b6baf6b02d864789edf022ec45",
   "changed_ids": [
-    "L2V-E-04"
-  ]
+    "RPP-M-13",
+    "SLE-E-06",
+    "SLE-E-08"
+  ],
+  "retired_ids": 306
 }

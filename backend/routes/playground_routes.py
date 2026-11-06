@@ -47,6 +47,7 @@ async def get_playground_topics(
             LEFT JOIN playground_solved s
                 ON s.problem_id = p.id
                 AND s.student_id = $1
+            WHERE p.is_active
             GROUP BY p.node_id, p.difficulty
             """,
             student_id,
@@ -137,6 +138,7 @@ async def get_playground_sitting(
                 AND s.student_id = $3
             WHERE p.node_id = $1
               AND p.difficulty = $2
+              AND p.is_active
             """,
             node_id,
             difficulty,
@@ -153,7 +155,9 @@ async def get_playground_sitting(
         if debug:
             problem["debug_answer"] = answer
         problems.append(problem)
+    # unsolved first, each group shuffled; solved ones stay available at the end
     random.shuffle(problems)
+    problems.sort(key=lambda p: p["solved"])
 
     return {
         "node_id": node_id,
