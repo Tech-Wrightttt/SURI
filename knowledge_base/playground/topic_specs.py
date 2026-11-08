@@ -29,6 +29,8 @@ GLOBAL_RULES = """\
 - Write money as "pesos" (e.g. "50 pesos"), not as \text{P}.
 - Do not reuse the same numbers across problems in one batch.
 - The prompt must NOT give away the answer or the steps.
+- Write division as \\frac{a}{b} in LaTeX (and / in compute_expr). Never use the symbols ÷ or \\div in math;
+  "divided by" is fine in plain words.
 """
 
 # Each easy spec: kinds (the generator tags each candidate with one), answer_types the node may use
@@ -338,7 +340,26 @@ HARD = {
     },
 }
 
+# CU-14ypx6259ur: harder tiers. The old medium becomes easy (no single-operation drills), the old hard becomes
+# medium (2-3 steps, word problems need a setup) and hard is multi-step reasoning built from the challenge kinds.
+_OLD_MEDIUM, _OLD_HARD = MEDIUM, HARD
+EASY = {n: dict(s, notes=s["notes"] + " EASY tier: no single-operation drills; every problem needs at least two steps.")
+        for n, s in _OLD_MEDIUM.items()}
+MEDIUM = {n: dict(s, notes=s["notes"] + " MEDIUM tier: 2-3 steps; a word problem must need a setup (write the equation "
+                                        "or expression first), not just one operation.")
+          for n, s in _OLD_HARD.items()}
+HARD = {}  # built on demand by spec_for from the challenge kinds (avoids a circular import)
+
 SPECS = {"easy": EASY, "medium": MEDIUM, "hard": HARD}
+
+HARD_RULES = """\
+HARD tier = multi-step REASONING, not one textbook technique: a multi-step setup, working backwards, a hidden
+constraint, comparing two plans, or "find k so that ...". Rotate archetypes (digit and number puzzles, consecutive
+integers, coins/mixtures/rates, work and time, geometry setups, patterns and sequences, find the parameter, how many
+solutions, comparing pricing plans, optimisation by testing cases). No archetype in more than 2 of the 10 problems of a
+node's hard set, and at most ONE age problem. Use Filipino everyday contexts where natural (jeepney fare, sari-sari
+store, barangay events, peso amounts). Stay inside the node's grade and skill. Distinct numbers and a distinct problem
+shape for every item."""
 
 
 def load_seed() -> dict:
@@ -355,7 +376,24 @@ def pdfs_for(node_id: str) -> list:
     return names
 
 
+def _hard_spec(node_id: str) -> dict:
+    from challenge_specs import kinds_for  # noqa: PLC0415 (circular at import time)
+
+    old = _OLD_HARD[node_id]
+    types = {k: list(v) for k, v in old["answer_types"].items()}
+    types.setdefault("number", ["none"])
+    kinds = [k[0] for k in kinds_for(node_id, False)] if node_id in _CHALLENGE_NODES else old["kinds"]
+    return {"kinds": kinds, "answer_types": types, "word": old["word"], "notes": old["notes"] + " " + HARD_RULES}
+
+
+_CHALLENGE_NODES = {"QE", "FP", "SP", "LE", "OI", "FD", "SLE", "L2V", "L1V", "AE", "RPP", "RER", "PE", "PO"}
+
+
 def spec_for(node_id: str, difficulty: str) -> dict:
+    if difficulty == "hard":
+        if node_id not in _OLD_HARD:
+            raise KeyError(f"no spec for {node_id}/hard yet")
+        return HARD.setdefault(node_id, _hard_spec(node_id))
     tier = SPECS.get(difficulty)
     if tier is None or node_id not in tier:
         raise KeyError(f"no spec for {node_id}/{difficulty} yet")

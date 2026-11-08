@@ -130,6 +130,9 @@ _NOT_ENGLISH = re.compile(r"\b(ang|ay|si|ni|kay|ng|mga|kung|taong|siya|nagbayad|
 
 
 def universal_checks(c: dict):
+    if re.search("÷|\\\\div\\b", c["prompt"] + " ".join(s.get("latex", "") + s.get("explanation", "")
+                                                        for s in c["solution_steps"]) + c["answer"]):
+        raise Reject("writes division as ÷ or \\div (use \\frac and /)")
     if len(_NOT_ENGLISH.findall(re.sub(r"\$[^$]*\$", " ", c["prompt"]))) >= 3:
         raise Reject("prompt does not look like English")
     unit, atype = c.get("unit"), c["answer_type"]
@@ -407,19 +410,16 @@ def blind_prompt(batch) -> str:
 
 def blind_resolve(client, batch, cache) -> dict:
     """-> {cand_id: answer string} using the cache and one Gemini call for the misses."""
-    from generate_playground import call_with_retry, parse_gemini_json
-    from google.genai import types as gtypes
+    from generate_playground import parse_gemini_json
 
     def key(c):
         return c["cand_id"] + ":" + hashlib.sha256(c["prompt"].encode("utf-8")).hexdigest()[:12]
 
     todo = [c for c in batch if key(c) not in cache]
     if todo:
-        resp = call_with_retry(
-            client, model=BLIND_MODEL, contents=blind_prompt(todo),
-            config=gtypes.GenerateContentConfig(response_mime_type="application/json", temperature=0.0),
-        )
-        data = parse_gemini_json(resp.text)
+        prompt = blind_prompt(todo)
+        tag = "pg-blind-" + hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:12]
+        data = parse_gemini_json(client.call(tag, prompt, max_output_tokens=8192, model=BLIND_MODEL, temperature=0.0))
         by_id = {str(d.get("id")): str(d.get("answer", "")) for d in data}
         for c in todo:
             if c["cand_id"] in by_id:
@@ -454,14 +454,10 @@ def main():
     cache = load_json(BLIND_CACHE, {})
     client = None
     if not args.no_blind:
-        from dotenv import load_dotenv
-        from google import genai
+        sys.path.insert(0, os.path.join(ROOT, "knowledge_base", "challenge"))
+        from gemini_pacing import Gemini
 
-        load_dotenv(os.path.join(ROOT, ".env"))
-        key = os.environ.get("GEMINI_API_KEY")
-        if not key:
-            sys.exit("ERROR: GEMINI_API_KEY not found (or pass --no-blind).")
-        client = genai.Client(api_key=key)
+        client = Gemini()  # shared limiter, daily budget and response cache
 
     verifier = Verifier()
     report = load_json(REPORT, {})
@@ -496,6 +492,9 @@ def main():
                         answers = blind_resolve(client, words, cache)
                         save_json(BLIND_CACHE, cache)
                     except Exception as exc:
+                        if type(exc).__name__ == "StopRun":
+                            print(f"\nSTOPPED: {exc}. Re-run to resume.")
+                            sys.exit(1)
                         print(f"  blind re-solve failed: {exc}")
                         answers = {}
                     fixed = []

@@ -42,6 +42,9 @@ SLM_PDFS = {
     "RER": ["grade9_operations_radicals.pdf", "grade9_radical_equations.pdf", "grade9_rational_exponents.pdf",
             "grade9_rational_exponents_advanced.pdf"],
     "PE": ["grade10_q2_m2_polynomial_functions.pdf", "grade10_polynomial_graphs.pdf", "grade10_polynomial_roots.pdf"],
+    # grade10_polynomial_roots.pdf is Module 8 (long and synthetic division) and grade10_polynomial_graphs.pdf is
+    # Module 9 (remainder and factor theorems); grade10_polynomial_division.pdf is actually Geometric Sequences.
+    "PD": ["grade10_polynomial_roots.pdf", "grade10_polynomial_graphs.pdf"],
 }
 
 
@@ -59,8 +62,9 @@ def _in_scope() -> list:
     return seen
 
 
-IN_SCOPE = _in_scope()
-assert "PD" not in IN_SCOPE, "PD is not on any learning path and must stay out of scope"
+# PD is on no entry path, but it still gets quiz and diagnostic items (CU-14ypx6259ur).
+IN_SCOPE = _in_scope() + ["PD"]
+assert len(set(IN_SCOPE)) == len(IN_SCOPE) == len(GRAPH)
 
 # Reasoning patterns
 BACK = "work backwards"
@@ -195,6 +199,15 @@ SPECS = {
         ("a box volume with dimensions in relation to each other", BOTH, False),
     ], "contexts": ["box", "storage tank", "cardboard", "school fair", "garden"],
         "notes": "All roots are integers; ask for ALL solutions."},
+    "PD": {"kinds": [
+        ("find the coefficient that makes the remainder zero (remainder theorem)", REVERSE, False),
+        ("a box volume polynomial divided by a known edge: find another edge or a dimension at a value", MULTI, False),
+        ("find the dividend from the divisor, quotient and remainder", BACK, False),
+        ("two remainder conditions (P(1) and P(2) given) determine two unknown coefficients", BOTH, False),
+        ("spot the error in a synthetic division", ERROR, True),
+        ("decide whether x - a is a factor using the factor theorem, then find the value of a coefficient", COMPARE, False),
+    ], "contexts": ["box", "storage tank", "garden", "floor", "school fair"],
+        "notes": "Divisors are linear (x - a). Quotients and remainders have integer coefficients; the answer is a number or a polynomial."},
 }
 
 # Extra typeable kinds, so every node has enough distinct kinds for a quiz set (5 problems, no kind twice).
@@ -224,7 +237,69 @@ EXTRA_KINDS = {
             ("the volume of a cube whose edge is a simplified radical", MULTI),
             ("a cube root of a product that must be simplified inside a context", MULTI)],
 }
-for _node, _extra in EXTRA_KINDS.items():
+# More reasoning archetypes (digit puzzles, work and time, geometry setups, find the parameter, break-even, ...),
+# so every node has 9+ distinct typeable kinds and a bank of 8 challenge items can use a different one each.
+MORE_KINDS = {
+    "FD": [("a fraction of a group is given away, then the rest is shared equally: find each share", MULTI),
+           ("two people finish a fraction of a job per hour: find the time they need together", BOTH),
+           ("half of what is left is used repeatedly: find the amount after several stages", PATTERN),
+           ("two offers in different forms (fraction off vs a decimal discount): find the difference in pesos", COMPARE)],
+    "RPP": [("two workers with different rates finish a job: find the time together", BOTH),
+            ("a mixture or solution with a target percent: how much to add", MULTI),
+            ("the original price after a discount and then a tax", BACK),
+            ("two pricing plans with different rates per unit: find the quantity where they cost the same", COMPARE),
+            ("repeated percent growth over stages", PATTERN)],
+    "OI": [("two integers with a given sum and a given product", BOTH),
+           ("the integer that is the same distance from two given points on a number line", BOTH),
+           ("the greatest or least integer that satisfies two conditions (test cases)", COMPARE)],
+    "LE": [("how many times larger is one power than another", MULTI),
+           ("the units digit of a large power by finding the repeating pattern", PATTERN),
+           ("a quantity doubles every few hours: how many hours to reach a target", BACK),
+           ("a product of two numbers in scientific notation in a context", MULTI)],
+    "AE": [("the value of the variable that makes two expressions equal", BOTH),
+           ("the perimeter of a composite figure written as an expression, then evaluated", MULTI),
+           ("the integer value of the variable that makes an expression closest to a target (test cases)", COMPARE),
+           ("find the missing constant in a formula from two given values", REVERSE)],
+    "L1V": [("a two-digit number puzzle with a digit relation", BOTH),
+            ("two workers with different rates finish a job together", BOTH),
+            ("a trip in two parts at different speeds with a known total time", MULTI),
+            ("find the parameter k so the solution of the equation is a given number", REVERSE)],
+    "SP": [("the difference of the squares of consecutive numbers as a pattern", PATTERN),
+           ("a square is enlarged by a scale factor: compare the areas", MULTI),
+           ("two numbers with a given sum and difference: find their product", BOTH),
+           ("find the parameter k so the expansion has a given middle term", REVERSE)],
+    "PO": [("break-even: the number of units where revenue equals cost", BACK),
+           ("compare two cost polynomials at a given value", COMPARE),
+           ("the volume of a box built from a sheet, as a polynomial then evaluated", MULTI),
+           ("find the polynomial that must be subtracted from one to get another", REVERSE)],
+    "FP": [("the dimensions of a rectangle from its trinomial area and one known side", REVERSE),
+           ("the integers m and n with a given sum and product that factor a trinomial", BOTH),
+           ("the shaded region between two squares, as a difference of squares then factored", MULTI),
+           ("how many integer values of b make the trinomial factorable", COMPARE)],
+    "L2V": [("find k so that two lines are parallel", COMPARE),
+            ("the area of the triangle formed by a line and the axes", MULTI),
+            ("an arithmetic pattern as a linear function: the term number for a target value", PATTERN),
+            ("find k so that the line passes through a given point", REVERSE)],
+    "SLE": [("two machines or workers with different rates: find each rate", BOTH),
+            ("the perimeter of a rectangle and the difference of its sides: find the area", BOTH),
+            ("find k so that the system has no solution", REVERSE),
+            ("two shops with different prices for the same two items: find the unit prices", COMPARE)],
+    "QE": [("a two-digit number puzzle with a product of digits", BOTH),
+           ("two workers where one takes some hours longer: find the time", MULTI),
+           ("a right triangle whose sides are related: find the sides", MULTI),
+           ("the sum and product of the roots give the other root or the unknown coefficient", REVERSE)],
+    "RER": [("a diagonal or a distance with radicals: compare two routes and give the difference", COMPARE),
+            ("a pattern of repeated square roots or powers of a radical", PATTERN),
+            ("find k so that a radical simplifies to a given form", REVERSE)],
+    "PE": [("find k so that x - 2 is a factor of a cubic", REVERSE),
+           ("a pool or box with consecutive-integer dimensions and a known volume", BOTH),
+           ("a pattern of sums of powers leading to a polynomial equation", PATTERN)],
+    "PD": [("the area or volume polynomial divided by a known factor to get the missing dimension", MULTI),
+           ("the remainder when a polynomial is divided by x - a, in a context of repeated evaluation", PATTERN),
+           ("find k so that the remainder equals a given number", REVERSE),
+           ("the quotient and remainder of a division, then evaluate the quotient at a value", MULTI)],
+}
+for _node, _extra in list(EXTRA_KINDS.items()) + list(MORE_KINDS.items()):
     SPECS[_node]["kinds"].extend((text, pattern, False) for text, pattern in _extra)
 
 for _node, _spec in SPECS.items():
@@ -235,7 +310,6 @@ for _node, _spec in SPECS.items():
             raise AssertionError(f"age problem not allowed in {_node}")
 
 assert set(SPECS) == set(IN_SCOPE), (set(SPECS) ^ set(IN_SCOPE))
-assert "PD" not in SPECS
 
 
 def kinds_for(node_id: str, mcq: bool) -> list:
@@ -244,6 +318,7 @@ def kinds_for(node_id: str, mcq: bool) -> list:
 
 
 for _node in IN_SCOPE:
+    assert len(kinds_for(_node, False)) >= 9, f"{_node} needs 9+ typeable kinds for 8 distinct archetypes"
     assert len(kinds_for(_node, False)) >= 6, f"{_node} needs at least 6 typeable kinds"
     assert len({k[1] for k in kinds_for(_node, False)}) >= 3, f"{_node} needs 3 patterns among typeable kinds"
     assert len({k[1] for k in kinds_for(_node, True)}) >= 3

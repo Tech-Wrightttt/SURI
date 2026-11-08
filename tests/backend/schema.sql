@@ -72,7 +72,8 @@ CREATE TABLE practice_problems (
     word_problem_text TEXT,
     created_at TEXT NOT NULL,
     step_extras_json TEXT DEFAULT NULL,
-    difficulty TEXT NOT NULL DEFAULT 'standard'  -- 'standard' | 'challenge' (quiz/practice sampling, challenge timers)
+    difficulty TEXT NOT NULL DEFAULT 'standard',  -- 'standard' | 'challenge' (quiz/practice sampling, challenge timers)
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE practice_attempts (

@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from backend.auth import get_current_student
 from backend.database import get_db, release_db
 from backend.graph import GRAPH
-from backend.problem_sampling import sample_mixed
+from backend.problem_sampling import recent_served_ids, sample_mixed
 from backend.practice_battle import BATTLE_TABLE_SQL, new_battle_state, resolve_action
 from backend.models.schemas import (
     PracticeStartRequest,
@@ -251,7 +251,7 @@ async def start_practice(body: PracticeStartRequest, student=Depends(get_current
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
 
         existing_rows = await conn.fetch(
-            "SELECT id, node_id, problem_expr, steps_json, word_problem_text, difficulty FROM practice_problems WHERE node_id = $1",
+            "SELECT id, node_id, problem_expr, steps_json, word_problem_text, difficulty FROM practice_problems WHERE node_id = $1 AND is_active",
             node_id,
         )
         problems_list = []
@@ -272,7 +272,8 @@ async def start_practice(body: PracticeStartRequest, student=Depends(get_current
                 detail={"error": "no_practice_content", "node_id": node_id},
             )
 
-        sampled = sample_mixed(problems_list, total=5, challenge=2)
+        seen = await recent_served_ids(conn, student["id"], node_id)
+        sampled = sample_mixed(problems_list, total=5, challenge=2, exclude_ids=seen)
         
         now_iso = datetime.now(timezone.utc).isoformat()
         await conn.execute(

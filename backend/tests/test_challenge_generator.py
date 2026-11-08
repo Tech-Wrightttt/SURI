@@ -24,9 +24,9 @@ class FakeClock:
 
 
 class SpecScopeTests(unittest.TestCase):
-    def test_scope_is_the_fourteen_path_nodes(self):
-        self.assertEqual(len(IN_SCOPE), 14)
-        self.assertNotIn("PD", IN_SCOPE)
+    def test_scope_is_every_node_including_pd(self):
+        self.assertEqual(len(IN_SCOPE), 15)
+        self.assertIn("PD", IN_SCOPE)
         self.assertEqual(set(SPECS), set(IN_SCOPE))
 
     def test_age_problems_only_in_allowed_nodes(self):
@@ -147,7 +147,7 @@ def _diag(**over):
         "options": ["$14$", "$21$", "$28$", "$7$"], "correct_option_index": 0,
         "check": {"kind": "solve", "eq": "2*x + 7 = 35", "variable": "x", "roots": [14]},
         "kind": "work backwards from a think-of-a-number puzzle", "pattern": "work backwards",
-        "context": "game", "slm_concept": "solving a one-variable equation",
+        "context": "game", "archetype": "think of a number", "slm_concept": "solving a one-variable equation",
         "relationships": ["doubled", "added 7", "result 35"],
     }
     base.update(over)
@@ -204,7 +204,7 @@ class DiagnosticValidationTests(unittest.TestCase):
         self.assertEqual(len(kept), gen.BLIND_ONLY_CAP)
 
     def test_missing_relationships_fail(self):
-        reasons = gen.diag_core_checks(_diag(relationships=["only one"]), self.v, "L1V", [])
+        reasons = gen.diag_core_checks(_diag(relationships=[]), self.v, "L1V", [])
         self.assertTrue(any("relationships" in r for r in reasons))
 
 
@@ -225,7 +225,7 @@ def _quiz(**over):
         "cand_id": "quiz-L1V-00", "node_id": "L1V", "problem_expr": "2*x + 7 = 35", "answer": "14",
         "word_problem": "Marco thinks of a number, doubles it, and adds seven to get thirty-five. Find his number.",
         "check": {"kind": "solve", "eq": "2*x + 7 = 35", "variable": "x", "roots": [14]},
-        "kind": "work backwards from a think-of-a-number puzzle", "pattern": "work backwards", "context": "game",
+        "kind": "work backwards from a think-of-a-number puzzle", "pattern": "work backwards", "context": "game", "archetype": "think of a number",
         "slm_concept": "one-variable equations", "relationships": ["doubled", "added 7"], "all_steps": steps,
     }
     base.update(over)
@@ -272,16 +272,18 @@ class QuizValidationTests(unittest.TestCase):
         self.assertTrue(any("equal in value" in r for r in self._extras(item, 3, ["28/2", "2", "3"])))
         self.assertTrue(any("equal in value" in r for r in self._extras(item, 3, ["7*2", "2", "3"])))
 
-    def test_hint_that_reveals_the_answer_is_rejected(self):
+    def test_hint_that_reveals_the_answer_is_replaced_by_the_instruction(self):
         item = _quiz()
         item["all_steps"][1]["correct_value"] = "2*x + 7"
-        self.assertTrue(any("hint reveals" in r for r in self._extras(item, 1, ["x + 7", "2*x - 7", "x + 14"],
-                                                                      hint="Write 2x + 7 on the left.")))
+        self.assertFalse(any("hint" in r for r in self._extras(item, 1, ["x + 7", "2*x - 7", "x + 14"],
+                                                               hint="Write 2x + 7 on the left.")))
+        self.assertEqual(item["extras"]["1"]["hint"], item["all_steps"][1]["instruction"])
 
-    def test_distractors_must_match_the_answer_format(self):
+    def test_equation_style_distractors_are_stripped_to_match_a_bare_answer(self):
         item = _quiz()
         item["all_steps"][3]["correct_value"] = "14"
-        self.assertTrue(any("different format" in r for r in self._extras(item, 3, ["x = 7", "20", "3"])))
+        self.assertFalse(any("different format" in r for r in self._extras(item, 3, ["x = 7", "20", "3"])))
+        self.assertEqual(item["extras"]["3"]["distractors"], ["7", "20", "3"])
 
     def test_author_self_talk_is_rejected(self):
         item = _quiz()
@@ -326,3 +328,18 @@ class SelectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DivisionAndTemplateTests(unittest.TestCase):
+    def test_division_symbols_are_rejected(self):
+        self.assertTrue(gen.division_issue({"question_text": "Compute $12 \div 3$."}))
+        self.assertTrue(gen.division_issue({"options": ["$12 ÷ 3$"]}))
+        self.assertFalse(gen.division_issue({"question_text": "Compute $\frac{12}{3}$, 12 divided by 3."}))
+
+    def test_template_clash_masks_numbers(self):
+        from dedupe import template_key
+
+        taken = {template_key("x^2 - 9")}
+        self.assertTrue(gen.template_clash({"problem_expr": "x^2 - 16"}, taken))
+        self.assertTrue(gen.template_clash({"question_text": "$x^2 - 25$"}, taken))
+        self.assertFalse(gen.template_clash({"problem_expr": "x^2 + 16"}, taken))
