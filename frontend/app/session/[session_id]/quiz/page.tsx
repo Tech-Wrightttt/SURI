@@ -2277,8 +2277,8 @@ export default function QuizPage() {
                     Suri ss-says:
                   </div>
 
-                  <div className="quiz-hint-text">
-                    {hintText}
+                  <div className="quiz-hint-text markdown-content">
+                    {renderMath(hintText)}
                   </div>
                 </div>
               </div>
