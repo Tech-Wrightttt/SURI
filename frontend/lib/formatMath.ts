@@ -141,17 +141,57 @@ export const blankToBox = (expr: string) => expr.replace(/_{2,}|\?/g, "\\boxed{\
 export const mathMarkdown = (text: string) =>
   !text || text.includes("$") || isProse(text) ? formatMath(text) : `$${formatSpan(text)}$`;
 
+/** Clean math expressions (e.g. 3*x -> 3x). */
+export const cleanMathExpr = (expr: string) => {
+  if (!expr) return "";
+  return expr
+    .replace(/(\d)\s*\*+\s*([a-zA-Z])/g, "$1$2")
+    .replace(/([a-zA-Z])\s*\*+\s*([a-zA-Z])/g, "$1$2");
+};
+
 /** A step's blank_expression as markdown: the blank becomes a box in math, or an inline-math box inside prose. */
 export function blankEquation(expr: string): string {
+  if (!expr) return "";
+  let cleaned = cleanMathExpr(expr);
+
+  // Heal closing $ placed right before blank, e.g. `$e = $___` -> `$e = ___$`
+  cleaned = cleaned.replace(/\$([^$]*?=\s*)\$\s*(_{2,}|\?)/g, "$$$1$2$");
+
+  // Fix bare superscript with blank, e.g. `^___` or `^?` -> `^{___}`
+  cleaned = cleaned.replace(/\^\s*(_{2,}|\?)/g, "^{$1}");
+
   const box = blankToBox("?");
-  if (!expr.includes("$")) {
-    return isProse(expr) ? expr.replace(/_{2,}|\?/g, `$${box}$`) : mathMarkdown(blankToBox(expr));
+
+  // If the expression has no prose words, it is a mathematical equation.
+  // Unify any scattered math fragments into a single $...$ math block.
+  if (!isProse(cleaned)) {
+    const bare = cleaned.replace(/\$/g, "").trim();
+    return mathMarkdown(blankToBox(bare));
   }
+
+  // Prose with math: blanks in prose become $\boxed{\;?\;}$, blanks in math stay in math.
   let out = "";
   let last = 0;
-  for (const m of expr.matchAll(/\$\$[\s\S]+?\$\$|\$[^$]+?\$/g)) {
-    out += expr.slice(last, m.index).replace(/_{2,}|\?/g, `$${box}$`) + blankToBox(m[0]);
+  for (const m of cleaned.matchAll(/\$\$[\s\S]+?\$\$|\$[^$]+?\$/g)) {
+    out += cleaned.slice(last, m.index).replace(/_{2,}|\?/g, `$${box}$`) + blankToBox(m[0]);
     last = m.index + m[0].length;
   }
-  return formatMath(out + expr.slice(last).replace(/_{2,}|\?/g, `$${box}$`));
+  return formatMath(out + cleaned.slice(last).replace(/_{2,}|\?/g, `$${box}$`));
+}
+
+/** Fill the blank (`___` or `?`) in a step expression with the given user or correct value. */
+export function fillBlank(expr: string, value: string): string {
+  if (!expr) return "";
+  const cleaned = cleanMathExpr(expr);
+  const healed = cleaned.replace(/\$([^$]*?=\s*)\$\s*(_{2,}|\?)/g, "$$$1$2$");
+  const valClean = value ? String(value).trim() : "";
+
+  if (!isProse(healed)) {
+    const bareVal = valClean.replace(/\$/g, "");
+    const bareExpr = healed.replace(/\$/g, "").trim();
+    const filled = bareExpr.replace(/_{2,}|\?/g, () => bareVal);
+    return mathMarkdown(filled);
+  }
+
+  return healed.replace(/_{2,}|\?/g, () => valClean);
 }
