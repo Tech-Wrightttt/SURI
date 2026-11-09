@@ -19,7 +19,7 @@ import { useTutorial } from "@/components/tutorial/TutorialProvider";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import { formatMath, blankToBox } from "@/lib/formatMath";
+import { formatMath, blankEquation, fillBlank } from "@/lib/formatMath";
 import "katex/dist/katex.min.css";
 
 import {
@@ -1847,11 +1847,11 @@ export default function QuizPage() {
 
     const clean = formatMath(inline)
       .replace(
-        /(\d)\s*\*\*\s*([a-zA-Z])/g,
+        /(\d)\s*\*+\s*([a-zA-Z])/g,
         "$1$2"
       )
       .replace(
-        /([a-zA-Z])\s*\*\*\s*([a-zA-Z])/g,
+        /([a-zA-Z])\s*\*+\s*([a-zA-Z])/g,
         "$1$2"
       );
 
@@ -2133,7 +2133,7 @@ export default function QuizPage() {
 
               <div className="quiz-scroll quiz-expression markdown-content mt-3">
                 {renderMath(
-                  blankToBox(currentStep.blank_expression),
+                  blankEquation(currentStep.blank_expression),
                   true
                 )}
               </div>
@@ -2303,8 +2303,8 @@ export default function QuizPage() {
 
                     const filledExpr =
                       userAnswer !== null
-                        ? s.blank_expression.replace("?", userAnswer)
-                        : blankToBox(s.blank_expression);
+                        ? fillBlank(s.blank_expression, userAnswer)
+                        : blankEquation(s.blank_expression);
 
                     return (
                       <div
@@ -2526,7 +2526,7 @@ export default function QuizPage() {
 
                                   <div className="quiz-ledger-expr markdown-content">
                                     {renderMath(
-                                      step.blank_expression.replace("?", rune.correctValue),
+                                      fillBlank(step.blank_expression, rune.correctValue),
                                       true
                                     )}
                                   </div>
