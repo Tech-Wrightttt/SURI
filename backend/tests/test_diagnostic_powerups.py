@@ -86,7 +86,7 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         result = await self.answer(True)
         self.assertTrue(result["correct"])
         self.assertEqual((result["battle"]["bonus"], result["battle"]["score"]), (25, 35))
-        self.assertEqual(result["battle"]["enemy_hearts"], 4)
+        self.assertEqual(result["battle"]["enemy_hearts"], 2)
         self.assertEqual(result["next_action"], "next_probe")
         self.assertEqual(self.db.logs, [1])
 
@@ -95,11 +95,11 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         result = await self.answer(False)
         self.assertFalse(result["correct"])
         self.assertTrue(result["battle"]["blocked"])
-        self.assertEqual((result["battle"]["hearts"], result["battle"]["score"]), (5, 0))
+        self.assertEqual((result["battle"]["hearts"], result["battle"]["score"]), (2, 0))
         self.assertEqual(self.db.logs, [0])
         self.db.session["current_probe_index"] = 0
         next_result = await self.answer(False, "second")
-        self.assertEqual(next_result["battle"]["hearts"], 4)
+        self.assertEqual(next_result["battle"]["hearts"], 1)
 
     async def test_cast_and_answer_retries_are_idempotent_even_after_probe_clears(self):
         first = await self.cast("flame")
@@ -110,13 +110,13 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.db.logs, [1])
         self.assertEqual(json.loads(self.db.battle["state_json"])["score"], 35)
 
-    async def test_full_health_does_not_spend_heal_and_healing_uses_five_heart_cap(self):
+    async def test_full_health_does_not_spend_heal_and_healing_uses_two_heart_cap(self):
         with self.assertRaises(HTTPException):
             await self.cast("bloom")
         self.assertEqual(json.loads(self.db.battle["state_json"])["used"], [])
         await self.answer(False)
         self.db.session["current_probe_index"] = 0
-        self.assertEqual((await self.cast("bloom"))["hearts"], 5)
+        self.assertEqual((await self.cast("bloom"))["hearts"], 2)
         with self.assertRaises(HTTPException):
             await self.cast("bloom", "second-heal")
 
@@ -127,7 +127,7 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["next_action"], "complete")
         self.assertTrue(result["node_passed"])
         self.assertEqual(result["questions_answered"], 3)
-        self.assertEqual(result["battle"]["enemy_hearts"], 2)
+        self.assertEqual(result["battle"]["enemy_hearts"], 0)
         self.assertEqual(self.db.logs, [1, 1, 1])
         with self.assertRaises(HTTPException):
             await self.cast("flame")
@@ -145,7 +145,7 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["wrong_count"], 2)
         self.assertEqual(result["identified_node_id"], "FD")
         self.assertIsNone(result["next_node_id"])
-        self.assertEqual(result["battle"]["hearts"], 4)
+        self.assertEqual(result["battle"]["hearts"], 1)
         self.assertTrue(json.loads(self.db.battle["state_json"])["finished"])
 
     async def test_three_correct_answers_advance_to_next_node_with_powerups(self):
@@ -177,21 +177,21 @@ class DiagnosticPowerupTests(unittest.IsolatedAsyncioTestCase):
     async def test_new_battle_resets_spell_state_without_deleting_assessment_logs(self):
         await self.answer(False)
         result = await diagnostic_routes.start_diagnostic_battle("session", student={"id": "student"})
-        self.assertEqual(result["battle"]["hearts"], 5)
+        self.assertEqual(result["battle"]["hearts"], 2)
         self.assertEqual(result["battle"]["used"], [])
         self.assertEqual(self.db.logs, [0])
 
 
 class DiagnosticEnemyCycleTests(unittest.TestCase):
-    def test_new_enemy_refills_charges_and_preserves_hero_health_and_score(self):
+    def test_new_enemy_refills_hearts_and_charges_and_preserves_score(self):
         state = new_diagnostic_battle()
         resolve_diagnostic_hit(state, False, "next_probe")
         resolve_diagnostic_spell(state, "flame")
         resolve_diagnostic_spell(state, "ward")
-        for _ in range(5):
+        for _ in range(3):
             result = resolve_diagnostic_hit(state, True, "next_probe")
         self.assertEqual(result["enemy_hearts"], 0)
-        self.assertEqual((state["enemy_hearts"], state["hearts"]), (5, 4))
+        self.assertEqual((state["enemy_hearts"], state["hearts"]), (3, 2))
         self.assertEqual(state["used"], [])
         self.assertFalse(state["ward_ready"])
         self.assertEqual(state["score"], result["score"])
@@ -199,7 +199,7 @@ class DiagnosticEnemyCycleTests(unittest.TestCase):
     def test_defeat_does_not_restore_health_or_refill_spells(self):
         state = new_diagnostic_battle()
         resolve_diagnostic_spell(state, "flame")
-        for _ in range(5):
+        for _ in range(2):
             result = resolve_diagnostic_hit(state, False, "next_probe")
         self.assertEqual(result["hearts"], 0)
         self.assertTrue(state["finished"])

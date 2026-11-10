@@ -13,9 +13,14 @@ CREATE TABLE IF NOT EXISTS diagnostic_battles (
 """
 
 
+# 3 enemy hearts = 3 correct answers pass a node; 2 hero hearts = 2 wrong answers fail it
+# (the 3-of-4, 75% rule). Both refill for every new enemy, like hearts reset per practice problem.
+ENEMY_HEARTS, HERO_HEARTS = 3, 2
+
+
 def new_diagnostic_battle():
     return {
-        "hearts": 5, "enemy_hearts": 5, "used": [],
+        "hearts": HERO_HEARTS, "enemy_hearts": ENEMY_HEARTS, "used": [],
         "flame_ready": False, "ward_ready": False,
         "score": 0, "streak": 0, "finished": False,
     }
@@ -30,7 +35,7 @@ def battle_snapshot(state, correct=None, blocked=False, bonus=0):
 
 
 def resolve_diagnostic_spell(state, spell):
-    cast_spell(state, spell, 5)
+    cast_spell(state, spell, HERO_HEARTS)
     return battle_snapshot(state)
 
 
@@ -41,5 +46,5 @@ def resolve_diagnostic_hit(state, correct, next_action):
     result = battle_snapshot(state, correct, blocked, bonus)
     state["finished"] = state["hearts"] == 0 or next_action == "complete"
     if state["enemy_hearts"] == 0 and not state["finished"]:
-        state.update(enemy_hearts=5, used=[], flame_ready=False, ward_ready=False)
+        state.update(enemy_hearts=ENEMY_HEARTS, hearts=HERO_HEARTS, used=[], flame_ready=False, ward_ready=False)
     return result

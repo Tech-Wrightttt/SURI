@@ -1,12 +1,11 @@
 """
 Practice routes for SURI.
 
-Implements the GO3 practice pipeline including mathsteps integration,
-scaffold problem generation with word problems, step-level answer evaluation,
+Implements the GO3 practice pipeline: scaffold problem delivery from the stored
+question bank, step-level answer evaluation,
 and misconception logging with AI tutor feedback.
 """
 
-import subprocess
 import json
 import uuid
 import os
@@ -34,26 +33,6 @@ import google.generativeai as genai
 
 router = APIRouter(prefix="/api/practice", tags=["practice"])
 
-NODE_EXPRESSIONS = {
-    "FD":  ["1/2 + 1/4", "3/4 - 1/8", "2/3 * 3/4", "5/6 - 1/3", "1/4 + 3/8"],
-    "OI":  ["-3 + 7", "-5 - (-2)", "4 * -3", "-12 / 4", "6 + (-9)"],
-    "LE":  ["x^2 * x^3", "x^5 / x^2", "(x^2)^3", "x^0", "x^3 * x^(-1)"],
-    "SP":  ["(x+2)*(x+3)", "(x+1)*(x-1)", "(x+3)^2", "(2x+1)*(x+4)", "(x-2)^2"],
-    "FP":  ["x^2 + 5*x + 6", "x^2 - 4", "2*x^2 + 4*x", "x^2 - 9", "x^2 + 7*x + 12"],
-    "RPP": ["3/4 = x/8", "2/5 = 4/x", "x/3 = 6/9", "5/x = 10/14", "1/2 = x/10"],
-    "AE":  ["2*x + 3", "x^2 - x + 1", "3*x - 2*x + 5", "4*(x+2)", "x + 2*x + 3*x"],
-    "L1V": ["2*x + 3 = 7", "x - 4 = 10", "3*x = 15", "x/2 = 6", "5*x - 2 = 13"],
-    "L2V": ["y = 2*x + 1", "2*x + y = 10", "y - x = 3", "3*x - y = 6", "x + 2*y = 8"],
-    "SLE": ["2*x + y = 10, x - y = 2", "x + y = 5, x - y = 1", "3*x + 2*y = 12, x + y = 5"],
-    "RER": ["sqrt(16)", "sqrt(x^2)", "x^(1/2) * x^(1/2)", "27^(1/3)", "sqrt(9*x^2)"],
-    "PO":  ["(x^2 + 2*x) + (x^2 - x)", "(3*x^2 + x) - (x^2 + 2*x)", "2*(x^2 + 3*x)", "(x^2)(x+1)", "x*(x^2 - x + 1)"],
-    "PD":  ["(x^2 + 3*x + 2) / (x + 1)", "(x^2 - 4) / (x - 2)", "(x^3 - x^2) / x"],
-    "QE":  ["x^2 + 5*x + 6 = 0", "x^2 - 4 = 0", "x^2 - 3*x + 2 = 0", "2*x^2 + 4*x = 0", "x^2 - x - 6 = 0"],
-    "PE":  ["x^3 - x = 0", "x^3 - 4*x = 0", "x^2*(x-1) = 0"]
-}
-
-GRAPH_NODE_LIST = "\n".join([f"{nid}: {node['label']}" for nid, node in GRAPH.items()])
-
 
 def normalize_practice_steps(raw_steps: list) -> list[dict]:
     """Map legacy seed keys (e.g. type) to the API schema (step_type)."""
@@ -64,129 +43,6 @@ def normalize_practice_steps(raw_steps: list) -> list[dict]:
             s["step_type"] = s.pop("type")
         normalized.append(s)
     return normalized
-
-
-async def generate_scaffold_for_expression(node_id: str, expression: str) -> dict:
-    """Call mathsteps runner to simplify, then invoke Gemini to generate a full scaffold problem."""
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            'node', 'mathsteps_runner/runner.js', expression,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
-        
-        raw_output = stdout.decode().strip()
-        if not raw_output:
-            mathsteps_output = []
-        else:
-            raw = json.loads(raw_output)
-            if isinstance(raw, dict) and 'error' in raw:
-                raise ValueError(raw['error'])
-            mathsteps_output = raw
-    except Exception as e:
-        print(f"mathsteps runner failed or timed out: {e}")
-        mathsteps_output = []
-
-    prompt = f"""
-You are generating a step-by-step fill-in-the-blanks scaffold problem for a Philippine JHS algebra student.
-The student is practicing: {GRAPH[node_id]['label']} (node_id: {node_id}, Grade {GRAPH[node_id]['grade']})
-
-The following node_ids exist in the system. You must only use these when assigning mapped_node_id:
-{GRAPH_NODE_LIST}
-
-ORIGINAL EXPRESSION: {expression}
-
-RAW MATHSTEPS SOLUTION (may be empty if mathsteps could not solve it):
-{json.dumps(mathsteps_output)}
-
-TASK:
-1. Write a short 2 to 3 sentence word problem appropriate for a Grade {GRAPH[node_id]['grade']} student whose solution requires solving or evaluating the given algebra expression: {expression}.
-2. Generate a variable identification phase as the first 1 to 2 steps of the scaffold where the student identifies what each variable represents and writes out the equation derived from the problem (set step_type to "variable_identification").
-3. Produce the remaining algebra steps from the mathsteps output (or standard algebra procedure if mathsteps output is empty). These steps must have step_type set to "algebra".
-For EACH step in the scaffold, produce a JSON object with these exact fields:
-- step_index: integer starting at 0 (variable identification steps come first, then algebra steps, sequential indexing)
-- step_type: "variable_identification" or "algebra"
-- instruction: short imperative string (e.g. "Identify what the variable x represents" or "Factor out the GCF from both terms")
-- blank_expression: the expression at this step with the key computed value replaced by ___ (e.g., "x = ___" or "2*x + ___ = 7")
-- correct_value: the exact string the student must type to fill the blank (keep it simple and direct)
-- mapped_node_id: the single node_id from the list above that this step most directly tests. Use the most specific node that applies. If the step tests the current competency directly, use {node_id}. You must only use node_ids from the provided list.
-- operation_description: brief label for the operation (e.g. "Variable identification" or "Applying the distributive property")
-
-Return a JSON object containing:
-- word_problem_text: the 2 to 3 sentence word problem text.
-- steps: a JSON array of the step objects.
-
-No other text, no markdown, no code fences. Return raw JSON string only.
-"""
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise ValueError("GEMINI_API_KEY environment variable is missing")
-    
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-3.1-flash-lite')
-    
-    try:
-        response = await asyncio.wait_for(
-            model.generate_content_async(prompt),
-            timeout=25.0
-        )
-        text = response.text.strip()
-    except Exception as e:
-        print(f"Gemini API failed: {e}")
-        text = json.dumps({
-            "word_problem_text": f"Solve the following algebra problem: {expression}",
-            "steps": [
-                {
-                    "step_index": 0,
-                    "step_type": "variable_identification",
-                    "instruction": "Identify the starting expression to solve.",
-                    "blank_expression": "Expression = ___",
-                    "correct_value": expression,
-                    "mapped_node_id": node_id,
-                    "operation_description": "Variable identification"
-                }
-            ]
-        })
-
-    if text.startswith("```"):
-        text = re.sub(r"^```(?:json)?\n", "", text)
-        text = re.sub(r"\n```$", "", text)
-        text = text.strip()
-
-    try:
-        data = json.loads(text)
-        word_problem_text = data.get("word_problem_text", f"Solve the following expression: {expression}")
-        steps = data.get("steps", [])
-    except Exception as parse_err:
-        print(f"Error parsing Gemini response JSON: {parse_err}. Response was: {text}")
-        word_problem_text = f"Solve the following expression: {expression}"
-        steps = [
-            {
-                "step_index": 0,
-                "step_type": "algebra",
-                "instruction": f"Solve the expression {expression}",
-                "blank_expression": "___",
-                "correct_value": expression,
-                "mapped_node_id": node_id,
-                "operation_description": "Algebra simplification"
-            }
-        ]
-
-    valid_ids = set(GRAPH.keys())
-    for step in steps:
-        if step.get('mapped_node_id') not in valid_ids:
-            step['mapped_node_id'] = node_id
-
-    return {
-        "id": str(uuid.uuid4()),
-        "node_id": node_id,
-        "problem_expr": expression,
-        "word_problem_text": word_problem_text,
-        "steps_json": json.dumps(steps),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-
 
 
 def normalize_val(val: str) -> str:
