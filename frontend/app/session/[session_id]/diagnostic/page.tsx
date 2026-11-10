@@ -1048,8 +1048,8 @@ const GAME_CSS = `
 `;
 
 // Battle health is separate from the 3-correct / 2-wrong assessment rules.
-const ENEMY_HEARTS = 5;
-const SURI_HEARTS = 5;
+const ENEMY_HEARTS = 3; // 3 correct answers pass a node
+const SURI_HEARTS = 2; // 2 wrong answers fail it; both refill for each new enemy
 const LABELS = ["A", "B", "C", "D"];
 
 function ArenaBackground() {
@@ -1338,10 +1338,10 @@ export default function DiagnosticPage() {
         playSound("victory");
         confetti({ particleCount: 180, spread: 110, origin: { y: .4 } });
         schedule(() => {
-          setEnemyBreaking(null); setEnemyHearts(ENEMY_HEARTS);
+          setEnemyBreaking(null); setEnemyHearts(ENEMY_HEARTS); setSuriHearts(SURI_HEARTS);
           setEnemyAnimState("appear"); setSuriState("happy");
           if (nextAction === "next_probe") setBattleState(prev => prev ? {
-            ...prev, enemy_hearts: ENEMY_HEARTS, used: [], flame_ready: false, ward_ready: false,
+            ...prev, enemy_hearts: ENEMY_HEARTS, hearts: SURI_HEARTS, used: [], flame_ready: false, ward_ready: false,
           } : prev);
           schedule(() => { void advance(nextAction); }, 900);
         }, 1400);

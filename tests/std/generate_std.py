@@ -557,8 +557,8 @@ def build(reports: Path, out: Path):
 
     doc.add_heading("2.2 Features not to be Tested", level=2)
     table(doc, ["Excluded item", "Reason"], [
-        ("knowledge_base/ (RAG index, content/distractor/practice generation scripts) and "
-         "generate_scaffold_for_expression() in practice_routes.py", "Offline content-generation (RAG) pipeline, not "
+        ("knowledge_base/ (RAG index, content/distractor/practice generation scripts)",
+         "Offline content-generation (RAG) pipeline, not "
          "part of the running system; outside the backend/frontend test scope."),
         ("mathsteps_runner/, scripts/, scratch/, db_latency_test.py, backend/reset_db.py",
          "Tooling and one-off scripts outside the backend/frontend application code."),
@@ -709,8 +709,7 @@ def build(reports: Path, out: Path):
     table(doc, ["Unit under test", "Statements", "Stmt %", "Branches", "Branch %"], cov_rows,
           widths=[200, 75, 55, 75, 55], font_size=8)
     para(doc, "Backend statements/branches are counted by coverage.py (branch outcomes per decision); the "
-              "frontend route is measured by V8 (lines/branches). The offline RAG generator "
-              "generate_scaffold_for_expression() is excluded (see 2.2).", italic=True, size=9)
+              "frontend route is measured by V8 (lines/branches).", italic=True, size=9)
 
     para(doc, "Traceability matrix", bold=True)
     table(doc, ["Test case", "Requirement / behaviour", "Code under test", "Status"],
